@@ -610,7 +610,7 @@ public struct ClaudeStatusProbe: Sendable {
     private static func extractLoginMethod(text: String) -> String? {
         guard !text.isEmpty else { return nil }
         if let explicit = self.extractFirst(pattern: #"(?i)login\s+method:\s*(.+)"#, text: text) {
-            return self.cleanPlan(explicit)
+            return ClaudePlan.cliCompatibilityLoginMethod(self.cleanPlan(explicit))
         }
         // Capture any "Claude <...>" phrase (e.g., Max/Pro/Ultra/Team) to avoid future plan-name churn.
         // Strip any leading ANSI that may have survived (rare) before matching.
@@ -623,7 +623,7 @@ public struct ClaudeStatusProbe: Sendable {
                       match.numberOfRanges >= 2,
                       let r = Range(match.range(at: 1), in: text) else { return }
                 let raw = String(text[r])
-                let val = Self.cleanPlan(raw)
+                let val = ClaudePlan.cliCompatibilityLoginMethod(Self.cleanPlan(raw)) ?? Self.cleanPlan(raw)
                 candidates.append(val)
             }
         }

@@ -660,7 +660,7 @@ public struct ClaudeUsageFetcher: ClaudeUsageFetching, Sendable {
             usage.sevenDaySonnet ?? usage.sevenDayOpus,
             windowMinutes: 7 * 24 * 60)
 
-        let loginMethod = Self.inferPlan(rateLimitTier: credentials.rateLimitTier)
+        let loginMethod = ClaudePlan.oauthLoginMethod(rateLimitTier: credentials.rateLimitTier)
         let providerCost = Self.oauthExtraUsageCost(usage.extraUsage, loginMethod: loginMethod)
 
         return ClaudeUsageSnapshot(
@@ -702,15 +702,6 @@ public struct ClaudeUsageFetcher: ClaudeUsageFetching, Sendable {
         // Always convert to dollars (major units) for display consistency.
         // See: ClaudeWebAPIFetcher.swift which always divides by 100.
         (used: used / 100.0, limit: limit / 100.0)
-    }
-
-    private static func inferPlan(rateLimitTier: String?) -> String? {
-        let tier = rateLimitTier?.lowercased() ?? ""
-        if tier.contains("max") { return "Claude Max" }
-        if tier.contains("pro") { return "Claude Pro" }
-        if tier.contains("team") { return "Claude Team" }
-        if tier.contains("enterprise") { return "Claude Enterprise" }
-        return nil
     }
 
     // MARK: - Web API path (uses browser cookies)

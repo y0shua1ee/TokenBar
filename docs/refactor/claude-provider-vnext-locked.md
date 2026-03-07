@@ -120,7 +120,8 @@ Hard invariant:
 
 ### 6) Plan inference compatibility contract
 
-Canonical plan model can be introduced, but compatibility must be preserved:
+Canonical plan inference can live behind the existing `loginMethod` compatibility surface, but outward
+compatibility must be preserved:
 
 - Existing detectable plans continue mapping to display strings:
   - `Claude Max`
@@ -291,7 +292,7 @@ Use this sequence to keep each PR reviewable without turning the rollout into un
 | PR | Title | Scope | Primary risks | Must-pass gate before merge |
 | --- | --- | --- | --- | --- |
 | PR-01 | Baseline characterization + doc correction | Lock current matrix behavior, characterize `.auto` paths through stable seams, defer remaining lower-level current-state details to the baseline doc, characterize prompt bootstrap/cooldown and token-account routing, then update docs to match reality. | R1, R2, R5, R6, R10 | No production behavior changes; characterization suites green; docs no longer contradict tests or the baseline. |
-| PR-02 | Canonical plan resolver | Introduce `ClaudePlan` and central resolver; map OAuth/Web/CLI/UI to one model. | R8 | Plan compatibility tests green (`Max/Pro/Team/Enterprise` + current subscription compatibility). |
+| PR-02 | Canonical plan resolver | Introduce `ClaudePlan` and central resolver; map OAuth/Web/CLI/UI compatibility through one model while preserving current `loginMethod` projections. | R8 | Plan compatibility tests green (`Max/Pro/Team/Enterprise` + current subscription compatibility). |
 | PR-03 | Typed credentials at the edge | Parse manual credentials once (`sessionKey`, `cookieHeader`, `oauthAccessToken`) in app + CLI snapshot shaping. | R6 | Token-account routing parity tests green in app + CLI contexts. |
 | PR-04 | Source planner introduction + cutover | Add `ClaudeSourcePlanner`, prove parity against old path, then remove duplicate `.auto` selection branches once parity is proven. | R1, R5, R10 | One `.auto` authority remains; attempt/source-label diagnostics remain parity-compatible. |
 | PR-05 | `ClaudeUsageFetcher` decomposition | Split fetcher into execution/retry-focused units; remove embedded source-selection ownership. | R2, R10 | Delegated OAuth retry/recovery tests green with no behavior deltas. |

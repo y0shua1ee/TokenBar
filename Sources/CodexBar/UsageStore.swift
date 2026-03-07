@@ -268,11 +268,7 @@ final class UsageStore {
     /// Determines if a login method string indicates a Claude subscription plan.
     /// Known subscription indicators: Max, Pro, Ultra, Team (case-insensitive).
     nonisolated static func isSubscriptionPlan(_ loginMethod: String?) -> Bool {
-        guard let method = loginMethod?.lowercased(), !method.isEmpty else {
-            return false
-        }
-        let subscriptionIndicators = ["max", "pro", "ultra", "team"]
-        return subscriptionIndicators.contains { method.contains($0) }
+        ClaudePlan.isSubscriptionLoginMethod(loginMethod)
     }
 
     func version(for provider: UsageProvider) -> String? {
