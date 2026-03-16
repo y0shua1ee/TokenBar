@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 0.18.0 — 2026-03-15
 ### Highlights
 - Add Kilo provider support with API/CLI source modes, widget integration, and pass/credit handling (#454). Built on work by @coreh.
