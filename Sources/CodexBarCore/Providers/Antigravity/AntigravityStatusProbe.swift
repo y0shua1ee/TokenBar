@@ -422,8 +422,8 @@ public struct AntigravityStatusProbe: Sendable {
         let commandLine: String
     }
 
-    struct AntigravityConnectionEndpoint: Sendable, Equatable {
-        enum Source: String, Sendable {
+    struct AntigravityConnectionEndpoint: Equatable {
+        enum Source: String {
             case languageServer = "language-server"
             case extensionServer = "extension-server"
         }
@@ -897,12 +897,10 @@ extension LocalhostSessionDelegate: URLSessionDelegate {
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping @MainActor @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     {
         let result = self.challengeResult(challenge)
-        Task { @MainActor in
-            completionHandler(result.disposition, result.credential)
-        }
+        completionHandler(result.disposition, result.credential)
     }
 }
 
@@ -911,12 +909,10 @@ extension LocalhostSessionDelegate: URLSessionTaskDelegate {
         _ session: URLSession,
         task: URLSessionTask,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping @MainActor @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+        completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     {
         let result = self.challengeResult(challenge)
-        Task { @MainActor in
-            completionHandler(result.disposition, result.credential)
-        }
+        completionHandler(result.disposition, result.credential)
     }
 }
 
