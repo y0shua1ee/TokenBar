@@ -2,6 +2,9 @@
 
 ## 0.22 — Unreleased
 
+### Providers & Usage
+- Gemini: discover OAuth config in fnm/Homebrew/bundled CLI layouts so expired-token refresh keeps working (#723). Thanks @Leechael!
+
 ## 0.21 — 2026-04-18
 
 ### Highlights
