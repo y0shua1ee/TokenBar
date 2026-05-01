@@ -1,5 +1,5 @@
 ---
-summary: "Pending cleanup items for CodexBar (e.g., retire Claude Opus fallback)."
+summary: "Pending cleanup items for TokenBar (e.g., retire Claude Opus fallback)."
 read_when:
   - Grooming backlog or planning maintenance
   - Removing legacy Claude Opus handling

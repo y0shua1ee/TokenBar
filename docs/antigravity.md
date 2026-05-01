@@ -72,4 +72,4 @@ Antigravity is a local-only provider. We talk directly to the Antigravity langua
 
 ## Key files
 - `Sources/CodexBarCore/Providers/Antigravity/AntigravityStatusProbe.swift`
-- `Sources/CodexBar/Providers/Antigravity/AntigravityProviderImplementation.swift`
+- `Sources/TokenBar/Providers/Antigravity/AntigravityProviderImplementation.swift`

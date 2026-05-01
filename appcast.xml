@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
-        <title>CodexBar</title>
+        <title>TokenBar</title>
         <item>
             <title>0.23</title>
             <pubDate>Sun, 26 Apr 2026 04:51:49 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>58</sparkle:version>
             <sparkle:shortVersionString>0.23</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>CodexBar 0.23</h2>
+            <description><![CDATA[<h2>TokenBar 0.23</h2>
 <h3>Highlights</h3>
 <ul>
 <li>Mistral: add provider support with monthly spend tracking, browser-cookie import, manual cookies, and CLI/token-account support (#607). Thanks @welcoMattic!</li>
@@ -28,18 +28,18 @@
 <li>CLI: report the app bundle version correctly when the bundled helper is launched through a symlink.</li>
 <li>Codex/Claude: clean up cached CLI status probes during app shutdown so <code>codex -s read-only</code> workers are not orphaned after restart.</li>
 </ul>
-<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+<p><a href="https://github.com/steipete/TokenBar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.23/CodexBar-0.23.zip" length="30631794" type="application/octet-stream" sparkle:edSignature="GNX7nts8CsKNPu5v6IRpAO41hY8HJHb5MkRep09uei0q7MbA/KH97//+4nVGum7JTnOMMigxoKcI+q98eqYlAQ=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.23/TokenBar-0.23.zip" length="30631794" type="application/octet-stream" sparkle:edSignature="GNX7nts8CsKNPu5v6IRpAO41hY8HJHb5MkRep09uei0q7MbA/KH97//+4nVGum7JTnOMMigxoKcI+q98eqYlAQ=="/>
         </item>
         <item>
             <title>0.22</title>
             <pubDate>Tue, 21 Apr 2026 01:12:52 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>57</sparkle:version>
             <sparkle:shortVersionString>0.22</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>CodexBar 0.22</h2>
+            <description><![CDATA[<h2>TokenBar 0.22</h2>
 <h3>Highlights</h3>
 <ul>
 <li>Codex: restore OpenAI web dashboard fetching on the new analytics route and tighten hidden WebView reuse/expiry.</li>
@@ -67,18 +67,18 @@
 <ul>
 <li>Keychain cache: preserve cached credentials when macOS temporarily denies keychain UI after wake, avoiding repeated prompts (#594). Thanks @josepe98!</li>
 </ul>
-<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+<p><a href="https://github.com/steipete/TokenBar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.22/CodexBar-0.22.zip" length="29948925" type="application/octet-stream" sparkle:edSignature="KtCfV+I0y3pF2Q1PrS5e2oc2U9ZY0d3QgjKvurmALzv7Il+rVoPmpwxCeAqwmwF8Z+9fhqVUJlJzxrwa9TBADQ=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.22/TokenBar-0.22.zip" length="29948925" type="application/octet-stream" sparkle:edSignature="KtCfV+I0y3pF2Q1PrS5e2oc2U9ZY0d3QgjKvurmALzv7Il+rVoPmpwxCeAqwmwF8Z+9fhqVUJlJzxrwa9TBADQ=="/>
         </item>
         <item>
             <title>0.21</title>
             <pubDate>Sat, 18 Apr 2026 19:49:47 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>56</sparkle:version>
             <sparkle:shortVersionString>0.21</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>CodexBar 0.21</h2>
+            <description><![CDATA[<h2>TokenBar 0.21</h2>
 <h3>Highlights</h3>
 <ul>
 <li>Abacus AI: add a new provider for ChatLLM and RouteLLM credit tracking with browser-cookie import, manual-cookie support, and monthly pace rendering. Thanks @ChrisGVE!</li>
@@ -123,20 +123,20 @@
 <h3>Development & Tooling</h3>
 <ul>
 <li>Diagnostics: add lightweight battery instrumentation for menu updates and refresh work (#708).</li>
-<li>Build script: make CodexBar-owned ad-hoc keychain cleanup opt-in with <code>--clear-adhoc-keychain</code>, and extend the explicit reset path to clear both <code>com.steipete.CodexBar</code> and <code>com.steipete.codexbar.cache</code>. Thanks @magnaprog!</li>
+<li>Build script: make TokenBar-owned ad-hoc keychain cleanup opt-in with <code>--clear-adhoc-keychain</code>, and extend the explicit reset path to clear both <code>com.y0shua1ee.TokenBar</code> and <code>com.y0shua1ee.tokenbar.cache</code>. Thanks @magnaprog!</li>
 </ul>
-<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+<p><a href="https://github.com/steipete/TokenBar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.21/CodexBar-0.21.zip" length="29629137" type="application/octet-stream" sparkle:edSignature="AVZRGIJP48INFFn2IcDxnde+Qz5TwzMM4nVXWs6J1qQ3CIr6ExOj7vIJg/+lg+FrKgHJbkPw8q4+XcFs9P9bBQ=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.21/TokenBar-0.21.zip" length="29629137" type="application/octet-stream" sparkle:edSignature="AVZRGIJP48INFFn2IcDxnde+Qz5TwzMM4nVXWs6J1qQ3CIr6ExOj7vIJg/+lg+FrKgHJbkPw8q4+XcFs9P9bBQ=="/>
         </item>
         <item>
             <title>0.14.0</title>
             <pubDate>Thu, 25 Dec 2025 03:56:15 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>41</sparkle:version>
             <sparkle:shortVersionString>0.14.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>CodexBar 0.14.0</h2>
+            <description><![CDATA[<h2>TokenBar 0.14.0</h2>
 <ul>
 <li>Antigravity: new local provider for the Antigravity language server (Claude + Gemini quotas) with an experimental toggle; improved plan display + debug output; clearer not-running/port errors; hide account switch.</li>
 <li>Status: poll Google Workspace incidents for Gemini + Antigravity; Status Page opens the Workspace status page.</li>
@@ -147,27 +147,27 @@
 <li>OpenAI web: fix dashboard ghost overlay on desktop (WebKit keepalive window).</li>
 <li>Debug: add a debug-lldb build mode for troubleshooting.</li>
 </ul>
-<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+<p><a href="https://github.com/steipete/TokenBar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.14.0/CodexBar-0.14.0.zip" length="5382347" type="application/octet-stream" sparkle:edSignature="qhj8jnqH/eOXEP2plbZyTb8w1x0Afcpix0kC+pzMh5jX9Lkf3Yg2Bvd6/vsKdhOObEwJjQZRb/RKiSBx55J3DA=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.14.0/TokenBar-0.14.0.zip" length="5382347" type="application/octet-stream" sparkle:edSignature="qhj8jnqH/eOXEP2plbZyTb8w1x0Afcpix0kC+pzMh5jX9Lkf3Yg2Bvd6/vsKdhOObEwJjQZRb/RKiSBx55J3DA=="/>
         </item>
         <item>
             <title>0.13.0</title>
             <pubDate>Wed, 24 Dec 2025 01:53:35 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>40</sparkle:version>
             <sparkle:shortVersionString>0.13.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.13.0/CodexBar-0.13.0.zip" length="5099083" type="application/octet-stream" sparkle:edSignature="EmhEmcTFQEpuQG6vZ288l9j278VjnpQdQcmZnU1JDvzERVTtnIg+8RDlsHV9niwejaOBPX6mvXST3vNJHpwADA=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.13.0/TokenBar-0.13.0.zip" length="5099083" type="application/octet-stream" sparkle:edSignature="EmhEmcTFQEpuQG6vZ288l9j278VjnpQdQcmZnU1JDvzERVTtnIg+8RDlsHV9niwejaOBPX6mvXST3vNJHpwADA=="/>
         </item>
         <item>
             <title>0.12.0</title>
             <pubDate>Tue, 23 Dec 2025 04:39:05 +0100</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <link>https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml</link>
             <sparkle:version>39</sparkle:version>
             <sparkle:shortVersionString>0.12.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.12.0/CodexBar-0.12.0.zip" length="4888386" type="application/octet-stream" sparkle:edSignature="tQMHO/RNAbvwRHXYnLAkNV2ksiV722qR8fEYzcbipgetacfPnwnLJ0Pe/lAiZ03PBmj3BkisHb74GosUlSV+DQ=="/>
+            <enclosure url="https://github.com/steipete/TokenBar/releases/download/v0.12.0/TokenBar-0.12.0.zip" length="4888386" type="application/octet-stream" sparkle:edSignature="tQMHO/RNAbvwRHXYnLAkNV2ksiV722qR8fEYzcbipgetacfPnwnLJ0Pe/lAiZ03PBmj3BkisHb74GosUlSV+DQ=="/>
         </item>
     </channel>
 </rss>

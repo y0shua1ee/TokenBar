@@ -9,12 +9,12 @@ read_when:
 # DeepSeek provider
 
 DeepSeek is API-only. Balance is reported by `GET https://api.deepseek.com/user/balance`,
-so CodexBar only needs a valid API key to show your remaining credit balance.
+so TokenBar only needs a valid API key to show your remaining credit balance.
 
 ## Data sources
 
 1. **API key** stored in `~/.codexbar/config.json` or supplied via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`.
-   CodexBar stores the key in config after you paste it in Settings → Providers → DeepSeek.
+   TokenBar stores the key in config after you paste it in Settings → Providers → DeepSeek.
 2. **Balance endpoint**
    - `GET https://api.deepseek.com/user/balance`
    - Request headers: `Authorization: Bearer <api key>`, `Accept: application/json`
@@ -36,5 +36,5 @@ so CodexBar only needs a valid API key to show your remaining credit balance.
 - `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekProviderDescriptor.swift` (descriptor + fetch strategy)
 - `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekUsageFetcher.swift` (HTTP client + JSON parser)
 - `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekSettingsReader.swift` (env var resolution)
-- `Sources/CodexBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (settings field + activation logic)
-- `Sources/CodexBar/Providers/DeepSeek/DeepSeekSettingsStore.swift` (SettingsStore extension)
+- `Sources/TokenBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (settings field + activation logic)
+- `Sources/TokenBar/Providers/DeepSeek/DeepSeekSettingsStore.swift` (SettingsStore extension)

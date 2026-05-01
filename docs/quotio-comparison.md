@@ -5,7 +5,7 @@
 
 ## Overview
 
-Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** and **117 forks**. It has a broader scope (proxy server + quota tracking) but shares many features with CodexBar.
+Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** and **117 forks**. It has a broader scope (proxy server + quota tracking) but shares many features with TokenBar.
 
 ---
 
@@ -13,7 +13,7 @@ Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** a
 
 ### Architecture
 - **Quotio**: Manages a local proxy server (`CLIProxyAPI`) that routes requests to multiple AI providers
-- **CodexBar**: Direct provider monitoring only (no proxy layer)
+- **TokenBar**: Direct provider monitoring only (no proxy layer)
 - **Implication**: Quotio is more complex but offers request routing/failover
 
 ### Provider Support
@@ -21,10 +21,10 @@ Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** a
 - Gemini, Claude, OpenAI Codex, Qwen, Vertex AI, iFlow, Antigravity, Kiro, GitHub Copilot
 - **IDE monitoring**: Cursor, Trae (auto-detected, monitor-only)
 
-**CodexBar supports:**
+**TokenBar supports:**
 - Codex, Claude, Cursor, Gemini, Antigravity, Droid/Factory, Copilot, z.ai, Kiro, Vertex AI, **Augment**
 
-**Unique to CodexBar:**
+**Unique to TokenBar:**
 - Augment (we just added!)
 - z.ai
 - Droid/Factory
@@ -60,16 +60,16 @@ Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** a
 ### 3. **Standalone Quota Mode** ⭐
 **What:** View quotas without running proxy server
 **Why:** Lighter weight, faster startup for quick checks
-**Implementation:** Already how CodexBar works! (We don't have a proxy)
+**Implementation:** Already how TokenBar works! (We don't have a proxy)
 **Effort:** N/A (we already do this)
 **Value:** N/A (already implemented)
 
 ### 4. **Smart Routing Strategies** ⭐⭐
 **What:** Round Robin or Fill First routing for multi-account setups
 **Why:** Optimize quota usage across accounts
-**Implementation:** Would require proxy layer (not applicable to CodexBar's architecture)
+**Implementation:** Would require proxy layer (not applicable to TokenBar's architecture)
 **Effort:** Very High (requires proxy server)
-**Value:** Low for CodexBar (out of scope)
+**Value:** Low for TokenBar (out of scope)
 
 ### 5. **Custom Provider Support** ⭐⭐⭐
 **What:** User-defined AI providers with OpenAI-compatible, Claude, Gemini, Codex API configs
@@ -94,22 +94,22 @@ Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** a
 
 ### Menu Bar Design
 - **Quotio**: Custom provider icons in menu bar, quota overview popup
-- **CodexBar**: Two-bar meter icon, detailed menu card
-- **Takeaway**: Both approaches valid; CodexBar's meter is more info-dense
+- **TokenBar**: Two-bar meter icon, detailed menu card
+- **Takeaway**: Both approaches valid; TokenBar's meter is more info-dense
 
 ### Settings Organization
 - **Quotio**: Dashboard, Providers, Agents, Quota, Logs, Settings tabs
-- **CodexBar**: Settings → Providers with per-provider toggles
+- **TokenBar**: Settings → Providers with per-provider toggles
 - **Takeaway**: Quotio's tab-based navigation is cleaner for complex apps
 
 ### Quota Display
 - **Quotio**: Grid layout with tier badges (Pro/Ultra/Free), inline refresh
-- **CodexBar**: List-based with session/weekly bars
+- **TokenBar**: List-based with session/weekly bars
 - **Takeaway**: Tier badges are a nice visual touch
 
 ---
 
-## Recommended Enhancements for CodexBar
+## Recommended Enhancements for TokenBar
 
 ### Priority 1: Auto-Warmup Scheduling ⭐⭐⭐
 **Why:** Keeps sessions alive, prevents auth failures
@@ -151,7 +151,7 @@ Quotio is a similar macOS menu bar app for AI quota tracking with **2k stars** a
 ## What NOT to Adopt
 
 ### ❌ Proxy Server Layer
-- **Why:** Out of scope for CodexBar's mission (monitoring, not routing)
+- **Why:** Out of scope for TokenBar's mission (monitoring, not routing)
 - **Complexity:** Very high (server management, request routing, failover)
 - **Maintenance:** Ongoing burden
 

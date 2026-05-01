@@ -9,7 +9,7 @@ read_when:
 
 # Claude current baseline
 
-This document is the current-state parity reference for Claude behavior in CodexBar.
+This document is the current-state parity reference for Claude behavior in TokenBar.
 
 Use it when later tickets need to preserve or intentionally change Claude behavior. When the refactor plan,
 summary docs, and running code disagree, treat current code plus characterization coverage as authoritative, and use
@@ -34,7 +34,7 @@ Current Claude behavior is defined by several active owners, not one central pla
   owns the main provider-pipeline strategy order and fallback rules.
 - `Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
   still owns a separate direct `.auto` path, delegated refresh, prompt/cooldown handling, and web-extra enrichment.
-- `Sources/CodexBar/Providers/Claude/ClaudeSettingsStore.swift`
+- `Sources/TokenBar/Providers/Claude/ClaudeSettingsStore.swift`
   owns app-side token-account routing into cookie or OAuth behavior.
 - `Sources/CodexBarCLI/TokenAccountCLI.swift`
   owns CLI-side token-account routing and effective source-mode overrides.

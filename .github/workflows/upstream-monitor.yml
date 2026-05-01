@@ -36,7 +36,7 @@ jobs:
       
       - name: Add upstream remotes
         run: |
-          git remote add upstream https://github.com/steipete/CodexBar.git || true
+          git remote add upstream https://github.com/steipete/TokenBar.git || true
           git remote add quotio https://github.com/nguyenphutrong/quotio.git || true
           git fetch upstream
           git fetch quotio
@@ -73,10 +73,10 @@ jobs:
             
             const body = `## 🔄 Upstream Changes Detected
             
-            **steipete/CodexBar:** ${upstreamCommits} new commits
+            **steipete/TokenBar:** ${upstreamCommits} new commits
             **quotio:** ${quotioCommits} new commits (last 7 days)
             
-            ### steipete/CodexBar Recent Commits
+            ### steipete/TokenBar Recent Commits
             \`\`\`
             ${upstreamSummary}
             \`\`\`
@@ -105,7 +105,7 @@ jobs:
             \`\`\`
             
             ### 🔗 Links
-            - [steipete commits](https://github.com/steipete/CodexBar/compare/${context.sha}...steipete:CodexBar:main)
+            - [steipete commits](https://github.com/steipete/TokenBar/compare/${context.sha}...steipete:TokenBar:main)
             - [quotio commits](https://github.com/nguyenphutrong/quotio/commits/main)
             
             ---
@@ -151,6 +151,6 @@ jobs:
         if: steps.check.outputs.upstream_commits == 0 && steps.check.outputs.quotio_commits == 0
         run: |
           echo "✅ No new upstream changes detected"
-          echo "steipete/CodexBar: up to date"
+          echo "steipete/TokenBar: up to date"
           echo "quotio: no commits in last 7 days"
 

@@ -72,7 +72,7 @@ echo "5. Push to your fork:"
 echo "   ${GREEN}git push origin $BRANCH_NAME${NC}"
 echo ""
 echo "6. Create PR on GitHub:"
-echo "   ${GREEN}https://github.com/steipete/CodexBar/compare/main...topoffunnel:$BRANCH_NAME${NC}"
+echo "   ${GREEN}https://github.com/steipete/TokenBar/compare/main...topoffunnel:$BRANCH_NAME${NC}"
 echo ""
 echo -e "${YELLOW}Remember: Keep PRs small and focused for better merge chances!${NC}"
 

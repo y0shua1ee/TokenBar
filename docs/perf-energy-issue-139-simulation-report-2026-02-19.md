@@ -1,7 +1,7 @@
-# CodexBar Issue #139 Performance/Energy Simulation Report
+# TokenBar Issue #139 Performance/Energy Simulation Report
 
 Date: 2026-02-19
-Workspace: /Users/michalkrsik/windsurf_project_folder/CodexBar
+Workspace: /Users/michalkrsik/windsurf_project_folder/TokenBar
 Issue: https://github.com/steipete/codexbar/issues/139
 
 ## Purpose
@@ -88,7 +88,7 @@ A tiny toolbar app should never keep heavyweight background subprocess/UI loops 
 
 ## Limitations
 
-- These were controlled simulations, not a full end-user UI replay of `CodexBar.app` with all real auth/cookie/account paths.
+- These were controlled simulations, not a full end-user UI replay of `TokenBar.app` with all real auth/cookie/account paths.
 - `powermetrics` could not be used in this session due sudo restriction.
 
 ## Recommended Next Validation (Before Closing Issue)

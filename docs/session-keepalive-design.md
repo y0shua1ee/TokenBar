@@ -146,7 +146,7 @@ Settings → Providers → Augment
 
 ## Key Differences from Quotio's "Warmup"
 
-| Aspect | Quotio Warmup | CodexBar Keepalive |
+| Aspect | Quotio Warmup | TokenBar Keepalive |
 |--------|---------------|-------------------|
 | **Purpose** | Trigger 1-token API calls to reset quota counters | Refresh auth sessions to prevent expiration |
 | **Target** | Antigravity only (quota reset) | All providers (session management) |
@@ -156,7 +156,7 @@ Settings → Providers → Augment
 
 **Why different?**
 - Quotio has a proxy server that routes requests → warmup keeps quota fresh
-- CodexBar monitors providers directly → keepalive prevents auth expiration
+- TokenBar monitors providers directly → keepalive prevents auth expiration
 
 ---
 

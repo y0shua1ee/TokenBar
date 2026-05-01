@@ -4,7 +4,7 @@
   "scripts": {
     "start": "./Scripts/compile_and_run.sh",
     "start:debug": "./Scripts/compile_and_run.sh",
-    "start:release": "sh -c './Scripts/package_app.sh release && (pkill -x CodexBar || pkill -f CodexBar.app || true) && cd /Users/steipete/Projects/codexbar && open -n /Users/steipete/Projects/codexbar/CodexBar.app'",
+    "start:release": "sh -c './Scripts/package_app.sh release && (pkill -x TokenBar || pkill -f TokenBar.app || true) && cd /Users/steipete/Projects/codexbar && open -n /Users/steipete/Projects/codexbar/TokenBar.app'",
     "lint": "./Scripts/lint.sh lint",
     "format": "./Scripts/lint.sh format",
     "check": "./Scripts/lint.sh lint",
@@ -15,6 +15,6 @@
     "test:live": "LIVE_TEST=1 swift test --filter LiveAccountTests",
     "release": "./Scripts/package_app.sh release",
     "restart": "pnpm start",
-    "stop": "pkill -x CodexBar || pkill -f CodexBar.app || true"
+    "stop": "pkill -x TokenBar || pkill -f TokenBar.app || true"
   }
 }

@@ -15,7 +15,7 @@ WAIT_FOR_LOCK=0
 RUN_TESTS=0
 DEBUG_LLDB=0
 RELEASE_ARCHES=""
-SIGNING_MODE="${CODEXBAR_SIGNING:-}"
+SIGNING_MODE="${TOKENBAR_SIGNING:-}"
 CLEAR_ADHOC_KEYCHAIN=0
 
 log()  { printf '%s\n' "$*"; }
@@ -146,7 +146,7 @@ kill_claude_probes() {
   pkill -9 -f "claude (/status|/usage) --allowed-tools" 2>/dev/null || true
 }
 
-kill_all_codexbar() {
+kill_all_tokenbar() {
   is_running() {
     pgrep -f "${APP_PROCESS_PATTERN}" >/dev/null 2>&1 \
       || pgrep -f "${DEBUG_PROCESS_PATTERN}" >/dev/null 2>&1 \
@@ -215,7 +215,7 @@ acquire_lock
 
 # 2) Kill all running TokenBar instances (debug, release, bundled).
 log "==> Killing existing TokenBar instances"
-kill_all_codexbar
+kill_all_tokenbar
 kill_claude_probes
 
 # 2.5) Optionally delete keychain entries to avoid permission prompts with adhoc signing
@@ -225,7 +225,7 @@ if [[ "${SIGNING_MODE:-adhoc}" == "adhoc" && "${CLEAR_ADHOC_KEYCHAIN}" == "1" ]]
   # Clear both the legacy keychain store and the current cache service when developers explicitly want a clean reset
   # of TokenBar-owned keychain state for ad-hoc builds.
   delete_keychain_service_items "com.steipete.TokenBar"
-  delete_keychain_service_items "com.steipete.codexbar.cache"
+  delete_keychain_service_items "com.steipete.tokenbar.cache"
 elif [[ "${SIGNING_MODE:-adhoc}" == "adhoc" ]]; then
   log "==> Preserving TokenBar keychain entries (pass --clear-adhoc-keychain to reset adhoc keychain state)"
 fi
@@ -243,10 +243,10 @@ if [[ -n "${RELEASE_ARCHES}" ]]; then
   ARCHES_VALUE="${RELEASE_ARCHES}"
 fi
 if [[ "${DEBUG_LLDB}" == "1" ]]; then
-  run_step "package app" env CODEXBAR_ALLOW_LLDB=1 ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh" debug
+  run_step "package app" env TOKENBAR_ALLOW_LLDB=1 ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh" debug
 else
   if [[ -n "${SIGNING_MODE}" ]]; then
-    run_step "package app" env CODEXBAR_SIGNING="${SIGNING_MODE}" ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh"
+    run_step "package app" env TOKENBAR_SIGNING="${SIGNING_MODE}" ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh"
   else
     run_step "package app" env ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh"
   fi

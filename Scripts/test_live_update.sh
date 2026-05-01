@@ -6,10 +6,10 @@ CUR_TAG=${2:?"pass current release tag (e.g. v0.1.1)"}
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PREV_VER=${PREV_TAG#v}
-APP_NAME="CodexBar"
+APP_NAME="TokenBar"
 
-ZIP_URL="https://github.com/steipete/CodexBar/releases/download/${PREV_TAG}/${APP_NAME}-${PREV_VER}.zip"
-TMP_DIR=$(mktemp -d /tmp/codexbar-live.XXXX)
+ZIP_URL="https://github.com/steipete/TokenBar/releases/download/${PREV_TAG}/${APP_NAME}-${PREV_VER}.zip"
+TMP_DIR=$(mktemp -d /tmp/tokenbar-live.XXXX)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "Downloading previous release $PREV_TAG from $ZIP_URL"

@@ -39,7 +39,7 @@ function cleaned_key_path() {
 KEY_FILE=$(cleaned_key_path)
 trap 'rm -f "$KEY_FILE" "$TMP_ZIP"' EXIT
 
-TMP_ZIP=$(mktemp /tmp/codexbar-enclosure.XXXX.zip)
+TMP_ZIP=$(mktemp /tmp/tokenbar-enclosure.XXXX.zip)
 
 python3 - "$APPCAST" "$VERSION" >"$TMP_ZIP.meta" <<'PY'
 import sys, xml.etree.ElementTree as ET

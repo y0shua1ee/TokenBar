@@ -8,8 +8,8 @@ echo "This will create a self-signed certificate that stays consistent across re
 echo "reducing keychain permission prompts."
 echo ""
 
-# Check if we already have a CodexBar development certificate
-CERT_NAME="CodexBar Development"
+# Check if we already have a TokenBar development certificate
+CERT_NAME="TokenBar Development"
 if security find-certificate -c "$CERT_NAME" >/dev/null 2>&1; then
     echo "✅ Certificate '$CERT_NAME' already exists!"
     echo ""
@@ -36,7 +36,7 @@ prompt = no
 
 [ req_distinguished_name ]
 CN = $CERT_NAME
-O = CodexBar Development
+O = TokenBar Development
 C = US
 
 [ v3_req ]
@@ -46,19 +46,19 @@ EOF
 
 # Generate the certificate
 openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 \
-    -nodes -keyout /tmp/codexbar-dev.key -out /tmp/codexbar-dev.crt \
+    -nodes -keyout /tmp/tokenbar-dev.key -out /tmp/tokenbar-dev.crt \
     -config "$TEMP_CONFIG" 2>/dev/null
 
 # Convert to PKCS12 format
-openssl pkcs12 -export -out /tmp/codexbar-dev.p12 \
-    -inkey /tmp/codexbar-dev.key -in /tmp/codexbar-dev.crt \
+openssl pkcs12 -export -out /tmp/tokenbar-dev.p12 \
+    -inkey /tmp/tokenbar-dev.key -in /tmp/tokenbar-dev.crt \
     -passout pass: 2>/dev/null
 
 # Import into keychain
-security import /tmp/codexbar-dev.p12 -k ~/Library/Keychains/login.keychain-db -T /usr/bin/codesign -T /usr/bin/security
+security import /tmp/tokenbar-dev.p12 -k ~/Library/Keychains/login.keychain-db -T /usr/bin/codesign -T /usr/bin/security
 
 # Clean up temporary files
-rm -f /tmp/codexbar-dev.{key,crt,p12}
+rm -f /tmp/tokenbar-dev.{key,crt,p12}
 
 echo ""
 echo "✅ Certificate created successfully!"

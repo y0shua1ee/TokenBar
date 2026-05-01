@@ -8,9 +8,9 @@ source "$ROOT/version.env"
 source "$HOME/Projects/agent-scripts/release/sparkle_lib.sh"
 
 APPCAST="$ROOT/appcast.xml"
-APP_NAME="CodexBar"
-ARTIFACT_PREFIX="CodexBar-"
-BUNDLE_ID="com.steipete.codexbar"
+APP_NAME="TokenBar"
+ARTIFACT_PREFIX="TokenBar-"
+BUNDLE_ID="com.y0shua1ee.tokenbar"
 TAG="v${MARKETING_VERSION}"
 
 err() { echo "ERROR: $*" >&2; exit 1; }
@@ -33,7 +33,7 @@ probe_sparkle_key "$KEY_FILE"
 
 clear_sparkle_caches "$BUNDLE_ID"
 
-NOTES_FILE=$(mktemp /tmp/codexbar-notes.XXXXXX.md)
+NOTES_FILE=$(mktemp /tmp/tokenbar-notes.XXXXXX.md)
 extract_notes_from_changelog "$MARKETING_VERSION" "$NOTES_FILE"
 trap 'rm -f "$KEY_FILE" "$NOTES_FILE"' EXIT
 
@@ -47,7 +47,7 @@ gh release create "$TAG" ${APP_NAME}-${MARKETING_VERSION}.zip ${APP_NAME}-${MARK
 SPARKLE_PRIVATE_KEY_FILE="$KEY_FILE" \
   "$ROOT/Scripts/make_appcast.sh" \
   "${APP_NAME}-${MARKETING_VERSION}.zip" \
-  "https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml"
+  "https://raw.githubusercontent.com/steipete/TokenBar/main/appcast.xml"
 
 verify_appcast_entry "$APPCAST" "$MARKETING_VERSION" "$KEY_FILE"
 

@@ -25,7 +25,7 @@ This doc describes the **current provider architecture** (post-macro registry) a
 
 ## Architecture overview (now)
 - `Sources/CodexBarCore`: provider descriptors + fetch strategies + probes + parsing + shared utilities.
-- `Sources/CodexBar`: UI/state + provider implementations (settings/login/menu hooks only).
+- `Sources/TokenBar`: UI/state + provider implementations (settings/login/menu hooks only).
 - Provider IDs are compile-time: `UsageProvider` enum (used for persistence + widgets).
 - Provider wiring is descriptor-driven:
   - `ProviderDescriptor` owns labels, URLs, default enablement, and fetch pipeline.
@@ -87,7 +87,7 @@ Rule: providers do not talk to `FileManager`, `Security`, or “browser internal
   - `<ProviderID>Probe.swift` / `<ProviderID>Fetcher.swift`
   - `<ProviderID>Models.swift`
   - `<ProviderID>Parser.swift` (if text/HTML parsing)
-- `Sources/CodexBar/Providers/<ProviderID>/`
+- `Sources/TokenBar/Providers/<ProviderID>/`
   - `<ProviderID>ProviderImplementation.swift` (settings/login UI hooks only)
 
 ## Minimal provider example (copy-paste)
@@ -173,7 +173,7 @@ Checklist:
   Implement `static func makeDescriptor() -> ProviderDescriptor`.
 - Attach `@ProviderImplementationRegistration` to the implementation type (macros auto-register).
   - No manual list edits.
-- Add `Sources/CodexBar/Providers/<ProviderID>/<ProviderID>ProviderImplementation.swift`:
+- Add `Sources/TokenBar/Providers/<ProviderID>/<ProviderID>ProviderImplementation.swift`:
   - `ProviderImplementation` only for settings/login UI hooks.
 - Add icons + color in descriptor:
   - `iconName` must match `ProviderIcon-<id>` asset.

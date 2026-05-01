@@ -41,7 +41,7 @@ The Ollama provider scrapes the **Plan & Billing** page to extract Cloud Usage l
 
 ### “No Ollama session cookie found”
 
-Log in to `https://ollama.com/settings` in Chrome, then refresh in CodexBar.
+Log in to `https://ollama.com/settings` in Chrome, then refresh in TokenBar.
 If your active session is only in Safari (or another browser), use **Cookie source → Manual** and paste a cookie header.
 
 ### “Ollama session cookie expired”

@@ -5,9 +5,9 @@ read_when:
   - Reviewing fork milestones
 ---
 
-# CodexBar Fork Roadmap
+# TokenBar Fork Roadmap
 
-This document outlines the development roadmap for the CodexBar fork maintained by Brandon Charleson.
+This document outlines the development roadmap for the TokenBar fork maintained by Brandon Charleson.
 
 ## ✅ Phase 1: Fork Identity (COMPLETE)
 
@@ -57,7 +57,7 @@ This document outlines the development roadmap for the CodexBar fork maintained 
 **Files to Modify:**
 - `Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift`
 - `Sources/CodexBarCore/Providers/Augment/AugmentSessionKeepalive.swift`
-- `Sources/CodexBar/UsageStore.swift` (debug pane)
+- `Sources/TokenBar/UsageStore.swift` (debug pane)
 
 ---
 
@@ -159,7 +159,7 @@ This document outlines the development roadmap for the CodexBar fork maintained 
 **Files to Create:**
 - `Sources/CodexBarCore/AccountManager.swift`
 - `Sources/CodexBarCore/Providers/Augment/AugmentAccountManager.swift`
-- `Sources/CodexBar/AccountSwitcherView.swift`
+- `Sources/TokenBar/AccountSwitcherView.swift`
 
 ---
 

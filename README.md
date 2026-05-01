@@ -1,8 +1,8 @@
 # TokenBar 🎚️ — Custom Provider Support
 
-> Fork of [CodexBar](https://github.com/steipete/CodexBar) that adds support for **custom / third-party OpenAI-compatible providers** (like Krill).
+> Fork of [TokenBar](https://github.com/steipete/TokenBar) that adds support for **custom / third-party OpenAI-compatible providers** (like Krill).
 
-## What's Different from CodexBar
+## What's Different from TokenBar
 
 TokenBar adds a **`custom` provider type** that lets you monitor any OpenAI-compatible API endpoint:
 
@@ -23,11 +23,11 @@ See `config.example.json` in the repo for a full example.
 
 ---
 
-# CodexBar 🎚️ - May your tokens never run out.
+# TokenBar 🎚️ - May your tokens never run out.
 
 Tiny macOS 14+ menu bar app that keeps your Codex, Claude, Cursor, Gemini, Antigravity, Droid (Factory), Copilot, z.ai, Kiro, Vertex AI, Augment, Amp, JetBrains AI, OpenRouter, Perplexity, and Abacus AI limits visible (session + weekly where available) and shows when each window resets. One status item per provider (or Merge Icons mode with a provider switcher and optional Overview tab); enable what you use from Settings. No Dock icon, minimal UI, dynamic bar icons in the menu bar.
 
-<img src="codexbar.png" alt="CodexBar menu screenshot" width="520" />
+<img src="codexbar.png" alt="TokenBar menu screenshot" width="520" />
 
 ## Install
 
@@ -35,7 +35,7 @@ Tiny macOS 14+ menu bar app that keeps your Codex, Claude, Cursor, Gemini, Antig
 - macOS 14+ (Sonoma)
 
 ### GitHub Releases
-Download: <https://github.com/steipete/CodexBar/releases>
+Download: <https://github.com/steipete/TokenBar/releases>
 
 ### Homebrew
 ```bash
@@ -95,7 +95,7 @@ The menu bar icon is a tiny two-bar meter:
 - Privacy-first: on-device parsing by default; browser cookies are opt-in and reused (no passwords stored).
 
 ## Privacy note
-Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, local JSONL logs) when the related features are enabled. See the discussion and audit notes in [issue #12](https://github.com/steipete/CodexBar/issues/12).
+Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, local JSONL logs) when the related features are enabled. See the discussion and audit notes in [issue #12](https://github.com/steipete/TokenBar/issues/12).
 
 ## macOS permissions (why they’re needed)
 - **Full Disk Access (optional)**: only required to read Safari cookies/local storage for web-based providers (Codex web, Claude web, Cursor, Droid/Factory). If you don’t grant it, use Chrome/Firefox cookies or CLI-only sources instead.
@@ -105,15 +105,15 @@ Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it re
   - z.ai API token is stored in Keychain from Preferences → Providers; Copilot stores its API token in Keychain during device flow.
   - **How do I prevent those keychain alerts?**
     - Open **Keychain Access.app** → login keychain → search the item (e.g., “Claude Code-credentials”).
-    - Open the item → **Access Control** → add `CodexBar.app` under “Always allow access by these applications”.
-    - Prefer adding just CodexBar (avoid “Allow all applications” unless you want it wide open).
-    - Relaunch CodexBar after saving.
+    - Open the item → **Access Control** → add `TokenBar.app` under “Always allow access by these applications”.
+    - Prefer adding just TokenBar (avoid “Allow all applications” unless you want it wide open).
+    - Relaunch TokenBar after saving.
     - Reference screenshot: ![Keychain access control](docs/keychain-allow.png)
   - **How to do the same for the browser?**
     - Find the browser’s “Safe Storage” key (e.g., “Chrome Safe Storage”, “Brave Safe Storage”, “Firefox”, “Microsoft Edge Safe Storage”).
-    - Open the item → **Access Control** → add `CodexBar.app` under “Always allow access by these applications”.
-    - This removes the prompt when CodexBar decrypts cookies for that browser.
-- **Files & Folders prompts (folder/volume access)**: CodexBar launches provider CLIs (codex/claude/gemini/antigravity). If those CLIs read a project directory or external drive, macOS may ask CodexBar for that folder/volume (e.g., Desktop or an external volume). This is driven by the CLI’s working directory, not background disk scanning.
+    - Open the item → **Access Control** → add `TokenBar.app` under “Always allow access by these applications”.
+    - This removes the prompt when TokenBar decrypts cookies for that browser.
+- **Files & Folders prompts (folder/volume access)**: TokenBar launches provider CLIs (codex/claude/gemini/antigravity). If those CLIs read a project directory or external drive, macOS may ask TokenBar for that folder/volume (e.g., Desktop or an external volume). This is driven by the CLI’s working directory, not background disk scanning.
 - **What we do not request**: no Screen Recording, Accessibility, or Automation permissions; no passwords are stored (browser cookies are reused when you opt in).
 
 ## Docs
@@ -137,9 +137,9 @@ Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it re
 ## Build from source
 ```bash
 swift build -c release          # or debug for development
-./Scripts/package_app.sh        # builds CodexBar.app in-place
+./Scripts/package_app.sh        # builds TokenBar.app in-place
 CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh  # ad-hoc signing (no Apple Developer account)
-open CodexBar.app
+open TokenBar.app
 ```
 
 Dev loop:
@@ -153,7 +153,7 @@ Dev loop:
 - 🧿 [oracle](https://askoracle.dev) — Ask the oracle when you're stuck. Invoke GPT-5 Pro with a custom context and files.
 
 ## Looking for a Windows version?
-- [Win-CodexBar](https://github.com/Finesssee/Win-CodexBar)
+- [Win-TokenBar](https://github.com/Finesssee/Win-TokenBar)
 
 ## Credits
 Inspired by [ccusage](https://github.com/ryoppippi/ccusage) (MIT), specifically the cost usage tracking.

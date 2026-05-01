@@ -1,11 +1,11 @@
 ---
-module: CodexBar
+module: TokenBar
 date: 2026-03-07
 problem_type: performance_issue
 component: tooling
 symptoms:
   - "Hidden chatgpt.com web content could spike to extremely high Energy Impact values in Activity Monitor"
-  - "CodexBar battery usage stayed abnormally high even when the app appeared idle"
+  - "TokenBar battery usage stayed abnormally high even when the app appeared idle"
   - "Users did not realize optional OpenAI web extras were enabled by default"
 root_cause: wrong_api
 resolution_type: config_change
@@ -16,15 +16,15 @@ tags: [codexbar, battery-drain, openai-web, webview, chatgpt, defaults]
 # Troubleshooting: Default OpenAI Web Extras Off
 
 ## Problem
-CodexBar exposed optional OpenAI dashboard extras through a hidden `chatgpt.com` WebView, but the feature was enabled by default. That created a mismatch between user expectations for a lightweight menu bar app and the real cost of running a hidden single-page web app in the background.
+TokenBar exposed optional OpenAI dashboard extras through a hidden `chatgpt.com` WebView, but the feature was enabled by default. That created a mismatch between user expectations for a lightweight menu bar app and the real cost of running a hidden single-page web app in the background.
 
 ## Environment
-- Module: CodexBar
+- Module: TokenBar
 - Affected component: Codex OpenAI web extras
 - Date: 2026-03-07
 
 ## Symptoms
-- Activity Monitor showed extreme energy usage attributed to `https://chatgpt.com` under the CodexBar process tree.
+- Activity Monitor showed extreme energy usage attributed to `https://chatgpt.com` under the TokenBar process tree.
 - Users observed battery drain that was out of proportion to the visible work the app was doing.
 - The optional setting existed, but it was easy to miss, so affected users often did not know they could disable it.
 

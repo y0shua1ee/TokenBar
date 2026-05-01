@@ -1,0 +1,58 @@
+import Foundation
+import Testing
+@testable import TokenBar
+@testable import TokenBarCore
+
+@Suite(.serialized)
+struct TTYIntegrationTests {
+    @Test
+    func `codex RPC usage live`() async throws {
+        let fetcher = UsageFetcher()
+        do {
+            let snapshot = try await fetcher.loadLatestUsage()
+            guard let primary = snapshot.primary else {
+                return
+            }
+            let hasData = primary.usedPercent >= 0 && (snapshot.secondary?.usedPercent ?? 0) >= 0
+            #expect(hasData)
+        } catch UsageError.noRateLimitsFound {
+            return
+        } catch {
+            return
+        }
+    }
+
+    @Test
+    func `claude TTY usage probe live`() async throws {
+        guard ProcessInfo.processInfo.environment["LIVE_CLAUDE_TTY"] == "1" else {
+            return
+        }
+        guard TTYCommandRunner.which("claude") != nil else {
+            return
+        }
+
+        let fetcher = ClaudeUsageFetcher(browserDetection: BrowserDetection(cacheTTL: 0), dataSource: .cli)
+        defer { Task { await ClaudeCLISession.shared.reset() } }
+
+        var shouldAssert = true
+        do {
+            let snapshot = try await fetcher.loadLatestUsage()
+            #expect(snapshot.primary.remainingPercent >= 0)
+            // Weekly is absent for some enterprise accounts.
+        } catch ClaudeUsageError.parseFailed(_) {
+            shouldAssert = false
+        } catch ClaudeStatusProbeError.parseFailed(_) {
+            shouldAssert = false
+        } catch ClaudeUsageError.claudeNotInstalled {
+            shouldAssert = false
+        } catch ClaudeStatusProbeError.timedOut {
+            shouldAssert = false
+        } catch let TTYCommandRunner.Error.launchFailed(message) where message.contains("login") {
+            shouldAssert = false
+        } catch {
+            shouldAssert = false
+        }
+
+        if !shouldAssert { return }
+    }
+}

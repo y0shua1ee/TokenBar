@@ -1,5 +1,5 @@
 ---
-summary: "WebKit usage in CodexBar: WebView hosts, cookie stores, and teardown guidance."
+summary: "WebKit usage in TokenBar: WebView hosts, cookie stores, and teardown guidance."
 read_when:
   - Touching WebKit-backed login windows or offscreen scraping
   - Debugging WebKit teardown crashes (especially x86_64)
@@ -8,7 +8,7 @@ read_when:
 
 # WebKit usage
 
-CodexBar uses WebKit in two places:
+TokenBar uses WebKit in two places:
 - Visible login/purchase windows (e.g. Cursor login, credits purchase).
 - Offscreen WebViews for OpenAI dashboard scraping.
 

@@ -1,14 +1,14 @@
 ---
-summary: "CodexBar config file layout for CLI + app settings."
+summary: "TokenBar config file layout for CLI + app settings."
 read_when:
-  - "Editing the CodexBar config file or moving settings off Keychain."
+  - "Editing the TokenBar config file or moving settings off Keychain."
   - "Adding new provider settings fields or defaults."
   - "Explaining CLI/app configuration and security."
 ---
 
 # Configuration
 
-CodexBar reads a single JSON config file for CLI and app settings.
+TokenBar reads a single JSON config file for CLI and app settings.
 Secrets (API keys, cookies, tokens) live here; Keychain is not used.
 
 ## Location

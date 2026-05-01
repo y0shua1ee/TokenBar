@@ -54,7 +54,7 @@ flowchart TD
     G -- "no" --> H["Use access token directly"]
     G -- "yes" --> I["POST /v1/oauth/token refresh_token grant"]
     I --> J{"Refresh status"}
-    J -- "200" --> K["Save refreshed creds to CodexBar keychain cache + memory"]
+    J -- "200" --> K["Save refreshed creds to TokenBar keychain cache + memory"]
     J -- "400/401 + invalid_grant" --> L["Record terminal auth failure; block refresh until auth fingerprint changes"]
     J -- "400/401 other" --> M["Record transient failure; exponential backoff"]
     K --> H
@@ -70,7 +70,7 @@ flowchart TD
 flowchart TD
     A["load(...)"] --> B["Environment token (CODEXBAR_CLAUDE_OAUTH_TOKEN)"]
     B -->|miss| C["Memory cache (valid + unexpired)"]
-    C -->|miss| D["CodexBar keychain cache: com.steipete.codexbar.cache/oauth.claude"]
+    C -->|miss| D["TokenBar keychain cache: com.y0shua1ee.tokenbar.cache/oauth.claude"]
     D -->|miss| E["~/.claude/.credentials.json"]
     E -->|miss| F{"allowKeychainPrompt && prompt gate open?"}
     F -- "yes" --> G["Claude keychain service: Claude Code-credentials (promptable fallback)"]
@@ -197,12 +197,12 @@ stateDiagram-v2
 
 ## Related Files
 
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthRefreshFailureGate.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/KeychainAccessPreflight.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/KeychainNoUIQuery.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/BrowserCookieImportOrder.swift`
-- `/Users/ratulsarna/Developer/staipete/CodexBar/Sources/CodexBarCore/BrowserCookieAccessGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthRefreshFailureGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/KeychainAccessPreflight.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/KeychainNoUIQuery.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/BrowserCookieImportOrder.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/BrowserCookieAccessGate.swift`

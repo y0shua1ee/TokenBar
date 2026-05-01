@@ -16,7 +16,7 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 
 ### Settings
 
-You can also configure the API key in CodexBar Settings → Providers → OpenRouter.
+You can also configure the API key in TokenBar Settings → Providers → OpenRouter.
 
 ## Data Source
 
@@ -47,7 +47,7 @@ codexbar -p or  # alias
 | `OPENROUTER_API_KEY` | Your OpenRouter API key (required) |
 | `OPENROUTER_API_URL` | Override the base API URL (optional, defaults to `https://openrouter.ai/api/v1`) |
 | `OPENROUTER_HTTP_REFERER` | Optional client referer sent as `HTTP-Referer` header |
-| `OPENROUTER_X_TITLE` | Optional client title sent as `X-Title` header (defaults to `CodexBar`) |
+| `OPENROUTER_X_TITLE` | Optional client title sent as `X-Title` header (defaults to `TokenBar`) |
 
 ## Notes
 

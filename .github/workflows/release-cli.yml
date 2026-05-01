@@ -62,8 +62,8 @@ jobs:
           hash -r
           swift --version
 
-      - name: Build CodexBarCLI (release)
-        run: swift build -c release --product CodexBarCLI --static-swift-stdlib
+      - name: Build TokenBarCLI (release)
+        run: swift build -c release --product TokenBarCLI --static-swift-stdlib
 
       - name: Package
         id: pkg
@@ -83,13 +83,13 @@ jobs:
             aarch64|arm64) ARCH="aarch64" ;;
           esac
 
-          BIN_DIR="$(swift build -c release --product CodexBarCLI --static-swift-stdlib --show-bin-path)"
+          BIN_DIR="$(swift build -c release --product TokenBarCLI --static-swift-stdlib --show-bin-path)"
           OUT_DIR="$(mktemp -d)"
-          install -m 0755 "$BIN_DIR/CodexBarCLI" "$OUT_DIR/CodexBarCLI"
-          ln -s "CodexBarCLI" "$OUT_DIR/codexbar"
+          install -m 0755 "$BIN_DIR/TokenBarCLI" "$OUT_DIR/TokenBarCLI"
+          ln -s "TokenBarCLI" "$OUT_DIR/tokenbar"
 
-          ASSET="CodexBarCLI-${TAG}-linux-${ARCH}.tar.gz"
-          (cd "$OUT_DIR" && tar czf "$ASSET" CodexBarCLI codexbar)
+          ASSET="TokenBarCLI-${TAG}-linux-${ARCH}.tar.gz"
+          (cd "$OUT_DIR" && tar czf "$ASSET" TokenBarCLI tokenbar)
           sha256sum "$OUT_DIR/$ASSET" > "$OUT_DIR/$ASSET.sha256"
 
           echo "out_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
@@ -111,7 +111,7 @@ jobs:
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v6
         with:
-          name: codexbar-linux-cli-${{ matrix.name }}
+          name: tokenbar-linux-cli-${{ matrix.name }}
           path: |
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}.sha256

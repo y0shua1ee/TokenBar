@@ -21,7 +21,7 @@ The Warp provider reads credit limits from Warp's GraphQL API using an API token
 1. Open **Settings → Providers**
 2. Enable **Warp**
 3. In Warp, open your profile menu → **Settings → Platform → API Keys**, then create a key.
-4. Enter the created `wk-...` key in CodexBar.
+4. Enter the created `wk-...` key in TokenBar.
 
 Reference guide: `https://docs.warp.dev/reference/cli/api-keys`
 

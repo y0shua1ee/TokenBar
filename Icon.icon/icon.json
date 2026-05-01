@@ -6,8 +6,8 @@
     {
       "layers" : [
         {
-          "image-name" : "codexbar.png",
-          "name" : "codexbar",
+          "image-name" : "tokenbar.png",
+          "name" : "tokenbar",
           "position" : {
             "scale" : 1.4,
             "translation-in-points" : [

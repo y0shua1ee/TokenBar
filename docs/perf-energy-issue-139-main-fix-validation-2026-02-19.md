@@ -1,16 +1,16 @@
-# CodexBar Issue #139 Main Fix Validation (Post-Fix vs Pre-Fix)
+# TokenBar Issue #139 Main Fix Validation (Post-Fix vs Pre-Fix)
 
 Date: 2026-02-19
-Workspace: /Users/michalkrsik/windsurf_project_folder/CodexBar
+Workspace: /Users/michalkrsik/windsurf_project_folder/TokenBar
 Branch: codex/perf-issue-139
 
 Reference pre-fix report:
-- /Users/michalkrsik/windsurf_project_folder/CodexBar/docs/perf-energy-issue-139-simulation-report-2026-02-19.md
+- /Users/michalkrsik/windsurf_project_folder/TokenBar/docs/perf-energy-issue-139-simulation-report-2026-02-19.md
 
 ## Implemented Main Fix
 
 File changed:
-- /Users/michalkrsik/windsurf_project_folder/CodexBar/Sources/CodexBarCore/Providers/Codex/CodexStatusProbe.swift
+- /Users/michalkrsik/windsurf_project_folder/TokenBar/Sources/CodexBarCore/Providers/Codex/CodexStatusProbe.swift
 
 Behavior change:
 - Primary Codex PTY probe timeout reduced from 18s to 8s.

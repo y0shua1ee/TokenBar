@@ -8,7 +8,7 @@ read_when:
 
 # Kimi Provider
 
-Tracks usage for [Kimi For Coding](https://www.kimi.com/code) in CodexBar.
+Tracks usage for [Kimi For Coding](https://www.kimi.com/code) in TokenBar.
 
 ## Features
 
@@ -25,24 +25,24 @@ Choose one of two authentication methods:
 
 **No setup needed!** If you're already logged in to Kimi in Arc, Chrome, Safari, Edge, Brave, or Chromium:
 
-1. Open CodexBar settings → Providers → Kimi
+1. Open TokenBar settings → Providers → Kimi
 2. Set "Cookie source" to "Automatic"
 3. Enable the Kimi provider toggle
-4. CodexBar will automatically find your session
+4. TokenBar will automatically find your session
 
-**Note**: Requires Full Disk Access to read browser cookies (System Settings → Privacy & Security → Full Disk Access → CodexBar).
+**Note**: Requires Full Disk Access to read browser cookies (System Settings → Privacy & Security → Full Disk Access → TokenBar).
 
 ### Method 2: Manual Token Entry
 
 For advanced users or when automatic import fails:
 
-1. Open CodexBar settings → Providers → Kimi
+1. Open TokenBar settings → Providers → Kimi
 2. Set "Cookie source" to "Manual"
 3. Visit `https://www.kimi.com/code/console` in your browser
 4. Open Developer Tools (F12 or Cmd+Option+I)
 5. Go to **Application** → **Cookies**
 6. Copy the `kimi-auth` cookie value (JWT token)
-7. Paste it into the "Auth Token" field in CodexBar
+7. Paste it into the "Auth Token" field in TokenBar
 
 ### Method 3: Environment Variable
 
@@ -54,7 +54,7 @@ export KIMI_AUTH_TOKEN="jwt-token-here"
 
 ## Authentication Priority
 
-When multiple sources are available, CodexBar uses this order:
+When multiple sources are available, TokenBar uses this order:
 
 1. Manual token (from Settings UI)
 2. Environment variable (`KIMI_AUTH_TOKEN`)
@@ -116,7 +116,7 @@ All tiers have a rate limit of 200 requests per 5 hours.
 
 ### "No Kimi session cookies found"
 - You're not logged in to Kimi in any supported browser
-- Grant Full Disk Access to CodexBar in System Settings
+- Grant Full Disk Access to TokenBar in System Settings
 
 ### "Failed to parse Kimi usage data"
 - The API response format may have changed. Please report this issue.
@@ -124,6 +124,6 @@ All tiers have a rate limit of 200 requests per 5 hours.
 ## Implementation
 
 - **Core files**: `Sources/CodexBarCore/Providers/Kimi/`
-- **UI files**: `Sources/CodexBar/Providers/Kimi/`
-- **Login flow**: `Sources/CodexBar/KimiLoginRunner.swift`
+- **UI files**: `Sources/TokenBar/Providers/Kimi/`
+- **Login flow**: `Sources/TokenBar/KimiLoginRunner.swift`
 - **Tests**: `Tests/CodexBarTests/KimiProviderTests.swift`

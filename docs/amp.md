@@ -38,7 +38,7 @@ The Amp provider tracks your Amp Free usage by scraping the Amp settings page wi
 
 ### “No Amp session cookie found”
 
-Log in to Amp in a supported browser (Safari or Chromium-based), then refresh in CodexBar.
+Log in to Amp in a supported browser (Safari or Chromium-based), then refresh in TokenBar.
 
 ### “Amp session cookie expired”
 

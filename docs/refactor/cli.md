@@ -1,7 +1,7 @@
 ---
 summary: "CLI refactor plan: JSON-only errors, config validation, SettingsStore split."
 read_when:
-  - "Refactoring CodexBar CLI error handling or config parsing."
+  - "Refactoring TokenBar CLI error handling or config parsing."
   - "Splitting SettingsStore into smaller files."
   - "Adding config validation or CLI config commands."
 ---

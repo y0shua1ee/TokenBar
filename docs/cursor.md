@@ -14,7 +14,7 @@ Cursor is web-only. Usage is fetched via browser cookies or a stored WebKit sess
 
 1) **Cached cookie header** (preferred)
    - Stored after successful browser import.
-   - Keychain cache: `com.steipete.codexbar.cache` (account `cookie.cursor`).
+   - Keychain cache: `com.y0shua1ee.tokenbar.cache` (account `cookie.cursor`).
 
 2) **Browser cookie import**
    - Cookie order from provider metadata (default: Safari → Chrome → Firefox).
@@ -27,7 +27,7 @@ Cursor is web-only. Usage is fetched via browser cookies or a stored WebKit sess
 3) **Stored session cookies** (fallback)
    - Captured by the "Add Account" WebKit login flow.
    - Login teardown uses `WebKitTeardown` to avoid Intel WebKit crashes.
-   - Stored at: `~/Library/Application Support/CodexBar/cursor-session.json`.
+   - Stored at: `~/Library/Application Support/TokenBar/cursor-session.json`.
 
 Manual option:
 - Preferences → Providers → Cursor → Cookie source → Manual.
@@ -54,4 +54,4 @@ Manual option:
 
 ## Key files
 - `Sources/CodexBarCore/Providers/Cursor/CursorStatusProbe.swift`
-- `Sources/CodexBar/CursorLoginRunner.swift` (login flow)
+- `Sources/TokenBar/CursorLoginRunner.swift` (login flow)
