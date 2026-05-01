@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import CodexBarMacroSupport
 import Foundation
 
@@ -18,7 +18,7 @@ struct KimiK2ProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "kimi-k2-api-token",
                 title: "API key",
-                subtitle: "Stored in ~/.codexbar/config.json. Generate one at kimi-k2.ai.",
+                subtitle: "Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai.",
                 kind: .secure,
                 placeholder: "Paste API key…",
                 binding: context.stringBinding(\.kimiK2APIToken),

@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Foundation
 
 enum ProviderImplementationRegistry {
@@ -41,6 +41,8 @@ enum ProviderImplementationRegistry {
         case .abacus: AbacusProviderImplementation()
         case .mistral: MistralProviderImplementation()
         case .deepseek: DeepSeekProviderImplementation()
+        case .custom: CustomProviderImplementation()
+        case .krill: KrillProviderImplementation()
         }
     }
 

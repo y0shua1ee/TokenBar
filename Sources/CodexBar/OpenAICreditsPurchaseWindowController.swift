@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import WebKit
 
 @MainActor

@@ -1,5 +1,5 @@
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 struct ProviderCandidateRetryRunnerTests {
     private enum TestError: Error, Equatable {

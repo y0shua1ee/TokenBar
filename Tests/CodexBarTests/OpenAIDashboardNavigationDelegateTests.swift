@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 import WebKit
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @Suite(.serialized)
 struct OpenAIDashboardNavigationDelegateTests {

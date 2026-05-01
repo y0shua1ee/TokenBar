@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Commander
 import Foundation
 
@@ -200,7 +200,7 @@ struct TokenAccountCLIContext {
                 mistral: ProviderSettingsSnapshot.MistralProviderSettings(
                     cookieSource: cookieSource,
                     manualCookieHeader: cookieHeader))
-        case .gemini, .antigravity, .copilot, .kiro, .vertexai, .kimik2, .synthetic, .openrouter, .warp, .deepseek:
+        case .gemini, .antigravity, .copilot, .kiro, .vertexai, .kimik2, .synthetic, .openrouter, .warp, .deepseek, .custom, .krill:
             return nil
         }
     }

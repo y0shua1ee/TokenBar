@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 @testable import CodexBarWidget
 
 struct CodexBarWidgetProviderTests {

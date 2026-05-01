@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Commander
 #if canImport(AppKit)
 import AppKit

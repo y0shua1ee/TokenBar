@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Foundation
 import SweetCookieKit
 
@@ -11,7 +11,7 @@ extension UsageStore {
 
 extension UsageStore {
     struct ClaudeDebugLogConfiguration {
-        let runtime: CodexBarCore.ProviderRuntime
+        let runtime: TokenBarCore.ProviderRuntime
         let sourceMode: ProviderSourceMode
         let environment: [String: String]
         let webExtrasEnabled: Bool

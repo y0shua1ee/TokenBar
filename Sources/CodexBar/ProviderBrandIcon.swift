@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 
 enum ProviderBrandIcon {
     private static let size = NSSize(width: 16, height: 16)

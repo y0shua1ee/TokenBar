@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 #if os(macOS)
 import SweetCookieKit

@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Foundation
 
 extension SettingsStore {

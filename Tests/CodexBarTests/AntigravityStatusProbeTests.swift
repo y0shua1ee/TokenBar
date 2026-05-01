@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 private final class AntigravityAttemptRecorder: @unchecked Sendable {
     private let lock = NSLock()

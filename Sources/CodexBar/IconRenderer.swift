@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 
 // swiftlint:disable:next type_body_length
 enum IconRenderer {

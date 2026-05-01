@@ -1,3 +1,28 @@
+# TokenBar 🎚️ — Custom Provider Support
+
+> Fork of [CodexBar](https://github.com/steipete/CodexBar) that adds support for **custom / third-party OpenAI-compatible providers** (like Krill).
+
+## What's Different from CodexBar
+
+TokenBar adds a **`custom` provider type** that lets you monitor any OpenAI-compatible API endpoint:
+
+```json
+{
+  "id": "custom",
+  "enabled": true,
+  "customName": "Krill",
+  "baseURL": "https://api.cdn-krill-ai.com/coding/v1",
+  "apiKey": "nb_YOUR_API_KEY",
+  "customModelFilter": "gpt-4.1"
+}
+```
+
+Add this to `~/.tokenbar/config.json` under `providers`, and TokenBar will probe your custom provider for usage stats.
+
+See `config.example.json` in the repo for a full example.
+
+---
+
 # CodexBar 🎚️ - May your tokens never run out.
 
 Tiny macOS 14+ menu bar app that keeps your Codex, Claude, Cursor, Gemini, Antigravity, Droid (Factory), Copilot, z.ai, Kiro, Vertex AI, Augment, Amp, JetBrains AI, OpenRouter, Perplexity, and Abacus AI limits visible (session + weekly where available) and shows when each window resets. One status item per provider (or Merge Icons mode with a provider switcher and optional Overview tab); enable what you use from Settings. No Dock icon, minimal UI, dynamic bar icons in the menu bar.

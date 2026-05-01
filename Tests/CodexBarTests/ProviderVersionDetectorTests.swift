@@ -1,5 +1,5 @@
 import XCTest
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 final class ProviderVersionDetectorTests: XCTestCase {
     func test_run_returnsFirstLineForSuccessfulCommand() {

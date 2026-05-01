@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import CodexBarMacroSupport
 import Foundation
 import SwiftUI
@@ -115,7 +115,7 @@ struct MiniMaxProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "minimax-api-token",
                 title: "API token",
-                subtitle: "Stored in ~/.codexbar/config.json. Paste your MiniMax API key.",
+                subtitle: "Stored in ~/.tokenbar/config.json. Paste your MiniMax API key.",
                 kind: .secure,
                 placeholder: "Paste API token…",
                 binding: context.stringBinding(\.minimaxAPIToken),

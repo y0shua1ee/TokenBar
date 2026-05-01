@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Commander
 import Foundation
 

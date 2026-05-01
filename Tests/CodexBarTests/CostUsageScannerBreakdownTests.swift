@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 // swiftlint:disable file_length
 // swiftlint:disable type_body_length

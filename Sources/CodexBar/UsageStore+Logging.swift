@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 
 extension UsageStore {
     func logStartupState() {

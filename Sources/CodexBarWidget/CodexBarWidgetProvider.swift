@@ -1,5 +1,5 @@
 import AppIntents
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 import WidgetKit
 
@@ -79,6 +79,8 @@ enum ProviderChoice: String, AppEnum {
         case .abacus: return nil // Abacus AI not yet supported in widgets
         case .mistral: return nil // Mistral not yet supported in widgets
         case .deepseek: return nil // DeepSeek not yet supported in widgets
+        case .custom: return nil // Custom not yet supported in widgets
+        case .krill: return nil // Krill not yet supported in widgets
         }
     }
 }

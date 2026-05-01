@@ -1,7 +1,7 @@
 #if os(macOS)
 import AppKit
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @MainActor
 struct WebKitTeardownTests {

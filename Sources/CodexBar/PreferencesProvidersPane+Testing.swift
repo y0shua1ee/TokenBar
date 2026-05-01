@@ -1,5 +1,5 @@
 #if DEBUG
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 
 extension ProvidersPane {

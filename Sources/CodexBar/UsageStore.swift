@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import Foundation
 import Observation
 import SweetCookieKit
@@ -887,7 +887,7 @@ extension UsageStore {
                         hasEnvToken: deepSeekHasEnvToken,
                         hasTokenAccount: deepSeekHasTokenAccount)
                 case .gemini, .antigravity, .opencode, .opencodego, .factory, .copilot, .vertexai, .kilo, .kiro, .kimi,
-                     .kimik2, .jetbrains, .perplexity, .abacus, .mistral:
+                     .kimik2, .jetbrains, .perplexity, .abacus, .mistral, .custom, .krill:
                     return unimplementedDebugLogMessages[provider] ?? "Debug log not yet implemented"
                 }
             }
@@ -919,7 +919,7 @@ extension UsageStore {
                 cookieSource: fallbackCookieSource,
                 manualCookieHeader: fallbackCookieHeader)
             return ClaudeDebugLogConfiguration(
-                runtime: CodexBarCore.ProviderRuntime.app,
+                runtime: TokenBarCore.ProviderRuntime.app,
                 sourceMode: sourceMode,
                 environment: environment,
                 webExtrasEnabled: claudeSettings.webExtrasEnabled,

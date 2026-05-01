@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 
 extension StatusItemController {
     // MARK: - Actions reachable from menus

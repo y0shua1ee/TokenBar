@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import Foundation
 
 extension CodexBarCLI {
@@ -26,7 +26,7 @@ extension CodexBarCLI {
             Auto falls back to Claude CLI only when cookies are missing.
           - Kilo: app.kilo.ai API.
             Auto falls back to Kilo CLI when API credentials are missing or unauthorized.
-          Token accounts are loaded from ~/.codexbar/config.json.
+          Token accounts are loaded from ~/.tokenbar/config.json.
           Use --account or --account-index to select a specific token account, or --all-accounts to fetch all.
           Account selection requires a single provider.
 

@@ -2,7 +2,7 @@ import Foundation
 import Testing
 import WebKit
 @testable import CodexBar
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 /// Tests for OpenAIDashboardWebViewCache to verify WebView reuse behavior.
 ///

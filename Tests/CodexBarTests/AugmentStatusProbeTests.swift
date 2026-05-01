@@ -1,5 +1,5 @@
 import XCTest
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 final class AugmentStatusProbeTests: XCTestCase {
     private func failingProbe() throws -> AugmentStatusProbe {

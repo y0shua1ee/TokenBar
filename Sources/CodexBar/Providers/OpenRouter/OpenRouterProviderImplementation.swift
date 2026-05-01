@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import CodexBarMacroSupport
 import Foundation
 import SwiftUI
@@ -43,7 +43,7 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "openrouter-api-key",
                 title: "API key",
-                subtitle: "Stored in ~/.codexbar/config.json. "
+                subtitle: "Stored in ~/.tokenbar/config.json. "
                     + "Get your key from openrouter.ai/settings/keys and set a key spending limit "
                     + "there to enable API key quota tracking.",
                 kind: .secure,

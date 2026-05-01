@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 
 /// SwiftUI card used inside the NSMenu to mirror Apple's rich menu panels.

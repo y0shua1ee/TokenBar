@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 
 /// Source of truth for app-side provider implementations.
 ///

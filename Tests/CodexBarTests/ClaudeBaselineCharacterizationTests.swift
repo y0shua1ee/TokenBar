@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @Suite(.serialized)
 struct ClaudeBaselineCharacterizationTests {

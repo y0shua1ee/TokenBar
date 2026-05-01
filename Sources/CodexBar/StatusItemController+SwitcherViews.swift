@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 
 enum ProviderSwitcherSelection: Equatable {
     case overview

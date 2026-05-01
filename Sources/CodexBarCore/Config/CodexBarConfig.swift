@@ -84,6 +84,10 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
     public var workspaceID: String?
     public var tokenAccounts: ProviderTokenAccountData?
     public var codexActiveSource: CodexActiveSource?
+    // Custom provider fields
+    public var customName: String?
+    public var baseURL: String?
+    public var customModelFilter: String?
 
     public init(
         id: UsageProvider,
@@ -96,7 +100,10 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         region: String? = nil,
         workspaceID: String? = nil,
         tokenAccounts: ProviderTokenAccountData? = nil,
-        codexActiveSource: CodexActiveSource? = nil)
+        codexActiveSource: CodexActiveSource? = nil,
+        customName: String? = nil,
+        baseURL: String? = nil,
+        customModelFilter: String? = nil)
     {
         self.id = id
         self.enabled = enabled
@@ -109,6 +116,9 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         self.workspaceID = workspaceID
         self.tokenAccounts = tokenAccounts
         self.codexActiveSource = codexActiveSource
+        self.customName = customName
+        self.baseURL = baseURL
+        self.customModelFilter = customModelFilter
     }
 
     public var sanitizedAPIKey: String? {

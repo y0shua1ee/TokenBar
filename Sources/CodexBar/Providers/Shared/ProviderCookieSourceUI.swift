@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 
 enum ProviderCookieSourceUI {
     static let keychainDisabledPrefix =

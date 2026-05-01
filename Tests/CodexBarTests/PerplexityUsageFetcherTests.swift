@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 struct PerplexityUsageFetcherTests {
     // Fixed "now" so expiry comparisons are deterministic

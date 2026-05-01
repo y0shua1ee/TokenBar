@@ -72,7 +72,7 @@ public struct CodexBarConfigStore: @unchecked Sendable {
 
     public static func defaultURL(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> URL {
         home
-            .appendingPathComponent(".codexbar", isDirectory: true)
+            .appendingPathComponent(".tokenbar", isDirectory: true)
             .appendingPathComponent("config.json")
     }
 

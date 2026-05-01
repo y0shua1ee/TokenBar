@@ -1,6 +1,6 @@
 import Testing
 @testable import CodexBarCLI
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 struct CLIWebFallbackTests {
     private func makeContext(

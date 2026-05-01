@@ -1,7 +1,7 @@
 import Foundation
 import Testing
 @testable import CodexBarCLI
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @Suite(.serialized)
 struct CLIOpenAIDashboardCacheTests {

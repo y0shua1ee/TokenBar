@@ -1,5 +1,5 @@
 import AppKit
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 
 private final class UsageHistoryMenuHostingView<Content: View>: NSHostingView<Content> {

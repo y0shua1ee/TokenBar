@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 struct KiloUsageFetcherTests {
     private struct StubClaudeFetcher: ClaudeUsageFetching {

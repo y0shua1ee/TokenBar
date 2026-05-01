@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 
 extension StatusItemController {
     nonisolated static func switcherWeeklyMetricPercent(

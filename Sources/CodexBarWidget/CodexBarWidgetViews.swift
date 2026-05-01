@@ -1,4 +1,4 @@
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 import WidgetKit
 
@@ -285,6 +285,8 @@ private struct ProviderSwitchChip: View {
         case .abacus: "Abacus"
         case .mistral: "Mistral"
         case .deepseek: "DeepSeek"
+        case .custom: "Custom"
+        case .krill: "Krill"
         }
     }
 }
@@ -650,6 +652,10 @@ enum WidgetColors {
             Color(red: 255 / 255, green: 80 / 255, blue: 15 / 255) // Mistral orange
         case .deepseek:
             Color(red: 82 / 255, green: 125 / 255, blue: 240 / 255)
+        case .custom:
+            Color(red: 128 / 255, green: 128 / 255, blue: 128 / 255) // Neutral gray for custom
+        case .krill:
+            Color(red: 99 / 255, green: 102 / 255, blue: 241 / 255) // Krill indigo
         }
     }
 }

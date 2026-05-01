@@ -1,5 +1,5 @@
 import Charts
-import CodexBarCore
+import TokenBarCore
 import SwiftUI
 
 @MainActor
