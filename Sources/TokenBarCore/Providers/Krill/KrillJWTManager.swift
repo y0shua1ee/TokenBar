@@ -82,43 +82,92 @@ public final class KrillJWTManager: @unchecked Sendable {
     // MARK: - WebView Login
 
     /// Opens a WebView window for Krill login. Returns the JWT from localStorage on success.
+    /// Throws KrillAPIError.missingJWT if the user closes the window without logging in.
     public func loginViaWebView() async throws -> String {
-        NSApp.activate(ignoringOtherApps: true)
+        let runner = KrillLoginRunner(jwtManager: self)
+        WebKitTeardown.retain(runner)
 
-        // Force-fresh browser state
-        let store = WKWebsiteDataStore.nonPersistent()
+        let jwt = try await runner.run()
+        storeJWT(jwt)
+        return jwt
+    }
+}
 
+/// Self-contained login runner.
+/// JWT extraction uses WKUserScript + WKScriptMessageHandler — a polling script
+/// injected at document start that watches localStorage for 'krill_jwt' and
+/// posts it via webkit.messageHandlers. This avoids the timing issues of
+/// WKNavigationDelegate.didFinish (where evaluateJavaScript may run before
+/// the SPA has written the JWT to localStorage, especially with .nonPersistent()
+/// data stores).
+@MainActor
+private final class KrillLoginRunner: NSObject {
+    private let jwtManager: KrillJWTManager
+    private var webView: WKWebView?
+    private var window: NSWindow?
+    private var continuation: CheckedContinuation<String, any Error>?
+    private var hasCompleted = false
+
+    private static let messageHandlerName = "tokenbarKrillJWT"
+    private static let loginURL = URL(string: "https://www.krill-ai.com/login")!
+
+    init(jwtManager: KrillJWTManager) {
+        self.jwtManager = jwtManager
+        super.init()
+    }
+
+    func run() async throws -> String {
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+
+            // Switch to regular activation policy BEFORE creating the window.
+            // LSUIElement apps (menu-bar-only, no Dock icon) cannot reliably
+            // receive keyboard input in WebView text fields even with floating
+            // level + FocusableWebView + RunLoop activation workarounds.
+            // Temporarily switching to .regular gives the process full foreground
+            // status so the window server routes keystrokes to the WebView.
+            // We restore .accessory in complete() after the window is torn down.
+            NSApp.setActivationPolicy(.regular)
+            self.setupWindow()
+        }
+    }
+
+    private func setupWindow() {
         let config = WKWebViewConfiguration()
-        config.websiteDataStore = store
+        config.websiteDataStore = .nonPersistent()
 
-        // Inject a script that auto-focuses the first input field on every page load.
-        // This works around the keyboard-focus bug in menu-bar-only (.accessory) apps
-        // where WKWebView's internal DOM doesn't get first-responder status.
-        let focusScript = WKUserScript(
+        // ── Message handler: receives JWT from injected JS poll script ──
+        config.userContentController.add(self, name: Self.messageHandlerName)
+
+        // ── User script: polls localStorage for krill_jwt every 500ms ──
+        let pollScript = WKUserScript(
             source: """
             (function() {
-                // Focus the email input as soon as it appears
-                var obs = new MutationObserver(function() {
-                    var input = document.querySelector('input[type="email"], input[type="text"]');
-                    if (input) {
-                        input.focus();
-                        obs.disconnect();
+                var checked = false;
+                function poll() {
+                    if (checked) return;
+                    var jwt = localStorage.getItem('krill_jwt');
+                    if (jwt) {
+                        checked = true;
+                        window.webkit.messageHandlers.\(Self.messageHandlerName).postMessage(jwt);
+                        return;
                     }
-                });
-                obs.observe(document.documentElement, {childList: true, subtree: true});
-                // Also try immediately in case the DOM is already ready
-                setTimeout(function() {
-                    var input = document.querySelector('input[type="email"], input[type="text"]');
-                    if (input) input.focus();
-                }, 500);
+                    setTimeout(poll, 500);
+                }
+                // Start polling after a short delay to let the SPA initialize
+                setTimeout(poll, 300);
             })();
             """,
-            injectionTime: .atDocumentEnd,
+            injectionTime: .atDocumentStart,
             forMainFrameOnly: true
         )
-        config.userContentController.addUserScript(focusScript)
+        config.userContentController.addUserScript(pollScript)
 
-        let webView = WKWebView(frame: .zero, configuration: config)
+        // FocusableWebView subclass overrides acceptsFirstResponder / becomeFirstResponder
+        // to force keyboard routing into the WebView.
+        let webView = FocusableWebView(frame: .zero, configuration: config)
+        webView.navigationDelegate = self
+        self.webView = webView
 
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 480, height: 620),
@@ -126,61 +175,138 @@ public final class KrillJWTManager: @unchecked Sendable {
             backing: .buffered,
             defer: false)
         window.title = "Krill Login"
-        window.center()
-        window.level = .floating
+        // PREVENT the crash: macOS default isReleasedWhenClosed=true auto-deallocs
+        // the window, but we still hold references — boom.
+        window.isReleasedWhenClosed = false
         window.contentView = webView
-        window.makeKeyAndOrderFront(nil)
+        window.center()
+        window.delegate = self
+        self.window = window
+
+        webView.load(URLRequest(url: Self.loginURL))
+
+        // Activate and show the window. With .regular activation policy already
+        // set in run(), the process IS the foreground app and keyboard events
+        // route normally.
+        NSApp.activate(ignoringOtherApps: true)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.15))
+        window.orderFrontRegardless()
+        window.makeKey()
         window.makeFirstResponder(webView)
-
-        guard let loginURL = URL(string: "https://www.krill-ai.com/login") else {
-            throw KrillAPIError.missingJWT
-        }
-        webView.load(URLRequest(url: loginURL))
-
-        let jwt = try await waitForJWT(webView: webView, window: window)
-        storeJWT(jwt)
-        window.close()
-
-        return jwt
     }
 
-    /// Poll the WebView until JWT appears in localStorage (user logged in successfully).
-    private func waitForJWT(webView: WKWebView, window: NSWindow) async throws -> String {
-        let maxAttempts = 120
-        let pollInterval: TimeInterval = 1.0
+    private func complete(with result: Result<String, any Error>) {
+        guard let continuation = self.continuation else { return }
+        self.continuation = nil
+        self.scheduleCleanup()
 
-        for attempt in 0 ..< maxAttempts {
-            if !window.isVisible {
-                throw KrillAPIError.missingJWT
-            }
-
-            if attempt > 0 {
-                try? await Task.sleep(nanoseconds: UInt64(pollInterval * 1_000_000_000))
-            }
-
-            let js = "localStorage.getItem('krill_jwt')"
-            do {
-                let result = try await webView.evaluateJavaScript(js)
-                if let jwt = result as? String, !jwt.isEmpty, !isJWTExpired(jwt) {
-                    return jwt
-                }
-            } catch {
-                continue
-            }
-
-            if let currentURL = webView.url?.absoluteString,
-               currentURL.contains("/app"),
-               attempt > 5
-            {
-                try? await Task.sleep(nanoseconds: 2_000_000_000)
-                let retryResult = try? await webView.evaluateJavaScript(js)
-                if let jwt = retryResult as? String, !jwt.isEmpty, !isJWTExpired(jwt) {
-                    return jwt
-                }
-            }
+        // Restore accessory activation policy asynchronously after the window
+        // has been torn down.  The delay gives WebKitTeardown time to fully
+        // release the WebView and window before the policy change, avoiding
+        // the use-after-free crash.
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+            NSApp.setActivationPolicy(.accessory)
         }
 
-        throw KrillAPIError.missingJWT
+        continuation.resume(with: result)
+    }
+
+    private func scheduleCleanup() {
+        WebKitTeardown.scheduleCleanup(owner: self, window: self.window, webView: self.webView)
+    }
+}
+
+// MARK: - WKScriptMessageHandler (JWT extraction)
+
+extension KrillLoginRunner: WKScriptMessageHandler {
+    func userContentController(
+        _ userContentController: WKUserContentController,
+        didReceive message: WKScriptMessage)
+    {
+        guard !hasCompleted,
+              message.name == Self.messageHandlerName,
+              let jwt = message.body as? String,
+              !jwt.isEmpty,
+              !jwtManager.isJWTExpired(jwt)
+        else {
+            return
+        }
+
+        hasCompleted = true
+        complete(with: .success(jwt))
+    }
+}
+
+// MARK: - WKNavigationDelegate (keyboard focus only)
+
+extension KrillLoginRunner: WKNavigationDelegate {
+    nonisolated func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Task { @MainActor in
+            guard !self.hasCompleted else { return }
+
+            // Re-assert keyboard focus on the WebView after every navigation.
+            // SPA route changes can shuffle the responder chain.
+            if let window = self.window {
+                window.makeFirstResponder(webView)
+            }
+            let focusJS = """
+            (function() {\
+              var el = document.querySelector(\
+            'input[type="text"], input[type="email"], input[type="password"]');\
+              if (el) el.focus();\
+            })();
+            """
+            _ = try? await webView.evaluateJavaScript(focusJS)
+        }
+    }
+
+    nonisolated func webView(
+        _ webView: WKWebView,
+        didFail navigation: WKNavigation!,
+        withError error: Error)
+    {
+        Task { @MainActor in
+            self.complete(with: .failure(error))
+        }
+    }
+
+    nonisolated func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: Error)
+    {
+        Task { @MainActor in
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
+                return
+            }
+            self.complete(with: .failure(error))
+        }
+    }
+}
+
+// MARK: - NSWindowDelegate
+
+extension KrillLoginRunner: NSWindowDelegate {
+    nonisolated func windowWillClose(_ notification: Notification) {
+        Task { @MainActor in
+            guard !self.hasCompleted else { return }
+            self.complete(with: .failure(KrillAPIError.missingJWT))
+        }
+    }
+}
+
+/// WKWebView subclass that unconditionally accepts first-responder status.
+/// In LSUIElement apps, the default WKWebView may refuse to become first
+/// responder because the app process isn't considered "active" by the
+/// window server. Overriding these forces keyboard routing into the WebView.
+private final class FocusableWebView: WKWebView {
+    override var acceptsFirstResponder: Bool { true }
+
+    @discardableResult
+    override func becomeFirstResponder() -> Bool {
+        return true
     }
 }
 

@@ -11,12 +11,9 @@ public enum KrillUsageFetcher: Sendable {
         if let stored = await KrillJWTManager.shared.getStoredJWT() {
             jwt = stored
         } else {
-            do {
-                jwt = try await KrillJWTManager.shared.loginViaWebView()
-            } catch {
-                // User dismissed the login window — return empty snapshot gracefully
-                return buildEmptySnapshot()
-            }
+            // No stored JWT — don't auto-pop the login window on fetch.
+            // The user triggers login explicitly from the menu "Login" button.
+            return buildEmptySnapshot()
         }
 
         // 2. Fetch data in parallel
