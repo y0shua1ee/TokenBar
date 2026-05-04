@@ -25,10 +25,10 @@ TokenBar keeps your API limits visible at a glance. Enable what you use:
 
 ### 🆕 Krill Provider (Native)
 - **WebView JWT login** — secure one-time login via Krill's website
-- **Wallet balance** — $18.35 at a glance
-- **Credits remaining** — Elite plan credits progress bar
-- **Monthly requests** — 尊享月卡 request count tracking
-- **Cache rate & today's spending** — detailed usage breakdown
+- **Wallet balance** — USD wallet at a glance
+- **Elite Credits** — plan credits progress bar
+- **尊享月卡 Requests** — monthly request quota tracking
+- **Cache rate & models** — detailed usage breakdown at login
 - JWT stored securely in macOS Keychain, auto-refresh on expiry
 
 ### 🆕 Custom Provider
@@ -46,6 +46,12 @@ Add any OpenAI-compatible endpoint to `~/.tokenbar/config.json`:
 ```
 
 ## Quick Start
+
+### Download (Pre-built)
+Download the latest adhoc-signed build from [GitHub Releases](https://github.com/y0shua1ee/TokenBar/releases/latest).
+**First launch**: right-click → Open, or allow in System Settings → Privacy & Security.
+
+### Build from Source
 
 ```bash
 # Build and run
