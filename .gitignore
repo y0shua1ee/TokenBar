@@ -26,3 +26,9 @@ Package.resolved
 # TokenBar runtime
 .tokenbar/
 TokenBar.app/
+
+# TokenBar adhoc release zips
+TokenBar-*.zip
+
+# Xcode user state
+.swiftpm/xcode/xcuserdata/

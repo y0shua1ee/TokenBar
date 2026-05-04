@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.1 — 2026-05-04
+
+### About
+- Update About pane links to y0shua1ee fork (GitHub, Twitter, Email)
+- Remove website link; add Yoshua copyright attribution
+
 ## 0.24 — 2026-05-04
 
 ### Providers & Usage

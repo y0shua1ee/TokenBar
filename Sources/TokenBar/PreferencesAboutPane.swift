@@ -67,10 +67,9 @@ struct AboutPane: View {
                 AboutLinkRow(
                     icon: "chevron.left.slash.chevron.right",
                     title: "GitHub",
-                    url: "https://github.com/steipete/TokenBar")
-                AboutLinkRow(icon: "globe", title: "Website", url: "https://steipete.me")
-                AboutLinkRow(icon: "bird", title: "Twitter", url: "https://twitter.com/steipete")
-                AboutLinkRow(icon: "envelope", title: "Email", url: "mailto:peter@steipete.me")
+                    url: "https://github.com/y0shua1ee/TokenBar")
+                AboutLinkRow(icon: "bird", title: "Twitter", url: "https://x.com/ever3never")
+                AboutLinkRow(icon: "envelope", title: "Email", url: "mailto:yuxiangl490@gmail.com")
             }
             .padding(.top, 8)
             .frame(maxWidth: .infinity)
@@ -109,7 +108,7 @@ struct AboutPane: View {
                     .foregroundStyle(.secondary)
             }
 
-            Text("© 2026 Peter Steinberger. MIT License.")
+            Text("© 2026 Peter Steinberger. Modified by Yoshua. MIT License.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
@@ -147,7 +146,7 @@ struct AboutPane: View {
     }
 
     private func openProjectHome() {
-        guard let url = URL(string: "https://github.com/steipete/TokenBar") else { return }
+        guard let url = URL(string: "https://github.com/y0shua1ee/TokenBar") else { return }
         NSWorkspace.shared.open(url)
     }
 }
