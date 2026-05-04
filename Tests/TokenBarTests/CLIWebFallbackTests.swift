@@ -1,5 +1,5 @@
 import Testing
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 @testable import TokenBarCore
 
 struct CLIWebFallbackTests {

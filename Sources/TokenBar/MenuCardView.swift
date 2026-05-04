@@ -1071,7 +1071,7 @@ extension UsageMenuCardView.Model {
         {
             primaryResetText = openRouterQuotaDetail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek,
+        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input.provider == .krill,
            let detail = primary.resetDescription,
            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
@@ -1083,7 +1083,9 @@ extension UsageMenuCardView.Model {
         {
             primaryDetailText = detail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek, primary.resetsAt == nil {
+        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input.provider == .krill,
+           primary.resetsAt == nil
+        {
             primaryResetText = nil
         }
         // Abacus: show credits as detail, compute pace on the primary monthly window
@@ -1154,6 +1156,13 @@ extension UsageMenuCardView.Model {
         var weeklyResetText = Self.resetText(for: weekly, style: input.resetTimeDisplayStyle, now: input.now)
         var weeklyDetailText: String? = input.provider == .zai ? zaiTimeDetail : nil
         if input.provider == .warp,
+           let detail = weekly.resetDescription,
+           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        {
+            weeklyResetText = nil
+            weeklyDetailText = detail
+        }
+        if input.provider == .krill,
            let detail = weekly.resetDescription,
            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {

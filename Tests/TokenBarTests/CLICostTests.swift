@@ -2,7 +2,7 @@ import TokenBarCore
 import Commander
 import Foundation
 import Testing
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 
 struct CLICostTests {
     @Test

@@ -43,7 +43,7 @@ public enum KrillUsageFetcher: Sendable {
     {
         var primary: RateWindow?
         var secondary: RateWindow?
-        var loginMethod = "Krill"
+        var loginMethodParts = ["Krill"]
 
         // Extract wallet balance
         let balanceUSD = credits.data?.balance_usd
@@ -66,12 +66,19 @@ public enum KrillUsageFetcher: Sendable {
                         usedPercent: usedPct,
                         windowMinutes: nil,
                         resetsAt: nil,
-                        resetDescription: "\(remainingCredits)/\(limitCredits) credits remaining")
+                        resetDescription: "Elite \(remainingCredits)/\(limitCredits) credits remaining")
 
-                    // Add today's spending to loginMethod from quota USD
+                    // API names this USD-equivalent subscription quota `daily_limit_usd`, but the
+                    // dashboard presents it as Elite credits quota, not today's request spend.
                     if let usedUSD = sub.quota?.used_usd,
                        let usdVal = Double(usedUSD) {
-                        loginMethod += " · Today $\(String(format: "%.2f", usdVal))"
+                        if let limitUSD = sub.quota?.daily_limit_usd,
+                           let limitVal = Double(limitUSD) {
+                            loginMethodParts.append(
+                                "Elite quota $\(String(format: "%.2f", usdVal))/$\(String(format: "%.2f", limitVal))")
+                        } else {
+                            loginMethodParts.append("Elite quota $\(String(format: "%.2f", usdVal))")
+                        }
                     }
                 }
 
@@ -86,7 +93,7 @@ public enum KrillUsageFetcher: Sendable {
                         usedPercent: usedPct,
                         windowMinutes: nil,
                         resetsAt: nil,
-                        resetDescription: "\(monthlyUsed)/\(monthlyLimit) requests this month")
+                        resetDescription: "尊享月卡 \(monthlyUsed)/\(monthlyLimit) requests this month")
                 }
             }
         }
@@ -97,24 +104,24 @@ public enum KrillUsageFetcher: Sendable {
                 ($0.cache_rate ?? 0) < ($1.cache_rate ?? 0)
             })
             if let rate = bestChannel?.cache_rate {
-                loginMethod += " · Cache \(Int(rate * 100))%"
+                loginMethodParts.append("Cache \(Int(rate * 100))%")
             }
         }
 
         // Model count
-        loginMethod += " · \(modelCount) models"
+        loginMethodParts.append("\(modelCount) models")
 
         // Build balance line
-        var balanceStr = "Balance: --"
+        var balanceStr = "Wallet: --"
         if let usdStr = balanceUSD, let bal = Double(usdStr) {
-            balanceStr = "Balance: $\(String(format: "%.2f", bal))"
+            balanceStr = "Wallet: $\(String(format: "%.2f", bal))"
         }
 
         let identity = ProviderIdentitySnapshot(
             providerID: .krill,
             accountEmail: nil,
             accountOrganization: nil,
-            loginMethod: "\(balanceStr)\n\(loginMethod)")
+            loginMethod: "\(balanceStr)\n\(loginMethodParts.joined(separator: " · "))")
 
         return UsageSnapshot(
             primary: primary,
@@ -132,7 +139,7 @@ public enum KrillUsageFetcher: Sendable {
             providerID: .krill,
             accountEmail: nil,
             accountOrganization: nil,
-            loginMethod: "Balance: --\nKrill · Login required")
+            loginMethod: "Wallet: --\nKrill · Login required")
 
         return UsageSnapshot(
             primary: nil,

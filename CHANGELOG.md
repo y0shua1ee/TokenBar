@@ -1,11 +1,12 @@
 # Changelog
 
-## 0.24 — Unreleased
+## 0.24 — 2026-05-04
 
 ### Providers & Usage
 - DeepSeek: add provider support with token-account balance tracking, paid vs. granted credit breakdown, and CLI support (#811). Thanks @willytop8!
 - Claude: add a peak-hours menu-card indicator with countdowns and a provider setting to hide it (#611). Thanks @hello-amed!
 - Cost history: show per-model cost details as a compact vertical list when hovering daily bars (#513). Thanks @iam-brain!
+- Krill: rename menu labels to Elite Credits / 尊享月卡 Requests / Wallet for clarity; show Elite quota usage alongside limits; fix login label build (#y0shua1ee/TokenBar#1)
 
 ### Fixes
 - Cursor: show Enterprise/Team usage from personal caps and shared pools instead of reporting 100% remaining (#813). Thanks @fcamus00!

@@ -821,4 +821,60 @@ struct MenuCardModelTests {
         #expect(primary.detailText == "€1.2345 this month")
         #expect(primary.resetText?.hasPrefix("Resets") == true)
     }
+
+    #if os(macOS)
+    @Test
+    func `krill model separates wallet elite credits and premium requests`() throws {
+        let now = Date()
+        let identity = ProviderIdentitySnapshot(
+            providerID: .krill,
+            accountEmail: nil,
+            accountOrganization: nil,
+            loginMethod: "Wallet: $16.55\nKrill · Elite quota $297.37/$439.99")
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(
+                usedPercent: 67.59,
+                windowMinutes: nil,
+                resetsAt: nil,
+                resetDescription: "Elite 14261/43999 credits remaining"),
+            secondary: RateWindow(
+                usedPercent: 0.945,
+                windowMinutes: nil,
+                resetsAt: nil,
+                resetDescription: "尊享月卡 1890/200000 requests this month"),
+            tertiary: nil,
+            updatedAt: now,
+            identity: identity)
+        let metadata = try #require(ProviderDefaults.metadata[.krill])
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .krill,
+            metadata: metadata,
+            snapshot: snapshot,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: nil,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.metrics.map(\.title) == ["Elite Credits", "尊享月卡 Requests"])
+        #expect(abs(model.metrics[0].percent - 32.41) < 0.001)
+        #expect(model.metrics[0].resetText == nil)
+        #expect(model.metrics[0].detailText == "Elite 14261/43999 credits remaining")
+        #expect(model.metrics[1].resetText == nil)
+        #expect(model.metrics[1].detailText == "尊享月卡 1890/200000 requests this month")
+        #expect(model.planText?.contains("Wallet: $16.55") == true)
+        #expect(model.planText?.contains("Elite today") == false)
+    }
+    #endif
 }

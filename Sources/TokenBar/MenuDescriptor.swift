@@ -147,7 +147,7 @@ struct MenuDescriptor {
             let resetStyle = settings.resetTimeDisplayStyle
             if let primary = snap.primary {
                 let primaryWindow = if provider == .warp || provider == .kilo || provider == .abacus ||
-                    provider == .deepseek
+                    provider == .deepseek || provider == .krill
                 {
                     // Some providers use resetDescription for non-reset detail
                     // (e.g., "Unlimited", "X/Y credits"). Avoid rendering it as a "Resets ..." line.
@@ -165,7 +165,8 @@ struct MenuDescriptor {
                     window: primaryWindow,
                     resetStyle: resetStyle,
                     showUsed: settings.usageBarsShowUsed)
-                if provider == .warp || provider == .kilo || provider == .abacus || provider == .deepseek,
+                if provider == .warp || provider == .kilo || provider == .abacus || provider == .deepseek ||
+                    provider == .krill,
                    let detail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
                    !detail.isEmpty
                 {
@@ -180,7 +181,8 @@ struct MenuDescriptor {
             }
             if let weekly = snap.secondary {
                 let weeklyResetOverride: String? = {
-                    guard provider == .warp || provider == .kilo || provider == .perplexity else { return nil }
+                    guard provider == .warp || provider == .kilo || provider == .perplexity || provider == .krill
+                    else { return nil }
                     let detail = weekly.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard let detail, !detail.isEmpty else { return nil }
                     if provider == .kilo, weekly.resetsAt != nil {

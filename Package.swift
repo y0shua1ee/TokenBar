@@ -118,7 +118,7 @@ let package = Package(
             dependencies: ["TokenBar", "TokenBarCore", "TokenBarCLI", "TokenBarWidget"],
             path: "Tests",
             resources: [
-                .copy("CodexBarTests/Fixtures"),
+                .copy("TokenBarTests/Fixtures"),
             ],
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency"),

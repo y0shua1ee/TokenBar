@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 
 struct CLIOutputTests {
     @Test

@@ -2,7 +2,7 @@ import TokenBarCore
 import Foundation
 import Testing
 @testable import TokenBar
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 
 @Suite(.serialized)
 @MainActor

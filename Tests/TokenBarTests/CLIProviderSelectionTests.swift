@@ -1,7 +1,7 @@
 import TokenBarCore
 import Foundation
 import Testing
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 
 struct CLIProviderSelectionTests {
     @Test
