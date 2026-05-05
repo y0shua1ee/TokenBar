@@ -26,8 +26,8 @@ public enum KrillProviderDescriptor {
                 statusPageURL: nil,
                 statusLinkURL: nil),
             branding: ProviderBranding(
-                iconStyle: .custom,
-                iconResourceName: "",
+                iconStyle: .krill,
+                iconResourceName: "ProviderIcon-krill",
                 color: ProviderColor(red: 0.39, green: 0.40, blue: 0.95)),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: true,

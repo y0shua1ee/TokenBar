@@ -1,0 +1,10 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Back module -->
+  <rect x="22" y="26" width="44" height="44" rx="10" fill="currentColor" fill-opacity="0.35"/>
+  <!-- Front module -->
+  <rect x="34" y="30" width="44" height="44" rx="10" fill="currentColor"/>
+  <!-- Connector dots -->
+  <circle cx="84" cy="42" r="4" fill="currentColor"/>
+  <circle cx="84" cy="52" r="4" fill="currentColor"/>
+  <circle cx="84" cy="62" r="4" fill="currentColor"/>
+</svg>

@@ -26,7 +26,7 @@ public enum CustomProviderDescriptor {
                 statusLinkURL: nil),
             branding: ProviderBranding(
                 iconStyle: .custom,
-                iconResourceName: "",
+                iconResourceName: "ProviderIcon-custom",
                 color: ProviderColor(red: 99 / 255, green: 102 / 255, blue: 241 / 255)),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: false,
