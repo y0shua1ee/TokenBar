@@ -1,3 +1,27 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <image width="100" height="100" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,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"/>
+  <!-- TokenBar-style krill mark: bold 16px-readable silhouette inspired by Krill AI's segmented body + eye. -->
+  <g fill="currentColor">
+    <!-- Tail fan -->
+    <path d="M20 62L6 50C13 48 20 50 25 55L20 62Z"/>
+    <path d="M21 66L7 72C12 62 18 58 27 58L21 66Z"/>
+    <path d="M25 70L18 86C15 75 18 66 28 61L25 70Z"/>
+
+    <!-- Chunky segmented body, separated by real transparent gaps. -->
+    <ellipse cx="31" cy="62" rx="9" ry="14" transform="rotate(-31 31 62)"/>
+    <ellipse cx="43" cy="56" rx="10" ry="16" transform="rotate(-31 43 56)"/>
+    <ellipse cx="56" cy="49" rx="11" ry="17" transform="rotate(-31 56 49)"/>
+    <ellipse cx="68" cy="41" rx="10" ry="15" transform="rotate(-31 68 41)"/>
+
+    <!-- Head with transparent eye hole. -->
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M66.6 29.4C73.4 18.5 88.2 18.7 94.1 27.6C100.4 37.1 94.5 50.5 81.6 54.1C70.7 57.2 60.2 50.1 59.7 39.2C59.5 35.6 61.8 31.8 66.6 29.4ZM80.3 30.7C78.1 31.1 76.7 33.1 77.1 35.2C77.5 37.3 79.5 38.7 81.7 38.3C83.8 37.9 85.2 35.9 84.8 33.8C84.4 31.7 82.4 30.3 80.3 30.7Z"/>
+  </g>
+
+  <!-- Short antennae: thick enough to survive at 16px, short enough to avoid bird/beak reads. -->
+  <path d="M78 25C75 16 69 10 61 6" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+  <path d="M86 26C89 17 95 11 100 8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Tiny underside legs as three bold stubs, not fine-detail noise. -->
+  <path d="M42 70L38 79" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+  <path d="M55 63L51 73" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+  <path d="M67 56L64 65" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
 </svg>
