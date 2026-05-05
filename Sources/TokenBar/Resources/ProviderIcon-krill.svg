@@ -1,27 +1,24 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- TokenBar-style krill mark: bold 16px-readable silhouette inspired by Krill AI's segmented body + eye. -->
-  <g fill="currentColor">
-    <!-- Tail fan -->
-    <path d="M20 62L6 50C13 48 20 50 25 55L20 62Z"/>
-    <path d="M21 66L7 72C12 62 18 58 27 58L21 66Z"/>
-    <path d="M25 70L18 86C15 75 18 66 28 61L25 70Z"/>
-
-    <!-- Chunky segmented body, separated by real transparent gaps. -->
-    <ellipse cx="31" cy="62" rx="9" ry="14" transform="rotate(-31 31 62)"/>
-    <ellipse cx="43" cy="56" rx="10" ry="16" transform="rotate(-31 43 56)"/>
-    <ellipse cx="56" cy="49" rx="11" ry="17" transform="rotate(-31 56 49)"/>
-    <ellipse cx="68" cy="41" rx="10" ry="15" transform="rotate(-31 68 41)"/>
-
-    <!-- Head with transparent eye hole. -->
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M66.6 29.4C73.4 18.5 88.2 18.7 94.1 27.6C100.4 37.1 94.5 50.5 81.6 54.1C70.7 57.2 60.2 50.1 59.7 39.2C59.5 35.6 61.8 31.8 66.6 29.4ZM80.3 30.7C78.1 31.1 76.7 33.1 77.1 35.2C77.5 37.3 79.5 38.7 81.7 38.3C83.8 37.9 85.2 35.9 84.8 33.8C84.4 31.7 82.4 30.3 80.3 30.7Z"/>
+  <!-- Krill official-style mark: abstract segmented circular body + eye, simplified for TokenBar template tint. -->
+  <defs>
+    <mask id="eye-cutout" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+      <rect width="100" height="100" fill="white"/>
+      <!-- Transparent eye hole; large enough to survive at 16px. -->
+      <circle cx="72" cy="33" r="8.5" fill="black"/>
+      <!-- Tiny central breathing gap so the pie slices stay distinct at small sizes. -->
+      <circle cx="47.5" cy="56" r="3.2" fill="black"/>
+    </mask>
+  </defs>
+  <g fill="currentColor" mask="url(#eye-cutout)">
+    <path d="M 47.50 56.00 L 10.15 44.76 A 39.00 39.00 0 0 1 25.83 23.57 Z"/>
+    <path d="M 47.50 56.00 L 29.04 21.65 A 39.00 39.00 0 0 1 55.11 17.75 Z"/>
+    <path d="M 47.50 56.00 L 58.74 18.65 A 39.00 39.00 0 0 1 79.93 34.33 Z"/>
+    <path d="M 47.50 56.00 L 81.85 37.54 A 39.00 39.00 0 0 1 85.75 63.61 Z"/>
+    <path d="M 47.50 56.00 L 84.85 67.24 A 39.00 39.00 0 0 1 69.17 88.43 Z"/>
+    <path d="M 47.50 56.00 L 65.96 90.35 A 39.00 39.00 0 0 1 39.89 94.25 Z"/>
+    <path d="M 47.50 56.00 L 36.26 93.35 A 39.00 39.00 0 0 1 15.07 77.67 Z"/>
+    <path d="M 47.50 56.00 L 13.15 74.46 A 39.00 39.00 0 0 1 9.25 48.39 Z"/>
+    <!-- Slight head cap under the eye, matching the official icon's biological cue without becoming a shrimp silhouette. -->
+    <path d="M66.5 22.8C75.8 17.4 88.4 23.1 91.1 33.7C86.0 35.6 80.7 36.1 75.2 35.1C71.5 34.4 68.1 32.6 65.5 29.8C64.0 28.1 64.4 24.0 66.5 22.8Z"/>
   </g>
-
-  <!-- Short antennae: thick enough to survive at 16px, short enough to avoid bird/beak reads. -->
-  <path d="M78 25C75 16 69 10 61 6" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
-  <path d="M86 26C89 17 95 11 100 8" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-
-  <!-- Tiny underside legs as three bold stubs, not fine-detail noise. -->
-  <path d="M42 70L38 79" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-  <path d="M55 63L51 73" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-  <path d="M67 56L64 65" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
 </svg>
