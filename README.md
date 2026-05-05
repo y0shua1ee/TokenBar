@@ -29,7 +29,8 @@ TokenBar keeps your API limits visible at a glance. Enable what you use:
 - **Elite Credits** — plan credits progress bar
 - **尊享月卡 Requests** — monthly request quota tracking
 - **Cache rate & models** — detailed usage breakdown at login
-- JWT stored securely in macOS Keychain, auto-refresh on expiry
+- **JWT stored securely** in macOS Keychain, auto-refresh on expiry
+- 🔗 [Register Krill](https://www.krill-ai.com/register?invite=XIM6RGTQRM) (affiliate link)
 
 ### 🆕 Custom Provider
 Add any OpenAI-compatible endpoint to `~/.tokenbar/config.json`:
