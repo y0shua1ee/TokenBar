@@ -149,7 +149,13 @@ enum IconRenderer {
                     let rect = rectPx.rect()
                     // Claude reads better as a blockier critter; Codex stays as a capsule.
                     // Warp uses small corner radius for rounded rectangle (matching logo style)
-                    let cornerRadiusPx = addNotches ? 0 : (addWarpTwist ? 3 : rectPx.h / 2)
+                    let cornerRadiusPx: Int = {
+                        if addNotches { return 0 }
+                        if addWarpTwist { return 3 }
+                        if style == .krill { return 5 }
+                        if style == .custom { return 2 }
+                        return rectPx.h / 2
+                    }()
                     let radius = Self.grid.pt(cornerRadiusPx)
 
                     let trackPath = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
