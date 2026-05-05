@@ -255,7 +255,7 @@ private struct ProviderDetailBrandIcon: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
         } else {
-            Image(systemName: "circle.dotted")
+            Image(systemName: ProviderBrandIcon.fallbackSymbolName(for: self.provider))
                 .font(.system(size: 24, weight: .regular))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
