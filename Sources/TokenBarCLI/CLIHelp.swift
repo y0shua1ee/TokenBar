@@ -62,12 +62,13 @@ extension CodexBarCLI {
                        [--no-color] [--pretty] [--refresh]
 
         Description:
-          Print local token cost usage from Claude/Codex native logs plus supported pi sessions.
-          This does not require web or CLI access and uses cached scan results unless --refresh is provided.
+          Print token cost usage from Claude/Codex native logs, supported pi sessions, and Krill API stats.
+          Native-log providers use cached scan results unless --refresh is provided.
 
         Examples:
           codexbar cost
           codexbar cost --provider claude --format json --pretty
+          codexbar cost --provider krill --format json --pretty
         """
     }
 

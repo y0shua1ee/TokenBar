@@ -12,7 +12,7 @@ public enum KrillAPIClient: Sendable {
     // MARK: - Credits
 
     public static func fetchCredits(jwt: String) async throws -> KrillCreditsResponse {
-        let url = urlFor("/api/credits")
+        let url = self.urlFor("/api/credits")
         let data = try await get(url: url, jwt: jwt)
         return try JSONDecoder().decode(KrillCreditsResponse.self, from: data)
     }
@@ -20,23 +20,43 @@ public enum KrillAPIClient: Sendable {
     // MARK: - Subscription
 
     public static func fetchSubscription(jwt: String) async throws -> KrillSubscriptionResponse {
-        let url = urlFor("/api/subscription")
+        let url = self.urlFor("/api/subscription")
         let data = try await get(url: url, jwt: jwt)
         return try JSONDecoder().decode(KrillSubscriptionResponse.self, from: data)
     }
 
+    public static func fetchActiveSubscriptionDailyQuota(
+        jwt: String) async throws -> KrillActiveSubscriptionDailyQuotaResponse
+    {
+        let url = self.urlFor("/api/subscription/daily-quota/active")
+        let data = try await get(url: url, jwt: jwt)
+        return try JSONDecoder().decode(KrillActiveSubscriptionDailyQuotaResponse.self, from: data)
+    }
+
     // MARK: - Stats
 
-    public static func fetchStats(jwt: String) async throws -> KrillStatsResponse {
-        let url = urlFor("/api/request-logs/stats")
-        let data = try await post(url: url, jwt: jwt, body: "{}")
+    public static func fetchStats(
+        jwt: String,
+        startTime: Date? = nil,
+        endTime: Date? = nil) async throws -> KrillStatsResponse
+    {
+        let url = self.urlFor("/api/request-logs/stats")
+        var body: [String: String] = [:]
+        if let startTime {
+            body["start_time"] = self.iso8601String(startTime)
+        }
+        if let endTime {
+            body["end_time"] = self.iso8601String(endTime)
+        }
+
+        let data = try await post(url: url, jwt: jwt, body: jsonBody(body))
         return try JSONDecoder().decode(KrillStatsResponse.self, from: data)
     }
 
     // MARK: - Models
 
     public static func fetchModels(jwt: String) async throws -> [String] {
-        let url = urlFor("/api/models")
+        let url = self.urlFor("/api/models")
         let data = try await get(url: url, jwt: jwt)
         let response = try JSONDecoder().decode(KrillModelsResponse.self, from: data)
         return response.data ?? []
@@ -46,9 +66,21 @@ public enum KrillAPIClient: Sendable {
 
     private static func urlFor(_ path: String) -> URL {
         guard let url = URL(string: "\(baseURL)\(path)") else {
-            fatalError("Invalid Krill API URL: \(baseURL)\(path)")
+            fatalError("Invalid Krill API URL: \(self.baseURL)\(path)")
         }
         return url
+    }
+
+    private static func iso8601String(_ date: Date) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.string(from: date)
+    }
+
+    private static func jsonBody(_ body: [String: String]) throws -> String {
+        guard !body.isEmpty else { return "{}" }
+        let data = try JSONSerialization.data(withJSONObject: body, options: [])
+        return String(data: data, encoding: .utf8) ?? "{}"
     }
 
     private static func get(url: URL, jwt: String) async throws -> Data {

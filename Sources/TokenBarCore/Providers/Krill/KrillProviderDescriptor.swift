@@ -30,8 +30,8 @@ public enum KrillProviderDescriptor {
                 iconResourceName: "",
                 color: ProviderColor(red: 0.39, green: 0.40, blue: 0.95)),
             tokenCost: ProviderTokenCostConfig(
-                supportsTokenCost: false,
-                noDataMessage: { "Per-model cost tracking for Krill is not yet supported." }),
+                supportsTokenCost: true,
+                noDataMessage: { "Krill cost history is unavailable until you log in." }),
             fetchPlan: ProviderFetchPlan(
                 sourceModes: [.auto, .web],
                 pipeline: ProviderFetchPipeline(resolveStrategies: { _ in

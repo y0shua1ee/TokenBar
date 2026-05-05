@@ -136,13 +136,14 @@ generate_widget_appintents_metadata() {
   xcode_version=$(xcodebuild -version | awk '/Build version/ { print $3 }')
 
   rm -rf "$derived_dir"
+  echo "==> xcodebuild: building TokenBarWidget scheme for App Intents metadata..."
   xcodebuild \
     -workspace "$ROOT/.swiftpm/xcode/package.xcworkspace" \
     -scheme TokenBarWidget \
     -configuration "$xcode_conf" \
     -destination "platform=macOS,arch=${host_arch}" \
     -derivedDataPath "$derived_dir" \
-    build >/dev/null
+    build 2>&1
 
   if [[ ! -f "$source_file_list" ]]; then
     echo "ERROR: Missing App Intents metadata inputs for TokenBarWidget." >&2

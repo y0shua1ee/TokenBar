@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 /// SwiftUI card used inside the NSMenu to mirror Apple's rich menu panels.
 struct UsageMenuCardView: View {
@@ -1071,9 +1071,10 @@ extension UsageMenuCardView.Model {
         {
             primaryResetText = openRouterQuotaDetail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input.provider == .krill,
-           let detail = primary.resetDescription,
-           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input
+            .provider == .krill,
+            let detail = primary.resetDescription,
+            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
             primaryDetailText = detail
         }
@@ -1083,8 +1084,9 @@ extension UsageMenuCardView.Model {
         {
             primaryDetailText = detail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input.provider == .krill,
-           primary.resetsAt == nil
+        if input.provider == .warp || input.provider == .kilo || input.provider == .deepseek || input
+            .provider == .krill,
+            primary.resetsAt == nil
         {
             primaryResetText = nil
         }
@@ -1463,7 +1465,8 @@ extension UsageMenuCardView.Model {
         snapshot: CostUsageTokenSnapshot?,
         error: String?) -> TokenUsageSection?
     {
-        guard provider == .codex || provider == .claude || provider == .vertexai else { return nil }
+        guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
+        else { return nil }
         guard enabled else { return nil }
         guard let snapshot else { return nil }
 
@@ -1507,7 +1510,11 @@ extension UsageMenuCardView.Model {
         let limit: String
         let title: String
 
-        if cost.currencyCode == "Quota" {
+        if provider == .krill {
+            title = "Active quota"
+            used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
+            limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
+        } else if cost.currencyCode == "Quota" {
             title = "Quota usage"
             used = String(format: "%.0f", cost.used)
             limit = String(format: "%.0f", cost.limit)

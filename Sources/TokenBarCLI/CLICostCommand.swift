@@ -3,7 +3,11 @@ import Commander
 import Foundation
 
 extension CodexBarCLI {
+    #if os(macOS)
+    private static let costSupportedProviders: Set<UsageProvider> = [.claude, .codex, .krill]
+    #else
     private static let costSupportedProviders: Set<UsageProvider> = [.claude, .codex]
+    #endif
 
     static func runCost(_ values: ParsedValues) async {
         let output = CLIOutputPreferences.from(values: values)
@@ -17,13 +21,13 @@ extension CodexBarCLI {
                 .sorted()
                 .joined(separator: ", ")
             if !output.jsonOnly {
-                Self.writeStderr("Skipping providers without local cost usage: \(names)\n")
+                Self.writeStderr("Skipping providers without supported cost usage: \(names)\n")
             }
         }
         guard !providers.isEmpty else {
             Self.exit(
                 code: .failure,
-                message: "Error: cost is only supported for Claude and Codex.",
+                message: "Error: cost is only supported for Claude, Codex, and Krill.",
                 output: output,
                 kind: .args)
         }
@@ -39,7 +43,7 @@ extension CodexBarCLI {
 
         for provider in providers {
             do {
-                // Cost usage is local-only; it does not require web/CLI provider fetches.
+                // Cost usage uses native logs for local providers and provider APIs where available.
                 let snapshot = try await fetcher.loadTokenSnapshot(
                     provider: provider,
                     forceRefresh: forceRefresh)
@@ -79,7 +83,8 @@ extension CodexBarCLI {
         useColor: Bool) -> String
     {
         let name = ProviderDescriptorRegistry.descriptor(for: provider).metadata.displayName
-        let header = Self.costHeaderLine("\(name) Cost (local)", useColor: useColor)
+        let sourceLabel = provider == .krill ? "api" : "local"
+        let header = Self.costHeaderLine("\(name) Cost (\(sourceLabel))", useColor: useColor)
 
         let todayCost = snapshot.sessionCostUSD.map { UsageFormatter.usdString($0) } ?? "—"
         let todayTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
@@ -126,7 +131,7 @@ extension CodexBarCLI {
 
         return CostPayload(
             provider: provider.rawValue,
-            source: "local",
+            source: provider == .krill ? "krill-api" : "local",
             updatedAt: snapshot?.updatedAt ?? (error == nil ? nil : Date()),
             sessionTokens: snapshot?.sessionTokens,
             sessionCostUSD: snapshot?.sessionCostUSD,
@@ -190,14 +195,16 @@ extension CodexBarCLI {
             }
         }
 
-        // Prefer totals derived from daily rows; fall back to snapshot aggregates when rows omit fields.
+        // Prefer snapshot aggregates for total tokens/cost when available. Some providers
+        // expose adaptive chart buckets plus exact range totals, so summing chart rows can
+        // be approximate or double-count a separately refreshed today row.
         return CostTotalsPayload(
             totalInputTokens: sawInput ? totalInput : nil,
             totalOutputTokens: sawOutput ? totalOutput : nil,
             cacheReadTokens: sawCacheRead ? totalCacheRead : nil,
             cacheCreationTokens: sawCacheCreation ? totalCacheCreation : nil,
-            totalTokens: sawTokens ? totalTokens : snapshot.last30DaysTokens,
-            totalCostUSD: sawCost ? totalCost : snapshot.last30DaysCostUSD)
+            totalTokens: snapshot.last30DaysTokens ?? (sawTokens ? totalTokens : nil),
+            totalCostUSD: snapshot.last30DaysCostUSD ?? (sawCost ? totalCost : nil))
     }
 }
 

@@ -42,9 +42,20 @@ public struct CostUsageFetcher: Sendable {
         piScannerOptions overridePiScannerOptions: PiSessionCostScanner
             .Options? = nil) async throws -> CostUsageTokenSnapshot
     {
-        guard provider == .codex || provider == .claude || provider == .vertexai else {
+        #if os(macOS)
+        let supportsRemoteCost = provider == .krill
+        #else
+        let supportsRemoteCost = false
+        #endif
+        guard provider == .codex || provider == .claude || provider == .vertexai || supportsRemoteCost else {
             throw CostUsageError.unsupportedProvider(provider)
         }
+
+        #if os(macOS)
+        if provider == .krill {
+            return try await KrillCostUsageFetcher.loadTokenSnapshot(now: now)
+        }
+        #endif
 
         let until = now
         // Rolling window: last 30 days (inclusive). Use -29 for inclusive boundaries.

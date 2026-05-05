@@ -1,8 +1,8 @@
 import AppKit
-import TokenBarCore
 import Observation
 import QuartzCore
 import SwiftUI
+import TokenBarCore
 
 // MARK: - NSMenu construction
 
@@ -1305,7 +1305,8 @@ extension StatusItemController {
     }
 
     private func makeCostHistorySubmenu(provider: UsageProvider) -> NSMenu? {
-        guard provider == .codex || provider == .claude || provider == .vertexai else { return nil }
+        guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
+        else { return nil }
         guard self.store.tokenSnapshot(for: provider)?.daily.isEmpty == false else { return nil }
         return self.makeHostedSubviewPlaceholderMenu(chartID: Self.costHistoryChartID, provider: provider)
     }
@@ -1385,7 +1386,7 @@ extension StatusItemController {
                 tokenSnapshot = nil
                 tokenError = nil
             }
-        } else if target == .claude || target == .vertexai, snapshotOverride == nil {
+        } else if target == .claude || target == .vertexai || target == .krill, snapshotOverride == nil {
             credits = nil
             creditsError = nil
             dashboard = nil

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.24.2 — 2026-05-05
+
+### Krill Provider
+- Cost history: Krill now shows token cost summary (Today / Last 30 days) and cost chart in the menu
+- Active quota: Krill menu card displays active subscription daily quota (e.g. Elite #1150: $300.44 / $439.99)
+- Fix: Krill cost data was being silently dropped during periodic refresh — added missing whitelist entry in UsageStore
+
+### Dev Tooling
+- package_app.sh: xcodebuild widget metadata output is now visible (was hidden behind >/dev/null, making hangs undiagnosable)
+- Clean up: removed old CodexBar.app and codexbar.png resource artifacts
+
 ## 0.24.1 — 2026-05-04
 
 ### About

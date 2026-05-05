@@ -4,7 +4,6 @@ import Foundation
 /// Fetches Krill usage data using internal API (api.krill-ai.com) with JWT auth.
 /// Falls back to WebView login if JWT is missing or expired.
 public enum KrillUsageFetcher: Sendable {
-
     public static func fetchUsage() async throws -> UsageSnapshot {
         // 1. Get JWT
         var jwt: String
@@ -13,7 +12,7 @@ public enum KrillUsageFetcher: Sendable {
         } else {
             // No stored JWT — don't auto-pop the login window on fetch.
             // The user triggers login explicitly from the menu "Login" button.
-            return buildEmptySnapshot()
+            return self.buildEmptySnapshot()
         }
 
         // 2. Fetch data in parallel
@@ -24,12 +23,14 @@ public enum KrillUsageFetcher: Sendable {
 
         let (credits, subscription, stats, models) = try await (
             creditsTask, subscriptionTask, statsTask, modelsTask)
+        let activeQuota = try? await KrillAPIClient.fetchActiveSubscriptionDailyQuota(jwt: jwt)
 
         // 3. Build snapshot
-        return buildSnapshot(
+        return self.buildSnapshot(
             credits: credits,
             subscription: subscription,
             stats: stats,
+            activeQuota: activeQuota,
             modelCount: models.count)
     }
 
@@ -39,6 +40,7 @@ public enum KrillUsageFetcher: Sendable {
         credits: KrillCreditsResponse,
         subscription: KrillSubscriptionResponse,
         stats: KrillStatsResponse,
+        activeQuota: KrillActiveSubscriptionDailyQuotaResponse?,
         modelCount: Int) -> UsageSnapshot
     {
         var primary: RateWindow?
@@ -71,9 +73,11 @@ public enum KrillUsageFetcher: Sendable {
                     // API names this USD-equivalent subscription quota `daily_limit_usd`, but the
                     // dashboard presents it as Elite credits quota, not today's request spend.
                     if let usedUSD = sub.quota?.used_usd,
-                       let usdVal = Double(usedUSD) {
+                       let usdVal = Double(usedUSD)
+                    {
                         if let limitUSD = sub.quota?.daily_limit_usd,
-                           let limitVal = Double(limitUSD) {
+                           let limitVal = Double(limitUSD)
+                        {
                             loginMethodParts.append(
                                 "Elite quota $\(String(format: "%.2f", usdVal))/$\(String(format: "%.2f", limitVal))")
                         } else {
@@ -127,10 +131,73 @@ public enum KrillUsageFetcher: Sendable {
             primary: primary,
             secondary: secondary,
             tertiary: nil,
-            providerCost: nil,
+            providerCost: self.activeQuotaProviderCost(from: activeQuota),
             openRouterUsage: nil,
             updatedAt: Date(),
             identity: identity)
+    }
+
+    static func activeQuotaProviderCost(
+        from response: KrillActiveSubscriptionDailyQuotaResponse?,
+        now: Date = Date()) -> ProviderCostSnapshot?
+    {
+        guard let subscriptions = response?.data?.subscriptions else { return nil }
+
+        var used = 0.0
+        var limit = 0.0
+        var labels: [String] = []
+
+        for subscription in subscriptions {
+            guard let item = self.latestQuotaItem(subscription.items) else { continue }
+            let directUsed = self.doubleValue(item.used_usd) ?? 0
+            let directLimit = self.doubleValue(item.daily_limit_usd) ?? 0
+            let forwardedUsed = self.doubleValue(item.forwarded_used_usd) ?? 0
+            let forwardedLimit = self.doubleValue(item.forwarded_limit_usd) ?? 0
+            let itemUsed = directUsed + forwardedUsed
+            let itemLimit = directLimit + forwardedLimit
+            guard itemUsed > 0 || itemLimit > 0 else { continue }
+
+            used += itemUsed
+            limit += itemLimit
+
+            if let label = self.activeQuotaLabel(for: subscription), !labels.contains(label) {
+                labels.append(label)
+            }
+        }
+
+        guard limit > 0 else { return nil }
+        let period = labels.count == 1 ? labels[0] : "Active subscriptions"
+        return ProviderCostSnapshot(
+            used: used,
+            limit: limit,
+            currencyCode: "USD",
+            period: period,
+            updatedAt: now)
+    }
+
+    private static func latestQuotaItem(
+        _ items: [KrillActiveSubscriptionDailyQuotaResponse.KrillActiveSubscriptionDailyQuotaItem]?)
+        -> KrillActiveSubscriptionDailyQuotaResponse.KrillActiveSubscriptionDailyQuotaItem?
+    {
+        items?.max { lhs, rhs in
+            (lhs.date ?? "") < (rhs.date ?? "")
+        }
+    }
+
+    private static func activeQuotaLabel(
+        for subscription: KrillActiveSubscriptionDailyQuotaResponse.KrillActiveSubscriptionDailyQuota) -> String?
+    {
+        let name = subscription.plan_name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let base = name.isEmpty ? "Subscription" : name
+        if let id = subscription.subscription_id {
+            return "\(base) #\(id)"
+        }
+        return name.isEmpty ? nil : base
+    }
+
+    private static func doubleValue(_ value: String?) -> Double? {
+        guard let value else { return nil }
+        return Double(value.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     /// Returns a minimal snapshot when user cancels login or JWT is unavailable.

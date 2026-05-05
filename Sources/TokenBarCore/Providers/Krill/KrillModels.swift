@@ -56,6 +56,31 @@ public struct KrillSubscriptionResponse: Decodable, Sendable {
     }
 }
 
+// MARK: - Krill Active Subscription Daily Quota Response
+
+public struct KrillActiveSubscriptionDailyQuotaResponse: Decodable, Sendable {
+    public let success: Bool
+    public let data: KrillActiveSubscriptionDailyQuotaData?
+
+    public struct KrillActiveSubscriptionDailyQuotaData: Decodable, Sendable {
+        public let subscriptions: [KrillActiveSubscriptionDailyQuota]?
+    }
+
+    public struct KrillActiveSubscriptionDailyQuota: Decodable, Sendable {
+        public let subscription_id: Int?
+        public let plan_name: String?
+        public let items: [KrillActiveSubscriptionDailyQuotaItem]?
+    }
+
+    public struct KrillActiveSubscriptionDailyQuotaItem: Decodable, Sendable {
+        public let date: String?
+        public let daily_limit_usd: String?
+        public let used_usd: String?
+        public let forwarded_limit_usd: String?
+        public let forwarded_used_usd: String?
+    }
+}
+
 // MARK: - Krill Stats Response
 
 public struct KrillStatsResponse: Decodable, Sendable {
@@ -64,9 +89,27 @@ public struct KrillStatsResponse: Decodable, Sendable {
 
     public struct KrillStatsData: Decodable, Sendable {
         public let total_requests: Int?
+        public let success_requests: Int?
+        public let failed_requests: Int?
+        public let input_tokens: Int?
+        public let output_tokens: Int?
+        public let cache_creation_input_tokens: Int?
+        public let cache_read_input_tokens: Int?
+        public let reasoning_tokens: Int?
         public let total_tokens: Int?
         public let total_cost_usd: String?
+        public let range_start: String?
+        public let range_end: String?
+        public let bucket_seconds: Int?
+        public let trend: [KrillTrendBucket]?
         public let channel_cache_rates: [KrillChannelCacheRate]?
+
+        public struct KrillTrendBucket: Decodable, Sendable {
+            public let bucket_start: String?
+            public let request_count: Int?
+            public let total_tokens: Int?
+            public let total_cost_usd: String?
+        }
 
         public struct KrillChannelCacheRate: Decodable, Sendable {
             public let channel_name: String?

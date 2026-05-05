@@ -36,6 +36,25 @@ struct CLICostTests {
     }
 
     @Test
+    func `renders Krill cost as api backed`() {
+        let snap = CostUsageTokenSnapshot(
+            sessionTokens: 1200,
+            sessionCostUSD: 1.25,
+            last30DaysTokens: 9000,
+            last30DaysCostUSD: 9.99,
+            daily: [],
+            updatedAt: Date(timeIntervalSince1970: 0))
+
+        let output = CodexBarCLI.renderCostText(provider: .krill, snapshot: snap, useColor: false)
+            .replacingOccurrences(of: "\u{00A0}", with: " ")
+            .replacingOccurrences(of: "$ ", with: "$")
+
+        #expect(output.contains("Krill Cost (api)"))
+        #expect(output.contains("Today: $1.25 · 1.2K tokens"))
+        #expect(output.contains("Last 30 days: $9.99 · 9K tokens"))
+    }
+
+    @Test
     func `encodes cost payload JSON`() throws {
         let payload = CostPayload(
             provider: "claude",
