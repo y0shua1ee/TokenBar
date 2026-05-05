@@ -11,14 +11,14 @@ TokenBar keeps your API limits visible at a glance. Enable what you use:
 
 | Provider | Status | Notes |
 |----------|--------|-------|
-| **Codex** | Native | OpenAI Codex (OAuth + web) |
-| **Claude** | Native | Anthropic Claude Code |
-| **Krill** | 🆕 Native | Wallet balance, credits remaining, request stats |
-| **Custom** | 🆕 | Any OpenAI-compatible endpoint |
-| Cursor | Native | Cursor IDE |
+| [**Codex**](docs/codex.md) | Native | OpenAI Codex (OAuth + web) |
+| [**Claude**](docs/claude.md) | Native | Anthropic Claude Code |
+| [**Krill**](docs/krill.md) | 🆕 Native | Wallet balance, credits remaining, request stats |
+| [**Custom**](docs/custom.md) | 🆕 | Any OpenAI-compatible endpoint |
+| [Cursor](docs/cursor.md) | Native | Cursor IDE |
 | Gemini | Native | Google Gemini |
-| Copilot | Native | GitHub Copilot |
-| OpenRouter | Native | OpenRouter API |
+| [Copilot](docs/copilot.md) | Native | GitHub Copilot |
+| [OpenRouter](docs/openrouter.md) | Native | OpenRouter API |
 | ... and 20+ more | | See [all providers](docs/) |
 
 ## What's New in TokenBar (vs CodexBar)
