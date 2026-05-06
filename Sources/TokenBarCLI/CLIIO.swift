@@ -51,16 +51,21 @@ extension CodexBarCLI {
     }
 
     static func currentVersion(
-        bundle: Bundle = .main,
+        bundle: Bundle? = nil,
         executablePath: String? = CommandLine.arguments.first) -> String?
     {
-        if let version = bundle.infoDictionary?["CFBundleShortVersionString"] as? String {
-            return version
+        if let executablePath, !executablePath.isEmpty {
+            let executableURL = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
+            if let appVersion = Self.containingAppVersion(for: executableURL) {
+                return appVersion
+            }
         }
-        guard let executablePath, !executablePath.isEmpty else { return nil }
 
-        let executableURL = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
-        return Self.containingAppVersion(for: executableURL)
+        // Keep the default raw SwiftPM CLI help/version path lightweight. On macOS hosted
+        // runners, Bundle.main.infoDictionary can trigger framework/bundle metadata work
+        // before any command is executed; packaged-app helpers already resolve above by
+        // reading the containing .app Info.plist directly.
+        return bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
     }
 
     static func containingAppVersion(for executableURL: URL) -> String? {
