@@ -21,7 +21,10 @@ struct CodexBaselineCharacterizationTests {
             verbose: false,
             env: env,
             settings: settings,
-            fetcher: UsageFetcher(environment: env),
+            fetcher: UsageFetcher(
+                environment: env,
+                initializeTimeoutSeconds: 20,
+                requestTimeoutSeconds: 5),
             claudeFetcher: ClaudeUsageFetcher(browserDetection: browserDetection),
             browserDetection: browserDetection)
     }
