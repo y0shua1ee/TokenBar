@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import Foundation
+import TokenBarCore
 import WebKit
 
 /// Handles Cursor login flow using a WebKit-based browser window.

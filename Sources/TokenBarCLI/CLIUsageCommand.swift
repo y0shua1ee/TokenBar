@@ -1,6 +1,6 @@
-import TokenBarCore
 import Commander
 import Foundation
+import TokenBarCore
 
 struct UsageCommandContext {
     let format: OutputFormat

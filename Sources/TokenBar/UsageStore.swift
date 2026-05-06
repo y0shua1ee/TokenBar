@@ -1,8 +1,8 @@
 import AppKit
-import TokenBarCore
 import Foundation
 import Observation
 import SweetCookieKit
+import TokenBarCore
 
 // MARK: - Observation helpers
 

@@ -1,6 +1,6 @@
 import Foundation
-import TokenBarCore
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
 struct PathBuilderTests {

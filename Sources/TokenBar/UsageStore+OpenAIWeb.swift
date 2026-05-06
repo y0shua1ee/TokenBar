@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct OpenAIWebRefreshGateContext {
     let force: Bool

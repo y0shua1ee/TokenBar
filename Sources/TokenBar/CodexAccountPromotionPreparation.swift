@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct PreparedIdentity: Equatable {
     let email: String?

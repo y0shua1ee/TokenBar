@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 typealias ProviderMenuEntry = MenuDescriptor.Entry
 

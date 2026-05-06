@@ -1,6 +1,6 @@
 import AppIntents
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 import WidgetKit
 
 enum ProviderChoice: String, AppEnum {

@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension UsageStore {
     func prepareRefreshState(for provider: UsageProvider? = nil) {

@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum GeminiLoginRunner {
     private static let geminiConfigDir = FileManager.default.homeDirectoryForCurrentUser

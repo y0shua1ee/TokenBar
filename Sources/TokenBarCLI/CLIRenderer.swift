@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum CLIRenderer {
     private static let accentColor = "95"

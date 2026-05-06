@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct TokenAccountUsageSnapshot: Identifiable {
     let id: UUID

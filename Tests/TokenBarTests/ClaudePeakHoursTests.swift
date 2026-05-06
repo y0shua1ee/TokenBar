@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import Testing
+import TokenBarCore
 
 struct ClaudePeakHoursTests {
     private static let eastern = TimeZone(identifier: "America/New_York")!

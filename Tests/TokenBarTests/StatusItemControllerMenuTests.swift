@@ -1,7 +1,7 @@
 import AppKit
-import TokenBarCore
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
 struct StatusItemControllerMenuTests {

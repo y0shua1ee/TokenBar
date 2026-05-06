@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct ProviderToggleStore {
     private let userDefaults: UserDefaults

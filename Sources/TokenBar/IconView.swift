@@ -1,5 +1,5 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 enum IconRemainingResolver {
     private static func codexProjection(snapshot: UsageSnapshot) -> CodexConsumerProjection {

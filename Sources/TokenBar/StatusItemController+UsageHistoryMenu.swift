@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 private final class UsageHistoryMenuHostingView<Content: View>: NSHostingView<Content> {
     override var allowsVibrancy: Bool {

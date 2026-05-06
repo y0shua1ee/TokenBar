@@ -1,5 +1,5 @@
-import TokenBarMacroSupport
 import Foundation
+import TokenBarMacroSupport
 
 @ProviderDescriptorRegistration
 @ProviderDescriptorDefinition
@@ -48,7 +48,7 @@ struct CustomAPIFetchStrategy: ProviderFetchStrategy {
     let kind: ProviderFetchKind = .apiToken
 
     func isAvailable(_ context: ProviderFetchContext) async -> Bool {
-        resolveToken(context.env) != nil && baseURL(context.env) != nil
+        self.resolveToken(context.env) != nil && self.baseURL(context.env) != nil
     }
 
     func fetch(_ context: ProviderFetchContext) async throws -> ProviderFetchResult {

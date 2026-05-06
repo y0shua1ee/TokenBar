@@ -1,6 +1,6 @@
 import Charts
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 @MainActor
 struct PlanUtilizationHistoryChartMenuView: View {

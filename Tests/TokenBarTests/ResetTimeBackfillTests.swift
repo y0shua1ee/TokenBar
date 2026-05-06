@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 import XCTest
 
 final class ResetTimeBackfillTests: XCTestCase {

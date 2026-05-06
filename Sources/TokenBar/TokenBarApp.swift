@@ -1,10 +1,10 @@
 import AppKit
-import TokenBarCore
 import KeyboardShortcuts
 import Observation
 import QuartzCore
 import Security
 import SwiftUI
+import TokenBarCore
 
 @main
 struct CodexBarApp: App {

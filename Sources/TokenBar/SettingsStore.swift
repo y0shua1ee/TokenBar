@@ -1,7 +1,7 @@
 import AppKit
-import TokenBarCore
 import Observation
 import ServiceManagement
+import TokenBarCore
 
 enum RefreshFrequency: String, CaseIterable, Identifiable {
     case manual

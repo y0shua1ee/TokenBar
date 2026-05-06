@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 #if canImport(WidgetKit)
 import WidgetKit
 #endif

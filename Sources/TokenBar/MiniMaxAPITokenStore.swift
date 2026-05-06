@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import Security
+import TokenBarCore
 
 protocol MiniMaxAPITokenStoring: Sendable {
     func loadToken() throws -> String?

@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import SweetCookieKit
+import TokenBarCore
 
 enum KeychainPromptCoordinator {
     private static let promptLock = NSLock()

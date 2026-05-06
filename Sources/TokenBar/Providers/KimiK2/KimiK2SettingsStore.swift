@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension SettingsStore {
     var kimiK2APIToken: String {

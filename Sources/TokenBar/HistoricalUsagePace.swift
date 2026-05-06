@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum HistoricalUsageWindowKind: String, Codable {
     case secondary

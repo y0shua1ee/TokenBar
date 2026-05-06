@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension UsageStore {
     func tokenSnapshot(for provider: UsageProvider) -> CostUsageTokenSnapshot? {

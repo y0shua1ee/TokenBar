@@ -1,6 +1,6 @@
-import TokenBarCore
 import Commander
 import Foundation
+import TokenBarCore
 
 extension CodexBarCLI {
     static func runConfigValidate(_ values: ParsedValues) {

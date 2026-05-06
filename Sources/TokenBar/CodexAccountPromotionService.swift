@@ -1,6 +1,6 @@
-import TokenBarCore
 import Darwin
 import Foundation
+import TokenBarCore
 
 @MainActor
 protocol CodexAccountReconciliationSnapshotLoading {

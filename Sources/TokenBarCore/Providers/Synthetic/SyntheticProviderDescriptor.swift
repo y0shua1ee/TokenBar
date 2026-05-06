@@ -1,5 +1,5 @@
-import TokenBarMacroSupport
 import Foundation
+import TokenBarMacroSupport
 
 @ProviderDescriptorRegistration
 @ProviderDescriptorDefinition

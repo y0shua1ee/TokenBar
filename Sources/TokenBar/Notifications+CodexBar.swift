@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension Notification.Name {
     static let codexbarOpenSettings = Notification.Name("codexbarOpenSettings")

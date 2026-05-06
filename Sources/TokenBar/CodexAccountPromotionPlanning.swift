@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum CodexDisplacedLivePreservationNoneReason: Equatable {
     case liveMissing

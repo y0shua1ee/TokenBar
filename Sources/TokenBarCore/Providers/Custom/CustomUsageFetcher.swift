@@ -31,7 +31,7 @@ public struct CustomUsageSnapshot: Codable, Sendable {
 
 extension CustomUsageSnapshot {
     public func toUsageSnapshot() -> UsageSnapshot {
-        let primary: RateWindow? = if totalUsage != nil {
+        let primary: RateWindow? = if self.totalUsage != nil {
             RateWindow(
                 usedPercent: 0,
                 windowMinutes: nil,
@@ -41,12 +41,12 @@ extension CustomUsageSnapshot {
             nil
         }
 
-        let balanceStr: String = if let bal = balance {
+        let balanceStr = if let bal = balance {
             String(format: "$%.2f", bal)
         } else if let usage = totalUsage {
             "Usage: \(String(format: "$%.2f", usage))"
         } else {
-            "Connected (\(modelCount) models)"
+            "Connected (\(self.modelCount) models)"
         }
 
         let identity = ProviderIdentitySnapshot(

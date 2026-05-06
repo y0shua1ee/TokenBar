@@ -1,6 +1,6 @@
-import TokenBarCore
 import CryptoKit
 import Foundation
+import TokenBarCore
 
 struct CodexOwnershipContext {
     let canonicalKey: String?

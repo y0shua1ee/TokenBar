@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum CodexAccountScopedRefreshPhase {
     case invalidated

@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 @MainActor
 struct MenuDescriptor {
@@ -168,8 +168,8 @@ struct MenuDescriptor {
                     showUsed: settings.usageBarsShowUsed)
                 if provider == .warp || provider == .kilo || provider == .abacus || provider == .deepseek ||
                     provider == .krill,
-                   let detail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
-                   !detail.isEmpty
+                    let detail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
+                    !detail.isEmpty
                 {
                     entries.append(.text(detail, .secondary))
                 }

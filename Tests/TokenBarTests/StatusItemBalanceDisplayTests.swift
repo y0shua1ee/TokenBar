@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
 @Suite(.serialized)

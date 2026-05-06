@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension CodexBarCLI {
     static func usageHelp(version: String) -> String {

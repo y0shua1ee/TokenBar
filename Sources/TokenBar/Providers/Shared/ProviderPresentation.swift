@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct ProviderPresentation {
     let detailLine: @MainActor (ProviderPresentationContext) -> String

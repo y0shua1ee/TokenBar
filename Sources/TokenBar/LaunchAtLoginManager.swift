@@ -1,5 +1,5 @@
-import TokenBarCore
 import ServiceManagement
+import TokenBarCore
 
 enum LaunchAtLoginManager {
     private static let isRunningTests: Bool = {

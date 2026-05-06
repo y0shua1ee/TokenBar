@@ -1,8 +1,8 @@
 import AppKit
-import TokenBarCore
 import Observation
 import QuartzCore
 import SwiftUI
+import TokenBarCore
 
 // MARK: - Status item controller (AppKit-hosted icons, SwiftUI popovers)
 

@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum MenuBarMetricWindowResolver {
     private enum Lane {

@@ -1,9 +1,10 @@
-import TokenBarCore
 import Foundation
 import SwiftUI
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
+// swiftlint:disable type_body_length
 struct MenuCardModelTests {
     @Test
     func `builds metrics using remaining percent`() throws {
@@ -878,3 +879,5 @@ struct MenuCardModelTests {
     }
     #endif
 }
+
+// swiftlint:enable type_body_length

@@ -29,8 +29,8 @@ public final class KrillJWTManager: @unchecked Sendable {
             return nil
         }
 
-        if isJWTExpired(jwt) {
-            deleteJWT()
+        if self.isJWTExpired(jwt) {
+            self.deleteJWT()
             return nil
         }
 
@@ -38,7 +38,7 @@ public final class KrillJWTManager: @unchecked Sendable {
     }
 
     public func storeJWT(_ jwt: String) {
-        deleteJWT()
+        self.deleteJWT()
         guard let data = jwt.data(using: .utf8) else { return }
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -88,7 +88,7 @@ public final class KrillJWTManager: @unchecked Sendable {
         WebKitTeardown.retain(runner)
 
         let jwt = try await runner.run()
-        storeJWT(jwt)
+        self.storeJWT(jwt)
         return jwt
     }
 }
@@ -117,7 +117,7 @@ private final class KrillLoginRunner: NSObject {
     }
 
     func run() async throws -> String {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             self.continuation = continuation
 
             // Switch to regular activation policy BEFORE creating the window.
@@ -159,8 +159,7 @@ private final class KrillLoginRunner: NSObject {
             })();
             """,
             injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        )
+            forMainFrameOnly: true)
         config.userContentController.addUserScript(pollScript)
 
         // FocusableWebView subclass overrides acceptsFirstResponder / becomeFirstResponder
@@ -224,7 +223,7 @@ extension KrillLoginRunner: WKScriptMessageHandler {
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage)
     {
-        guard !hasCompleted,
+        guard !self.hasCompleted,
               message.name == Self.messageHandlerName,
               let jwt = message.body as? String,
               !jwt.isEmpty,
@@ -233,8 +232,8 @@ extension KrillLoginRunner: WKScriptMessageHandler {
             return
         }
 
-        hasCompleted = true
-        complete(with: .success(jwt))
+        self.hasCompleted = true
+        self.complete(with: .success(jwt))
     }
 }
 
@@ -302,11 +301,13 @@ extension KrillLoginRunner: NSWindowDelegate {
 /// responder because the app process isn't considered "active" by the
 /// window server. Overriding these forces keyboard routing into the WebView.
 private final class FocusableWebView: WKWebView {
-    override var acceptsFirstResponder: Bool { true }
+    override var acceptsFirstResponder: Bool {
+        true
+    }
 
     @discardableResult
     override func becomeFirstResponder() -> Bool {
-        return true
+        true
     }
 }
 

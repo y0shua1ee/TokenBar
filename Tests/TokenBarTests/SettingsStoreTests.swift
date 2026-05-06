@@ -1,7 +1,7 @@
-import TokenBarCore
 import Foundation
 import Observation
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
 @Suite(.serialized)

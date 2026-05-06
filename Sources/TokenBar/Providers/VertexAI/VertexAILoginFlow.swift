@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 @MainActor
 extension StatusItemController {

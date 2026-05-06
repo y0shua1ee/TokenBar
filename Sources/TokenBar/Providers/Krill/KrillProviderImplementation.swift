@@ -1,9 +1,14 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 struct KrillProviderImplementation: ProviderImplementation {
-    var id: UsageProvider { .krill }
-    var supportsLoginFlow: Bool { true }
+    var id: UsageProvider {
+        .krill
+    }
+
+    var supportsLoginFlow: Bool {
+        true
+    }
 
     @MainActor
     func runLoginFlow(context: ProviderLoginContext) async -> Bool {

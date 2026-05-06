@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import ServiceManagement
+import TokenBarCore
 
 extension SettingsStore {
     private static let mergedOverviewSelectionEditedActiveProvidersKey = "mergedOverviewSelectionEditedActiveProviders"

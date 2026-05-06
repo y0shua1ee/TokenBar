@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension UsageStore {
     private nonisolated static let weeklyLimitResetThreshold = 1.0

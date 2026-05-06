@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 private struct CodexPreparedImportedAccount {
     let account: ManagedCodexAccount

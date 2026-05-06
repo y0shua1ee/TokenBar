@@ -1,6 +1,6 @@
 #if DEBUG
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 extension ProvidersPane {
     func _test_binding(for provider: UsageProvider) -> Binding<Bool> {

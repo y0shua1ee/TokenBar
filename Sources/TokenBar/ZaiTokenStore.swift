@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import Security
+import TokenBarCore
 
 protocol ZaiTokenStoring: Sendable {
     func loadToken() throws -> String?

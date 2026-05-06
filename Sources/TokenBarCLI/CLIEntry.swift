@@ -1,5 +1,5 @@
-import TokenBarCore
 import Commander
+import TokenBarCore
 #if canImport(AppKit)
 import AppKit
 #endif

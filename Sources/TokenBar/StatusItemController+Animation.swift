@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import QuartzCore
+import TokenBarCore
 
 extension StatusItemController {
     private static let loadingPercentEpsilon = 0.0001

@@ -1,6 +1,6 @@
+import SwiftUI
 import TokenBarCore
 import TokenBarMacroSupport
-import SwiftUI
 
 @ProviderImplementationRegistration
 struct ClaudeProviderImplementation: ProviderImplementation {

@@ -1,5 +1,5 @@
-import TokenBarCore
 import Commander
+import TokenBarCore
 #if canImport(Darwin)
 import Darwin
 #else

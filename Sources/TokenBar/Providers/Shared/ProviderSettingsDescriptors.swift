@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import SwiftUI
+import TokenBarCore
 
 /// Settings UI context passed to provider implementations.
 ///

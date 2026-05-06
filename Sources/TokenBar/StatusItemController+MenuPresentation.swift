@@ -1,7 +1,7 @@
 import AppKit
-import TokenBarCore
 import Observation
 import SwiftUI
+import TokenBarCore
 
 extension StatusItemController {
     func switcherWeeklyRemaining(for provider: UsageProvider) -> Double? {

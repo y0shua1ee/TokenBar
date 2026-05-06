@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 @MainActor
 final class AugmentProviderRuntime: ProviderRuntime {

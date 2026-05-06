@@ -1,7 +1,7 @@
 import AppKit
+import SwiftUI
 import TokenBarCore
 import TokenBarMacroSupport
-import SwiftUI
 
 @ProviderImplementationRegistration
 struct CopilotProviderImplementation: ProviderImplementation {

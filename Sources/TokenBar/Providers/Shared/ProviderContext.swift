@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct ProviderPresentationContext {
     let provider: UsageProvider

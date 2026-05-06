@@ -1,5 +1,5 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 import WidgetKit
 
 struct CodexBarUsageWidgetView: View {

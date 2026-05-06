@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 @preconcurrency import UserNotifications
 
 @MainActor

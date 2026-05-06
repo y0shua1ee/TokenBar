@@ -1,7 +1,7 @@
-import TokenBarCore
 import Foundation
 import SQLite3
 import Testing
+import TokenBarCore
 
 struct WindsurfStatusProbeTests {
     // MARK: - Helper

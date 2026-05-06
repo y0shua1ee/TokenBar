@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import Observation
+import TokenBarCore
 
 enum ManagedCodexAccountCoordinatorError: Error, Equatable {
     case authenticationInProgress

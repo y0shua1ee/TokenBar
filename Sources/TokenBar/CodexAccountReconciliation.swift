@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct CodexVisibleAccount: Equatable, Identifiable {
     let id: String

@@ -1,6 +1,6 @@
-import TokenBarCore
 import SweetCookieKit
 import Testing
+import TokenBarCore
 
 struct BrowserCookieOrderStatusStringTests {
     #if os(macOS)

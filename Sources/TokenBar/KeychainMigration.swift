@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import Security
+import TokenBarCore
 
 /// Migrates keychain items to use kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
 /// to prevent permission prompts on every rebuild during development.

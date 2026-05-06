@@ -1,6 +1,5 @@
-#if os(macOS)
-import TokenBarMacroSupport
 import Foundation
+import TokenBarMacroSupport
 
 @ProviderDescriptorRegistration
 @ProviderDescriptorDefinition
@@ -35,7 +34,11 @@ public enum KrillProviderDescriptor {
             fetchPlan: ProviderFetchPlan(
                 sourceModes: [.auto, .web],
                 pipeline: ProviderFetchPipeline(resolveStrategies: { _ in
+                    #if os(macOS)
                     [KrillFetchStrategy()]
+                    #else
+                    []
+                    #endif
                 })),
             cli: ProviderCLIConfig(
                 name: "krill",
@@ -44,16 +47,17 @@ public enum KrillProviderDescriptor {
     }
 }
 
+#if os(macOS)
 struct KrillFetchStrategy: ProviderFetchStrategy {
     let id: String = "krill.api"
     let kind: ProviderFetchKind = .apiToken
 
-    func isAvailable(_ context: ProviderFetchContext) async -> Bool {
+    func isAvailable(_: ProviderFetchContext) async -> Bool {
         // Available on macOS (WebView support)
         true
     }
 
-    func fetch(_ context: ProviderFetchContext) async throws -> ProviderFetchResult {
+    func fetch(_: ProviderFetchContext) async throws -> ProviderFetchResult {
         let usage = try await KrillUsageFetcher.fetchUsage()
 
         return ProviderFetchResult(

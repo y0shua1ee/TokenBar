@@ -1,6 +1,6 @@
-import TokenBarCore
 import Foundation
 import SweetCookieKit
+import TokenBarCore
 
 @MainActor
 extension UsageStore {

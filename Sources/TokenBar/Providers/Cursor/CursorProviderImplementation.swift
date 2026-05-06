@@ -1,7 +1,7 @@
-import TokenBarCore
-import TokenBarMacroSupport
 import Foundation
 import SwiftUI
+import TokenBarCore
+import TokenBarMacroSupport
 
 @ProviderImplementationRegistration
 struct CursorProviderImplementation: ProviderImplementation {

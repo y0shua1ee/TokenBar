@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum MenuBarDisplayText {
     static func percentText(window: RateWindow?, showUsed: Bool) -> String? {
