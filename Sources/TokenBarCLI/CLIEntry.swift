@@ -1,4 +1,5 @@
 import Commander
+import Dispatch
 import TokenBarCore
 #if canImport(AppKit)
 import AppKit
@@ -15,12 +16,12 @@ import FoundationNetworking
 
 @main
 enum CodexBarCLI {
-    static func main() async {
+    static func main() {
         let rawArgv = Array(CommandLine.arguments.dropFirst())
         let argv = Self.effectiveArgv(rawArgv)
         let outputPreferences = CLIOutputPreferences.from(argv: argv)
 
-        // Fast path: global help/version before building descriptors.
+        // Fast path: global help/version before entering Swift's async runtime.
         if let helpIndex = argv.firstIndex(where: { $0 == "-h" || $0 == "--help" }) {
             let command = helpIndex == 0 ? argv.dropFirst().first : argv.first
             Self.printHelp(for: command)
@@ -36,9 +37,9 @@ enum CodexBarCLI {
             Self.bootstrapLogging(values: invocation.parsedValues)
             switch invocation.path {
             case ["usage"]:
-                await self.runUsage(invocation.parsedValues)
+                Self.runAsync { await self.runUsage(invocation.parsedValues) }
             case ["cost"]:
-                await self.runCost(invocation.parsedValues)
+                Self.runAsync { await self.runCost(invocation.parsedValues) }
             case ["config", "validate"]:
                 self.runConfigValidate(invocation.parsedValues)
             case ["config", "dump"]:
@@ -57,6 +58,16 @@ enum CodexBarCLI {
         } catch {
             Self.exit(code: .failure, message: error.localizedDescription, output: outputPreferences, kind: .runtime)
         }
+    }
+
+    private static func runAsync(_ operation: @escaping @Sendable () async -> Void) -> Never {
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await operation()
+            semaphore.signal()
+        }
+        semaphore.wait()
+        Self.platformExit(0)
     }
 
     private static func commandDescriptors() -> [CommandDescriptor] {
