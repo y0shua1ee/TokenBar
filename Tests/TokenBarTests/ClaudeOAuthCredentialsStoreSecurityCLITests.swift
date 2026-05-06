@@ -24,7 +24,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader prefers security CLI for non interactive load`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -78,7 +78,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader non interactive background load still executes security CLI read`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -137,7 +137,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader falls back when security CLI throws`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -194,7 +194,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader falls back when security CLI output malformed`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -477,7 +477,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader freshness sync skips security CLI when preflight requires interaction`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -553,7 +553,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader freshness sync background respects stored only on user action`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -628,7 +628,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader sync skips fingerprint probe after security CLI read`() {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -680,7 +680,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader no prompt repair skips fingerprint probe after security CLI success`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -750,7 +750,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader load with prompt skips fingerprint probe after security CLI success`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -763,50 +763,55 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                     ClaudeOAuthCredentialsStore._resetCredentialsFileTrackingForTesting()
                 }
 
-                let tempDir = FileManager.default.temporaryDirectory
-                    .appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-                let fileURL = tempDir.appendingPathComponent("credentials.json")
-                try ClaudeOAuthCredentialsStore.withCredentialsURLOverrideForTesting(fileURL) {
-                    let securityData = self.makeCredentialsData(
-                        accessToken: "security-load-with-prompt",
-                        expiresAt: Date(timeIntervalSinceNow: 3600))
-                    let fingerprintStore = ClaudeOAuthCredentialsStore.ClaudeKeychainFingerprintStore()
-                    let sentinelFingerprint = ClaudeOAuthCredentialsStore.ClaudeKeychainFingerprint(
-                        modifiedAt: 321,
-                        createdAt: 320,
-                        persistentRefHash: "sentinel")
+                try ClaudeOAuthCredentialsStore.withIsolatedMemoryCacheForTesting {
+                    try ClaudeOAuthCredentialsStore.withIsolatedCredentialsFileTrackingForTesting {
+                        let tempDir = FileManager.default.temporaryDirectory
+                            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+                        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+                        let fileURL = tempDir.appendingPathComponent("credentials.json")
+                        try ClaudeOAuthCredentialsStore.withCredentialsURLOverrideForTesting(fileURL) {
+                            let securityData = self.makeCredentialsData(
+                                accessToken: "security-load-with-prompt",
+                                expiresAt: Date(timeIntervalSinceNow: 3600))
+                            let fingerprintStore = ClaudeOAuthCredentialsStore.ClaudeKeychainFingerprintStore()
+                            let sentinelFingerprint = ClaudeOAuthCredentialsStore.ClaudeKeychainFingerprint(
+                                modifiedAt: 321,
+                                createdAt: 320,
+                                persistentRefHash: "sentinel")
 
-                    let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                        .securityCLIExperimental,
-                        operation: {
-                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(.always) {
-                                try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                                    try ClaudeOAuthCredentialsStore
-                                        .withClaudeKeychainFingerprintStoreOverrideForTesting(
-                                            fingerprintStore)
-                                        {
-                                            try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                                data: nil,
-                                                fingerprint: sentinelFingerprint)
-                                            {
-                                                try ClaudeOAuthCredentialsStore
-                                                    .withSecurityCLIReadOverrideForTesting(
-                                                        .data(securityData))
-                                                    {
-                                                        try ClaudeOAuthCredentialsStore.load(
-                                                            environment: [:],
-                                                            allowKeychainPrompt: true,
-                                                            respectKeychainPromptCooldown: false)
-                                                    }
-                                            }
+                            let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                .securityCLIExperimental,
+                                operation: {
+                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(.always) {
+                                        try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                            try ClaudeOAuthCredentialsStore
+                                                .withClaudeKeychainFingerprintStoreOverrideForTesting(
+                                                    fingerprintStore)
+                                                {
+                                                    try ClaudeOAuthCredentialsStore
+                                                        .withClaudeKeychainOverridesForTesting(
+                                                            data: nil,
+                                                            fingerprint: sentinelFingerprint)
+                                                        {
+                                                            try ClaudeOAuthCredentialsStore
+                                                                .withSecurityCLIReadOverrideForTesting(
+                                                                    .data(securityData))
+                                                                {
+                                                                    try ClaudeOAuthCredentialsStore.load(
+                                                                        environment: [:],
+                                                                        allowKeychainPrompt: true,
+                                                                        respectKeychainPromptCooldown: false)
+                                                                }
+                                                        }
+                                                }
                                         }
-                                }
-                            }
-                        })
+                                    }
+                                })
 
-                    #expect(creds.accessToken == "security-load-with-prompt")
-                    #expect(fingerprintStore.fingerprint == nil)
+                            #expect(creds.accessToken == "security-load-with-prompt")
+                            #expect(fingerprintStore.fingerprint == nil)
+                        }
+                    }
                 }
             }
         }
@@ -814,7 +819,7 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
 
     @Test
     func `experimental reader load with prompt does not read when global keychain disabled`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(true) {
                 KeychainCacheStore.setTestStoreForTesting(true)

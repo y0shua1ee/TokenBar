@@ -13,8 +13,11 @@ extension UsageStore {
         self.makeFetchContext(provider: .codex, override: nil).fetcher
     }
 
-    func refreshCreditsIfNeeded(minimumSnapshotUpdatedAt: Date? = nil) async {
-        guard self.isEnabled(.codex) else { return }
+    func refreshCreditsIfNeeded(
+        minimumSnapshotUpdatedAt: Date? = nil,
+        allowDisabled: Bool = false) async
+    {
+        guard allowDisabled || self.isEnabled(.codex) else { return }
         var expectedGuard = self.currentCodexAccountScopedRefreshGuard()
         if expectedGuard.identity == .unresolved,
            let minimumSnapshotUpdatedAt,
@@ -101,8 +104,7 @@ extension UsageStore {
         if let override = self._test_codexCreditsLoaderOverride {
             return try await override()
         }
-        return try await self.codexCreditsFetcher().loadLatestCredits(
-            keepCLISessionsAlive: self.settings.debugKeepCLISessionsAlive)
+        return try await self.codexCreditsFetcher().loadLatestCredits()
     }
 
     func waitForCodexSnapshot(minimumUpdatedAt: Date) async -> UsageSnapshot? {

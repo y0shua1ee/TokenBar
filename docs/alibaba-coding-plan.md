@@ -18,8 +18,11 @@ Alibaba Coding Plan supports both browser-session and API-key paths, but the sup
 When the RPC endpoint returns `ConsoleNeedLogin`, TokenBar treats that as a console-session requirement. In API mode it is surfaced as an explicit API-path limitation; in `auto` mode fallback remains observable through the fetch-attempt chain.
 
 ## Token sources (fallback order)
-1) Config token (`~/.codexbar/config.json` -> `providers[].apiKey` for provider `alibaba`).
-2) Environment variable `ALIBABA_CODING_PLAN_API_KEY`.
+1) Config token (`~/.tokenbar/config.json` -> `providers[].apiKey` for provider `alibaba`).
+2) Environment variables, checked in order:
+   - `ALIBABA_CODING_PLAN_API_KEY`
+   - `ALIBABA_QWEN_API_KEY`
+   - `DASHSCOPE_API_KEY`
 
 ## Region + endpoint behavior
 - International host: `https://modelstudio.console.alibabacloud.com`
@@ -64,7 +67,7 @@ When the RPC endpoint returns `ConsoleNeedLogin`, TokenBar treats that as a cons
 - China mainland console: `https://bailian.console.aliyun.com/cn-beijing/?tab=model#/efm/coding_plan`
 
 ## Key files
-- `Sources/CodexBarCore/Providers/Alibaba/AlibabaCodingPlanProviderDescriptor.swift`
-- `Sources/CodexBarCore/Providers/Alibaba/AlibabaCodingPlanUsageFetcher.swift`
-- `Sources/CodexBarCore/Providers/Alibaba/AlibabaCodingPlanUsageSnapshot.swift`
+- `Sources/TokenBarCore/Providers/Alibaba/AlibabaCodingPlanProviderDescriptor.swift`
+- `Sources/TokenBarCore/Providers/Alibaba/AlibabaCodingPlanUsageFetcher.swift`
+- `Sources/TokenBarCore/Providers/Alibaba/AlibabaCodingPlanUsageSnapshot.swift`
 - `Sources/TokenBar/Providers/Alibaba/AlibabaCodingPlanProviderImplementation.swift`

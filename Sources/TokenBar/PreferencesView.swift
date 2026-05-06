@@ -9,9 +9,9 @@ enum PreferencesTab: String, CaseIterable, Hashable {
     case about
     case debug
 
-    static let defaultWidth: CGFloat = 496
-    static let providersWidth: CGFloat = 720
-    static let windowHeight: CGFloat = 580
+    static let defaultWidth: CGFloat = 546
+    static let providersWidth: CGFloat = 792
+    static let windowHeight: CGFloat = 638
 
     var title: String {
         switch self {

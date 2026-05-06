@@ -42,8 +42,9 @@ Usage source picker:
 
 ## OAuth API (preferred)
 - Credentials:
-  - Keychain service: `Claude Code-credentials` (primary on macOS).
+  - CodexBar OAuth cache when available.
   - File fallback: `~/.claude/.credentials.json`.
+  - Claude CLI Keychain bootstrap/repair fallback: `Claude Code-credentials`.
 - Requires `user:profile` scope (CLI tokens with only `user:inference` cannot call usage).
 - Endpoint:
   - `GET https://api.anthropic.com/api/oauth/usage`
@@ -52,15 +53,17 @@ Usage source picker:
   - `anthropic-beta: oauth-2025-04-20`
 - Mapping:
   - `five_hour` → session window.
-  - `seven_day` → weekly window.
+  - `seven_day` → weekly window; also becomes the primary fallback when `five_hour` is absent or has no utilization.
   - `seven_day_sonnet` / `seven_day_opus` → model-specific weekly window.
   - `extra_usage` → Extra usage cost (monthly spend/limit).
-- Plan inference: `rate_limit_tier` from credentials maps to Max/Pro/Team/Enterprise.
+- Successful OAuth login enables Claude and selects OAuth as the usage source.
+- Plan inference: `subscriptionType` is preferred when present; `rate_limit_tier` falls back to
+  Max/Pro/Team/Enterprise.
 
 ## Web API (cookies)
 - Preferences → Providers → Claude → Cookie source (Automatic or Manual).
 - Manual mode accepts a `Cookie:` header from a claude.ai request.
-- Multi-account manual tokens: add entries to `~/.codexbar/config.json` (`tokenAccounts`) and set Claude cookies to
+- Multi-account manual tokens: add entries to `~/.tokenbar/config.json` (`tokenAccounts`) and set Claude cookies to
   Manual. The menu can show all accounts stacked or a switcher bar (Preferences → Advanced → Display).
 - Claude token accounts accept either `sessionKey` cookies or OAuth access tokens (`sk-ant-oat...`). OAuth-token
   accounts route to the OAuth path and disable cookie mode; session-key or cookie-header accounts stay in manual
@@ -120,11 +123,11 @@ Usage source picker:
   - pi session cache: `~/Library/Caches/TokenBar/cost-usage/pi-sessions-v1.json`
 
 ## Key files
-- OAuth: `Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/*`
-- Web API: `Sources/CodexBarCore/Providers/Claude/ClaudeWeb/ClaudeWebAPIFetcher.swift`
-- CLI PTY: `Sources/CodexBarCore/Providers/Claude/ClaudeStatusProbe.swift`,
-  `Sources/CodexBarCore/Providers/Claude/ClaudeCLISession.swift`
-- Cost usage: `Sources/CodexBarCore/CostUsageFetcher.swift`,
-  `Sources/CodexBarCore/PiSessionCostScanner.swift`,
-  `Sources/CodexBarCore/PiSessionCostCache.swift`,
-  `Sources/CodexBarCore/Vendored/CostUsage/*`
+- OAuth: `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/*`
+- Web API: `Sources/TokenBarCore/Providers/Claude/ClaudeWeb/ClaudeWebAPIFetcher.swift`
+- CLI PTY: `Sources/TokenBarCore/Providers/Claude/ClaudeStatusProbe.swift`,
+  `Sources/TokenBarCore/Providers/Claude/ClaudeCLISession.swift`
+- Cost usage: `Sources/TokenBarCore/CostUsageFetcher.swift`,
+  `Sources/TokenBarCore/PiSessionCostScanner.swift`,
+  `Sources/TokenBarCore/PiSessionCostCache.swift`,
+  `Sources/TokenBarCore/Vendored/CostUsage/*`

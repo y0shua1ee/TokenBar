@@ -10,11 +10,31 @@ extension StatusItemController {
     private static let menuCardBaseWidth: CGFloat = 310
     private static let maxOverviewProviders = SettingsStore.mergedOverviewProviderLimit
     private static let overviewRowIdentifierPrefix = "overviewRow-"
-    private static let menuOpenRefreshDelay: Duration = .seconds(1.2)
+    private static let defaultMenuOpenRefreshDelay: Duration = .seconds(1.2)
+    #if DEBUG
+    private static var menuOpenRefreshDelayForTesting: Duration = .seconds(1.2)
+    static func setMenuOpenRefreshDelayForTesting(_ delay: Duration) {
+        self.menuOpenRefreshDelayForTesting = delay
+    }
+
+    static func resetMenuOpenRefreshDelayForTesting() {
+        self.menuOpenRefreshDelayForTesting = self.defaultMenuOpenRefreshDelay
+    }
+    #endif
+
+    private static var menuOpenRefreshDelay: Duration {
+        #if DEBUG
+        menuOpenRefreshDelayForTesting
+        #else
+        defaultMenuOpenRefreshDelay
+        #endif
+    }
+
     static let usageBreakdownChartID = "usageBreakdownChart"
     static let creditsHistoryChartID = "creditsHistoryChart"
     static let costHistoryChartID = "costHistoryChart"
     static let usageHistoryChartID = "usageHistoryChart"
+    static let storageBreakdownID = "storageBreakdown"
 
     private func shortcut(for action: MenuDescriptor.MenuAction) -> (key: String, modifiers: NSEvent.ModifierFlags)? {
         switch action {
@@ -67,7 +87,11 @@ extension StatusItemController {
             if Self.menuRefreshEnabled, self.isOpenAIWebSubviewMenu(menu) {
                 self.store.requestOpenAIDashboardRefreshIfStale(reason: "submenu open")
             }
-            self.openMenus[ObjectIdentifier(menu)] = menu
+            if Self.menuRefreshEnabled {
+                // Intentionally skip open-menu tracking when refresh is disabled (tests).
+                // If refresh is re-enabled while this menu stays open, it will not be backfilled until next open.
+                self.openMenus[ObjectIdentifier(menu)] = menu
+            }
             // Removed redundant async refresh - single pass is sufficient after initial layout
             return
         }
@@ -97,7 +121,11 @@ extension StatusItemController {
             self.markMenuFresh(menu)
             // Heights are already set during populateMenu, no need to remeasure
         }
-        self.openMenus[ObjectIdentifier(menu)] = menu
+        if Self.menuRefreshEnabled {
+            // Intentionally skip open-menu tracking when refresh is disabled (tests).
+            // If refresh is re-enabled while this menu stays open, it will not be backfilled until next open.
+            self.openMenus[ObjectIdentifier(menu)] = menu
+        }
         // Only schedule refresh after menu is registered as open - refreshNow is called async
         if Self.menuRefreshEnabled {
             self.scheduleOpenMenuRefresh(for: menu)
@@ -105,6 +133,10 @@ extension StatusItemController {
     }
 
     func menuDidClose(_ menu: NSMenu) {
+        self.forgetClosedMenu(menu)
+    }
+
+    func forgetClosedMenu(_ menu: NSMenu) {
         let key = ObjectIdentifier(menu)
 
         self.openMenus.removeValue(forKey: key)
@@ -220,6 +252,7 @@ extension StatusItemController {
             menuWidth: menuWidth,
             tokenAccountDisplay: tokenAccountDisplay,
             openAIContext: openAIContext)
+        self.store.refreshStorageFootprintsForOverview()
         if isOverviewSelected {
             if self.addOverviewRows(
                 to: menu,
@@ -414,8 +447,9 @@ extension StatusItemController {
 
         for (index, row) in rows.enumerated() {
             let identifier = "\(Self.overviewRowIdentifierPrefix)\(row.provider.rawValue)"
+            let storageText = self.store.storageFootprintText(for: row.provider)
             let item = self.makeMenuCardItem(
-                OverviewMenuCardRowView(model: row.model, width: menuWidth),
+                OverviewMenuCardRowView(model: row.model, storageText: storageText, width: menuWidth),
                 id: identifier,
                 width: menuWidth,
                 onClick: { [weak self, weak menu] in
@@ -479,6 +513,9 @@ extension StatusItemController {
                     menu.addItem(.separator())
                 }
             }
+            if self.addStorageMenuCardSection(to: menu, provider: context.currentProvider, width: context.menuWidth) {
+                menu.addItem(.separator())
+            }
             return false
         }
 
@@ -502,6 +539,9 @@ extension StatusItemController {
             UsageMenuCardView(model: model, width: context.menuWidth),
             id: "menuCard",
             width: context.menuWidth))
+        if self.addStorageMenuCardSection(to: menu, provider: context.currentProvider, width: context.menuWidth) {
+            menu.addItem(.separator())
+        }
         if context.openAIContext.canShowBuyCredits {
             menu.addItem(self.makeBuyCreditsItem())
         }
@@ -725,17 +765,22 @@ extension StatusItemController {
             accounts: display.accounts,
             selectedIndex: display.activeIndex,
             width: width,
-            onSelect: { [weak self, weak menu] index in
-                guard let self, let menu else { return }
+            onSelect: { [weak self, weak menu] index -> Task<Void, Never>? in
+                guard let self, let menu else { return nil }
                 self.settings.setActiveTokenAccountIndex(index, for: display.provider)
-                Task { @MainActor in
-                    await ProviderInteractionContext.$current.withValue(.userInitiated) {
-                        await self.store.refresh()
-                    }
-                }
+                // Immediately rebuild to show the new selection, then refresh data
+                // and rebuild again once fresh data arrives.
                 self.populateMenu(menu, provider: display.provider)
                 self.markMenuFresh(menu)
                 self.applyIcon(phase: nil)
+                return Task { @MainActor [weak self, weak menu] in
+                    guard let self else { return }
+                    await ProviderInteractionContext.$current.withValue(.userInitiated) {
+                        await self.store.refreshProvider(display.provider)
+                    }
+                    guard let menu else { return }
+                    self.refreshOpenMenuIfStillVisible(menu, provider: display.provider)
+                }
             })
         let item = NSMenuItem()
         item.view = view
@@ -817,7 +862,9 @@ extension StatusItemController {
         let accounts = self.settings.tokenAccounts(for: provider)
         guard accounts.count > 1 else { return nil }
         let activeIndex = self.settings.tokenAccountsData(for: provider)?.clampedActiveIndex() ?? 0
-        let showAll = self.settings.showAllTokenAccountsInMenu
+        let canShowAllCopilotAccounts = provider == .copilot &&
+            accounts.count <= UsageStore.tokenAccountMenuSnapshotLimit
+        let showAll = canShowAllCopilotAccounts || self.settings.showAllTokenAccountsInMenu
         let snapshots = showAll ? (self.store.accountSnapshots[provider] ?? []) : []
         return TokenAccountMenuDisplay(
             provider: provider,
@@ -848,14 +895,12 @@ extension StatusItemController {
     }
 
     func refreshOpenMenusIfNeeded() {
+        guard Self.menuRefreshEnabled else { return }
         guard !self.openMenus.isEmpty else { return }
+        var orphanedKeys: [ObjectIdentifier] = []
         for (key, menu) in self.openMenus {
             guard key == ObjectIdentifier(menu) else {
-                // Clean up orphaned menu entries from all tracking dictionaries
-                self.openMenus.removeValue(forKey: key)
-                self.menuRefreshTasks.removeValue(forKey: key)?.cancel()
-                self.menuProviders.removeValue(forKey: key)
-                self.menuVersions.removeValue(forKey: key)
+                orphanedKeys.append(key)
                 continue
             }
 
@@ -870,6 +915,14 @@ extension StatusItemController {
                 self.markMenuFresh(menu)
                 // Heights are already set during populateMenu, no need to remeasure
             }
+        }
+
+        // Clean up orphaned menu entries from all tracking dictionaries.
+        for key in orphanedKeys {
+            self.openMenus.removeValue(forKey: key)
+            self.menuRefreshTasks.removeValue(forKey: key)?.cancel()
+            self.menuProviders.removeValue(forKey: key)
+            self.menuVersions.removeValue(forKey: key)
         }
     }
 
@@ -925,6 +978,10 @@ extension StatusItemController {
             guard let self, let menu else { return }
             try? await Task.sleep(for: Self.menuOpenRefreshDelay)
             guard !Task.isCancelled else { return }
+            guard Self.menuRefreshEnabled else { return }
+            #if DEBUG
+            self.onDelayedMenuRefreshAttemptForTesting?()
+            #endif
             guard self.openMenus[ObjectIdentifier(menu)] != nil else { return }
             guard !self.store.isRefreshing else { return }
             let retryProviders = self.delayedRefreshRetryProviders(for: menu)
@@ -1059,6 +1116,7 @@ extension StatusItemController {
         let hasCredits = model.creditsText != nil
         let hasExtraUsage = model.providerCost != nil
         let hasCost = model.tokenUsage != nil
+        let hasStorage = self.store.storageFootprintText(for: provider) != nil
         let bottomPadding = CGFloat(hasCredits ? 4 : 6)
         let sectionSpacing = CGFloat(6)
         let usageBottomPadding = bottomPadding
@@ -1087,7 +1145,13 @@ extension StatusItemController {
                 submenu: usageSubmenu))
         }
 
-        if hasCredits || hasExtraUsage || hasCost {
+        if hasStorage || hasCredits || hasExtraUsage || hasCost {
+            menu.addItem(.separator())
+        }
+
+        if self.addStorageMenuCardSection(to: menu, provider: provider, width: width),
+           hasCredits || hasExtraUsage || hasCost
+        {
             menu.addItem(.separator())
         }
 
@@ -1141,6 +1205,23 @@ extension StatusItemController {
                 width: width,
                 submenu: costSubmenu))
         }
+    }
+
+    @discardableResult
+    private func addStorageMenuCardSection(to menu: NSMenu, provider: UsageProvider, width: CGFloat) -> Bool {
+        guard let storageText = self.store.storageFootprintText(for: provider) else { return false }
+        let storageView = StorageMenuCardSectionView(
+            storageText: storageText,
+            topPadding: 6,
+            bottomPadding: 6,
+            width: width)
+        let storageSubmenu = self.makeStorageBreakdownSubmenu(provider: provider)
+        menu.addItem(self.makeMenuCardItem(
+            storageView,
+            id: "menuCardStorage",
+            width: width,
+            submenu: storageSubmenu))
+        return true
     }
 
     private func switcherIcon(for provider: UsageProvider) -> NSImage {
@@ -1295,7 +1376,9 @@ extension StatusItemController {
     }
 
     private func makeUsageBreakdownSubmenu() -> NSMenu? {
-        guard !(self.store.openAIDashboard?.usageBreakdown ?? []).isEmpty else { return nil }
+        let breakdown = OpenAIDashboardDailyBreakdown.removingSkillUsageServices(
+            from: self.store.openAIDashboard?.usageBreakdown ?? [])
+        guard !breakdown.isEmpty else { return nil }
         return self.makeHostedSubviewPlaceholderMenu(chartID: Self.usageBreakdownChartID)
     }
 
@@ -1311,12 +1394,18 @@ extension StatusItemController {
         return self.makeHostedSubviewPlaceholderMenu(chartID: Self.costHistoryChartID, provider: provider)
     }
 
+    private func makeStorageBreakdownSubmenu(provider: UsageProvider) -> NSMenu? {
+        guard self.store.storageFootprint(for: provider)?.components.isEmpty == false else { return nil }
+        return self.makeHostedSubviewPlaceholderMenu(chartID: Self.storageBreakdownID, provider: provider)
+    }
+
     private func isHostedSubviewMenu(_ menu: NSMenu) -> Bool {
         let ids: Set = [
             Self.usageBreakdownChartID,
             Self.creditsHistoryChartID,
             Self.costHistoryChartID,
             Self.usageHistoryChartID,
+            Self.storageBreakdownID,
         ]
         return menu.items.contains { item in
             guard let id = item.representedObject as? String else { return false }
@@ -1355,11 +1444,19 @@ extension StatusItemController {
         let target = provider ?? self.store.enabledProvidersForDisplay().first ?? .codex
         let metadata = self.store.metadata(for: target)
 
-        let snapshot = snapshotOverride ?? self.store.snapshot(for: target)
         let surface: CodexConsumerProjection.Surface = if snapshotOverride != nil || errorOverride != nil {
             .overrideCard
         } else {
             .liveCard
+        }
+        // Override cards belong to a specific account/context (e.g. a per-account
+        // refresh result). Never fall back to the provider-level live snapshot here —
+        // that data belongs to a *different* account and would render misleading
+        // duplicate cards when an account refresh failed or was cancelled.
+        let snapshot: UsageSnapshot? = if surface == .overrideCard {
+            snapshotOverride
+        } else {
+            snapshotOverride ?? self.store.snapshot(for: target)
         }
         let now = Date()
         let codexProjection = self.store.codexConsumerProjectionIfNeeded(

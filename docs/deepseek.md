@@ -13,7 +13,7 @@ so TokenBar only needs a valid API key to show your remaining credit balance.
 
 ## Data sources
 
-1. **API key** stored in `~/.codexbar/config.json` or supplied via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`.
+1. **API key** stored in `~/.tokenbar/config.json`, supplied via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`, or selected from DeepSeek token accounts.
    TokenBar stores the key in config after you paste it in Settings → Providers → DeepSeek.
 2. **Balance endpoint**
    - `GET https://api.deepseek.com/user/balance`
@@ -25,16 +25,17 @@ so TokenBar only needs a valid API key to show your remaining credit balance.
 
 - The menu card shows total balance with the paid vs. granted breakdown:
   e.g. `$50.00 (Paid: $40.00 / Granted: $10.00)`.
-- Granted credits are promotional and may expire; topped-up credits are user-paid and do not expire.
+- The API separates granted balance from topped-up balance; TokenBar labels these as granted vs. paid credit.
 - When multiple currencies are present, USD is shown preferentially.
-- `is_available: false` from the API dims the icon and shows "Account unavailable".
+- If total balance is zero, TokenBar shows an add-credits message. If balance is nonzero but `is_available` is false, it shows "Balance unavailable for API calls".
 - There is no session or weekly window — DeepSeek does not expose per-window quota via API.
-- Settings config takes precedence over environment variables when both are present.
+- Token-account selection injects the selected key into the fetch environment; otherwise TokenBar reads `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`.
 
 ## Key files
 
-- `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekProviderDescriptor.swift` (descriptor + fetch strategy)
-- `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekUsageFetcher.swift` (HTTP client + JSON parser)
-- `Sources/CodexBarCore/Providers/DeepSeek/DeepSeekSettingsReader.swift` (env var resolution)
-- `Sources/TokenBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (settings field + activation logic)
+- `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekProviderDescriptor.swift` (descriptor + fetch strategy)
+- `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekUsageFetcher.swift` (HTTP client + JSON parser)
+- `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekSettingsReader.swift` (env var resolution)
+- `Sources/TokenBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (provider activation, settings field, and token-account visibility)
 - `Sources/TokenBar/Providers/DeepSeek/DeepSeekSettingsStore.swift` (SettingsStore extension)
+- `Sources/TokenBarCore/TokenAccountSupportCatalog+Data.swift` (DeepSeek token-account injection)

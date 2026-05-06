@@ -7,7 +7,7 @@ extension CodexBarCLI {
         TokenBar \(version)
 
         Usage:
-          codexbar usage [--format text|json]
+          tokenbar usage [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -39,13 +39,13 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar usage
-          codexbar usage --provider claude
-          codexbar usage --provider gemini
-          codexbar usage --format json --provider all --pretty
-          codexbar usage --provider all --json
-          codexbar usage --status
-          codexbar usage --provider codex --source web --format json --pretty
+          tokenbar usage
+          tokenbar usage --provider claude
+          tokenbar usage --provider gemini
+          tokenbar usage --format json --provider all --pretty
+          tokenbar usage --provider all --json
+          tokenbar usage --status
+          tokenbar usage --provider codex --source web --format json --pretty
         """
     }
 
@@ -54,7 +54,7 @@ extension CodexBarCLI {
         TokenBar \(version)
 
         Usage:
-          codexbar cost [--format text|json]
+          tokenbar cost [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -66,9 +66,9 @@ extension CodexBarCLI {
           Native-log providers use cached scan results unless --refresh is provided.
 
         Examples:
-          codexbar cost
-          codexbar cost --provider claude --format json --pretty
-          codexbar cost --provider krill --format json --pretty
+          tokenbar cost
+          tokenbar cost --provider claude --format json --pretty
+          tokenbar cost --provider krill --format json --pretty
         """
     }
 
@@ -77,13 +77,13 @@ extension CodexBarCLI {
         TokenBar \(version)
 
         Usage:
-          codexbar config validate [--format text|json]
+          tokenbar config validate [--format text|json]
                                  [--json]
                                  [--json-only]
                                  [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                                  [-v|--verbose]
                                  [--pretty]
-          codexbar config dump [--format text|json]
+          tokenbar config dump [--format text|json]
                              [--json]
                              [--json-only]
                              [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
@@ -94,8 +94,36 @@ extension CodexBarCLI {
           Validate or print the TokenBar config file (default: validate).
 
         Examples:
-          codexbar config validate --format json --pretty
-          codexbar config dump --pretty
+          tokenbar config validate --format json --pretty
+          tokenbar config dump --pretty
+        """
+    }
+
+    static func cacheHelp(version: String) -> String {
+        """
+        TokenBar \(version)
+
+        Usage:
+          tokenbar cache clear <--cookies|--cost|--all>
+                              [--provider <name>]
+                              [--format text|json]
+                              [--json]
+                              [--json-only]
+                              [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
+                              [-v|--verbose]
+                              [--pretty]
+
+        Description:
+          Clear cached data. Use --cookies to clear browser cookie caches (stored in Keychain),
+          --cost to clear cost usage scan caches, or --all for both.
+          Optionally specify --provider with --cookies to clear cookies for a single provider only.
+
+        Examples:
+          tokenbar cache clear --cookies
+          tokenbar cache clear --cookies --provider claude
+          tokenbar cache clear --cost
+          tokenbar cache clear --all
+          tokenbar cache clear --all --format json --pretty
         """
     }
 
@@ -104,7 +132,7 @@ extension CodexBarCLI {
         TokenBar \(version)
 
         Usage:
-          codexbar [--format text|json]
+          tokenbar [--format text|json]
                   [--json]
                   [--json-only]
                   [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -112,17 +140,18 @@ extension CodexBarCLI {
                   [--account <label>] [--account-index <index>] [--all-accounts]
                   [--no-credits] [--no-color] [--pretty] [--status] [--source <auto|web|cli|oauth|api>]
                   [--web-timeout <seconds>] [--web-debug-dump-html] [--antigravity-plan-debug] [--augment-debug]
-          codexbar cost [--format text|json]
+          tokenbar cost [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
                        [--provider \(ProviderHelp.list)] [--no-color] [--pretty] [--refresh]
-          codexbar config <validate|dump> [--format text|json]
+          tokenbar config <validate|dump> [--format text|json]
                                         [--json]
                                         [--json-only]
                                         [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                                         [-v|--verbose]
                                         [--pretty]
+          tokenbar cache clear <--cookies|--cost|--all> [--provider <name>]
 
         Global flags:
           -h, --help      Show help
@@ -133,12 +162,13 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar
-          codexbar --format json --provider all --pretty
-          codexbar --provider all --json
-          codexbar --provider gemini
-          codexbar cost --provider claude --format json --pretty
-          codexbar config validate --format json --pretty
+          tokenbar
+          tokenbar --format json --provider all --pretty
+          tokenbar --provider all --json
+          tokenbar --provider gemini
+          tokenbar cost --provider claude --format json --pretty
+          tokenbar config validate --format json --pretty
+          tokenbar cache clear --cookies
         """
     }
 }

@@ -48,7 +48,7 @@ struct AdvancedPane: View {
                                 .lineLimit(2)
                         }
                     }
-                    Text("Symlink CodexBarCLI to /usr/local/bin and /opt/homebrew/bin as codexbar.")
+                    Text("Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar.")
                         .font(.footnote)
                         .foregroundStyle(.tertiary)
                 }
@@ -77,6 +77,10 @@ struct AdvancedPane: View {
                         title: "Hide personal information",
                         subtitle: "Obscure email addresses in the menu bar and menu UI.",
                         binding: self.$settings.hidePersonalInfo)
+                    PreferenceToggleRow(
+                        title: "Show provider storage usage",
+                        subtitle: "Show local disk usage in menus. Scans known provider-owned paths in the background.",
+                        binding: self.$settings.providerStorageFootprintsEnabled)
                 }
 
                 Divider()
@@ -106,16 +110,16 @@ extension AdvancedPane {
         self.isInstallingCLI = true
         defer { self.isInstallingCLI = false }
 
-        let helperURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/CodexBarCLI")
+        let helperURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/TokenBarCLI")
         let fm = FileManager.default
         guard fm.fileExists(atPath: helperURL.path) else {
-            self.cliStatus = "CodexBarCLI not found in app bundle."
+            self.cliStatus = "TokenBarCLI not found in app bundle."
             return
         }
 
         let destinations = [
-            "/usr/local/bin/codexbar",
-            "/opt/homebrew/bin/codexbar",
+            "/usr/local/bin/tokenbar",
+            "/opt/homebrew/bin/tokenbar",
         ]
 
         var results: [String] = []

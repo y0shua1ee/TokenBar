@@ -13,8 +13,11 @@ read_when:
 ### Building and Running
 
 ```bash
-# Full build, test, package, and launch (recommended)
+# Full build, package, and launch (recommended)
 ./Scripts/compile_and_run.sh
+
+# Also run swift test before packaging/relaunching
+./Scripts/compile_and_run.sh --test
 
 # Just build and package (no tests)
 ./Scripts/package_app.sh
@@ -26,8 +29,8 @@ read_when:
 ### Development Workflow
 
 1. **Make code changes** in `Sources/TokenBar/`
-2. **Run** `./Scripts/compile_and_run.sh` to rebuild and launch
-3. **Check logs** in Console.app (filter by "codexbar")
+2. **Run** `./Scripts/compile_and_run.sh --test` to test, rebuild, and launch
+3. **Check logs** in Console.app (filter by "tokenbar")
 4. **Optional file log**: enable Debug → Logging → "Enable file logging" to write
    `~/Library/Logs/TokenBar/TokenBar.log` (verbosity defaults to "Verbose")
 
@@ -37,7 +40,9 @@ read_when:
 You'll see **one keychain prompt per stored credential** on the first launch. This is a **one-time migration** that converts existing keychain items to use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
 
 ### Subsequent Rebuilds
-**Zero prompts!** The migration flag is stored in UserDefaults, so future rebuilds won't prompt.
+The migration flag is stored in UserDefaults, so migrated TokenBar-owned items should not prompt again. Ad-hoc
+signing can still prompt for other keychain surfaces; use `./Scripts/compile_and_run.sh --clear-adhoc-keychain`
+when you intentionally want to reset ad-hoc keychain state.
 
 ### Why This Happens
 - Ad-hoc signed development builds change code signature on every rebuild
@@ -50,28 +55,20 @@ You'll see **one keychain prompt per stored credential** on the first launch. Th
 defaults delete com.y0shua1ee.tokenbar KeychainMigrationV1Completed
 ```
 
-## Auto-Refresh for Augment Cookies
+## Augment Cookie Refresh
 
 ### How It Works
-TokenBar automatically refreshes Augment cookies from your browser:
-
-1. **Automatic Import**: On every usage refresh, TokenBar imports fresh cookies from your browser
-2. **Browser Priority**: Chrome → Arc → Safari → Firefox → Brave (configurable)
-3. **Session Detection**: Looks for Auth0/NextAuth session cookies
-4. **Fallback**: If import fails, uses last known good cookies from keychain
+TokenBar checks Augment through the provider fetch pipeline. Auto mode tries the Augment CLI first, then the
+browser-cookie web path. The web path reuses cached cookies when possible and imports from supported browsers when
+the cache is missing or rejected.
 
 ### Refresh Frequency
 - Default: Every 5 minutes (configurable in Preferences → General)
-- Minimum: 30 seconds
-- Cookie import happens automatically on each refresh
+- Minimum: 1 minute
+- Cookie import happens automatically when cached cookies need refresh
 
 ### Supported Browsers
-- Chrome
-- Arc
-- Safari
-- Firefox
-- Brave
-- Edge
+- Safari, Chrome variants, Edge variants, Brave, Arc variants, Dia, and Firefox.
 
 ### Manual Cookie Override
 If automatic import fails:
@@ -84,7 +81,7 @@ If automatic import fails:
 ```
 TokenBar/
 ├── Sources/TokenBar/          # Main app (SwiftUI + AppKit)
-│   ├── CodexBarApp.swift      # App entry point
+│   ├── TokenBarApp.swift      # App entry point
 │   ├── StatusItemController.swift  # Menu bar icon
 │   ├── UsageStore.swift       # Usage data management
 │   ├── SettingsStore.swift    # User preferences
@@ -94,28 +91,26 @@ TokenBar/
 │   │   ├── Codex/             # OpenAI Codex
 │   │   └── ...
 │   └── KeychainMigration.swift  # One-time keychain migration
-├── Sources/CodexBarCore/      # Shared business logic
-├── Tests/CodexBarTests/       # XCTest suite
+├── Sources/TokenBarCore/      # Shared business logic
+├── Tests/TokenBarTests/       # XCTest suite
 └── Scripts/                   # Build and packaging scripts
 ```
 
 ## Common Tasks
 
 ### Add a New Provider
-1. Create `Sources/TokenBar/Providers/YourProvider/`
-2. Implement `ProviderImplementation` protocol
-3. Add to `ProviderRegistry.swift`
-4. Add icon to `Resources/ProviderIcon-yourprovider.svg`
+1. Add a `UsageProvider` case in `Sources/TokenBarCore/Providers/Providers.swift`
+2. Add core descriptor/fetcher wiring under `Sources/TokenBarCore/Providers/YourProvider/`
+3. Add app-side implementation under `Sources/TokenBar/Providers/YourProvider/`
+4. Register the implementation in `ProviderImplementationRegistry`
+5. Add icon assets such as `Resources/ProviderIcon-yourprovider.svg`
 
 ### Debug Cookie Issues
-```bash
-# Enable verbose logging
-export CODEXBAR_LOG_LEVEL=debug
-./Scripts/compile_and_run.sh
-
-# Check logs in Console.app
-# Filter: subsystem:com.y0shua1ee.tokenbar category:augment-cookie
-```
+1. Enable Debug → Logging → "Enable file logging" or raise verbosity in the app settings.
+2. Reproduce with `./Scripts/compile_and_run.sh`.
+3. Check logs in Console.app:
+   - Filter: `subsystem:com.y0shua1ee.tokenbar category:augment`
+   - Importer messages include the `[augment-cookie]` prefix
 
 ### Run Tests Only
 ```bash
@@ -133,13 +128,13 @@ swiftlint --strict
 ### Local Development Build
 ```bash
 ./Scripts/package_app.sh
-# Creates: TokenBar.app (ad-hoc signed)
+# Creates: TokenBar.app (ad-hoc signed by default for the fork; set TOKENBAR_SIGNING=adhoc explicitly if needed)
 ```
 
 ### Release Build (Notarized)
 ```bash
 ./Scripts/sign-and-notarize.sh
-# Creates: TokenBar-arm64.zip (notarized for distribution)
+# Fork release flow creates TokenBar artifacts; see docs/RELEASING.md for the current adhoc workflow.
 ```
 
 See `docs/RELEASING.md` for full release process.
@@ -162,11 +157,11 @@ defaults read com.y0shua1ee.tokenbar KeychainMigrationV1Completed
 # Should output: 1
 
 # Check migration logs
-log show --predicate 'category == "KeychainMigration"' --last 5m
+log show --predicate 'category == "keychain-migration"' --last 5m
 ```
 
 ### Cookies Not Refreshing
-1. Check browser is supported (Chrome, Arc, Safari, Firefox, Brave)
+1. Check the browser is supported by the Augment provider metadata
 2. Verify you're logged into Augment in that browser
 3. Check Preferences → Providers → Augment → Cookie source is "Automatic"
 4. Enable debug logging and check Console.app
@@ -181,12 +176,13 @@ log show --predicate 'category == "KeychainMigration"' --last 5m
 
 ### Cookie Management
 - Automatic browser import via SweetCookieKit
-- Keychain storage for persistence
+- Keychain cache for some imported browser cookies and OAuth/device-flow credentials
+- `~/.tokenbar/config.json` for provider settings, manual cookies, and stored API keys
 - Manual override for debugging
-- Auto-refresh on every usage poll
+- Browser-cookie import when cached sessions need refresh
 
 ### Usage Polling
 - Background timer (configurable frequency)
 - Parallel provider fetches
-- Exponential backoff on errors
-- Widget snapshot for iOS widget
+- First failure can be suppressed when prior data exists
+- WidgetKit snapshot for macOS widgets

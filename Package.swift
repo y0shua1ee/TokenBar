@@ -61,7 +61,7 @@ let package = Package(
                     .enableUpcomingFeature("StrictConcurrency"),
                 ]),
             .testTarget(
-                name: "CodexBarLinuxTests",
+                name: "TokenBarLinuxTests",
                 dependencies: ["TokenBarCore", "TokenBarCLI"],
                 path: "TestsLinux",
                 swiftSettings: [

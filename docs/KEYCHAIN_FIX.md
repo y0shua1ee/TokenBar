@@ -12,7 +12,7 @@ read_when:
 The original fix (migrating legacy TokenBar keychain items to `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) is
 still in place, but the architecture has changed:
 
-- Provider settings and manual secrets are now persisted in `~/.codexbar/config.json`.
+- Provider settings and manual secrets are now persisted in `~/.tokenbar/config.json`.
 - Legacy keychain stores are still present mainly to migrate old installs, then clear old items.
 - Keychain is still used for runtime cache entries (for example `com.y0shua1ee.tokenbar.cache`) and Claude OAuth
   bootstrap reads from Claude CLI keychain (`Claude Code-credentials`).
@@ -21,7 +21,7 @@ still in place, but the architecture has changed:
 
 | Previous statement in this doc | Current behavior |
 | --- | --- |
-| TokenBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.codexbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
+| TokenBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.tokenbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
 | `ClaudeOAuthCredentials.swift` migrated TokenBar-owned Claude OAuth keychain items | Claude OAuth primary source is Claude CLI keychain service (`Claude Code-credentials`), with TokenBar cache in `com.y0shua1ee.tokenbar.cache` (`oauth.claude`). |
 | Migration runs in `CodexBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
 | Post-migration prompts should be zero in all Claude paths | Legacy-store prompts are reduced; Claude OAuth bootstrap can still prompt when reading Claude CLI keychain, with cooldown + no-UI probes to prevent storms. |
@@ -38,7 +38,7 @@ still in place, but the architecture has changed:
 - Covers legacy TokenBar-managed accounts only (not Claude CLI's own keychain service).
 
 ### 2. Claude OAuth bootstrap path
-`Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+`Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
 
 Load order for credentials:
 1. Environment override (`CODEXBAR_CLAUDE_OAUTH_TOKEN`, scopes env key).
@@ -75,11 +75,14 @@ The prompt copy differs because Security.framework is authorizing different oper
 This is OS/keychain ACL behavior, not a `ThisDeviceOnly` migration issue.
 
 ### 3. Claude web cookie cache
-`Sources/CodexBarCore/CookieHeaderCache.swift` and `Sources/CodexBarCore/KeychainCacheStore.swift`
+`Sources/TokenBarCore/CookieHeaderCache.swift` and `Sources/TokenBarCore/KeychainCacheStore.swift`
 
 - Browser-imported Claude session cookies are cached in keychain service `com.y0shua1ee.tokenbar.cache`.
 - Account key is `cookie.claude`.
 - Cache writes use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
+- Users can clear browser-cookie cache entries from **Preferences → Debug → Caches** or with
+  `tokenbar cache clear --cookies`. `--provider <id>` scopes cookie clearing to one provider and includes scoped
+  Codex managed-account cookie keys.
 
 ## What still uses `ThisDeviceOnly`
 
@@ -123,9 +126,9 @@ defaults delete com.y0shua1ee.tokenbar KeychainMigrationV1Completed
 
 - `Sources/TokenBar/KeychainMigration.swift`
 - `Sources/TokenBar/HiddenWindowView.swift`
-- `Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
-- `Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
-- `Sources/CodexBarCore/KeychainAccessPreflight.swift`
-- `Sources/CodexBarCore/KeychainNoUIQuery.swift`
-- `Sources/CodexBarCore/KeychainCacheStore.swift`
-- `Sources/CodexBarCore/CookieHeaderCache.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
+- `Sources/TokenBarCore/KeychainAccessPreflight.swift`
+- `Sources/TokenBarCore/KeychainNoUIQuery.swift`
+- `Sources/TokenBarCore/KeychainCacheStore.swift`
+- `Sources/TokenBarCore/CookieHeaderCache.swift`
