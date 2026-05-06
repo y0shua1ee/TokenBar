@@ -134,25 +134,19 @@ enum OutputFormat: String, ExpressibleFromArgument {
 }
 
 enum ProviderHelp {
-    static var list: String {
-        let names = UsageProvider.allCases.map(\ .tokenbarCLIHelpName)
-        return (names + ["both", "all"]).joined(separator: "|")
-    }
+    /// Keep CLI help lightweight: --help is smoke-tested during macOS release builds, so avoid
+    /// touching ProviderDescriptorRegistry or provider descriptors from the fast help path.
+    private static let providerNames = [
+        "codex", "claude", "cursor", "opencode", "opencodego", "alibaba-coding-plan",
+        "factory", "gemini", "antigravity", "copilot", "zai", "minimax", "kimi",
+        "kilo", "kiro", "vertexai", "augment", "jetbrains", "kimik2", "amp",
+        "ollama", "synthetic", "warp", "openrouter", "windsurf", "perplexity",
+        "abacusai", "mistral", "deepseek", "codebuff", "custom", "krill",
+    ]
+
+    static let list = (Self.providerNames + ["both", "all"]).joined(separator: "|")
 
     static var optionHelp: String {
         "Provider to query: \(self.list)"
-    }
-}
-
-extension UsageProvider {
-    fileprivate var tokenbarCLIHelpName: String {
-        switch self {
-        case .alibaba:
-            "alibaba-coding-plan"
-        case .abacus:
-            "abacusai"
-        default:
-            self.rawValue
-        }
     }
 }
