@@ -97,16 +97,8 @@ struct CLIEntryTests {
     }
 
     @Test
-    func `raw SwiftPM CLI version does not require a bundle`() throws {
-        let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-raw-version-\(UUID().uuidString)", isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: root) }
-
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        let helperURL = root.appendingPathComponent("TokenBarCLI")
-        try Data().write(to: helperURL)
-
-        #expect(CodexBarCLI.currentVersion(executablePath: helperURL.path) == nil)
+    func `raw SwiftPM CLI version can skip bundle and filesystem lookup`() {
+        #expect(CodexBarCLI.currentVersion(bundle: nil, executablePath: nil) == nil)
     }
 
     @Test
