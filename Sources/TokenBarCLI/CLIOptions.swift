@@ -135,11 +135,24 @@ enum OutputFormat: String, ExpressibleFromArgument {
 
 enum ProviderHelp {
     static var list: String {
-        let names = ProviderDescriptorRegistry.all.map(\ .cli.name)
+        let names = UsageProvider.allCases.map(\ .tokenbarCLIHelpName)
         return (names + ["both", "all"]).joined(separator: "|")
     }
 
     static var optionHelp: String {
         "Provider to query: \(self.list)"
+    }
+}
+
+extension UsageProvider {
+    fileprivate var tokenbarCLIHelpName: String {
+        switch self {
+        case .alibaba:
+            "alibaba-coding-plan"
+        case .abacus:
+            "abacusai"
+        default:
+            self.rawValue
+        }
     }
 }
