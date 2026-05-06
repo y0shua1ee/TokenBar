@@ -73,10 +73,9 @@ git tag v<version>
 ```
 
 ## Homebrew (Cask)
-TokenBar ships a Homebrew **Cask** in `../homebrew-tap`. When installed via Homebrew, TokenBar disables Sparkle and the app
-must be updated via `brew`.
+TokenBar ships a Homebrew **Cask** in [`y0shua1ee/homebrew-tokenbar`](https://github.com/y0shua1ee/homebrew-tokenbar). When installed via Homebrew, TokenBar disables Sparkle and the app must be updated via `brew`.
 
-After publishing the GitHub release, update the tap cask + CLI formula (see `docs/releasing-homebrew.md`).
+After publishing the GitHub release, update the tap cask (see `docs/releasing-homebrew.md`).
 
 ## Checklist (quick)
 - [ ] Read both this file and `~/Projects/agent-scripts/docs/RELEASING-MAC.md`; resolve any conflicts toward TokenBar’s specifics.
@@ -92,10 +91,10 @@ After publishing the GitHub release, update the tap cask + CLI formula (see `doc
   - Beta channel: prefix the command with `SPARKLE_CHANNEL=beta` to tag the entry.
   - Verify the enclosure signature + size: `SPARKLE_PRIVATE_KEY_FILE=... ./Scripts/verify_appcast.sh <ver>`
 - [ ] Upload zip + appcast to feed; publish tag + GitHub release so Sparkle URL is live (avoid 404)
-- [ ] Homebrew tap: update `../homebrew-tap/Casks/tokenbar.rb` (url + sha256) and `../homebrew-tap/Formula/tokenbar.rb` (CLI tarball urls + sha256), then verify:
-  - `brew uninstall --cask tokenbar || true`
-  - `brew untap <tokenbar-tap> || true; brew tap <tokenbar-tap>`
-  - `brew install --cask tokenbar && open -a TokenBar`
+- [ ] Homebrew tap: update `~/Documents/homebrew-tokenbar/Casks/tokenbar.rb` (version + url + sha256), then verify:
+  - `brew uninstall --cask tokenbar --force`
+  - `brew untap y0shua1ee/tokenbar || true; brew tap y0shua1ee/tokenbar`
+  - `brew install --cask tokenbar && /opt/homebrew/bin/tokenbar --version`
 - [ ] Version continuity: confirm the new version is the immediate next patch/minor (no gaps) and CHANGELOG has no skipped numbers (e.g., after 0.2.0 use 0.2.1, not 0.2.2)
 - [ ] Changelog sanity: single top-level title, no duplicate version sections, versions strictly descending with no repeats
 - [ ] Release pages: title format `TokenBar <version>`, notes as Markdown list (no stray blank lines)

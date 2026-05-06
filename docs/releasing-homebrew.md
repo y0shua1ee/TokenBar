@@ -11,19 +11,22 @@ Homebrew is for the UI app via Cask. When installed via Homebrew, TokenBar disab
 
 ## Prereqs
 - Homebrew installed.
-- Access to the tap repo: `../homebrew-tap`.
+- Access to the tap repo: [`y0shua1ee/homebrew-tokenbar`](https://github.com/y0shua1ee/homebrew-tokenbar) (`~/Documents/homebrew-tokenbar`).
 
 ## 1) Release TokenBar normally
-Follow `docs/RELEASING.md` to publish `TokenBar-<version>.zip` to GitHub Releases.
+Follow `docs/RELEASING.md` to publish `TokenBar-<version>-adhoc.zip` to GitHub Releases.
 
 ## 2) Update the Homebrew tap cask
-In `../homebrew-tap`, add/update the cask at `Casks/tokenbar.rb`:
-- `url` points at the GitHub release asset: `.../releases/download/v<version>/TokenBar-<version>.zip`
-- Update `sha256` to match that zip.
-- Keep `depends_on arch: :arm64` and `depends_on macos: ">= :sonoma"` (TokenBar is macOS 14+).
+In `~/Documents/homebrew-tokenbar`, update the cask at `Casks/tokenbar.rb`:
+- `url` points at the GitHub release asset: `.../releases/download/v<version>/TokenBar-<version>-adhoc.zip`
+- Update `version` and `sha256` to match that zip.
+- Keep `depends_on arch: :arm64` and `depends_on macos: ">= :sonoma"` while TokenBar app zips remain arm64-only/macOS 14+.
+- Keep the `postflight` quarantine cleanup while fork releases are adhoc-signed so the bundled `tokenbar` CLI can run after install.
 
-## 2b) Update the Homebrew tap formula (CLI)
-In `../homebrew-tap`, add/update the formula at `Formula/tokenbar.rb`:
+## 2b) CLI distribution
+The cask links the bundled CLI helper from `TokenBar.app` as `tokenbar`, so users do not need a separate formula for normal macOS installs.
+
+A standalone formula can be added later once release assets include macOS CLI tarballs alongside Linux tarballs:
 - `url` points at the GitHub release assets:
   - macOS: `.../releases/download/v<version>/TokenBarCLI-v<version>-macos-arm64.tar.gz`
   - macOS: `.../releases/download/v<version>/TokenBarCLI-v<version>-macos-x86_64.tar.gz`
@@ -34,9 +37,10 @@ In `../homebrew-tap`, add/update the formula at `Formula/tokenbar.rb`:
 ## 3) Verify install
 ```sh
 brew uninstall --cask tokenbar || true
-brew untap <tokenbar-tap> || true
-# tap command depends on TokenBar tap setup
+brew untap y0shua1ee/tokenbar || true
+brew tap y0shua1ee/tokenbar
 brew install --cask tokenbar
+/opt/homebrew/bin/tokenbar --version
 open -a TokenBar
 ```
 

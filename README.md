@@ -60,6 +60,22 @@ This fork selectively imports upstream v0.24 improvements while preserving Token
 
 ## Quick Start
 
+### Homebrew Cask
+
+```bash
+brew tap y0shua1ee/tokenbar
+brew install --cask tokenbar
+```
+
+Upgrade later with:
+
+```bash
+brew upgrade --cask tokenbar
+```
+
+The cask installs `TokenBar.app` into `/Applications` and links the bundled CLI as `tokenbar`.
+Current fork builds are adhoc-signed, arm64-only, and require macOS 14+.
+
 ### Download (Pre-built)
 Download the latest adhoc-signed build from [GitHub Releases](https://github.com/y0shua1ee/TokenBar/releases/latest).
 **First launch**: right-click → Open, or allow in System Settings → Privacy & Security.
