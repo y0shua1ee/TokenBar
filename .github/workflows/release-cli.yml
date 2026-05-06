@@ -127,8 +127,46 @@ jobs:
 
           BIN_DIR="$("${SHOW_BIN_ARGS[@]}")"
           BIN="$BIN_DIR/TokenBarCLI"
-          "$BIN" --help >/dev/null
-          "$BIN" --version >/dev/null
+
+          if [[ "${{ matrix.platform }}" == "macos" ]]; then
+            # macOS runners can kill freshly-built unsigned/ad-hoc SwiftPM executables with SIGKILL.
+            # Re-sign and clear quarantine before executing the smoke test; the embedded signature
+            # stays with the binary that is packaged in the next step.
+            /usr/bin/codesign --force --sign - "$BIN"
+            /usr/bin/xattr -dr com.apple.quarantine "$BIN" 2>/dev/null || true
+            /usr/bin/codesign --verify --strict --verbose=3 "$BIN"
+            /usr/sbin/spctl --assess --type execute --verbose=4 "$BIN" || true
+          fi
+
+          TOKENBAR_BIN="$BIN" python3 - <<'PY'
+          import os
+          import subprocess
+          import sys
+
+          binary = os.environ["TOKENBAR_BIN"]
+          for args in (["--help"], ["--version"]):
+              try:
+                  result = subprocess.run(
+                      [binary, *args],
+                      stdout=subprocess.PIPE,
+                      stderr=subprocess.PIPE,
+                      text=True,
+                      timeout=30,
+                  )
+              except subprocess.TimeoutExpired as error:
+                  print(f"TokenBarCLI {' '.join(args)} timed out after 30s", file=sys.stderr)
+                  if error.stdout:
+                      print(error.stdout[:2_000], file=sys.stderr)
+                  if error.stderr:
+                      print(error.stderr[:2_000], file=sys.stderr)
+                  sys.exit(124)
+              if result.returncode != 0:
+                  print(f"TokenBarCLI {' '.join(args)} exited {result.returncode}", file=sys.stderr)
+                  print(result.stdout[:2_000], file=sys.stderr)
+                  print(result.stderr[:2_000], file=sys.stderr)
+                  sys.exit(result.returncode)
+          PY
+
           file "$BIN" | grep -q "${{ matrix.asset-arch }}"
 
       - name: Package
