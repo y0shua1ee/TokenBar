@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.24.3 — 2026-05-06
+
+### Upstream Sync
+- Merge upstream CodexBar v0.24 into the TokenBar fork while preserving local Custom and Krill providers.
+- Bring in upstream Windsurf, Codebuff, Copilot Enterprise, provider storage usage, menu/keychain hardening, CLI/provider fixes, and documentation refreshes.
+- Keep TokenBar fork branding, config namespace, adhoc release flow, and Krill/custom provider integrations intact.
+
 ## 0.24.2 — 2026-05-05
 
 ### Krill Provider
