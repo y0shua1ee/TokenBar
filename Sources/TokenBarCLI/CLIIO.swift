@@ -11,17 +11,29 @@ extension CodexBarCLI {
         FileHandle.standardError.write(data)
     }
 
+    static func trace(_ message: String) {
+        guard ProcessInfo.processInfo.environment["TOKENBAR_CLI_TRACE"] == "1" else { return }
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        Self.writeStderr("[TokenBarCLI trace] \(timestamp) \(message)\n")
+    }
+
     static func printVersion() -> Never {
+        Self.trace("printVersion:start")
         if let version = currentVersion() {
+            Self.trace("printVersion:currentVersion")
             print("TokenBar \(version)")
         } else {
+            Self.trace("printVersion:no-currentVersion")
             print("TokenBar")
         }
+        Self.trace("printVersion:exit")
         Self.platformExit(0)
     }
 
     static func printHelp(for command: String?) -> Never {
+        Self.trace("printHelp:start command=\(command ?? "root")")
         let version = self.currentVersion() ?? "unknown"
+        Self.trace("printHelp:version=\(version)")
         switch command {
         case "usage":
             print(Self.usageHelp(version: version))
@@ -34,6 +46,7 @@ extension CodexBarCLI {
         default:
             print(Self.rootHelp(version: version))
         }
+        Self.trace("printHelp:printed")
         Self.platformExit(0)
     }
 

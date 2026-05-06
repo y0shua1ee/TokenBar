@@ -138,7 +138,7 @@ jobs:
             /usr/sbin/spctl --assess --type execute --verbose=4 "$BIN" || true
           fi
 
-          TOKENBAR_BIN="$BIN" python3 - <<'PY'
+          TOKENBAR_CLI_TRACE=1 TOKENBAR_BIN="$BIN" python3 - <<'PY'
           import os
           import subprocess
           import sys

@@ -17,9 +17,13 @@ import FoundationNetworking
 @main
 enum CodexBarCLI {
     static func main() {
+        Self.trace("main:start")
         let rawArgv = Array(CommandLine.arguments.dropFirst())
+        Self.trace("main:raw-argv")
         let argv = Self.effectiveArgv(rawArgv)
+        Self.trace("main:effective-argv")
         let outputPreferences = CLIOutputPreferences.from(argv: argv)
+        Self.trace("main:output-preferences")
 
         // Fast path: global help/version before entering Swift's async runtime.
         if let helpIndex = argv.firstIndex(where: { $0 == "-h" || $0 == "--help" }) {
