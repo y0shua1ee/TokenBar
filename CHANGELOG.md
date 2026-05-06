@@ -5,6 +5,7 @@
 ### CI & Release
 - Fix Linux CLI build by making the Krill provider descriptor available to non-macOS builds while keeping macOS-only runtime implementation gated.
 - Apply project SwiftFormat output after the upstream v0.24 merge so the lint workflow passes.
+- Keep adhoc package metadata on the fork namespace (`com.y0shua1ee.tokenbar`) and remove upstream Sparkle release-key defaults.
 
 ## 0.24.3 — 2026-05-06
 
