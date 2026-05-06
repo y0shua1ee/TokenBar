@@ -18,14 +18,14 @@ extension CodexBarCLI {
     }
 
     static func printVersion() -> Never {
-        Self.trace("printVersion:start")
+        self.trace("printVersion:start")
         print("TokenBar")
-        Self.trace("printVersion:exit")
-        Self.platformExit(0)
+        self.trace("printVersion:exit")
+        self.platformExit(0)
     }
 
     static func printHelp(for command: String?) -> Never {
-        Self.trace("printHelp:start command=\(command ?? "root")")
+        self.trace("printHelp:start command=\(command ?? "root")")
         let version = "unknown"
         Self.trace("printHelp:version=\(version)")
         switch command {

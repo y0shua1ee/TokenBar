@@ -17,7 +17,7 @@ import FoundationNetworking
 @main
 enum CodexBarCLI {
     static func main() {
-        Self.trace("main:start")
+        trace("main:start")
         let rawArgv = Array(CommandLine.arguments.dropFirst())
         Self.trace("main:raw-argv")
         let argv = Self.effectiveArgv(rawArgv)
