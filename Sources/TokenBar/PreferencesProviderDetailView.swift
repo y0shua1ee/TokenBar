@@ -540,18 +540,24 @@ private struct ProviderMetricInlineCostRow: View {
                 .frame(width: self.labelWidth, alignment: .leading)
 
             VStack(alignment: .leading, spacing: 4) {
-                UsageProgressBar(
-                    percent: self.section.percentUsed,
-                    tint: self.progressColor,
-                    accessibilityLabel: "Usage used")
-                    .frame(minWidth: ProviderSettingsMetrics.metricBarWidth, maxWidth: .infinity)
+                if let percentUsed = self.section.percentUsed {
+                    UsageProgressBar(
+                        percent: percentUsed,
+                        tint: self.progressColor,
+                        accessibilityLabel: "Usage used")
+                        .frame(minWidth: ProviderSettingsMetrics.metricBarWidth, maxWidth: .infinity)
 
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(String(format: "%.0f%% used", self.section.percentUsed))
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
-                    Spacer(minLength: 8)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(String(format: "%.0f%% used", percentUsed))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                        Spacer(minLength: 8)
+                        Text(self.section.spendLine)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
                     Text(self.section.spendLine)
                         .font(.footnote)
                         .foregroundStyle(.secondary)

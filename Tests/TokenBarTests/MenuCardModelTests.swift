@@ -823,6 +823,85 @@ struct MenuCardModelTests {
         #expect(primary.resetText?.hasPrefix("Resets") == true)
     }
 
+    @Test
+    func `deepseek model shows monthly spend and CNY token cost`() throws {
+        let now = Date(timeIntervalSince1970: 1_777_777_777)
+        let metadata = try #require(ProviderDefaults.metadata[.deepseek])
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(
+                usedPercent: 0,
+                windowMinutes: nil,
+                resetsAt: nil,
+                resetDescription: "¥45.20 (Paid: ¥45.20 / Granted: ¥0.00)"),
+            secondary: nil,
+            tertiary: nil,
+            providerCost: ProviderCostSnapshot(
+                used: 12.32,
+                limit: 12.32,
+                currencyCode: "CNY",
+                period: "This month",
+                updatedAt: now),
+            updatedAt: now,
+            identity: ProviderIdentitySnapshot(
+                providerID: .deepseek,
+                accountEmail: nil,
+                accountOrganization: nil,
+                loginMethod: nil))
+        let tokenSnapshot = CostUsageTokenSnapshot(
+            sessionTokens: 40_118_189,
+            sessionCostUSD: 7.20,
+            last30DaysTokens: 65_118_189,
+            last30DaysCostUSD: 12.32,
+            last30DaysRequests: 660,
+            costCurrencyCode: "CNY",
+            daily: [],
+            updatedAt: now)
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .deepseek,
+            metadata: metadata,
+            snapshot: snapshot,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: tokenSnapshot,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: nil,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: true,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        let costLine = try #require(model.providerCost?.spendLine)
+        let balance = try #require(model.metrics.first)
+        #expect(balance.title == "Recharge balance")
+        #expect(balance.statusText == "¥45.20 (Paid: ¥45.20 / Granted: ¥0.00)")
+        #expect(balance.detailText == nil)
+        #expect(balance.resetText == nil)
+        #expect(balance.percent == 0)
+        #expect(!balance.percentLabel.contains("100%"))
+        #expect(model.providerCost?.title == "Monthly spend")
+        #expect(model.providerCost?.percentUsed == nil)
+        #expect(costLine.contains("This month:"))
+        #expect(costLine.contains("12.32"))
+        #expect(!costLine.contains("57.52"))
+        #expect(!costLine.contains("/"))
+        #expect(!costLine.contains("%"))
+        #expect(costLine.contains("¥"))
+        #expect(!costLine.contains("$"))
+        #expect(model.tokenUsage?.sessionLine.contains("¥") == true)
+        #expect(model.tokenUsage?.monthLine.contains("This month:") == true)
+        #expect(model.tokenUsage?.monthLine.contains("660 requests") == true)
+        #expect(model.tokenUsage?.monthLine.contains("¥") == true)
+        #expect(model.tokenUsage?.sessionLine.contains("$") == false)
+        #expect(model.tokenUsage?.monthLine.contains("$") == false)
+    }
+
     #if os(macOS)
     @Test
     func `krill model separates wallet elite credits and premium requests`() throws {

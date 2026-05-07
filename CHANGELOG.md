@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.24.5 — 2026-05-07
+
+### Providers & Usage
+- DeepSeek: add dashboard login and current-month cost/tokens/requests history from the platform usage endpoints, fetched concurrently with the API-key balance so the balance card stays responsive.
+- DeepSeek: render dashboard spend in CNY, show monthly request counts, and keep recharge balance as a text status instead of a misleading 100% quota bar.
+- Krill: attach today-only model cost breakdowns from request logs when the day is below the safe scan cap, while preserving aggregate-only history for high-volume days.
+
 ## 0.24.4 — 2026-05-06
 
 ### CI & Release

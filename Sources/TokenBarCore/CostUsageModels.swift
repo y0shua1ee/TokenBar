@@ -3,23 +3,32 @@ import Foundation
 public struct CostUsageTokenSnapshot: Sendable, Equatable {
     public let sessionTokens: Int?
     public let sessionCostUSD: Double?
+    public let sessionRequests: Int?
     public let last30DaysTokens: Int?
     public let last30DaysCostUSD: Double?
+    public let last30DaysRequests: Int?
+    public let costCurrencyCode: String
     public let daily: [CostUsageDailyReport.Entry]
     public let updatedAt: Date
 
     public init(
         sessionTokens: Int?,
         sessionCostUSD: Double?,
+        sessionRequests: Int? = nil,
         last30DaysTokens: Int?,
         last30DaysCostUSD: Double?,
+        last30DaysRequests: Int? = nil,
+        costCurrencyCode: String = "USD",
         daily: [CostUsageDailyReport.Entry],
         updatedAt: Date)
     {
         self.sessionTokens = sessionTokens
         self.sessionCostUSD = sessionCostUSD
+        self.sessionRequests = sessionRequests
         self.last30DaysTokens = last30DaysTokens
         self.last30DaysCostUSD = last30DaysCostUSD
+        self.last30DaysRequests = last30DaysRequests
+        self.costCurrencyCode = costCurrencyCode
         self.daily = daily
         self.updatedAt = updatedAt
     }

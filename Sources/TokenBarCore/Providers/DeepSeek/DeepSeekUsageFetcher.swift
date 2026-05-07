@@ -55,7 +55,7 @@ public struct DeepSeekUsageSnapshot: Sendable {
         self.updatedAt = updatedAt
     }
 
-    public func toUsageSnapshot() -> UsageSnapshot {
+    public func toUsageSnapshot(dashboard: DeepSeekDashboardUsageSnapshot? = nil) -> UsageSnapshot {
         let symbol = self.currency == "CNY" ? "¥" : "$"
 
         let balanceDetail: String
@@ -89,7 +89,7 @@ public struct DeepSeekUsageSnapshot: Sendable {
             primary: balanceWindow,
             secondary: nil,
             tertiary: nil,
-            providerCost: nil,
+            providerCost: dashboard?.toProviderCost(),
             updatedAt: self.updatedAt,
             identity: identity)
     }

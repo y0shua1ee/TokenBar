@@ -84,7 +84,7 @@ struct UsageMenuCardView: View {
 
         struct ProviderCostSection {
             let title: String
-            let percentUsed: Double
+            let percentUsed: Double?
             let spendLine: String
         }
 
@@ -317,32 +317,6 @@ private struct CopyIconButton: View {
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.setString(self.copyText, forType: .string)
-    }
-}
-
-private struct ProviderCostContent: View {
-    let section: UsageMenuCardView.Model.ProviderCostSection
-    let progressColor: Color
-    @Environment(\.menuItemHighlighted) private var isHighlighted
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(self.section.title)
-                .font(.body)
-                .fontWeight(.medium)
-            UsageProgressBar(
-                percent: self.section.percentUsed,
-                tint: self.progressColor,
-                accessibilityLabel: "Extra usage spent")
-            HStack(alignment: .firstTextBaseline) {
-                Text(self.section.spendLine)
-                    .font(.footnote)
-                Spacer()
-                Text(String(format: "%.0f%% used", min(100, max(0, self.section.percentUsed))))
-                    .font(.footnote)
-                    .foregroundStyle(MenuHighlightStyle.secondary(self.isHighlighted))
-            }
-        }
     }
 }
 
@@ -1068,6 +1042,15 @@ extension UsageMenuCardView.Model {
     {
         var primaryDetailText: String? = input.provider == .zai ? zaiTokenDetail : nil
         var primaryResetText = Self.resetText(for: primary, style: input.resetTimeDisplayStyle, now: input.now)
+        var primaryStatusText: String?
+        if input.provider == .deepseek,
+           primary.windowMinutes == nil,
+           primary.resetsAt == nil,
+           let balanceText = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !balanceText.isEmpty
+        {
+            primaryStatusText = balanceText
+        }
         if input.provider == .openrouter,
            let openRouterQuotaDetail
         {
@@ -1136,10 +1119,13 @@ extension UsageMenuCardView.Model {
             id: "primary",
             title: input.metadata.sessionLabel,
             percent: Self.clamped(
-                input.usageBarsShowUsed ? primary.usedPercent : primary.remainingPercent),
+                primaryStatusText == nil
+                    ? (input.usageBarsShowUsed ? primary.usedPercent : primary.remainingPercent)
+                    : 0),
             percentStyle: percentStyle,
+            statusText: primaryStatusText,
             resetText: primaryResetText,
-            detailText: primaryDetailText,
+            detailText: primaryStatusText == nil ? primaryDetailText : nil,
             detailLeftText: primaryDetailLeft,
             detailRightText: primaryDetailRight,
             pacePercent: primaryPacePercent,
@@ -1468,28 +1454,46 @@ extension UsageMenuCardView.Model {
         error: String?) -> TokenUsageSection?
     {
         guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
+            || provider == .deepseek
         else { return nil }
         guard enabled else { return nil }
         guard let snapshot else { return nil }
 
-        let sessionCost = snapshot.sessionCostUSD.map { UsageFormatter.usdString($0) } ?? "—"
+        let sessionCost = snapshot.sessionCostUSD
+            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let sessionLine: String = {
+            var parts = ["Today: \(sessionCost)"]
             if let sessionTokens {
-                return "Today: \(sessionCost) · \(sessionTokens) tokens"
+                parts.append("\(sessionTokens) tokens")
             }
-            return "Today: \(sessionCost)"
+            if provider == .deepseek,
+               let sessionRequests = snapshot.sessionRequests,
+               sessionRequests > 0
+            {
+                parts.append("\(UsageFormatter.countString(sessionRequests)) requests")
+            }
+            return parts.joined(separator: " · ")
         }()
 
-        let monthCost = snapshot.last30DaysCostUSD.map { UsageFormatter.usdString($0) } ?? "—"
+        let monthCost = snapshot.last30DaysCostUSD
+            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
         let fallbackTokens = snapshot.daily.compactMap(\.totalTokens).reduce(0, +)
         let monthTokensValue = snapshot.last30DaysTokens ?? (fallbackTokens > 0 ? fallbackTokens : nil)
         let monthTokens = monthTokensValue.map { UsageFormatter.tokenCountString($0) }
         let monthLine: String = {
+            let label = provider == .deepseek ? "This month" : "Last 30 days"
+            var parts = ["\(label): \(monthCost)"]
             if let monthTokens {
-                return "Last 30 days: \(monthCost) · \(monthTokens) tokens"
+                parts.append("\(monthTokens) tokens")
             }
-            return "Last 30 days: \(monthCost)"
+            if provider == .deepseek,
+               let requests = snapshot.last30DaysRequests,
+               requests > 0
+            {
+                parts.append("\(UsageFormatter.countString(requests)) requests")
+            }
+            return parts.joined(separator: " · ")
         }()
         let err = (error?.isEmpty ?? true) ? nil : error
         return TokenUsageSection(
@@ -1505,8 +1509,19 @@ extension UsageMenuCardView.Model {
         cost: ProviderCostSnapshot?) -> ProviderCostSection?
     {
         guard let cost else { return nil }
-        guard cost.limit > 0 else { return nil }
         guard provider != .synthetic else { return nil }
+
+        let periodLabel = cost.period ?? "This month"
+        if provider == .deepseek {
+            guard cost.used > 0 else { return nil }
+            let used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
+            return ProviderCostSection(
+                title: "Monthly spend",
+                percentUsed: nil,
+                spendLine: "\(periodLabel): \(used)")
+        }
+
+        guard cost.limit > 0 else { return nil }
 
         let used: String
         let limit: String
@@ -1527,7 +1542,6 @@ extension UsageMenuCardView.Model {
         }
 
         let percentUsed = Self.clamped((cost.used / cost.limit) * 100)
-        let periodLabel = cost.period ?? "This month"
 
         return ProviderCostSection(
             title: title,

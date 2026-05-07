@@ -145,6 +145,13 @@ public enum UsageFormatter {
         return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
+    public static func countString(_ value: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.string(from: NSNumber(value: value)) ?? String(value)
+    }
+
     public static func byteCountString(_ bytes: Int64) -> String {
         let sign = bytes < 0 ? "-" : ""
         let absBytes = Double(Swift.abs(bytes))
@@ -225,11 +232,16 @@ public enum UsageFormatter {
         return cleaned.isEmpty ? raw : cleaned
     }
 
-    public static func modelCostDetail(_ model: String, costUSD: Double?, totalTokens: Int? = nil) -> String? {
+    public static func modelCostDetail(
+        _ model: String,
+        costUSD: Double?,
+        totalTokens: Int? = nil,
+        currencyCode: String = "USD") -> String?
+    {
         let costDetail: String? = if let label = CostUsagePricing.codexDisplayLabel(model: model) {
             label
         } else if let costUSD {
-            self.usdString(costUSD)
+            self.currencyString(costUSD, currencyCode: currencyCode)
         } else {
             nil
         }

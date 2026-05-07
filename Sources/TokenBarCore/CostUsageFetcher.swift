@@ -43,7 +43,7 @@ public struct CostUsageFetcher: Sendable {
             .Options? = nil) async throws -> CostUsageTokenSnapshot
     {
         #if os(macOS)
-        let supportsRemoteCost = provider == .krill
+        let supportsRemoteCost = provider == .krill || provider == .deepseek
         #else
         let supportsRemoteCost = false
         #endif
@@ -54,6 +54,9 @@ public struct CostUsageFetcher: Sendable {
         #if os(macOS)
         if provider == .krill {
             return try await KrillCostUsageFetcher.loadTokenSnapshot(now: now)
+        }
+        if provider == .deepseek {
+            return try await DeepSeekCostUsageFetcher.loadTokenSnapshot(now: now)
         }
         #endif
 

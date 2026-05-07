@@ -208,4 +208,40 @@ struct DeepSeekUsageFetcherTests {
         let detail = usage.primary?.resetDescription ?? ""
         #expect(detail.contains("¥"))
     }
+
+    @Test
+    func `dashboard monthly spend attaches provider cost without changing balance block`() throws {
+        let json = """
+        {
+          "is_available": true,
+          "balance_infos": [
+            {
+              "currency": "CNY",
+              "total_balance": "45.20",
+              "granted_balance": "0.00",
+              "topped_up_balance": "45.20"
+            }
+          ]
+        }
+        """
+        let balance = try DeepSeekUsageFetcher._parseSnapshotForTesting(Data(json.utf8))
+        let dashboard = DeepSeekDashboardUsageSnapshot(
+            currencyCode: "CNY",
+            monthlyCost: 12.32,
+            requestCount: 660,
+            totalTokens: 65_118_189,
+            models: ["deepseek-v4-pro"],
+            daily: [],
+            updatedAt: balance.updatedAt)
+
+        let usage = balance.toUsageSnapshot(dashboard: dashboard)
+        let cost = try #require(usage.providerCost)
+
+        #expect(usage.primary?.resetDescription?.contains("¥45.20") == true)
+        #expect(abs(cost.used - 12.32) < 0.0001)
+        #expect(abs(cost.limit - 12.32) < 0.0001)
+        #expect(abs(cost.limit - 57.52) > 0.0001)
+        #expect(cost.currencyCode == "CNY")
+        #expect(cost.period == "This month")
+    }
 }

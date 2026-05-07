@@ -35,13 +35,21 @@ struct CostHistoryChartMenuView: View {
     private let provider: UsageProvider
     private let daily: [DailyEntry]
     private let totalCostUSD: Double?
+    private let currencyCode: String
     private let width: CGFloat
     @State private var selectedDateKey: String?
 
-    init(provider: UsageProvider, daily: [DailyEntry], totalCostUSD: Double?, width: CGFloat) {
+    init(
+        provider: UsageProvider,
+        daily: [DailyEntry],
+        totalCostUSD: Double?,
+        currencyCode: String = "USD",
+        width: CGFloat)
+    {
         self.provider = provider
         self.daily = daily
         self.totalCostUSD = totalCostUSD
+        self.currencyCode = currencyCode
         self.width = width
     }
 
@@ -145,7 +153,7 @@ struct CostHistoryChartMenuView: View {
             }
 
             if let total = self.totalCostUSD {
-                Text("Total (30d): \(UsageFormatter.usdString(total))")
+                Text("Total (30d): \(UsageFormatter.currencyString(total, currencyCode: self.currencyCode))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -353,7 +361,7 @@ struct CostHistoryChartMenuView: View {
         }
 
         let dayLabel = date.formatted(.dateTime.month(.abbreviated).day())
-        let cost = UsageFormatter.usdString(point.costUSD)
+        let cost = UsageFormatter.currencyString(point.costUSD, currencyCode: self.currencyCode)
         let primary = if let tokens = point.totalTokens {
             "\(dayLabel): \(cost) · \(UsageFormatter.tokenCountString(tokens)) tokens"
         } else {
@@ -387,7 +395,8 @@ struct CostHistoryChartMenuView: View {
                     subtitle: UsageFormatter.modelCostDetail(
                         item.modelName,
                         costUSD: item.costUSD,
-                        totalTokens: item.totalTokens),
+                        totalTokens: item.totalTokens,
+                        currencyCode: self.currencyCode),
                     accentColor: model.barColor.opacity(Self.breakdownAccentOpacity(for: index)))
             }
     }
