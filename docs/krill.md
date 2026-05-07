@@ -38,7 +38,7 @@ obtained via WebView login and stored in the macOS Keychain.
 - `POST /api/request-logs/stats` with 30-day + today windows (2 requests).
 - Returns aggregate cost, tokens, requests, and a trend array.
 - The trend data powers the Cost history chart in the menu.
-- Does **not** scan full request logs — uses stats aggregation to avoid hitting 429 rate limits.
+- Does **not** scan full 30-day request logs. For today's hover model rows only, TokenBar may fetch raw `POST /api/request-logs` pages, capped at 80 pages / 8,000 rows and cached for 10 minutes; failures, 429s, or larger days fall back to aggregate-only display.
 
 ### Active subscription quota
 

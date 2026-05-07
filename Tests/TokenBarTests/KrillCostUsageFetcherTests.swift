@@ -116,6 +116,106 @@ struct KrillCostUsageFetcherTests {
     }
 
     @Test
+    func `builds today model breakdowns from Krill request logs`() throws {
+        let json = """
+        {
+          "success": true,
+          "data": {
+            "items": [
+              {
+                "request_time": "2026-05-04T08:00:00Z",
+                "original_model": "claude-sonnet-4",
+                "actual_model": "claude-sonnet-4-20250514",
+                "input_tokens": "100",
+                "output_tokens": 50,
+                "cache_creation_input_tokens": 5,
+                "cache_read_input_tokens": 20,
+                "reasoning_tokens": 7,
+                "cost_usd": "0.200000",
+                "status": "success"
+              },
+              {
+                "request_time": "2026-05-04T08:05:00Z",
+                "original_model": "deepseek-chat",
+                "actual_model": "deepseek-v4-flash",
+                "input_tokens": 10,
+                "output_tokens": 20,
+                "cost_usd": 0.03,
+                "status": "success"
+              },
+              {
+                "request_time": "2026-05-04T08:10:00Z",
+                "original_model": "deepseek-chat",
+                "actual_model": "deepseek-v4-flash",
+                "total_tokens": 100,
+                "plan_cost_usd": "0.01",
+                "credit_cost_usd": "0.02",
+                "status": "success"
+              }
+            ],
+            "total": 3,
+            "page": 1,
+            "page_size": 100
+          }
+        }
+        """
+        let response = try JSONDecoder().decode(KrillRequestLogsResponse.self, from: Data(json.utf8))
+        let logs = try #require(response.data?.items)
+
+        let breakdowns = KrillCostUsageFetcher.modelBreakdowns(from: logs)
+
+        #expect(breakdowns.count == 2)
+        #expect(breakdowns[0].modelName == "claude-sonnet-4-20250514")
+        #expect(abs((breakdowns[0].costUSD ?? 0) - 0.2) < 0.000001)
+        #expect(breakdowns[0].totalTokens == 182)
+        #expect(breakdowns[1].modelName == "deepseek-v4-flash")
+        #expect(abs((breakdowns[1].costUSD ?? 0) - 0.06) < 0.000001)
+        #expect(breakdowns[1].totalTokens == 130)
+    }
+
+    @Test
+    func `attaches model breakdowns to Krill today stats entry`() throws {
+        let json = """
+        {
+          "success": true,
+          "data": {
+            "total_requests": 2,
+            "input_tokens": 110,
+            "output_tokens": 70,
+            "total_tokens": 180,
+            "total_cost_usd": "0.260000"
+          }
+        }
+        """
+        let response = try JSONDecoder().decode(KrillStatsResponse.self, from: Data(json.utf8))
+        let stats = try #require(response.data)
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(secondsFromGMT: 0))
+        let day = try #require(calendar.date(from: DateComponents(year: 2026, month: 5, day: 4)))
+        let breakdowns = [
+            CostUsageDailyReport.ModelBreakdown(
+                modelName: "deepseek-v4-flash",
+                costUSD: 0.06,
+                totalTokens: 130),
+            CostUsageDailyReport.ModelBreakdown(
+                modelName: "claude-sonnet-4-20250514",
+                costUSD: 0.2,
+                totalTokens: 182),
+        ]
+
+        let entry = try #require(KrillCostUsageFetcher.entry(
+            dayStart: day,
+            stats: stats,
+            calendar: calendar,
+            modelBreakdowns: breakdowns))
+
+        #expect(entry.date == "2026-05-04")
+        #expect(entry.modelsUsed == ["claude-sonnet-4-20250514", "deepseek-v4-flash"])
+        #expect(entry.modelBreakdowns == breakdowns)
+    }
+
+    @Test
     func `builds active quota provider cost from Krill subscription quota`() throws {
         let json = """
         {

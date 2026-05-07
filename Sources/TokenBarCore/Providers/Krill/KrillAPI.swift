@@ -41,7 +41,7 @@ public enum KrillAPIClient: Sendable {
         endTime: Date? = nil) async throws -> KrillStatsResponse
     {
         let url = self.urlFor("/api/request-logs/stats")
-        var body: [String: String] = [:]
+        var body: [String: Any] = [:]
         if let startTime {
             body["start_time"] = self.iso8601String(startTime)
         }
@@ -51,6 +51,26 @@ public enum KrillAPIClient: Sendable {
 
         let data = try await post(url: url, jwt: jwt, body: jsonBody(body))
         return try JSONDecoder().decode(KrillStatsResponse.self, from: data)
+    }
+
+    // MARK: - Request Logs
+
+    public static func fetchRequestLogs(
+        jwt: String,
+        startTime: Date,
+        endTime: Date,
+        page: Int = 1,
+        pageSize: Int = 100) async throws -> KrillRequestLogsResponse
+    {
+        let url = self.urlFor("/api/request-logs")
+        let body: [String: Any] = [
+            "start_time": self.iso8601String(startTime),
+            "end_time": self.iso8601String(endTime),
+            "page": max(page, 1),
+            "page_size": max(pageSize, 1),
+        ]
+        let data = try await post(url: url, jwt: jwt, body: jsonBody(body))
+        return try JSONDecoder().decode(KrillRequestLogsResponse.self, from: data)
     }
 
     // MARK: - Models
@@ -77,7 +97,7 @@ public enum KrillAPIClient: Sendable {
         return formatter.string(from: date)
     }
 
-    private static func jsonBody(_ body: [String: String]) throws -> String {
+    private static func jsonBody(_ body: [String: Any]) throws -> String {
         guard !body.isEmpty else { return "{}" }
         let data = try JSONSerialization.data(withJSONObject: body, options: [])
         return String(data: data, encoding: .utf8) ?? "{}"

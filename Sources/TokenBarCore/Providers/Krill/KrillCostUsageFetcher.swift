@@ -4,12 +4,22 @@ import Foundation
 /// Builds TokenBar's Cost chart data from Krill's internal request-log stats API.
 ///
 /// Krill exposes exact aggregate cost/tokens for a requested range, plus an
-/// adaptive trend series. It does not currently expose a cheap per-model cost
-/// breakdown. Keep this fetcher deliberately lightweight: one rolling-range
+/// adaptive trend series. The stats endpoint does not expose per-model cost
+/// breakdowns, so the normal history path stays lightweight: one rolling-range
 /// request for 30-day totals/chart trend, plus one today request so the Today
-/// number remains calendar-day accurate without paginating raw logs.
+/// number remains calendar-day accurate. For today's hover details only, this
+/// fetcher may additionally page today's raw request logs, cache the result, and
+/// attach per-model breakdowns when the day is small enough to fetch safely.
 public enum KrillCostUsageFetcher: Sendable {
     private static let historyDays = 30
+    private static let todayBreakdownPageSize = 100
+    private static let todayBreakdownMaxPages = 80
+    private static let todayBreakdownCacheTTL: TimeInterval = 10 * 60
+    private static let todayBreakdownCache = KrillTodayModelBreakdownCache()
+
+    private static var todayBreakdownMaxItems: Int {
+        self.todayBreakdownPageSize * self.todayBreakdownMaxPages
+    }
 
     public static func loadTokenSnapshot(now: Date = Date()) async throws -> CostUsageTokenSnapshot {
         guard let jwt = await MainActor.run(
@@ -52,11 +62,22 @@ public enum KrillCostUsageFetcher: Sendable {
             entries.append(fallback)
         }
 
-        if let todayStats = todayResponse.data,
-           let todayEntry = self.entry(dayStart: todayStart, stats: todayStats, calendar: calendar)
-        {
-            entries.removeAll { $0.date == todayEntry.date }
-            entries.append(todayEntry)
+        if let todayStats = todayResponse.data {
+            let modelBreakdowns = await self.todayModelBreakdowns(
+                jwt: jwt,
+                dayStart: todayStart,
+                now: now,
+                stats: todayStats,
+                calendar: calendar)
+            if let todayEntry = self.entry(
+                dayStart: todayStart,
+                stats: todayStats,
+                calendar: calendar,
+                modelBreakdowns: modelBreakdowns)
+            {
+                entries.removeAll { $0.date == todayEntry.date }
+                entries.append(todayEntry)
+            }
         }
 
         entries.sort { $0.date < $1.date }
@@ -69,7 +90,8 @@ public enum KrillCostUsageFetcher: Sendable {
     static func entry(
         dayStart: Date,
         stats: KrillStatsResponse.KrillStatsData,
-        calendar: Calendar = .current) -> CostUsageDailyReport.Entry?
+        calendar: Calendar = .current,
+        modelBreakdowns: [CostUsageDailyReport.ModelBreakdown]? = nil) -> CostUsageDailyReport.Entry?
     {
         let cost = self.doubleValue(stats.total_cost_usd)
         let totalTokens = stats.total_tokens
@@ -79,6 +101,7 @@ public enum KrillCostUsageFetcher: Sendable {
             return nil
         }
 
+        let breakdowns = self.nonEmptyBreakdowns(modelBreakdowns)
         return CostUsageDailyReport.Entry(
             date: self.dayKey(for: dayStart, calendar: calendar),
             inputTokens: stats.input_tokens,
@@ -87,8 +110,8 @@ public enum KrillCostUsageFetcher: Sendable {
             cacheCreationTokens: stats.cache_creation_input_tokens,
             totalTokens: totalTokens,
             costUSD: cost,
-            modelsUsed: nil,
-            modelBreakdowns: nil)
+            modelsUsed: breakdowns?.map(\.modelName).sorted(),
+            modelBreakdowns: breakdowns)
     }
 
     static func entries(
@@ -143,6 +166,181 @@ public enum KrillCostUsageFetcher: Sendable {
                 modelsUsed: nil,
                 modelBreakdowns: nil)
         }
+    }
+
+    static func fetchTodayModelBreakdowns(
+        jwt: String,
+        startTime: Date,
+        endTime: Date,
+        expectedRequestCount: Int? = nil) async throws -> [CostUsageDailyReport.ModelBreakdown]?
+    {
+        if let expectedRequestCount,
+           expectedRequestCount > self.todayBreakdownMaxItems
+        {
+            return nil
+        }
+
+        var logs: [KrillRequestLogsResponse.KrillRequestLog] = []
+        logs.reserveCapacity(min(expectedRequestCount ?? 0, self.todayBreakdownMaxItems))
+
+        for page in 1...self.todayBreakdownMaxPages {
+            let response = try await KrillAPIClient.fetchRequestLogs(
+                jwt: jwt,
+                startTime: startTime,
+                endTime: endTime,
+                page: page,
+                pageSize: self.todayBreakdownPageSize)
+            guard let data = response.data else { return nil }
+
+            if let total = data.total,
+               total > self.todayBreakdownMaxItems
+            {
+                return nil
+            }
+
+            let items = data.items ?? []
+            logs.append(contentsOf: items)
+
+            let serverPageSize = max(data.page_size ?? self.todayBreakdownPageSize, 1)
+            if items.isEmpty { break }
+            if let total = data.total,
+               logs.count >= total
+            {
+                break
+            }
+            if items.count < serverPageSize { break }
+            if page == self.todayBreakdownMaxPages { return nil }
+        }
+
+        return self.nonEmptyBreakdowns(self.modelBreakdowns(from: logs))
+    }
+
+    static func modelBreakdowns(
+        from logs: [KrillRequestLogsResponse.KrillRequestLog]) -> [CostUsageDailyReport.ModelBreakdown]
+    {
+        struct ModelTotals {
+            var totalTokens = 0
+            var sawTokens = false
+            var costUSD = 0.0
+            var sawCost = false
+        }
+
+        var totalsByModel: [String: ModelTotals] = [:]
+        for log in logs {
+            guard let modelName = self.modelName(from: log) else { continue }
+            let tokens = self.totalTokens(from: log)
+            let cost = self.costUSD(from: log)
+            guard tokens != nil || cost != nil else { continue }
+
+            var totals = totalsByModel[modelName] ?? ModelTotals()
+            if let tokens {
+                totals.totalTokens += tokens
+                totals.sawTokens = true
+            }
+            if let cost {
+                totals.costUSD += cost
+                totals.sawCost = true
+            }
+            totalsByModel[modelName] = totals
+        }
+
+        return totalsByModel.map { modelName, totals in
+            CostUsageDailyReport.ModelBreakdown(
+                modelName: modelName,
+                costUSD: totals.sawCost ? totals.costUSD : nil,
+                totalTokens: totals.sawTokens ? totals.totalTokens : nil)
+        }
+        .sorted { lhs, rhs in
+            let lhsCost = lhs.costUSD ?? -1
+            let rhsCost = rhs.costUSD ?? -1
+            if lhsCost != rhsCost { return lhsCost > rhsCost }
+
+            let lhsTokens = lhs.totalTokens ?? -1
+            let rhsTokens = rhs.totalTokens ?? -1
+            if lhsTokens != rhsTokens { return lhsTokens > rhsTokens }
+
+            return lhs.modelName > rhs.modelName
+        }
+    }
+
+    private static func todayModelBreakdowns(
+        jwt: String,
+        dayStart: Date,
+        now: Date,
+        stats: KrillStatsResponse.KrillStatsData,
+        calendar: Calendar) async -> [CostUsageDailyReport.ModelBreakdown]?
+    {
+        let key = self.dayKey(for: dayStart, calendar: calendar)
+        if let cached = await self.todayBreakdownCache.lookup(
+            dayKey: key,
+            now: now,
+            ttl: self.todayBreakdownCacheTTL)
+        {
+            return cached.breakdowns
+        }
+
+        do {
+            let breakdowns = try await self.fetchTodayModelBreakdowns(
+                jwt: jwt,
+                startTime: dayStart,
+                endTime: now,
+                expectedRequestCount: stats.total_requests)
+            let result = self.nonEmptyBreakdowns(breakdowns)
+            await self.todayBreakdownCache.store(dayKey: key, now: now, breakdowns: result)
+            return result
+        } catch {
+            await self.todayBreakdownCache.store(dayKey: key, now: now, breakdowns: nil)
+            return nil
+        }
+    }
+
+    private static func nonEmptyBreakdowns(
+        _ breakdowns: [CostUsageDailyReport.ModelBreakdown]?) -> [CostUsageDailyReport.ModelBreakdown]?
+    {
+        guard let breakdowns, !breakdowns.isEmpty else { return nil }
+        return breakdowns
+    }
+
+    private static func modelName(from log: KrillRequestLogsResponse.KrillRequestLog) -> String? {
+        for candidate in [log.actual_model, log.original_model] {
+            guard let value = candidate?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !value.isEmpty
+            else { continue }
+            return value
+        }
+        return nil
+    }
+
+    private static func totalTokens(from log: KrillRequestLogsResponse.KrillRequestLog) -> Int? {
+        if let totalTokens = log.total_tokens { return totalTokens }
+
+        var total = 0
+        var sawValue = false
+        for value in [
+            log.input_tokens,
+            log.output_tokens,
+            log.cache_read_input_tokens,
+            log.cache_creation_input_tokens,
+            log.reasoning_tokens,
+        ] {
+            guard let value else { continue }
+            total += value
+            sawValue = true
+        }
+        return sawValue ? total : nil
+    }
+
+    private static func costUSD(from log: KrillRequestLogsResponse.KrillRequestLog) -> Double? {
+        if let cost = log.cost_usd { return cost }
+
+        var total = 0.0
+        var sawValue = false
+        for value in [log.plan_cost_usd, log.credit_cost_usd] {
+            guard let value else { continue }
+            total += value
+            sawValue = true
+        }
+        return sawValue ? total : nil
     }
 
     private static func summary(from stats: KrillStatsResponse.KrillStatsData) -> CostUsageDailyReport.Summary? {
@@ -219,6 +417,37 @@ public enum KrillCostUsageFetcher: Sendable {
     private static func doubleValue(_ value: String?) -> Double? {
         guard let value else { return nil }
         return Double(value.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+}
+
+private struct KrillTodayModelBreakdownCacheEntry: Sendable {
+    let dayKey: String
+    let storedAt: Date
+    let breakdowns: [CostUsageDailyReport.ModelBreakdown]?
+}
+
+private actor KrillTodayModelBreakdownCache {
+    private var entry: KrillTodayModelBreakdownCacheEntry?
+
+    func lookup(dayKey: String, now: Date, ttl: TimeInterval) -> KrillTodayModelBreakdownCacheEntry? {
+        guard let entry,
+              entry.dayKey == dayKey,
+              now.timeIntervalSince(entry.storedAt) < ttl
+        else {
+            return nil
+        }
+        return entry
+    }
+
+    func store(
+        dayKey: String,
+        now: Date,
+        breakdowns: [CostUsageDailyReport.ModelBreakdown]?)
+    {
+        self.entry = KrillTodayModelBreakdownCacheEntry(
+            dayKey: dayKey,
+            storedAt: now,
+            breakdowns: breakdowns)
     }
 }
 #endif

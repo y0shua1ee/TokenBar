@@ -118,6 +118,103 @@ public struct KrillStatsResponse: Decodable, Sendable {
     }
 }
 
+// MARK: - Krill Request Logs Response
+
+public struct KrillRequestLogsResponse: Decodable, Sendable {
+    public let success: Bool
+    public let data: KrillRequestLogsData?
+
+    public struct KrillRequestLogsData: Decodable, Sendable {
+        public let items: [KrillRequestLog]?
+        public let total: Int?
+        public let page: Int?
+        public let page_size: Int?
+    }
+
+    public struct KrillRequestLog: Decodable, Sendable {
+        public let request_time: String?
+        public let original_model: String?
+        public let actual_model: String?
+        public let input_tokens: Int?
+        public let output_tokens: Int?
+        public let cache_creation_input_tokens: Int?
+        public let cache_read_input_tokens: Int?
+        public let reasoning_tokens: Int?
+        public let total_tokens: Int?
+        public let cost_usd: Double?
+        public let plan_cost_usd: Double?
+        public let credit_cost_usd: Double?
+        public let status: String?
+
+        private enum CodingKeys: String, CodingKey {
+            case request_time
+            case original_model
+            case actual_model
+            case input_tokens
+            case output_tokens
+            case cache_creation_input_tokens
+            case cache_read_input_tokens
+            case reasoning_tokens
+            case total_tokens
+            case cost_usd
+            case plan_cost_usd
+            case credit_cost_usd
+            case status
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.request_time = try container.decodeIfPresent(String.self, forKey: .request_time)
+            self.original_model = try container.decodeIfPresent(String.self, forKey: .original_model)
+            self.actual_model = try container.decodeIfPresent(String.self, forKey: .actual_model)
+            self.input_tokens = Self.decodeInt(container, key: .input_tokens)
+            self.output_tokens = Self.decodeInt(container, key: .output_tokens)
+            self.cache_creation_input_tokens = Self.decodeInt(container, key: .cache_creation_input_tokens)
+            self.cache_read_input_tokens = Self.decodeInt(container, key: .cache_read_input_tokens)
+            self.reasoning_tokens = Self.decodeInt(container, key: .reasoning_tokens)
+            self.total_tokens = Self.decodeInt(container, key: .total_tokens)
+            self.cost_usd = Self.decodeDouble(container, key: .cost_usd)
+            self.plan_cost_usd = Self.decodeDouble(container, key: .plan_cost_usd)
+            self.credit_cost_usd = Self.decodeDouble(container, key: .credit_cost_usd)
+            self.status = try container.decodeIfPresent(String.self, forKey: .status)
+        }
+
+        private static func decodeInt(
+            _ container: KeyedDecodingContainer<CodingKeys>,
+            key: CodingKeys) -> Int?
+        {
+            if let value = try? container.decodeIfPresent(Int.self, forKey: key) {
+                return value
+            }
+            if let value = try? container.decodeIfPresent(Double.self, forKey: key) {
+                return Int(value)
+            }
+            guard let raw = try? container.decodeIfPresent(String.self, forKey: key)?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+                !raw.isEmpty
+            else { return nil }
+            return Int(raw) ?? Double(raw).map { Int($0) }
+        }
+
+        private static func decodeDouble(
+            _ container: KeyedDecodingContainer<CodingKeys>,
+            key: CodingKeys) -> Double?
+        {
+            if let value = try? container.decodeIfPresent(Double.self, forKey: key) {
+                return value
+            }
+            if let value = try? container.decodeIfPresent(Int.self, forKey: key) {
+                return Double(value)
+            }
+            guard let raw = try? container.decodeIfPresent(String.self, forKey: key)?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+                !raw.isEmpty
+            else { return nil }
+            return Double(raw)
+        }
+    }
+}
+
 // MARK: - Krill Models Response
 
 public struct KrillModelsResponse: Decodable, Sendable {
