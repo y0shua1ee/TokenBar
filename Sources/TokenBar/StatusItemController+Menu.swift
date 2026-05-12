@@ -4,6 +4,8 @@ import QuartzCore
 import SwiftUI
 import TokenBarCore
 
+// swiftlint:disable file_length
+
 // MARK: - NSMenu construction
 
 extension StatusItemController {

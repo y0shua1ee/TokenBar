@@ -1,7 +1,7 @@
 import AppKit
+import Foundation
 import TokenBarCore
 import TokenBarMacroSupport
-import Foundation
 
 @ProviderImplementationRegistration
 struct OpenAIAPIProviderImplementation: ProviderImplementation {

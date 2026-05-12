@@ -1,5 +1,5 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 extension UsageMenuCardView.Model {
     struct PaceDetail {

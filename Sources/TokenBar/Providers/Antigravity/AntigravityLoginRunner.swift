@@ -1,8 +1,8 @@
 import AppKit
-import TokenBarCore
 import Darwin
 import Foundation
 import Network
+import TokenBarCore
 
 enum AntigravityLoginRunner {
     enum Phase {

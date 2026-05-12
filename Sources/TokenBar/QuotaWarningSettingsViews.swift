@@ -1,5 +1,5 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 @MainActor
 struct GlobalQuotaWarningSettingsView: View {

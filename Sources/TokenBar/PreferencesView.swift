@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 enum PreferencesTab: String, CaseIterable, Hashable {
     case general

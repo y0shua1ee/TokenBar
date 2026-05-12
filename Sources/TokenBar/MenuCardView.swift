@@ -2,6 +2,8 @@ import AppKit
 import SwiftUI
 import TokenBarCore
 
+// swiftlint:disable file_length
+
 /// SwiftUI card used inside the NSMenu to mirror Apple's rich menu panels.
 struct UsageMenuCardView: View {
     struct Model {
@@ -1112,10 +1114,11 @@ extension UsageMenuCardView.Model {
         {
             primaryResetText = openRouterQuotaDetail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .mimo || input.provider == .deepseek ||
-           input.provider == .krill,
-           let detail = primary.resetDescription,
-           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if input.provider == .warp || input.provider == .kilo || input.provider == .mimo || input
+            .provider == .deepseek ||
+            input.provider == .krill,
+            let detail = primary.resetDescription,
+            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
             primaryDetailText = detail
         }

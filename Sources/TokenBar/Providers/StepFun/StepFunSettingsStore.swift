@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension SettingsStore {
     /// Username for StepFun login — stored in the apiKey config field.
