@@ -87,7 +87,7 @@ struct CodexDashboardWorkedExampleParityTests {
             accountEmail: "personal@gmail.com",
             snapshot: wrongEmailDashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "work@company.com"),
             sourceLabel: "codex-cli",
             context: cliContext)
@@ -177,7 +177,7 @@ struct CodexDashboardWorkedExampleParityTests {
             accountEmail: "work@company.com",
             snapshot: dashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "work@company.com"),
             sourceLabel: "codex-cli",
             context: cliContext)
@@ -224,7 +224,7 @@ struct CodexDashboardWorkedExampleParityTests {
             accountEmail: "stale-route@example.com",
             snapshot: dashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "work@company.com"),
             sourceLabel: "codex-cli",
             context: cliContext)
@@ -310,7 +310,7 @@ struct CodexDashboardWorkedExampleParityTests {
             accountEmail: "shared@example.com",
             snapshot: initialDashboard))
 
-        let initiallyRestored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let initiallyRestored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "shared@example.com"),
             sourceLabel: "codex-cli",
             context: attachableContext)
@@ -327,7 +327,7 @@ struct CodexDashboardWorkedExampleParityTests {
                     normalizedEmail: "shared@example.com"),
             ])
 
-        let downgradedRestored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let downgradedRestored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "shared@example.com"),
             sourceLabel: "codex-cli",
             context: ambiguousContext)

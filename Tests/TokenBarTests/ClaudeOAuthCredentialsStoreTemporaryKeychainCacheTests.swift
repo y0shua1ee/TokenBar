@@ -29,7 +29,7 @@ struct ClaudeOAuthCredentialsStoreTemporaryKeychainCacheTests {
     #if os(macOS)
     @Test
     func `credentials file invalidation preserves keychain cache when temporarily unavailable`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }
@@ -101,7 +101,7 @@ struct ClaudeOAuthCredentialsStoreTemporaryKeychainCacheTests {
 
     @Test
     func `temporary keychain cache unavailability does not overwrite cache from credentials file fallback`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(true) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -160,7 +160,7 @@ struct ClaudeOAuthCredentialsStoreTemporaryKeychainCacheTests {
 
     @Test
     func `has cached credentials treats temporary keychain cache unavailability as present`() {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }
@@ -190,7 +190,7 @@ struct ClaudeOAuthCredentialsStoreTemporaryKeychainCacheTests {
 
     @Test
     func `invalid keychain cache is cleared by load`() throws {
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(true) {
                 KeychainCacheStore.setTestStoreForTesting(true)

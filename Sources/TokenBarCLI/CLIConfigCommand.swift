@@ -2,7 +2,7 @@ import Commander
 import Foundation
 import TokenBarCore
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func runConfigValidate(_ values: ParsedValues) {
         let output = CLIOutputPreferences.from(values: values)
         let config = Self.loadConfig(output: output)

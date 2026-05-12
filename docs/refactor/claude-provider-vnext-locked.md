@@ -97,7 +97,7 @@ Routing parity requirements:
 
 - OAuth token account values must route to OAuth path (not cookie mode).
 - Cookie/session-key account values must route to web cookie path.
-- CLI token-account behavior must remain consistent in both app and `CodexBarCLI`.
+- CLI token-account behavior must remain consistent in both app and `TokenBarCLI`.
 - Scope note: current string heuristics are mostly edge-routing logic, not deep OAuth credential decoding internals.
 
 ### 4) Ownership and refresh contract
@@ -105,7 +105,7 @@ Routing parity requirements:
 Credential owner behavior must remain identical:
 
 - `.claudeCLI` expired credentials: delegated refresh path.
-- `.codexbar` expired credentials: direct refresh endpoint path.
+- `.tokenbar` expired credentials: direct refresh endpoint path.
 - `.environment` expired credentials: no auto-refresh.
 
 Refresh failure-gate semantics must remain unchanged.
@@ -339,7 +339,7 @@ Use these risk IDs in refactor PR checklists/reviews.
 | R1 | Critical | Auto-ordering reconciliation | Three `.auto` paths are inconsistent today. Characterize strategy pipeline vs `resolveUsageStrategy` helper vs fetcher-direct `.auto` before deleting any path. |
 | R2 | High | Prompt policy consolidation | Prompt policy exists across strategy availability, fetcher flow, and credentials store gates. Preserve startup bootstrap constraints exactly to avoid prompt storms or silent OAuth suppression. |
 | R3 | High | `ClaudeOAuthCredentialsStore` decomposition | Large lock-protected state + layered caches + fingerprint invalidation + security calls. Splits can break cache coherence, invalidation timing, or prompt gating order. |
-| R4 | High | Owner semantics drift | Preserve exact owner-to-refresh mapping: `.claudeCLI` delegated, `.codexbar` direct refresh, `.environment` no refresh. |
+| R4 | High | Owner semantics drift | Preserve exact owner-to-refresh mapping: `.claudeCLI` delegated, `.tokenbar` direct refresh, `.environment` no refresh. |
 | R5 | Medium | CLI runtime parity | Preserve runtime-specific policy: CLI `auto` remains `web -> cli`; OAuth is available only when explicitly selected as `sourceMode=.oauth`. Do not accidentally default CLI runtime to app ordering. |
 | R6 | Medium | Token-account OAuth-vs-cookie misrouting | Keep routing parity for OAuth token vs session key vs full cookie header, including `Bearer sk-ant-oat...` normalization. |
 | R7 | Medium | Cache invalidation regressions | Preserve credentials file/keychain fingerprint semantics and stale-cache guards during repository extraction. |

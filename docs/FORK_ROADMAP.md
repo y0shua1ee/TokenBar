@@ -55,8 +55,8 @@ This document outlines the development roadmap for the TokenBar fork maintained 
    - Show detailed error messages
 
 **Files to Modify:**
-- `Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift`
-- `Sources/CodexBarCore/Providers/Augment/AugmentSessionKeepalive.swift`
+- `Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift`
+- `Sources/TokenBarCore/Providers/Augment/AugmentSessionKeepalive.swift`
 - `Sources/TokenBar/UsageStore.swift` (debug pane)
 
 ---
@@ -157,8 +157,8 @@ This document outlines the development roadmap for the TokenBar fork maintained 
 5. Extend to other providers (Claude, Cursor, etc.)
 
 **Files to Create:**
-- `Sources/CodexBarCore/AccountManager.swift`
-- `Sources/CodexBarCore/Providers/Augment/AugmentAccountManager.swift`
+- `Sources/TokenBarCore/AccountManager.swift`
+- `Sources/TokenBarCore/Providers/Augment/AugmentAccountManager.swift`
 - `Sources/TokenBar/AccountSwitcherView.swift`
 
 ---

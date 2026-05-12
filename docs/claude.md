@@ -42,7 +42,7 @@ Usage source picker:
 
 ## OAuth API (preferred)
 - Credentials:
-  - CodexBar OAuth cache when available.
+  - TokenBar OAuth cache when available.
   - File fallback: `~/.claude/.credentials.json`.
   - Claude CLI Keychain bootstrap/repair fallback: `Claude Code-credentials`.
 - Requires `user:profile` scope (CLI tokens with only `user:inference` cannot call usage).

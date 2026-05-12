@@ -26,6 +26,9 @@ extension UsageStore {
                 self.lastSourceLabels.removeValue(forKey: provider)
                 self.lastFetchAttempts.removeValue(forKey: provider)
                 self.accountSnapshots.removeValue(forKey: provider)
+                if provider == .codex {
+                    self.codexAccountSnapshots = []
+                }
                 self.tokenSnapshots.removeValue(forKey: provider)
                 self.tokenErrors[provider] = nil
                 self.failureGates[provider]?.reset()
@@ -33,6 +36,7 @@ extension UsageStore {
                 self.statuses.removeValue(forKey: provider)
                 self.lastKnownSessionRemaining.removeValue(forKey: provider)
                 self.lastKnownSessionWindowSource.removeValue(forKey: provider)
+                self.quotaWarningState = self.quotaWarningState.filter { $0.key.provider != provider }
                 self.lastTokenFetchAt.removeValue(forKey: provider)
             }
             return
@@ -40,6 +44,13 @@ extension UsageStore {
 
         self.refreshingProviders.insert(provider)
         defer { self.refreshingProviders.remove(provider) }
+
+        if provider == .codex, self.shouldFetchAllCodexVisibleAccounts() {
+            await self.refreshCodexVisibleAccountsForMenu()
+            return
+        } else if provider == .codex {
+            self.codexAccountSnapshots = []
+        }
 
         let tokenAccounts = self.tokenAccounts(for: provider)
         if self.shouldFetchAllTokenAccounts(provider: provider, accounts: tokenAccounts) {
@@ -95,6 +106,7 @@ extension UsageStore {
             }
             let backfilled = await MainActor.run {
                 let backfilled = scoped.backfillingResetTimes(from: self.lastKnownResetSnapshots[provider])
+                self.handleQuotaWarningTransitions(provider: provider, snapshot: backfilled)
                 self.handleSessionQuotaTransition(provider: provider, snapshot: backfilled)
                 self.lastKnownResetSnapshots[provider] = backfilled
                 self.snapshots[provider] = backfilled

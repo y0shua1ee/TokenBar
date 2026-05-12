@@ -30,15 +30,15 @@ changes it intentionally:
 
 Current Claude behavior is defined by several active owners, not one central planner:
 
-- `Sources/CodexBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
   owns the main provider-pipeline strategy order and fallback rules.
-- `Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
   still owns a separate direct `.auto` path, delegated refresh, prompt/cooldown handling, and web-extra enrichment.
 - `Sources/TokenBar/Providers/Claude/ClaudeSettingsStore.swift`
   owns app-side token-account routing into cookie or OAuth behavior.
-- `Sources/CodexBarCLI/TokenAccountCLI.swift`
+- `Sources/TokenBarCLI/TokenAccountCLI.swift`
   owns CLI-side token-account routing and effective source-mode overrides.
-- `Sources/CodexBarCore/TokenAccountSupport.swift`
+- `Sources/TokenBarCore/TokenAccountSupport.swift`
   owns the current string heuristics that distinguish Claude OAuth access tokens from cookie/session-key inputs.
 
 ## Current runtime and source-mode behavior
@@ -58,7 +58,7 @@ The generic provider pipeline currently resolves Claude strategies in this order
 | cli | cli | `cli` | No fallback. |
 | cli | web | `web` | No fallback. |
 
-This behavior is owned by `Sources/CodexBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
+This behavior is owned by `Sources/TokenBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
 through `ProviderFetchPlan` and `ProviderFetchPipeline`.
 
 ### Other active `.auto` decision sites
@@ -91,7 +91,7 @@ Current behavior that later refactor work must preserve:
 - Prompt mode `never` blocks delegated refresh attempts.
 - Expired credential owner behavior remains owner-specific:
   - `.claudeCLI`: delegated refresh path,
-  - `.codexbar`: direct refresh path,
+  - `.tokenbar`: direct refresh path,
   - `.environment`: no auto-refresh.
 
 ## Token-account routing baseline
@@ -114,7 +114,7 @@ Current routing rules:
     normalizes raw session keys into `sessionKey=<value>`.
 - CLI-side Claude token-account behavior:
   - OAuth token account changes the effective source mode from `auto` to `oauth`, disables cookie mode, omits a
-    manual cookie header, and injects `CODEXBAR_CLAUDE_OAUTH_TOKEN`.
+    manual cookie header, and injects `TOKENBAR_CLAUDE_OAUTH_TOKEN`.
   - Session-key or cookie-header account stays in cookie/manual mode.
 
 ## Siloing and web-enrichment baseline
@@ -125,7 +125,7 @@ Claude Web enrichment is cost-only when the primary source is OAuth or CLI:
 - Web extras must not replace `accountEmail`, `accountOrganization`, or `loginMethod` from the primary source.
 - Snapshot identity remains provider-scoped to Claude.
 
-This behavior is implemented in `Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
+This behavior is implemented in `Sources/TokenBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
 inside `applyWebExtrasIfNeeded`.
 
 ## Documentation contract
@@ -139,11 +139,11 @@ inside `applyWebExtrasIfNeeded`.
 
 Stable automated coverage for this baseline lives in:
 
-- `Tests/CodexBarTests/ClaudeBaselineCharacterizationTests.swift`
-- `Tests/CodexBarTests/ClaudeOAuthFetchStrategyAvailabilityTests.swift`
-- `Tests/CodexBarTests/ClaudeUsageTests.swift`
-- `Tests/CodexBarTests/TokenAccountEnvironmentPrecedenceTests.swift`
-- `Tests/CodexBarTests/SettingsStoreCoverageTests.swift`
+- `Tests/TokenBarTests/ClaudeBaselineCharacterizationTests.swift`
+- `Tests/TokenBarTests/ClaudeOAuthFetchStrategyAvailabilityTests.swift`
+- `Tests/TokenBarTests/ClaudeUsageTests.swift`
+- `Tests/TokenBarTests/TokenAccountEnvironmentPrecedenceTests.swift`
+- `Tests/TokenBarTests/SettingsStoreCoverageTests.swift`
 
 `ClaudeUsageTests.swift` now directly characterizes the reachable `ClaudeUsageFetcher(.auto)` branches for:
 

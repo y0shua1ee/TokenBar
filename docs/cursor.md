@@ -53,5 +53,5 @@ Manual option:
 - Reset: billing cycle end date.
 
 ## Key files
-- `Sources/CodexBarCore/Providers/Cursor/CursorStatusProbe.swift`
+- `Sources/TokenBarCore/Providers/Cursor/CursorStatusProbe.swift`
 - `Sources/TokenBar/CursorLoginRunner.swift` (login flow)

@@ -27,7 +27,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "stale-route@example.com",
             snapshot: dashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: nil),
             sourceLabel: "openai-web",
             context: context)
@@ -57,7 +57,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "shared@example.com",
             snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "shared@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -87,7 +87,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "owner@example.com",
             snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -117,7 +117,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "other@example.com",
             snapshot: self.makeDashboard(email: "other@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -148,7 +148,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "shared@example.com",
             snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "shared@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -178,7 +178,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "shared@example.com",
             snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "shared@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -206,7 +206,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "stale-route@example.com",
             snapshot: dashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "codex-cli",
             context: context)
@@ -233,7 +233,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "stale-route@example.com",
             snapshot: dashboard))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "oauth",
             context: context)
@@ -259,7 +259,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "owner@example.com",
             snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "openai-web",
             context: context)
@@ -289,7 +289,7 @@ struct CLIOpenAIDashboardCacheTests {
             accountEmail: "owner@example.com",
             snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = CodexBarCLI.loadOpenAIDashboardIfAvailable(
+        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
             usage: self.makeUsage(email: "owner@example.com"),
             sourceLabel: "codex-cli",
             context: context)

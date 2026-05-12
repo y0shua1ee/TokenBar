@@ -5,7 +5,7 @@ import Glibc
 #endif
 import Foundation
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func writeStderr(_ string: String) {
         guard let data = string.data(using: .utf8) else { return }
         FileHandle.standardError.write(data)
@@ -53,6 +53,9 @@ extension CodexBarCLI {
             if let appVersion = Self.containingAppVersion(for: executableURL) {
                 return appVersion
             }
+            if let adjacentVersion = Self.adjacentVersionFileVersion(for: executableURL) {
+                return adjacentVersion
+            }
         }
 
         // Keep the default raw SwiftPM CLI help/version path lightweight. On macOS hosted
@@ -80,6 +83,21 @@ extension CodexBarCLI {
         }
 
         return nil
+    }
+
+    static func adjacentVersionFileVersion(for executableURL: URL) -> String? {
+        let versionURL = executableURL
+            .deletingLastPathComponent()
+            .appendingPathComponent("VERSION")
+        guard let raw = try? String(contentsOf: versionURL, encoding: .utf8) else {
+            return nil
+        }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed.hasPrefix("v"), trimmed.dropFirst().first?.isNumber == true {
+            return String(trimmed.dropFirst())
+        }
+        return trimmed
     }
 
     static func platformExit(_ code: Int32) -> Never {

@@ -52,6 +52,7 @@ enum ProviderChoice: String, AppEnum {
     init?(provider: UsageProvider) {
         switch provider {
         case .codex: self = .codex
+        case .openai: return nil // OpenAI API not yet supported in widgets
         case .claude: self = .claude
         case .gemini: self = .gemini
         case .alibaba: self = .alibaba
@@ -63,6 +64,7 @@ enum ProviderChoice: String, AppEnum {
         case .factory: return nil // Factory not yet supported in widgets
         case .copilot: self = .copilot
         case .minimax: self = .minimax
+        case .manus: return nil // Manus not yet supported in widgets
         case .vertexai: return nil // Vertex AI not yet supported in widgets
         case .kilo: self = .kilo
         case .kiro: return nil // Kiro not yet supported in widgets
@@ -77,12 +79,18 @@ enum ProviderChoice: String, AppEnum {
         case .warp: return nil // Warp not yet supported in widgets
         case .windsurf: return nil // Windsurf not yet supported in widgets
         case .perplexity: return nil // Perplexity not yet supported in widgets
+        case .mimo: return nil // Xiaomi MiMo not yet supported in widgets
+        case .doubao: return nil // Doubao not yet supported in widgets
         case .abacus: return nil // Abacus AI not yet supported in widgets
         case .mistral: return nil // Mistral not yet supported in widgets
         case .deepseek: return nil // DeepSeek not yet supported in widgets
         case .codebuff: return nil // Codebuff not yet supported in widgets
         case .custom: return nil // Custom not yet supported in widgets
         case .krill: return nil // Krill not yet supported in widgets
+        case .crof: return nil // Crof not yet supported in widgets
+        case .venice: return nil // Venice not yet supported in widgets
+        case .commandcode: return nil // CommandCode not yet supported in widgets
+        case .stepfun: return nil // StepFun not yet supported in widgets
         }
     }
 }
@@ -149,37 +157,37 @@ struct CompactMetricSelectionIntent: AppIntent, WidgetConfigurationIntent {
     }
 }
 
-struct CodexBarWidgetEntry: TimelineEntry {
+struct TokenBarWidgetEntry: TimelineEntry {
     let date: Date
     let provider: UsageProvider
     let snapshot: WidgetSnapshot
 }
 
-struct CodexBarCompactEntry: TimelineEntry {
+struct TokenBarCompactEntry: TimelineEntry {
     let date: Date
     let provider: UsageProvider
     let metric: CompactMetric
     let snapshot: WidgetSnapshot
 }
 
-struct CodexBarSwitcherEntry: TimelineEntry {
+struct TokenBarSwitcherEntry: TimelineEntry {
     let date: Date
     let provider: UsageProvider
     let availableProviders: [UsageProvider]
     let snapshot: WidgetSnapshot
 }
 
-struct CodexBarTimelineProvider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> CodexBarWidgetEntry {
-        CodexBarWidgetEntry(
+struct TokenBarTimelineProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> TokenBarWidgetEntry {
+        TokenBarWidgetEntry(
             date: Date(),
             provider: .codex,
             snapshot: WidgetPreviewData.snapshot())
     }
 
-    func snapshot(for configuration: ProviderSelectionIntent, in context: Context) async -> CodexBarWidgetEntry {
+    func snapshot(for configuration: ProviderSelectionIntent, in context: Context) async -> TokenBarWidgetEntry {
         let provider = configuration.provider.provider
-        return CodexBarWidgetEntry(
+        return TokenBarWidgetEntry(
             date: Date(),
             provider: provider,
             snapshot: WidgetSnapshotStore.load() ?? WidgetPreviewData.snapshot())
@@ -187,38 +195,38 @@ struct CodexBarTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(
         for configuration: ProviderSelectionIntent,
-        in context: Context) async -> Timeline<CodexBarWidgetEntry>
+        in context: Context) async -> Timeline<TokenBarWidgetEntry>
     {
         let provider = configuration.provider.provider
         let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
-        let entry = CodexBarWidgetEntry(date: Date(), provider: provider, snapshot: snapshot)
+        let entry = TokenBarWidgetEntry(date: Date(), provider: provider, snapshot: snapshot)
         let refresh = Date().addingTimeInterval(30 * 60)
         return Timeline(entries: [entry], policy: .after(refresh))
     }
 }
 
-struct CodexBarSwitcherTimelineProvider: TimelineProvider {
-    func placeholder(in context: Context) -> CodexBarSwitcherEntry {
+struct TokenBarSwitcherTimelineProvider: TimelineProvider {
+    func placeholder(in context: Context) -> TokenBarSwitcherEntry {
         let snapshot = WidgetPreviewData.snapshot()
         let providers = self.availableProviders(from: snapshot)
-        return CodexBarSwitcherEntry(
+        return TokenBarSwitcherEntry(
             date: Date(),
             provider: providers.first ?? .codex,
             availableProviders: providers,
             snapshot: snapshot)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (CodexBarSwitcherEntry) -> Void) {
+    func getSnapshot(in context: Context, completion: @escaping (TokenBarSwitcherEntry) -> Void) {
         completion(self.makeEntry())
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<CodexBarSwitcherEntry>) -> Void) {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<TokenBarSwitcherEntry>) -> Void) {
         let entry = self.makeEntry()
         let refresh = Date().addingTimeInterval(30 * 60)
         completion(Timeline(entries: [entry], policy: .after(refresh)))
     }
 
-    private func makeEntry() -> CodexBarSwitcherEntry {
+    private func makeEntry() -> TokenBarSwitcherEntry {
         let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
         let providers = self.availableProviders(from: snapshot)
         let stored = WidgetSelectionStore.loadSelectedProvider()
@@ -226,7 +234,7 @@ struct CodexBarSwitcherTimelineProvider: TimelineProvider {
         if selected != stored {
             WidgetSelectionStore.saveSelectedProvider(selected)
         }
-        return CodexBarSwitcherEntry(
+        return TokenBarSwitcherEntry(
             date: Date(),
             provider: selected,
             availableProviders: providers,
@@ -245,19 +253,19 @@ struct CodexBarSwitcherTimelineProvider: TimelineProvider {
     }
 }
 
-struct CodexBarCompactTimelineProvider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> CodexBarCompactEntry {
-        CodexBarCompactEntry(
+struct TokenBarCompactTimelineProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> TokenBarCompactEntry {
+        TokenBarCompactEntry(
             date: Date(),
             provider: .codex,
             metric: .credits,
             snapshot: WidgetPreviewData.snapshot())
     }
 
-    func snapshot(for configuration: CompactMetricSelectionIntent, in context: Context) async -> CodexBarCompactEntry {
+    func snapshot(for configuration: CompactMetricSelectionIntent, in context: Context) async -> TokenBarCompactEntry {
         let provider = configuration.provider.provider
         let metric = configuration.metric
-        return CodexBarCompactEntry(
+        return TokenBarCompactEntry(
             date: Date(),
             provider: provider,
             metric: metric,
@@ -266,12 +274,12 @@ struct CodexBarCompactTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(
         for configuration: CompactMetricSelectionIntent,
-        in context: Context) async -> Timeline<CodexBarCompactEntry>
+        in context: Context) async -> Timeline<TokenBarCompactEntry>
     {
         let provider = configuration.provider.provider
         let metric = configuration.metric
         let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
-        let entry = CodexBarCompactEntry(
+        let entry = TokenBarCompactEntry(
             date: Date(),
             provider: provider,
             metric: metric,

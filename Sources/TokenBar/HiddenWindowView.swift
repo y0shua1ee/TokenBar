@@ -6,7 +6,7 @@ struct HiddenWindowView: View {
     var body: some View {
         Color.clear
             .frame(width: 20, height: 20)
-            .onReceive(NotificationCenter.default.publisher(for: .codexbarOpenSettings)) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: .tokenbarOpenSettings)) { _ in
                 Task { @MainActor in
                     self.openSettings()
                 }
@@ -18,7 +18,7 @@ struct HiddenWindowView: View {
                 }.value
             }
             .onAppear {
-                if let window = NSApp.windows.first(where: { $0.title == "CodexBarLifecycleKeepalive" }) {
+                if let window = NSApp.windows.first(where: { $0.title == "TokenBarLifecycleKeepalive" }) {
                     // Make the keepalive window truly invisible and non-interactive.
                     window.styleMask = [.borderless]
                     window.collectionBehavior = [.auxiliary, .ignoresCycle, .transient, .canJoinAllSpaces]

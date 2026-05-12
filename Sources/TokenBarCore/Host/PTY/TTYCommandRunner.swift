@@ -316,7 +316,7 @@ public struct TTYCommandRunner {
             fm.isExecutableFile(atPath: path)
         }
 
-        if let override = ProcessInfo.processInfo.environment["CODEXBAR_HELPER_\(name.uppercased())"],
+        if let override = ProcessInfo.processInfo.environment["TOKENBAR_HELPER_\(name.uppercased())"],
            isExecutable(override)
         {
             return override

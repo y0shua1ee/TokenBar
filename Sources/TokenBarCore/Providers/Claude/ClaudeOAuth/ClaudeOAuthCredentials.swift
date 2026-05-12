@@ -15,14 +15,14 @@ public enum ClaudeOAuthCredentialsStore {
     private static let credentialsPath = ".claude/.credentials.json"
     static let claudeKeychainService = "Claude Code-credentials"
     private static let cacheKey = KeychainCacheStore.Key.oauth(provider: .claude)
-    public static let environmentTokenKey = "CODEXBAR_CLAUDE_OAUTH_TOKEN"
-    public static let environmentScopesKey = "CODEXBAR_CLAUDE_OAUTH_SCOPES"
+    public static let environmentTokenKey = "TOKENBAR_CLAUDE_OAUTH_TOKEN"
+    public static let environmentScopesKey = "TOKENBAR_CLAUDE_OAUTH_SCOPES"
 
     // Claude CLI's OAuth client ID - this is a public identifier (not a secret).
     // It's the same client ID used by Claude Code CLI for OAuth PKCE flow.
     // Can be overridden via environment variable if Anthropic ever changes it.
     public static let defaultOAuthClientID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
-    public static let environmentClientIDKey = "CODEXBAR_CLAUDE_OAUTH_CLIENT_ID"
+    public static let environmentClientIDKey = "TOKENBAR_CLAUDE_OAUTH_CLIENT_ID"
     private static let tokenRefreshEndpoint = "https://platform.claude.com/v1/oauth/token"
 
     private static var oauthClientID: String {
@@ -490,7 +490,7 @@ public enum ClaudeOAuthCredentialsStore {
                     switch record.owner {
                     case .claudeCLI:
                         return true
-                    case .codexbar:
+                    case .tokenbar:
                         let refreshToken = creds.refreshToken?.trimmingCharacters(
                             in: .whitespacesAndNewlines) ?? ""
                         return !refreshToken.isEmpty
@@ -626,7 +626,7 @@ public enum ClaudeOAuthCredentialsStore {
                 return false
             case .onlyOnUserAction:
                 if ProviderInteractionContext.current != .userInitiated {
-                    if ProcessInfo.processInfo.environment["CODEXBAR_DEBUG_CLAUDE_OAUTH_FLOW"] == "1" {
+                    if ProcessInfo.processInfo.environment["TOKENBAR_DEBUG_CLAUDE_OAUTH_FLOW"] == "1" {
                         ClaudeOAuthCredentialsStore.log.debug(
                             "Claude OAuth keychain freshness sync skipped (background)",
                             metadata: ["promptMode": mode.rawValue, "owner": String(describing: cached.owner)])
@@ -965,7 +965,7 @@ public enum ClaudeOAuthCredentialsStore {
                 ClaudeOAuthCredentialsStore.writeMemoryCache(
                     record: ClaudeOAuthCredentialRecord(
                         credentials: newCredentials,
-                        owner: .codexbar,
+                        owner: .tokenbar,
                         source: .memoryCache),
                     timestamp: Date())
                 ClaudeOAuthRefreshFailureGate.recordSuccess()
@@ -1133,7 +1133,7 @@ public enum ClaudeOAuthCredentialsStore {
         case .environment:
             self.log.warning("Environment OAuth token expired and cannot be auto-refreshed")
             throw ClaudeOAuthCredentialsError.noRefreshToken
-        case .codexbar:
+        case .tokenbar:
             break
         }
 
@@ -1183,7 +1183,7 @@ public enum ClaudeOAuthCredentialsStore {
             return
         }
 
-        self.saveToCacheKeychain(jsonData, owner: .codexbar)
+        self.saveToCacheKeychain(jsonData, owner: .tokenbar)
         self.log.debug("Saved refreshed credentials to TokenBar keychain cache")
     }
 

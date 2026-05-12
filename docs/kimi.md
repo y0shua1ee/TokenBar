@@ -123,7 +123,7 @@ All tiers have a rate limit of 200 requests per 5 hours.
 
 ## Implementation
 
-- **Core files**: `Sources/CodexBarCore/Providers/Kimi/`
+- **Core files**: `Sources/TokenBarCore/Providers/Kimi/`
 - **UI files**: `Sources/TokenBar/Providers/Kimi/`
 - **Login flow**: `Sources/TokenBar/KimiLoginRunner.swift`
-- **Tests**: `Tests/CodexBarTests/KimiProviderTests.swift`
+- **Tests**: `Tests/TokenBarTests/KimiProviderTests.swift`

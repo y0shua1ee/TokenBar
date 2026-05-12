@@ -638,7 +638,7 @@ enum LoginShellPathCapturer {
     {
         let shellPath = (shell?.isEmpty == false) ? shell! : "/bin/zsh"
         let isCI = ["1", "true"].contains(ProcessInfo.processInfo.environment["CI"]?.lowercased())
-        let marker = "__CODEXBAR_PATH__"
+        let marker = "__TOKENBAR_PATH__"
         // Skip interactive login shells in CI to avoid noisy init hooks.
         let args = isCI
             ? ["-c", "printf '\(marker)%s\(marker)' \"$PATH\""]

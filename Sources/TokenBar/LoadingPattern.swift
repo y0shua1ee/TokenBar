@@ -58,5 +58,5 @@ enum LoadingPattern: String, CaseIterable, Identifiable {
 }
 
 extension Notification.Name {
-    static let codexbarDebugReplayAllAnimations = Notification.Name("codexbarDebugReplayAllAnimations")
+    static let tokenbarDebugReplayAllAnimations = Notification.Name("tokenbarDebugReplayAllAnimations")
 }

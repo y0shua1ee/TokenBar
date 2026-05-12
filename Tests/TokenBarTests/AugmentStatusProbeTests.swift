@@ -6,6 +6,23 @@ final class AugmentStatusProbeTests: XCTestCase {
         try AugmentStatusProbe(baseURL: XCTUnwrap(URL(string: "http://127.0.0.1:1")), timeout: 0.1)
     }
 
+    @MainActor
+    func test_sessionKeepaliveStartLogsActualIntervals() {
+        var messages: [String] = []
+        let keepalive = AugmentSessionKeepalive { message in
+            messages.append(message)
+        }
+
+        keepalive.start()
+        defer { keepalive.stop() }
+
+        XCTAssertTrue(messages.contains { $0.contains("Check interval: 60s (1 minute)") })
+        XCTAssertTrue(messages.contains { $0.contains("Refresh buffer: 300s (5 minutes before expiry)") })
+        XCTAssertTrue(messages.contains { $0.contains("Min refresh interval: 60s (1 minute)") })
+        XCTAssertFalse(messages.contains { $0.contains("every 5 minutes") })
+        XCTAssertFalse(messages.contains { $0.contains("2 minutes") })
+    }
+
     func test_debugRawProbe_returnsFormattedOutput() async throws {
         // Given: A probe instance
         let probe = try self.failingProbe()

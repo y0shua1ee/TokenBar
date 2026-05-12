@@ -105,5 +105,5 @@ Endpoints:
 - Plan/tier + org name from auth response.
 
 ## Key files
-- `Sources/CodexBarCore/Providers/Factory/FactoryStatusProbe.swift`
-- `Sources/CodexBarCore/Providers/Factory/FactoryLocalStorageImporter.swift`
+- `Sources/TokenBarCore/Providers/Factory/FactoryStatusProbe.swift`
+- `Sources/TokenBarCore/Providers/Factory/FactoryLocalStorageImporter.swift`

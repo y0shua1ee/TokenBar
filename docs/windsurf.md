@@ -26,7 +26,7 @@ Usage source picker:
 ### Local SQLite cache
 - File: `~/Library/Application Support/Windsurf/User/globalStorage/state.vscdb`.
 - Key: `windsurf.settings.cachedPlanInfo` in `ItemTable`.
-- Newer cache shapes may omit `quotaUsage` but include `usage` counters. In that case CodexBar derives
+- Newer cache shapes may omit `quotaUsage` but include `usage` counters. In that case TokenBar derives
   usage windows from `usedMessages/messages` and `usedFlowActions/flowActions`.
 - Limitation: only updates when Windsurf is launched; can be significantly stale.
 

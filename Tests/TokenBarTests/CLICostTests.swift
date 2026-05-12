@@ -7,13 +7,13 @@ import TokenBarCore
 struct CLICostTests {
     @Test
     func `cost json shortcut does not enable json logs`() throws {
-        let signature = CodexBarCLI._costSignatureForTesting()
+        let signature = TokenBarCLI._costSignatureForTesting()
         let parser = CommandParser(signature: signature)
         let parsed = try parser.parse(arguments: ["--json"])
 
         #expect(parsed.flags.contains("jsonShortcut"))
         #expect(!parsed.flags.contains("jsonOutput"))
-        #expect(CodexBarCLI._decodeFormatForTesting(from: parsed) == .json)
+        #expect(TokenBarCLI._decodeFormatForTesting(from: parsed) == .json)
     }
 
     @Test
@@ -26,7 +26,7 @@ struct CLICostTests {
             daily: [],
             updatedAt: Date(timeIntervalSince1970: 0))
 
-        let output = CodexBarCLI.renderCostText(provider: .claude, snapshot: snap, useColor: false)
+        let output = TokenBarCLI.renderCostText(provider: .claude, snapshot: snap, useColor: false)
             .replacingOccurrences(of: "\u{00A0}", with: " ")
             .replacingOccurrences(of: "$ ", with: "$")
 
@@ -45,7 +45,7 @@ struct CLICostTests {
             daily: [],
             updatedAt: Date(timeIntervalSince1970: 0))
 
-        let output = CodexBarCLI.renderCostText(provider: .krill, snapshot: snap, useColor: false)
+        let output = TokenBarCLI.renderCostText(provider: .krill, snapshot: snap, useColor: false)
             .replacingOccurrences(of: "\u{00A0}", with: " ")
             .replacingOccurrences(of: "$ ", with: "$")
 

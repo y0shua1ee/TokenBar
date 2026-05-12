@@ -19,10 +19,10 @@ read_when:
 - Keep data shape in sync with `WidgetSnapshot` in the main app.
 
 ## Widget types
-- **CodexBar Switcher** (`CodexBarSwitcherWidget`): static provider switcher widget, small/medium/large.
-- **CodexBar Usage** (`CodexBarUsageWidget`): configurable provider usage widget, small/medium/large.
-- **CodexBar History** (`CodexBarHistoryWidget`): configurable usage-history chart, medium/large.
-- **CodexBar Metric** (`CodexBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
+- **TokenBar Switcher** (`TokenBarSwitcherWidget`): static provider switcher widget, small/medium/large.
+- **TokenBar Usage** (`TokenBarUsageWidget`): configurable provider usage widget, small/medium/large.
+- **TokenBar History** (`TokenBarHistoryWidget`): configurable usage-history chart, medium/large.
+- **TokenBar Metric** (`TokenBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
 
 ## Provider picker support
 The configurable provider widgets currently expose:

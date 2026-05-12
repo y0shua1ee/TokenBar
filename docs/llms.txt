@@ -1,0 +1,12 @@
+# TokenBar
+
+TokenBar shows OpenAI Codex, Claude Code, Krill, Custom providers, and other AI coding usage limits in the macOS menu bar.
+
+Canonical documentation:
+- TokenBar: https://y0shua1ee.github.io/TokenBar/ - Tiny macOS menu bar app that keeps your Codex, Claude Code, Cursor, Gemini, Antigravity, Droid (Factory), Copilot, and z.ai limits visible.
+
+Source: https://github.com/y0shua1ee/TokenBar
+
+Guidance for agents:
+- Prefer the canonical documentation URLs above over README excerpts or package metadata.
+- Fetch only the pages needed for the current task; this is an index, not a full-site corpus.

@@ -24,7 +24,7 @@ This doc describes the **current provider architecture** (post-macro registry) a
 - **Identity fields**: email/org/plan/loginMethod. Must stay **siloed per provider**.
 
 ## Architecture overview (now)
-- `Sources/CodexBarCore`: provider descriptors + fetch strategies + probes + parsing + shared utilities.
+- `Sources/TokenBarCore`: provider descriptors + fetch strategies + probes + parsing + shared utilities.
 - `Sources/TokenBar`: UI/state + provider implementations (settings/login/menu hooks only).
 - Provider IDs are compile-time: `UsageProvider` enum (used for persistence + widgets).
 - Provider wiring is descriptor-driven:
@@ -81,7 +81,7 @@ Expose a narrow set of protocols/structs that provider implementations can use:
 Rule: providers do not talk to `FileManager`, `Security`, or “browser internals” directly unless they *are* the host API implementation.
 
 ## Provider-specific code layout
-- `Sources/CodexBarCore/Providers/<ProviderID>/`
+- `Sources/TokenBarCore/Providers/<ProviderID>/`
   - `<ProviderID>Descriptor.swift` (descriptor + strategy pipeline)
   - `<ProviderID>Strategies.swift` (strategy implementations)
   - `<ProviderID>Probe.swift` / `<ProviderID>Fetcher.swift`
@@ -93,7 +93,7 @@ Rule: providers do not talk to `FileManager`, `Security`, or “browser internal
 ## Minimal provider example (copy-paste)
 
 ```swift
-import CodexBarMacroSupport
+import TokenBarMacroSupport
 import Foundation
 
 @ProviderDescriptorRegistration
@@ -162,8 +162,8 @@ struct ExampleFetchStrategy: ProviderFetchStrategy {
 ## Adding a new provider (current flow)
 
 Checklist:
-- Add `UsageProvider` case in `Sources/CodexBarCore/Providers/Providers.swift`.
-- Create `Sources/CodexBarCore/Providers/<ProviderID>/`:
+- Add `UsageProvider` case in `Sources/TokenBarCore/Providers/Providers.swift`.
+- Create `Sources/TokenBarCore/Providers/<ProviderID>/`:
   - `<ProviderID>Descriptor.swift`: define `ProviderDescriptor` + fetch pipeline.
   - `<ProviderID>Strategies.swift`: implement one or more `ProviderFetchStrategy`.
   - `<ProviderID>Probe.swift` / `<ProviderID>Fetcher.swift`: concrete fetcher logic.

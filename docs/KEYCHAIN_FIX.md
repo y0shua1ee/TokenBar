@@ -23,7 +23,7 @@ still in place, but the architecture has changed:
 | --- | --- |
 | TokenBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.tokenbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
 | `ClaudeOAuthCredentials.swift` migrated TokenBar-owned Claude OAuth keychain items | Claude OAuth primary source is Claude CLI keychain service (`Claude Code-credentials`), with TokenBar cache in `com.y0shua1ee.tokenbar.cache` (`oauth.claude`). |
-| Migration runs in `CodexBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
+| Migration runs in `TokenBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
 | Post-migration prompts should be zero in all Claude paths | Legacy-store prompts are reduced; Claude OAuth bootstrap can still prompt when reading Claude CLI keychain, with cooldown + no-UI probes to prevent storms. |
 | Log category is `KeychainMigration` | Category is `keychain-migration` (kebab-case). |
 
@@ -41,7 +41,7 @@ still in place, but the architecture has changed:
 `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
 
 Load order for credentials:
-1. Environment override (`CODEXBAR_CLAUDE_OAUTH_TOKEN`, scopes env key).
+1. Environment override (`TOKENBAR_CLAUDE_OAUTH_TOKEN`, scopes env key).
 2. In-memory cache.
 3. TokenBar keychain cache (`com.y0shua1ee.tokenbar.cache`, account `oauth.claude`).
 4. `~/.claude/.credentials.json`.

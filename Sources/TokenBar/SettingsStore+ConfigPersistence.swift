@@ -128,7 +128,7 @@ extension SettingsStore {
             .debug("Config revision bumped (\(context.reason)) -> \(self.configRevision)")
         guard context.shouldBroadcast else { return }
         NotificationCenter.default.post(
-            name: .codexbarProviderConfigDidChange,
+            name: .tokenbarProviderConfigDidChange,
             object: self,
             userInfo: [
                 "config": self.config,

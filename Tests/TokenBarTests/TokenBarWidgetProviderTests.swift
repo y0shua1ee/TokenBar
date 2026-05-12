@@ -3,7 +3,7 @@ import Testing
 @testable import TokenBarCore
 @testable import TokenBarWidget
 
-struct CodexBarWidgetProviderTests {
+struct TokenBarWidgetProviderTests {
     @Test
     func `provider choice supports alibaba`() {
         #expect(ProviderChoice(provider: .alibaba) == .alibaba)
@@ -20,7 +20,7 @@ struct CodexBarWidgetProviderTests {
     func `supported providers fall back to codex when snapshot is empty`() {
         let snapshot = WidgetSnapshot(entries: [], enabledProviders: [], generatedAt: Date())
 
-        #expect(CodexBarSwitcherTimelineProvider.supportedProviders(from: snapshot) == [.codex])
+        #expect(TokenBarSwitcherTimelineProvider.supportedProviders(from: snapshot) == [.codex])
     }
 
     @Test
@@ -38,7 +38,7 @@ struct CodexBarWidgetProviderTests {
             dailyUsage: [])
         let snapshot = WidgetSnapshot(entries: [entry], enabledProviders: [.alibaba], generatedAt: now)
 
-        #expect(CodexBarSwitcherTimelineProvider.supportedProviders(from: snapshot) == [.alibaba])
+        #expect(TokenBarSwitcherTimelineProvider.supportedProviders(from: snapshot) == [.alibaba])
     }
 
     @Test

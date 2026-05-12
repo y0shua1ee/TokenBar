@@ -12,7 +12,7 @@ Kilo supports API and CLI-backed auth. Source mode can be `auto`, `api`, or `cli
 
 ## Data sources + fallback order
 1. API (`api`)
-   - Token from `~/.codexbar/config.json` (`providers[].apiKey` for `kilo`) or `KILO_API_KEY`.
+   - Token from `~/.tokenbar/config.json` (`providers[].apiKey` for `kilo`) or `KILO_API_KEY`.
    - Calls `https://app.kilo.ai/api/trpc`.
 2. CLI session (`cli`)
    - Reads `~/.local/share/kilo/auth.json` and uses `kilo.access`.

@@ -21,7 +21,7 @@ git remote -v
 # Should show: origin  git@github.com:topoffunnel/TokenBar.git
 
 # Add upstream (steipete's original)
-git remote add upstream https://github.com/steipete/TokenBar.git
+git remote add upstream https://github.com/steipete/CodexBar.git
 
 # Add quotio (inspiration source)
 git remote add quotio https://github.com/nguyenphutrong/quotio.git
@@ -33,7 +33,7 @@ git fetch --all
 git remote -v
 # Should show:
 # origin    git@github.com:topoffunnel/TokenBar.git (fetch/push)
-# upstream  https://github.com/steipete/TokenBar.git (fetch/push)
+# upstream  https://github.com/steipete/CodexBar.git (fetch/push)
 # quotio    https://github.com/nguyenphutrong/quotio.git (fetch/push)
 ```
 
@@ -83,7 +83,7 @@ chmod +x Scripts/*.sh
 ```
 Files changed:
  .../Providers/Augment/AugmentStatusProbe.swift     | 627 deletions
- Tests/CodexBarTests/AugmentStatusProbeTests.swift  |  88 deletions
+ Tests/TokenBarTests/AugmentStatusProbeTests.swift  |  88 deletions
 ```
 
 **This validates our fork strategy:**
@@ -261,7 +261,7 @@ swift test
 git push origin upstream-pr/fix-cursor-bonus
 
 # 6. Create PR on GitHub
-# Go to: https://github.com/steipete/TokenBar
+# Go to: https://github.com/steipete/CodexBar
 # Click "New Pull Request"
 # Select: base: steipete:main <- compare: topoffunnel:upstream-pr/fix-cursor-bonus
 ```

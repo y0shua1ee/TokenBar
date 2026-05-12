@@ -2,24 +2,24 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct CodexBarWidgetBundle: WidgetBundle {
+struct TokenBarWidgetBundle: WidgetBundle {
     var body: some Widget {
-        CodexBarSwitcherWidget()
-        CodexBarUsageWidget()
-        CodexBarHistoryWidget()
-        CodexBarCompactWidget()
+        TokenBarSwitcherWidget()
+        TokenBarUsageWidget()
+        TokenBarHistoryWidget()
+        TokenBarCompactWidget()
     }
 }
 
-struct CodexBarSwitcherWidget: Widget {
-    private let kind = "CodexBarSwitcherWidget"
+struct TokenBarSwitcherWidget: Widget {
+    private let kind = "TokenBarSwitcherWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(
             kind: self.kind,
-            provider: CodexBarSwitcherTimelineProvider())
+            provider: TokenBarSwitcherTimelineProvider())
         { entry in
-            CodexBarSwitcherWidgetView(entry: entry)
+            TokenBarSwitcherWidgetView(entry: entry)
         }
         .configurationDisplayName("TokenBar Switcher")
         .description("Usage widget with a provider switcher.")
@@ -27,16 +27,16 @@ struct CodexBarSwitcherWidget: Widget {
     }
 }
 
-struct CodexBarUsageWidget: Widget {
-    private let kind = "CodexBarUsageWidget"
+struct TokenBarUsageWidget: Widget {
+    private let kind = "TokenBarUsageWidget"
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: self.kind,
             intent: ProviderSelectionIntent.self,
-            provider: CodexBarTimelineProvider())
+            provider: TokenBarTimelineProvider())
         { entry in
-            CodexBarUsageWidgetView(entry: entry)
+            TokenBarUsageWidgetView(entry: entry)
         }
         .configurationDisplayName("TokenBar Usage")
         .description("Session and weekly usage with credits and costs.")
@@ -44,16 +44,16 @@ struct CodexBarUsageWidget: Widget {
     }
 }
 
-struct CodexBarHistoryWidget: Widget {
-    private let kind = "CodexBarHistoryWidget"
+struct TokenBarHistoryWidget: Widget {
+    private let kind = "TokenBarHistoryWidget"
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: self.kind,
             intent: ProviderSelectionIntent.self,
-            provider: CodexBarTimelineProvider())
+            provider: TokenBarTimelineProvider())
         { entry in
-            CodexBarHistoryWidgetView(entry: entry)
+            TokenBarHistoryWidgetView(entry: entry)
         }
         .configurationDisplayName("TokenBar History")
         .description("Usage history chart with recent totals.")
@@ -61,16 +61,16 @@ struct CodexBarHistoryWidget: Widget {
     }
 }
 
-struct CodexBarCompactWidget: Widget {
-    private let kind = "CodexBarCompactWidget"
+struct TokenBarCompactWidget: Widget {
+    private let kind = "TokenBarCompactWidget"
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: self.kind,
             intent: CompactMetricSelectionIntent.self,
-            provider: CodexBarCompactTimelineProvider())
+            provider: TokenBarCompactTimelineProvider())
         { entry in
-            CodexBarCompactWidgetView(entry: entry)
+            TokenBarCompactWidgetView(entry: entry)
         }
         .configurationDisplayName("TokenBar Metric")
         .description("Compact widget for credits or cost.")

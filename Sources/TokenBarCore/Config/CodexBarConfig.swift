@@ -89,6 +89,7 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
     public var customName: String?
     public var baseURL: String?
     public var customModelFilter: String?
+    public var quotaWarnings: QuotaWarningConfig?
 
     public init(
         id: UsageProvider,
@@ -105,7 +106,8 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         codexActiveSource: CodexActiveSource? = nil,
         customName: String? = nil,
         baseURL: String? = nil,
-        customModelFilter: String? = nil)
+        customModelFilter: String? = nil,
+        quotaWarnings: QuotaWarningConfig? = nil)
     {
         self.id = id
         self.enabled = enabled
@@ -122,6 +124,7 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         self.customName = customName
         self.baseURL = baseURL
         self.customModelFilter = customModelFilter
+        self.quotaWarnings = quotaWarnings
     }
 
     public var sanitizedAPIKey: String? {
@@ -148,5 +151,111 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         }
         value = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return value.isEmpty ? nil : value
+    }
+}
+
+public enum QuotaWarningWindow: String, Codable, Sendable, CaseIterable {
+    case session
+    case weekly
+
+    public var displayName: String {
+        switch self {
+        case .session:
+            "session"
+        case .weekly:
+            "weekly"
+        }
+    }
+}
+
+public struct QuotaWarningWindowConfig: Codable, Sendable, Equatable {
+    public var thresholds: [Int]?
+    public var enabled: Bool?
+
+    public init(thresholds: [Int]? = nil, enabled: Bool? = nil) {
+        self.thresholds = thresholds.map(QuotaWarningThresholds.sanitized)
+        self.enabled = enabled
+    }
+
+    public var hasOverride: Bool {
+        self.thresholds != nil || self.enabled != nil
+    }
+
+    public func isEnabled(global: Bool) -> Bool {
+        self.enabled ?? (self.thresholds != nil ? true : global)
+    }
+}
+
+public struct QuotaWarningConfig: Codable, Sendable, Equatable {
+    public var session: QuotaWarningWindowConfig?
+    public var weekly: QuotaWarningWindowConfig?
+
+    public init(
+        session: QuotaWarningWindowConfig? = nil,
+        weekly: QuotaWarningWindowConfig? = nil)
+    {
+        self.session = session
+        self.weekly = weekly
+    }
+
+    public func thresholds(for window: QuotaWarningWindow, global: [Int]) -> [Int] {
+        switch window {
+        case .session:
+            QuotaWarningThresholds.sanitized(self.session?.thresholds ?? global)
+        case .weekly:
+            QuotaWarningThresholds.sanitized(self.weekly?.thresholds ?? global)
+        }
+    }
+
+    public func isEnabled(for window: QuotaWarningWindow, global: Bool) -> Bool {
+        switch window {
+        case .session:
+            self.session?.isEnabled(global: global) ?? global
+        case .weekly:
+            self.weekly?.isEnabled(global: global) ?? global
+        }
+    }
+
+    public func hasOverride(for window: QuotaWarningWindow) -> Bool {
+        switch window {
+        case .session:
+            self.session?.hasOverride ?? false
+        case .weekly:
+            self.weekly?.hasOverride ?? false
+        }
+    }
+
+    public var isEmpty: Bool {
+        self.session?.hasOverride != true && self.weekly?.hasOverride != true
+    }
+}
+
+public enum QuotaWarningThresholds {
+    public static let defaults = [50, 20]
+    public static let allowedRange = 0...99
+
+    public static func sanitized(_ raw: [Int]) -> [Int] {
+        guard !raw.isEmpty else { return self.defaults }
+
+        let unique = Set(raw.map(self.clamped))
+        let sorted = unique.sorted(by: >)
+        return sorted.isEmpty ? self.defaults : sorted
+    }
+
+    public static func active(_ raw: [Int]) -> [Int] {
+        self.sanitized(raw).filter { $0 > 0 }
+    }
+
+    public static func resolved(upper: Int?, lower: Int?) -> [Int] {
+        guard upper != nil || lower != nil else { return self.defaults }
+
+        let resolvedUpper = self.clamped(upper ?? self.defaults[0])
+        let lowerDefault = resolvedUpper < self.defaults[1] ? 0 : self.defaults[1]
+        let resolvedLower = self.clamped(lower ?? lowerDefault)
+        return self.sanitized([resolvedUpper, resolvedLower])
+    }
+
+    public static func clamped(_ value: Int) -> Int {
+        min(max(value, self.allowedRange.lowerBound), self.allowedRange.upperBound)
     }
 }

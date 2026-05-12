@@ -188,7 +188,7 @@ public struct OpenRouterUsageFetcher: Sendable {
     private static let creditsRequestTimeoutSeconds: TimeInterval = 15
     private static let maxErrorBodyLength = 240
     private static let maxDebugErrorBodyLength = 2000
-    private static let debugFullErrorBodiesEnvKey = "CODEXBAR_DEBUG_OPENROUTER_ERROR_BODIES"
+    private static let debugFullErrorBodiesEnvKey = "TOKENBAR_DEBUG_OPENROUTER_ERROR_BODIES"
     private static let httpRefererEnvKey = "OPENROUTER_HTTP_REFERER"
     private static let clientTitleEnvKey = "OPENROUTER_X_TITLE"
     private static let defaultClientTitle = "TokenBar"

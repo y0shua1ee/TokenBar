@@ -7,7 +7,7 @@ import Glibc
 #endif
 import Foundation
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func decodeProvider(from values: ParsedValues, config: CodexBarConfig) -> ProviderSelection {
         let rawOverride = values.options["provider"]?.last
         return Self.providerSelection(rawOverride: rawOverride, enabled: config.enabledProviders())
@@ -353,7 +353,7 @@ struct CLIArgumentError: LocalizedError {
 }
 
 #if DEBUG
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func _usageSignatureForTesting() -> CommandSignature {
         CommandSignature.describe(UsageOptions())
     }

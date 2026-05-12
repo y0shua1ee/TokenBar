@@ -53,7 +53,7 @@ struct PathBuilderTests {
           printf 'err-%04d\\n' "$i" >&2
           i=$((i + 1))
         done
-        printf '__CODEXBAR_DONE__\\n'
+        printf '__TOKENBAR_DONE__\\n'
         """
         let data = try #require(ShellCommandLocator.test_runShellCommand(
             shell: "/bin/sh",
@@ -62,7 +62,7 @@ struct PathBuilderTests {
         let output = try #require(String(data: data, encoding: .utf8))
 
         #expect(output.contains("out-3999"))
-        #expect(output.contains("__CODEXBAR_DONE__"))
+        #expect(output.contains("__TOKENBAR_DONE__"))
     }
 
     @Test

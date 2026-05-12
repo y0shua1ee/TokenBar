@@ -25,7 +25,7 @@ struct PreferencesPaneSmokeTests {
         let settings = Self.makeSettingsStore(suite: "PreferencesPaneSmokeTests-toggled")
         settings.menuBarShowsBrandIconWithPercent = true
         settings.menuBarShowsHighestUsage = true
-        settings.showAllTokenAccountsInMenu = true
+        settings.multiAccountMenuLayout = .stacked
         settings.hidePersonalInfo = true
         settings.resetTimesShowAbsolute = true
         settings.debugDisableKeychainAccess = true
@@ -41,6 +41,14 @@ struct PreferencesPaneSmokeTests {
         _ = ProvidersPane(settings: settings, store: store).body
         _ = DebugPane(settings: settings, store: store).body
         _ = AboutPane(updater: DisabledUpdaterController()).body
+    }
+
+    @Test
+    func `overview provider limit text formats numeric limit as object argument`() {
+        let text = DisplayPane.overviewProviderLimitText(limit: 3)
+
+        #expect(text.contains("3"))
+        #expect(!text.contains("%@"))
     }
 
     private static func makeSettingsStore(suite: String) -> SettingsStore {

@@ -2,7 +2,7 @@ import Commander
 import Foundation
 import TokenBarCore
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     #if os(macOS)
     private static let costSupportedProviders: Set<UsageProvider> = [.claude, .codex, .krill]
     #else
@@ -11,8 +11,8 @@ extension CodexBarCLI {
 
     static func runCost(_ values: ParsedValues) async {
         let output = CLIOutputPreferences.from(values: values)
-        let config = CodexBarCLI.loadConfig(output: output)
-        let selection = CodexBarCLI.decodeProvider(from: values, config: config)
+        let config = TokenBarCLI.loadConfig(output: output)
+        let selection = TokenBarCLI.decodeProvider(from: values, config: config)
         let providers = Self.costProviders(from: selection)
         let unsupported = selection.asList.filter { !Self.costSupportedProviders.contains($0) }
         if !unsupported.isEmpty {

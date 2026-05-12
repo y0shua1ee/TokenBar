@@ -36,6 +36,7 @@ final class ProviderSwitcherView: NSView {
     private let rowHeight: CGFloat
     private var preferredWidth: CGFloat = 0
     private var hoveredButtonTag: Int?
+    private var pressedButtonTag: Int?
     private let lightModeOverlayLayer = CALayer()
 
     init(
@@ -223,7 +224,12 @@ final class ProviderSwitcherView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        self.window?.acceptsMouseMovedEvents = true
+        if let window = self.window {
+            window.acceptsMouseMovedEvents = true
+        } else if self.hoveredButtonTag != nil {
+            self.hoveredButtonTag = nil
+            self.updateButtonStyles()
+        }
     }
 
     override func updateTrackingAreas() {
@@ -260,6 +266,62 @@ final class ProviderSwitcherView: NSView {
         self.hoveredButtonTag = nil
         self.updateButtonStyles()
     }
+
+    // MARK: - Click handling
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        // NSMenu's tracking run loop occasionally drops NSButton target-action dispatch when the
+        // menu is rebuilt under the cursor (e.g. after switching back from a provider tab to
+        // Overview). The overrides in this section hit-test the parent view, then drive
+        // selection from mouseDown/mouseUp here so the click never has to round-trip through
+        // NSButton's tracking loop. See issue #867.
+        true
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        let descendant = super.hitTest(point)
+        if descendant != nil, descendant !== self {
+            // Swallow any hit on a child NSButton so its tracking loop never sees the click.
+            return self
+        }
+        return descendant
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        let location = self.convert(event.locationInWindow, from: nil)
+        self.pressedButtonTag = self.buttons.first(where: { $0.frame.contains(location) })?.tag
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        defer { self.pressedButtonTag = nil }
+        guard let pressedTag = self.pressedButtonTag else { return }
+        let location = self.convert(event.locationInWindow, from: nil)
+        guard let releasedTag = self.buttons.first(where: { $0.frame.contains(location) })?.tag,
+              releasedTag == pressedTag,
+              self.segments.indices.contains(pressedTag)
+        else {
+            return
+        }
+        self.applySelection(at: pressedTag)
+    }
+
+    private func applySelection(at index: Int) {
+        let selection = self.segments[index].selection
+        self.updateSelection(selection)
+        self.onSelect(selection)
+    }
+
+    #if DEBUG
+    /// Simulates the runtime click path (mouseDown → mouseUp on this view) that the menu uses
+    /// in production, bypassing `NSButton.performClick`. Tests use this to cover the path that
+    /// regressed in issue #867.
+    @discardableResult
+    func _test_simulateRuntimeClick(buttonTag: Int) -> Bool {
+        guard self.segments.indices.contains(buttonTag) else { return false }
+        self.applySelection(at: buttonTag)
+        return true
+    }
+    #endif
 
     private func applyLayout(
         outerPadding: CGFloat,
@@ -508,14 +570,18 @@ final class ProviderSwitcherView: NSView {
         NSSize(width: self.preferredWidth, height: self.frame.size.height)
     }
 
+    func updateSelection(_ selection: ProviderSwitcherSelection) {
+        for (index, button) in self.buttons.enumerated() {
+            let isSelected = self.segments.indices.contains(index) && self.segments[index].selection == selection
+            button.state = isSelected ? .on : .off
+        }
+        self.updateButtonStyles()
+    }
+
     @objc private func handleSelection(_ sender: NSButton) {
         let index = sender.tag
         guard self.segments.indices.contains(index) else { return }
-        for (idx, button) in self.buttons.enumerated() {
-            button.state = (idx == index) ? .on : .off
-        }
-        self.updateButtonStyles()
-        self.onSelect(self.segments[index].selection)
+        self.applySelection(at: index)
     }
 
     private func updateButtonStyles() {
@@ -797,6 +863,7 @@ final class TokenAccountSwitcherView: NSView {
     private let onSelect: (Int) -> Task<Void, Never>?
     private var selectedIndex: Int
     private var buttons: [NSButton] = []
+    private let preferredSize: NSSize
     private let rowSpacing: CGFloat = 4
     private let rowHeight: CGFloat = 26
     private let selectedBackground = NSColor.controlAccentColor.cgColor
@@ -816,6 +883,7 @@ final class TokenAccountSwitcherView: NSView {
         let useTwoRows = accounts.count > 3
         let rows = useTwoRows ? 2 : 1
         let height = self.rowHeight * CGFloat(rows) + (useTwoRows ? self.rowSpacing : 0)
+        self.preferredSize = NSSize(width: width, height: height)
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: height))
         self.wantsLayer = true
         self.buildButtons(useTwoRows: useTwoRows)
@@ -825,6 +893,14 @@ final class TokenAccountSwitcherView: NSView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
+    }
+
+    override var intrinsicContentSize: NSSize {
+        self.preferredSize
+    }
+
+    override var fittingSize: NSSize {
+        self.preferredSize
     }
 
     private func buildButtons(useTwoRows: Bool) {
@@ -838,7 +914,7 @@ final class TokenAccountSwitcherView: NSView {
 
         let stack = NSStackView()
         stack.orientation = .vertical
-        stack.alignment = .centerX
+        stack.alignment = .width
         stack.spacing = self.rowSpacing
         stack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -862,6 +938,8 @@ final class TokenAccountSwitcherView: NSView {
                 button.setButtonType(.toggle)
                 button.controlSize = .small
                 button.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+                button.cell?.lineBreakMode = .byTruncatingTail
+                button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
                 button.wantsLayer = true
                 button.layer?.cornerRadius = 6
                 row.addArrangedSubview(button)
@@ -870,6 +948,7 @@ final class TokenAccountSwitcherView: NSView {
             }
 
             stack.addArrangedSubview(row)
+            row.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         }
 
         self.addSubview(stack)
@@ -921,6 +1000,7 @@ final class CodexAccountSwitcherView: NSView {
     private let onSelect: (String) -> Void
     private var selectedAccountID: String
     private var buttons: [NSButton] = []
+    private let preferredSize: NSSize
     private let rowSpacing: CGFloat = 4
     private let rowHeight: CGFloat = 26
     private let selectedBackground = NSColor.controlAccentColor.cgColor
@@ -943,6 +1023,7 @@ final class CodexAccountSwitcherView: NSView {
         let useTwoRows = accounts.count > 3
         let rows = useTwoRows ? 2 : 1
         let height = self.rowHeight * CGFloat(rows) + (useTwoRows ? self.rowSpacing : 0)
+        self.preferredSize = NSSize(width: width, height: height)
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: height))
         self.wantsLayer = true
         self.buildButtons(useTwoRows: useTwoRows)
@@ -952,6 +1033,14 @@ final class CodexAccountSwitcherView: NSView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
+    }
+
+    override var intrinsicContentSize: NSSize {
+        self.preferredSize
+    }
+
+    override var fittingSize: NSSize {
+        self.preferredSize
     }
 
     private func buildButtons(useTwoRows: Bool) {
@@ -964,7 +1053,7 @@ final class CodexAccountSwitcherView: NSView {
         }()
         let stack = NSStackView()
         stack.orientation = .vertical
-        stack.alignment = .centerX
+        stack.alignment = .width
         stack.spacing = self.rowSpacing
         stack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -989,6 +1078,8 @@ final class CodexAccountSwitcherView: NSView {
                 button.setButtonType(.toggle)
                 button.controlSize = .small
                 button.font = self.buttonFont
+                button.cell?.lineBreakMode = .byTruncatingTail
+                button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
                 button.wantsLayer = true
                 button.layer?.cornerRadius = 6
                 row.addArrangedSubview(button)
@@ -996,6 +1087,7 @@ final class CodexAccountSwitcherView: NSView {
             }
 
             stack.addArrangedSubview(row)
+            row.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         }
 
         self.addSubview(stack)

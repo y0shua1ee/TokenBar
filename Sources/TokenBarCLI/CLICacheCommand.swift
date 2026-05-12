@@ -2,7 +2,7 @@ import Commander
 import Foundation
 import TokenBarCore
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func runCacheClear(_ values: ParsedValues) {
         let output = CLIOutputPreferences.from(values: values)
         let cookies = values.flags.contains("cookies")
@@ -131,7 +131,7 @@ private struct CacheClearResult: Encodable {
     var error: String?
 }
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     /// Mirrors the cost usage cache directory used by the app (UsageStore.costUsageCacheDirectory).
     static func costUsageCacheDirectory(fileManager: FileManager = .default) -> URL {
         let root = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!

@@ -7,8 +7,8 @@ func showAbout() {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–"
     let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
     let versionString = build.isEmpty ? version : "\(version) (\(build))"
-    let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String
-    let gitCommit = Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String
+    let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "TokenBarBuildTimestamp") as? String
+    let gitCommit = Bundle.main.object(forInfoDictionaryKey: "TokenBarGitCommit") as? String
 
     let separator = NSAttributedString(string: " · ", attributes: [
         .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
@@ -21,14 +21,14 @@ func showAbout() {
         ])
     }
 
-    let credits = NSMutableAttributedString(string: "Peter Steinberger — MIT License\n")
-    credits.append(makeLink("GitHub", urlString: "https://github.com/steipete/TokenBar"))
+    let credits = NSMutableAttributedString(string: "Peter Steinberger — MIT License\nModified by Yoshua Lee\n")
+    credits.append(makeLink("GitHub", urlString: "https://github.com/y0shua1ee/TokenBar"))
     credits.append(separator)
-    credits.append(makeLink("Website", urlString: "https://codexbar.app"))
+    credits.append(makeLink("Original", urlString: "https://github.com/steipete/CodexBar"))
     credits.append(separator)
-    credits.append(makeLink("Twitter", urlString: "https://twitter.com/steipete"))
+    credits.append(makeLink("Twitter", urlString: "https://x.com/ever3never"))
     credits.append(separator)
-    credits.append(makeLink("Email", urlString: "mailto:peter@steipete.me"))
+    credits.append(makeLink("Email", urlString: "mailto:yuxiangl490@gmail.com"))
     if let buildTimestamp, let formatted = formattedBuildTimestamp(buildTimestamp) {
         var builtLine = "Built \(formatted)"
         if let gitCommit, !gitCommit.isEmpty, gitCommit != "unknown" {

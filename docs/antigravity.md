@@ -71,5 +71,5 @@ Antigravity is a local-only provider. We talk directly to the Antigravity langua
 - Local HTTPS uses a self-signed cert; the probe allows insecure TLS.
 
 ## Key files
-- `Sources/CodexBarCore/Providers/Antigravity/AntigravityStatusProbe.swift`
+- `Sources/TokenBarCore/Providers/Antigravity/AntigravityStatusProbe.swift`
 - `Sources/TokenBar/Providers/Antigravity/AntigravityProviderImplementation.swift`

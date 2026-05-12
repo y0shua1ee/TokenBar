@@ -224,7 +224,7 @@ struct ClaudeOAuthFetchStrategy: ProviderFetchStrategy {
 
         if let nonInteractiveRecord, hasRequiredScopeWithoutPrompt, nonInteractiveRecord.credentials.isExpired {
             switch nonInteractiveRecord.owner {
-            case .codexbar:
+            case .tokenbar:
                 let refreshToken = nonInteractiveRecord.credentials.refreshToken?
                     .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                 if sourceMode == .auto {
@@ -326,7 +326,8 @@ struct ClaudeWebFetchStrategy: ProviderFetchStrategy {
             browserDetection: browserDetection,
             dataSource: .web,
             useWebExtras: false,
-            manualCookieHeader: Self.manualCookieHeader(from: context))
+            manualCookieHeader: Self.manualCookieHeader(from: context),
+            webOrganizationID: context.settings?.claude?.organizationID)
         let usage = try await fetcher.loadLatestUsage(model: "sonnet")
         return self.makeResult(
             usage: ClaudeOAuthFetchStrategy.snapshot(from: usage),
@@ -377,6 +378,7 @@ struct ClaudeCLIFetchStrategy: ProviderFetchStrategy {
             dataSource: .cli,
             useWebExtras: self.useWebExtras,
             manualCookieHeader: self.manualCookieHeader,
+            webOrganizationID: context.settings?.claude?.organizationID,
             keepCLISessionsAlive: keepAlive)
         let usage = try await fetcher.loadLatestUsage(model: "sonnet")
         return self.makeResult(

@@ -93,7 +93,7 @@ struct ClaudeOAuthFetchStrategyAvailabilityTests {
         let context = self.makeContext(sourceMode: .auto)
         let strategy = ClaudeOAuthFetchStrategy()
         let available = await ClaudeOAuthFetchStrategy.$nonInteractiveCredentialRecordOverride
-            .withValue(self.expiredRecord(owner: .codexbar)) {
+            .withValue(self.expiredRecord(owner: .tokenbar)) {
                 await ClaudeOAuthFetchStrategy.$claudeCLIAvailableOverride.withValue(false) {
                     await strategy.isAvailable(context)
                 }
@@ -156,7 +156,7 @@ struct ClaudeOAuthFetchStrategyAvailabilityTests {
     func `auto mode only on user action background startup without cache is available for bootstrap`() async throws {
         let context = self.makeContext(sourceMode: .auto)
         let strategy = ClaudeOAuthFetchStrategy()
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
 
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
@@ -221,7 +221,7 @@ struct ClaudeOAuthFetchStrategyAvailabilityTests {
     func `auto mode default reader keeps background startup bootstrap available`() async throws {
         let context = self.makeContext(sourceMode: .auto)
         let strategy = ClaudeOAuthFetchStrategy()
-        let service = "com.steipete.codexbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
 
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)

@@ -74,7 +74,7 @@ Usage source picker:
   - `account/read`
   - `account/rateLimits/read`
 - RPC reads are bounded: initialization has a longer startup budget, and normal requests have a shorter per-method
-  timeout. On timeout, CodexBar terminates the child `codex app-server` process so the stdout reader unwinds instead
+  timeout. On timeout, TokenBar terminates the child `codex app-server` process so the stdout reader unwinds instead
   of leaving refresh stuck indefinitely.
 - Provides:
   - Usage windows (primary + secondary) with reset timestamps.

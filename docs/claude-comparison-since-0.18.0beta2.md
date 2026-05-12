@@ -68,7 +68,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["load(...)"] --> B["Environment token (CODEXBAR_CLAUDE_OAUTH_TOKEN)"]
+    A["load(...)"] --> B["Environment token (TOKENBAR_CLAUDE_OAUTH_TOKEN)"]
     B -->|miss| C["Memory cache (valid + unexpired)"]
     C -->|miss| D["TokenBar keychain cache: com.y0shua1ee.tokenbar.cache/oauth.claude"]
     D -->|miss| E["~/.claude/.credentials.json"]
@@ -197,12 +197,12 @@ stateDiagram-v2
 
 ## Related Files
 
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthRefreshFailureGate.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/KeychainAccessPreflight.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/KeychainNoUIQuery.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/BrowserCookieImportOrder.swift`
-- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/CodexBarCore/BrowserCookieAccessGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/Providers/Claude/ClaudeUsageFetcher.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/Providers/Claude/ClaudeProviderDescriptor.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthRefreshFailureGate.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/KeychainAccessPreflight.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/KeychainNoUIQuery.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/BrowserCookieImportOrder.swift`
+- `/Users/ratulsarna/Developer/staipete/TokenBar/Sources/TokenBarCore/BrowserCookieAccessGate.swift`

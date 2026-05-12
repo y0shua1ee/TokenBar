@@ -58,7 +58,7 @@ struct CustomAPIFetchStrategy: ProviderFetchStrategy {
         guard let baseURLStr = baseURL(context.env) else {
             throw CustomProviderError.missingBaseURL
         }
-        let displayName = context.env["CODEXBAR_CUSTOM_NAME"] ?? "Custom"
+        let displayName = context.env["TOKENBAR_CUSTOM_NAME"] ?? "Custom"
 
         let usage = try await CustomUsageFetcher.fetchUsage(
             apiKey: apiKey,
@@ -75,12 +75,12 @@ struct CustomAPIFetchStrategy: ProviderFetchStrategy {
     }
 
     private func resolveToken(_ env: [String: String]) -> String? {
-        if let val = env["CODEXBAR_CUSTOM_API_KEY"], !val.isEmpty { return val }
+        if let val = env["TOKENBAR_CUSTOM_API_KEY"], !val.isEmpty { return val }
         return nil
     }
 
     private func baseURL(_ env: [String: String]) -> String? {
-        if let val = env["CODEXBAR_CUSTOM_BASE_URL"], !val.isEmpty { return val }
+        if let val = env["TOKENBAR_CUSTOM_BASE_URL"], !val.isEmpty { return val }
         return nil
     }
 }
@@ -94,9 +94,9 @@ public enum CustomProviderError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingToken:
-            "Custom provider API token not configured. Set CODEXBAR_CUSTOM_API_KEY."
+            "Custom provider API token not configured. Set TOKENBAR_CUSTOM_API_KEY."
         case .missingBaseURL:
-            "Custom provider base URL not configured. Set CODEXBAR_CUSTOM_BASE_URL."
+            "Custom provider base URL not configured. Set TOKENBAR_CUSTOM_BASE_URL."
         case let .networkError(msg):
             "Custom provider network error: \(msg)"
         case let .apiError(msg):

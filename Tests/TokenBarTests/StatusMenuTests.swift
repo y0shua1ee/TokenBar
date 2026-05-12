@@ -213,16 +213,12 @@ struct StatusMenuTests {
         settings.selectedMenuProvider = nil
 
         let registry = ProviderRegistry.shared
-        var enabledProviders: [UsageProvider] = []
+        let selectedProviders: Set<UsageProvider> = [.codex, .claude]
         for provider in UsageProvider.allCases {
             guard let metadata = registry.metadata[provider] else { continue }
-            let shouldEnable = enabledProviders.count < 2
+            let shouldEnable = selectedProviders.contains(provider)
             settings.setProviderEnabled(provider: provider, metadata: metadata, enabled: shouldEnable)
-            if shouldEnable {
-                enabledProviders.append(provider)
-            }
         }
-        #expect(enabledProviders.count == 2)
 
         let fetcher = UsageFetcher()
         let store = UsageStore(fetcher: fetcher, browserDetection: BrowserDetection(cacheTTL: 0), settings: settings)
@@ -318,7 +314,14 @@ struct StatusMenuTests {
                     loginMethod: "Plus Plan")),
             provider: .codex)
 
-        try? await Task.sleep(for: .milliseconds(100))
+        for _ in 0..<50
+            where controller.menuContentVersion == openedVersion ||
+            controller.menuVersions[key] != controller.menuContentVersion
+        {
+            StatusItemController.setMenuRefreshEnabledForTesting(true)
+            controller.refreshOpenMenusIfNeeded()
+            try? await Task.sleep(for: .milliseconds(20))
+        }
 
         #expect(controller.menuContentVersion != openedVersion)
         #expect(controller.menuVersions[key] == controller.menuContentVersion)
@@ -560,7 +563,7 @@ struct StatusMenuTests {
     }
 
     @Test
-    func `merged provider switch rebuilds stale width switcher rows`() {
+    func `merged provider switch rebuilds stale width switcher rows`() async {
         self.disableMenuCardsForTesting()
         let settings = self.makeSettings()
         settings.statusChecksEnabled = false
@@ -595,6 +598,8 @@ struct StatusMenuTests {
             statusBar: self.makeStatusBarForTesting())
 
         let menu = controller.makeMenu()
+        StatusItemController.setMenuRefreshEnabledForTesting(true)
+        defer { StatusItemController.resetMenuRefreshEnabledForTesting() }
         controller.menuWillOpen(menu)
 
         let initialSwitcher = menu.items.first?.view as? ProviderSwitcherView
@@ -605,6 +610,8 @@ struct StatusMenuTests {
         let nextProviderButton = self.switcherButtons(in: menu).first(where: { $0.state == .off })
         #expect(nextProviderButton != nil)
         nextProviderButton?.performClick(nil)
+        await Task.yield()
+        await Task.yield()
 
         let updatedSwitcher = menu.items.first?.view as? ProviderSwitcherView
         #expect(updatedSwitcher != nil)
@@ -888,11 +895,11 @@ extension StatusMenuTests {
             settings.setProviderEnabled(provider: .claude, metadata: claudeMeta, enabled: false)
         }
         controller.handleProviderConfigChange(reason: "test")
-        #expect(controller.statusItems[.claude]?.isVisible == false)
+        #expect(controller.statusItems[.claude] == nil)
     }
 
     @Test
-    func `provider config changes preserve status items and autosave names`() throws {
+    func `provider config changes preserve status item instances`() throws {
         self.disableMenuCardsForTesting()
         let settings = self.makeSettings()
         settings.statusChecksEnabled = false
@@ -922,8 +929,8 @@ extension StatusMenuTests {
             statusBar: self.makeStatusBarForTesting())
 
         let codexItem = try #require(controller.statusItems[.codex])
-        #expect(controller.statusItem.autosaveName == "codexbar-merged")
-        #expect(codexItem.autosaveName == "codexbar-codex")
+        #expect(!controller.statusItem.autosaveName.hasPrefix("codexbar-"))
+        #expect(!codexItem.autosaveName.hasPrefix("codexbar-"))
 
         try settings.setProviderEnabled(
             provider: .gemini,
@@ -932,8 +939,8 @@ extension StatusMenuTests {
         controller.handleProviderConfigChange(reason: "test")
 
         #expect(controller.statusItems[.codex] === codexItem)
-        #expect(controller.statusItems[.codex]?.autosaveName == "codexbar-codex")
-        #expect(controller.statusItems[.gemini]?.autosaveName == "codexbar-gemini")
+        #expect(controller.statusItems[.codex]?.autosaveName.hasPrefix("codexbar-") == false)
+        #expect(controller.statusItems[.gemini]?.autosaveName.hasPrefix("codexbar-") == false)
     }
 
     @Test

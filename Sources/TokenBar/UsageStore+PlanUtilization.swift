@@ -272,7 +272,7 @@ extension UsageStore {
                 "usedPercent": String(format: "%.2f", currentUsed),
                 "observedAt": String(format: "%.0f", currentObservedAt.timeIntervalSince1970),
             ])
-        NotificationCenter.default.post(name: .codexbarWeeklyLimitReset, object: event)
+        NotificationCenter.default.post(name: .tokenbarWeeklyLimitReset, object: event)
     }
 
     private func planUtilizationSeriesSamples(

@@ -1,7 +1,7 @@
 import Foundation
 
 enum PiSessionCostCacheIO {
-    private static let artifactVersion = 1
+    private static let artifactVersion = 2
 
     private static func defaultCacheRoot() -> URL {
         let root = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
@@ -50,7 +50,7 @@ struct PiSessionCostCache: Codable {
     var daysByProvider: [String: [String: [String: PiPackedUsage]]] = [:]
     var files: [String: PiSessionFileUsage] = [:]
 
-    init(version: Int = 1) {
+    init(version: Int = 2) {
         self.version = version
     }
 }
@@ -76,6 +76,7 @@ struct PiPackedUsage: Codable, Equatable {
     var totalTokens: Int = 0
     var costNanos: Int64 = 0
     var costSampleCount: Int = 0
+    var usageSampleCount: Int?
 
     var isZero: Bool {
         self.inputTokens == 0
@@ -85,5 +86,6 @@ struct PiPackedUsage: Codable, Equatable {
             && self.totalTokens == 0
             && self.costNanos == 0
             && self.costSampleCount == 0
+            && (self.usageSampleCount ?? 0) == 0
     }
 }

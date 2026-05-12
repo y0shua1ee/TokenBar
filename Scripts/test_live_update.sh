@@ -8,7 +8,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PREV_VER=${PREV_TAG#v}
 APP_NAME="TokenBar"
 
-ZIP_URL="https://github.com/steipete/TokenBar/releases/download/${PREV_TAG}/${APP_NAME}-${PREV_VER}.zip"
+ZIP_URL="https://github.com/y0shua1ee/TokenBar/releases/download/${PREV_TAG}/${APP_NAME}-${PREV_VER}.zip"
 TMP_DIR=$(mktemp -d /tmp/tokenbar-live.XXXX)
 trap 'rm -rf "$TMP_DIR"' EXIT
 

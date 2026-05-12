@@ -1,7 +1,7 @@
 import Foundation
 import TokenBarCore
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func usageHelp(version: String) -> String {
         """
         TokenBar \(version)

@@ -51,7 +51,7 @@ read_when:
 
 ## Step-by-step implementation guide
 1. **Add validation types**
-   - `CodexBarConfigIssue` + `CodexBarConfigValidator` in `CodexBarCore/Config`.
+   - `CodexBarConfigIssue` + `CodexBarConfigValidator` in `TokenBarCore/Config`.
    - Keep file <500 LOC.
 2. **Hook validation into CLI**
    - New `config validate` command.
@@ -73,7 +73,6 @@ read_when:
    - Config validation (bad region/source/apiKey field).
    - SettingsStore order/toggle invariants still pass.
 8. **Verification**
-   - `swift test`, `swiftformat Sources Tests`, `swiftlint --strict`, `pnpm check`.
+   - `swift test`, `swiftformat Sources Tests`, `swiftlint --strict`, `make check`.
    - `./Scripts/compile_and_run.sh`.
    - CLI e2e: `codexbar --json-only ...`, `codexbar config validate`.
-

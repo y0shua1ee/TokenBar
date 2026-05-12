@@ -1149,7 +1149,7 @@ private final class WeeklyLimitResetEventRecorder: @unchecked Sendable {
         self.provider = provider
         self.accountLabel = accountLabel
         self.token = NotificationCenter.default.addObserver(
-            forName: .codexbarWeeklyLimitReset,
+            forName: .tokenbarWeeklyLimitReset,
             object: nil,
             queue: nil)
         { [weak self] notification in

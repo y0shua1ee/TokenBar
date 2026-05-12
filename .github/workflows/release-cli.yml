@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to upload assets to (for example, v0.24)."
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -39,6 +44,8 @@ jobs:
             build-arch: x86_64
             static-swift-stdlib: false
     runs-on: ${{ matrix.runs-on }}
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v6
 
@@ -175,9 +182,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          REF_NAME="${GITHUB_REF_NAME}"
+          REF_NAME="${RELEASE_TAG}"
           if [[ -z "$REF_NAME" ]]; then
-            echo "Missing tag (GITHUB_REF_NAME)." >&2
+            echo "Missing release tag." >&2
             exit 1
           fi
           SAFE_REF_NAME="${REF_NAME//\//-}"
@@ -207,22 +214,73 @@ jobs:
           echo "asset=$ASSET" >> "$GITHUB_OUTPUT"
 
       - name: Upload release assets
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || inputs.tag != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${RELEASE_TAG}"
           OUT_DIR="${{ steps.pkg.outputs.out_dir }}"
           ASSET="${{ steps.pkg.outputs.asset }}"
           gh release upload "$TAG" "$OUT_DIR/$ASSET" "$OUT_DIR/$ASSET.sha256" --clobber
 
       - name: Upload workflow artifact (manual runs)
-        if: github.event_name != 'release'
+        if: github.event_name != 'release' && inputs.tag == ''
         uses: actions/upload-artifact@v6
         with:
           name: tokenbar-cli-${{ matrix.name }}
           path: |
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}.sha256
+
+  update-homebrew-tap:
+    runs-on: ubuntu-latest
+    needs: build-cli
+    if: github.event_name == 'release' || inputs.tag != ''
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.tag || github.ref_name }}"
+          if [[ -z "$tag" ]]; then
+            echo "Missing release tag." >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "request_id=tokenbar-${tag}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch tap update
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          gh workflow run update-formula.yml \
+            --repo y0shua1ee/homebrew-tokenbar \
+            -f formula=tokenbar \
+            -f tag="${{ steps.release.outputs.tag }}" \
+            -f repository=y0shua1ee/TokenBar \
+            -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
+            -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
+            -f request_id="${{ steps.release.outputs.request_id }}"
+
+      - name: Wait for tap update
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for _ in {1..20}; do
+            run_id="$(gh run list --repo y0shua1ee/homebrew-tokenbar --workflow update-formula.yml --json databaseId,displayTitle --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' | head -n1)"
+            if [[ -n "$run_id" ]]; then
+              gh run watch "$run_id" --repo y0shua1ee/homebrew-tokenbar --exit-status
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for tap workflow to appear." >&2
+          exit 1

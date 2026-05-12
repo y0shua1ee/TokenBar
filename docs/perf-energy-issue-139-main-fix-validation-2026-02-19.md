@@ -10,7 +10,7 @@ Reference pre-fix report:
 ## Implemented Main Fix
 
 File changed:
-- /Users/michalkrsik/windsurf_project_folder/TokenBar/Sources/CodexBarCore/Providers/Codex/CodexStatusProbe.swift
+- /Users/michalkrsik/windsurf_project_folder/TokenBar/Sources/TokenBarCore/Providers/Codex/CodexStatusProbe.swift
 
 Behavior change:
 - Primary Codex PTY probe timeout reduced from 18s to 8s.
@@ -28,7 +28,7 @@ Practical simulation used:
   - exits immediately for `app-server` args (forces RPC failure/fallback path),
   - otherwise busy-loops with no `/status` output (simulates heavy stuck CLI PTY behavior).
 - Command run (3 times):
-  - `./.build/debug/CodexBarCLI usage --provider codex --source cli --format json --pretty`
+  - `./.build/debug/TokenBarCLI usage --provider codex --source cli --format json --pretty`
 - Collected:
   - wall time (`/usr/bin/time -p`),
   - sampled child CPU every 0.5s,

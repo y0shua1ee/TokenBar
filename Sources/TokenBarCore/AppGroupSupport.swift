@@ -5,7 +5,7 @@ import Security
 
 public enum AppGroupSupport {
     public static let defaultTeamID = "Y5PE65HELJ"
-    public static let teamIDInfoKey = "CodexBarTeamID"
+    public static let teamIDInfoKey = "TokenBarTeamID"
     public static let legacyReleaseGroupID = "group.com.y0shua1ee.tokenbar"
     public static let legacyDebugGroupID = "group.com.y0shua1ee.tokenbar.debug"
     public static let widgetSnapshotFilename = "widget-snapshot.json"

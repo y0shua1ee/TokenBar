@@ -21,7 +21,7 @@ public enum ClaudeOAuthKeychainReadStrategyPreference {
         }
         #if DEBUG
         if self.isRunningUnderTests,
-           ProcessInfo.processInfo.environment["CODEXBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1"
+           ProcessInfo.processInfo.environment["TOKENBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1"
         {
             return .securityFramework
         }

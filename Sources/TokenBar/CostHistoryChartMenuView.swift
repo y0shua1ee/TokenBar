@@ -60,6 +60,7 @@ struct CostHistoryChartMenuView: View {
                 Text("No cost history data.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("No cost history data available.")
             } else {
                 Chart {
                     ForEach(model.points) { point in
@@ -89,6 +90,8 @@ struct CostHistoryChartMenuView: View {
                 }
                 .chartLegend(.hidden)
                 .frame(height: 130)
+                .accessibilityLabel("Cost history chart")
+                .accessibilityValue(model.points.isEmpty ? "No data" : "\(model.points.count) days of cost data")
                 .chartOverlay { proxy in
                     GeometryReader { geo in
                         ZStack(alignment: .topLeading) {

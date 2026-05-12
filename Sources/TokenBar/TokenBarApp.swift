@@ -7,7 +7,7 @@ import SwiftUI
 import TokenBarCore
 
 @main
-struct CodexBarApp: App {
+struct TokenBarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var settings: SettingsStore
     @State private var store: UsageStore
@@ -19,7 +19,7 @@ struct CodexBarApp: App {
     init() {
         let env = ProcessInfo.processInfo.environment
         let storedLevel = CodexBarLog.parseLevel(UserDefaults.standard.string(forKey: "debugLogLevel")) ?? .verbose
-        let level = CodexBarLog.parseLevel(env["CODEXBAR_LOG_LEVEL"]) ?? storedLevel
+        let level = CodexBarLog.parseLevel(env["TOKENBAR_LOG_LEVEL"]) ?? storedLevel
         CodexBarLog.bootstrapIfNeeded(.init(
             destination: .oslog(subsystem: "com.y0shua1ee.tokenbar"),
             level: level,
@@ -27,8 +27,8 @@ struct CodexBarApp: App {
 
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
-        let gitCommit = Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String ?? "unknown"
-        let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String ?? "unknown"
+        let gitCommit = Bundle.main.object(forInfoDictionaryKey: "TokenBarGitCommit") as? String ?? "unknown"
+        let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "TokenBarBuildTimestamp") as? String ?? "unknown"
         CodexBarLog.logger(LogCategories.app).info(
             "TokenBar starting",
             metadata: [
@@ -43,6 +43,7 @@ struct CodexBarApp: App {
 
         let preferencesSelection = PreferencesSelection()
         let settings = SettingsStore()
+        Self.applyLanguagePreference(from: settings)
         let managedCodexAccountCoordinator = ManagedCodexAccountCoordinator()
         managedCodexAccountCoordinator.onManagedAccountsDidChange = {
             _ = settings.persistResolvedCodexActiveSourceCorrectionIfNeeded()
@@ -76,7 +77,7 @@ struct CodexBarApp: App {
     var body: some Scene {
         // Hidden 1×1 window to keep SwiftUI's lifecycle alive so `Settings` scene
         // shows the native toolbar tabs even though the UI is AppKit-based.
-        WindowGroup("CodexBarLifecycleKeepalive") {
+        WindowGroup("TokenBarLifecycleKeepalive") {
             HiddenWindowView()
         }
         .defaultSize(width: 20, height: 20)
@@ -89,7 +90,10 @@ struct CodexBarApp: App {
                 updater: self.appDelegate.updaterController,
                 selection: self.preferencesSelection,
                 managedCodexAccountCoordinator: self.managedCodexAccountCoordinator,
-                codexAccountPromotionCoordinator: self.codexAccountPromotionCoordinator)
+                codexAccountPromotionCoordinator: self.codexAccountPromotionCoordinator,
+                runProviderLoginFlow: { provider in
+                    await self.appDelegate.runProviderLoginFlow(provider)
+                })
         }
         .defaultSize(width: PreferencesTab.general.preferredWidth, height: PreferencesTab.general.preferredHeight)
         .windowResizability(.contentSize)
@@ -99,6 +103,15 @@ struct CodexBarApp: App {
         self.preferencesSelection.tab = tab
         NSApp.activate(ignoringOtherApps: true)
         _ = NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+    }
+
+    private static func applyLanguagePreference(from settings: SettingsStore) {
+        let language = settings.appLanguage
+        if language.isEmpty {
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+        } else {
+            UserDefaults.standard.set([language], forKey: "AppleLanguages")
+        }
     }
 }
 
@@ -314,7 +327,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(self.handleWeeklyLimitResetNotification(_:)),
-                name: .codexbarWeeklyLimitReset,
+                name: .tokenbarWeeklyLimitReset,
                 object: nil)
             self.hasInstalledWeeklyLimitResetObserver = true
         }
@@ -323,6 +336,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         self.confettiOverlayController.dismiss()
         TTYCommandRunner.terminateActiveProcessesForAppShutdown()
+    }
+
+    func runProviderLoginFlow(_ provider: UsageProvider) async {
+        self.ensureStatusController()
+        guard let statusController else { return }
+        await statusController.runLoginFlowFromSettings(provider: provider)
     }
 
     @objc private func handleWeeklyLimitResetNotification(_ notification: Notification) {

@@ -52,7 +52,7 @@ swiftlint --strict
 
 # Restart app after rebuild
 pkill -x TokenBar || pkill -f TokenBar.app || true
-cd /Users/steipete/Projects/codexbar && open -n /Users/steipete/Projects/codexbar/TokenBar.app
+cd /Users/areslee/Documents/TokenBar && open -n /Users/areslee/Documents/TokenBar/TokenBar.app
 ```
 
 ### Release
@@ -91,9 +91,9 @@ git push origin feature/my-feature
 
 ### Source Code
 - `Sources/TokenBar/` - Swift 6 menu bar app
-- `Sources/CodexBarCore/` - Core logic, providers, utilities
-- `Sources/CodexBarCore/Providers/Augment/` - Augment provider implementation
-- `Tests/CodexBarTests/` - XCTest coverage
+- `Sources/TokenBarCore/` - Core logic, providers, utilities
+- `Sources/TokenBarCore/Providers/Augment/` - Augment provider implementation
+- `Tests/TokenBarTests/` - XCTest coverage
 
 ### Scripts
 - `Scripts/compile_and_run.sh` - Main development script
@@ -122,7 +122,7 @@ git push origin feature/my-feature
 7. Push and create PR
 
 ### Debugging Augment Issues
-1. Enable debug logging: `export CODEXBAR_LOG_LEVEL=debug`
+1. Enable debug logging: `export TOKENBAR_LOG_LEVEL=debug`
 2. Check Console.app for "com.y0shua1ee.tokenbar"
 3. Use Settings → Debug → Augment → Show Debug Info
 4. Check `docs/augment.md` troubleshooting section
@@ -177,7 +177,7 @@ swiftlint --strict
 
 ### Keychain Permission Prompts
 - This fork includes fixes to eliminate prompts
-- If you still see prompts, check `Sources/CodexBarCore/Keychain/`
+- If you still see prompts, check `Sources/TokenBarCore/Keychain/`
 - Ensure you're running the latest build
 
 ---
@@ -186,8 +186,8 @@ swiftlint --strict
 
 ### Understanding the Codebase
 1. Start with `Sources/TokenBar/CodexbarApp.swift` - App entry point
-2. Review `Sources/CodexBarCore/UsageStore.swift` - Main state management
-3. Check `Sources/CodexBarCore/Providers/` - Provider implementations
+2. Review `Sources/TokenBarCore/UsageStore.swift` - Main state management
+3. Check `Sources/TokenBarCore/Providers/` - Provider implementations
 4. Read `docs/provider.md` - Provider authoring guide
 
 ### Swift 6 & SwiftUI
@@ -215,7 +215,7 @@ swiftlint --strict
 
 ### To Upstream
 1. Check if feature benefits all users
-2. Create PR to `steipete/TokenBar`
+2. Create PR to `steipete/CodexBar`
 3. Reference this fork if relevant
 4. Be patient with review process
 
@@ -230,7 +230,7 @@ See `docs/FORK_ROADMAP.md` for contribution strategy.
 - Email: [your-email]@topoffunnel.com
 
 ### Upstream Issues
-- GitHub Issues: https://github.com/steipete/TokenBar/issues
+- GitHub Issues: https://github.com/steipete/CodexBar/issues
 - Twitter: [@steipete](https://twitter.com/steipete)
 
 ---

@@ -6,8 +6,8 @@ enum ProviderBrandIcon {
 
     /// Lazy-loaded resource bundle for provider icons.
     private static let resourceBundle: Bundle? = {
-        // SwiftPM creates a CodexBar_CodexBar.bundle for resources in the TokenBar target.
-        if let bundleURL = Bundle.main.url(forResource: "CodexBar_CodexBar", withExtension: "bundle"),
+        // SwiftPM creates a TokenBar_TokenBar.bundle for resources in the TokenBar target.
+        if let bundleURL = Bundle.main.url(forResource: "TokenBar_TokenBar", withExtension: "bundle"),
            let bundle = Bundle(url: bundleURL)
         {
             return bundle
@@ -45,6 +45,14 @@ enum ProviderBrandIcon {
         case .codebuff: "terminal"
         case .krill: "fish"
         case .custom: "gearshape.2"
+        case .openai: "creditcard"
+        case .manus: "brain"
+        case .mimo: "m.circle"
+        case .doubao: "d.circle"
+        case .crof: "c.circle"
+        case .venice: "v.circle"
+        case .commandcode: "terminal.fill"
+        case .stepfun: "s.circle"
         case .antigravity: "arrow.up.and.down.and.sparkles"
         case .zai: "bolt"
         case .minimax: "m.square"

@@ -15,17 +15,16 @@ struct ProviderCostContent: View {
                     percent: percentUsed,
                     tint: self.progressColor,
                     accessibilityLabel: "Extra usage spent")
-                HStack(alignment: .firstTextBaseline) {
-                    Text(self.section.spendLine)
-                        .font(.footnote)
-                    Spacer()
-                    Text(String(format: "%.0f%% used", min(100, max(0, percentUsed))))
+            }
+            HStack(alignment: .firstTextBaseline) {
+                Text(self.section.spendLine)
+                    .font(.footnote)
+                Spacer()
+                if let percentLine = self.section.percentLine {
+                    Text(percentLine)
                         .font(.footnote)
                         .foregroundStyle(MenuHighlightStyle.secondary(self.isHighlighted))
                 }
-            } else {
-                Text(self.section.spendLine)
-                    .font(.footnote)
             }
         }
     }

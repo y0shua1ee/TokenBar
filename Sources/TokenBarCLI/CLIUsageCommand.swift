@@ -35,7 +35,7 @@ extension UsageCommandOutput {
     }
 }
 
-extension CodexBarCLI {
+extension TokenBarCLI {
     static func runUsage(_ values: ParsedValues) async {
         let output = CLIOutputPreferences.from(values: values)
         let config = Self.loadConfig(output: output)
@@ -412,7 +412,7 @@ extension CodexBarCLI {
     {
         var output = UsageCommandOutput()
         let error = NSError(
-            domain: "CodexBarCLI",
+            domain: "TokenBarCLI",
             code: 1,
             userInfo: [NSLocalizedDescriptionKey:
                 "Error: selected source requires web support and is only supported on macOS."])

@@ -2,9 +2,9 @@ import SwiftUI
 import TokenBarCore
 import WidgetKit
 
-struct CodexBarUsageWidgetView: View {
+struct TokenBarUsageWidgetView: View {
     @Environment(\.widgetFamily) private var family
-    let entry: CodexBarWidgetEntry
+    let entry: TokenBarWidgetEntry
 
     var body: some View {
         let providerEntry = self.entry.snapshot.entries.first { $0.provider == self.entry.provider }
@@ -44,9 +44,9 @@ struct CodexBarUsageWidgetView: View {
     }
 }
 
-struct CodexBarHistoryWidgetView: View {
+struct TokenBarHistoryWidgetView: View {
     @Environment(\.widgetFamily) private var family
-    let entry: CodexBarWidgetEntry
+    let entry: TokenBarWidgetEntry
 
     var body: some View {
         let providerEntry = self.entry.snapshot.entries.first { $0.provider == self.entry.provider }
@@ -74,8 +74,8 @@ struct CodexBarHistoryWidgetView: View {
     }
 }
 
-struct CodexBarCompactWidgetView: View {
-    let entry: CodexBarCompactEntry
+struct TokenBarCompactWidgetView: View {
+    let entry: TokenBarCompactEntry
 
     var body: some View {
         let providerEntry = self.entry.snapshot.entries.first { $0.provider == self.entry.provider }
@@ -103,9 +103,9 @@ struct CodexBarCompactWidgetView: View {
     }
 }
 
-struct CodexBarSwitcherWidgetView: View {
+struct TokenBarSwitcherWidgetView: View {
     @Environment(\.widgetFamily) private var family
-    let entry: CodexBarSwitcherEntry
+    let entry: TokenBarSwitcherEntry
 
     var body: some View {
         let providerEntry = self.entry.snapshot.entries.first { $0.provider == self.entry.provider }
@@ -258,6 +258,7 @@ private struct ProviderSwitchChip: View {
     private var shortLabel: String {
         switch self.provider {
         case .codex: "Codex"
+        case .openai: "OpenAI API"
         case .claude: "Claude"
         case .gemini: "Gemini"
         case .antigravity: "Anti"
@@ -269,6 +270,7 @@ private struct ProviderSwitchChip: View {
         case .factory: "Droid"
         case .copilot: "Copilot"
         case .minimax: "MiniMax"
+        case .manus: "Manus"
         case .vertexai: "Vertex"
         case .kilo: "Kilo"
         case .kiro: "Kiro"
@@ -283,12 +285,18 @@ private struct ProviderSwitchChip: View {
         case .warp: "Warp"
         case .windsurf: "Windsurf"
         case .perplexity: "Pplx"
+        case .mimo: "MiMo"
+        case .doubao: "Doubao"
         case .abacus: "Abacus"
         case .mistral: "Mistral"
         case .deepseek: "DeepSeek"
         case .codebuff: "Codebuff"
         case .custom: "Custom"
         case .krill: "Krill"
+        case .crof: "Crof"
+        case .venice: "Venice"
+        case .commandcode: "Command Code"
+        case .stepfun: "StepFun"
         }
     }
 }
@@ -600,6 +608,8 @@ enum WidgetColors {
         switch provider {
         case .codex:
             Color(red: 73 / 255, green: 163 / 255, blue: 176 / 255)
+        case .openai:
+            Color(red: 15 / 255, green: 130 / 255, blue: 110 / 255)
         case .claude:
             Color(red: 204 / 255, green: 124 / 255, blue: 94 / 255)
         case .gemini:
@@ -622,6 +632,8 @@ enum WidgetColors {
             Color(red: 168 / 255, green: 85 / 255, blue: 247 / 255) // Purple
         case .minimax:
             Color(red: 254 / 255, green: 96 / 255, blue: 60 / 255)
+        case .manus:
+            Color(red: 24 / 255, green: 24 / 255, blue: 24 / 255)
         case .vertexai:
             Color(red: 66 / 255, green: 133 / 255, blue: 244 / 255) // Google Blue
         case .kilo:
@@ -650,6 +662,10 @@ enum WidgetColors {
             Color(red: 52 / 255, green: 232 / 255, blue: 187 / 255) // Windsurf #34e8bb
         case .perplexity:
             Color(red: 32 / 255, green: 178 / 255, blue: 170 / 255) // Perplexity teal
+        case .mimo:
+            Color(red: 1.0, green: 105 / 255, blue: 0)
+        case .doubao:
+            Color(red: 45 / 255, green: 136 / 255, blue: 255 / 255) // Doubao blue
         case .abacus:
             Color(red: 56 / 255, green: 189 / 255, blue: 248 / 255)
         case .mistral:
@@ -662,6 +678,14 @@ enum WidgetColors {
             Color(red: 128 / 255, green: 128 / 255, blue: 128 / 255) // Neutral gray for custom
         case .krill:
             Color(red: 99 / 255, green: 102 / 255, blue: 241 / 255) // Krill indigo
+        case .crof:
+            Color(red: 46 / 255, green: 171 / 255, blue: 148 / 255)
+        case .venice:
+            Color(red: 51 / 255, green: 153 / 255, blue: 1.0)
+        case .commandcode:
+            Color(red: 0, green: 0, blue: 0)
+        case .stepfun:
+            Color(red: 255 / 255, green: 140 / 255, blue: 0 / 255) // StepFun orange
         }
     }
 }
@@ -707,6 +731,7 @@ enum WidgetFormat {
 
     static func relativeDate(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: "en_US")
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
     }

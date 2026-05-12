@@ -10,11 +10,11 @@ read_when:
 z.ai is API-token based. No browser cookies.
 
 ## Token sources (fallback order)
-1) Config token (`~/.codexbar/config.json` → `providers[].apiKey`).
+1) Config token (`~/.tokenbar/config.json` → `providers[].apiKey`).
 2) Environment variable `Z_AI_API_KEY`.
 
 ### Config location
-- `~/.codexbar/config.json`
+- `~/.tokenbar/config.json`
 
 ## API endpoint
 - `GET https://api.z.ai/api/monitor/usage/quota/limit`
@@ -40,6 +40,6 @@ z.ai is API-token based. No browser cookies.
   - `usageDetails[]` per model (MCP usage list).
 
 ## Key files
-- `Sources/CodexBarCore/Providers/Zai/ZaiUsageStats.swift`
-- `Sources/CodexBarCore/Providers/Zai/ZaiSettingsReader.swift`
+- `Sources/TokenBarCore/Providers/Zai/ZaiUsageStats.swift`
+- `Sources/TokenBarCore/Providers/Zai/ZaiSettingsReader.swift`
 - `Sources/TokenBar/ZaiTokenStore.swift` (legacy migration helper)

@@ -69,7 +69,7 @@ struct BrowserDetectionTests {
 
     @Test
     func `process filters chromium candidates despite false global keychain override`() throws {
-        guard ProcessInfo.processInfo.environment["CODEXBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
+        guard ProcessInfo.processInfo.environment["TOKENBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
         KeychainAccessGate.resetOverrideForTesting()
         defer { KeychainAccessGate.resetOverrideForTesting() }
 
@@ -93,6 +93,37 @@ struct BrowserDetectionTests {
         let detection = BrowserDetection(homeDirectory: temp.path, cacheTTL: 0)
         let browsers: [Browser] = [.chrome, .safari]
         #expect(browsers.cookieImportCandidates(using: detection) == [.safari])
+    }
+
+    @Test
+    func `keychain interaction suppresses chromium cookie source during cooldown`() {
+        BrowserCookieAccessGate.resetForTesting()
+        defer { BrowserCookieAccessGate.resetForTesting() }
+
+        let start = Date(timeIntervalSince1970: 1000)
+        var preflightCount = 0
+
+        KeychainAccessGate.withTaskOverrideForTesting(false) {
+            KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting { _, _ in
+                preflightCount += 1
+                return .interactionRequired
+            } operation: {
+                #expect(BrowserCookieAccessGate.shouldAttempt(.chrome, now: start) == false)
+            }
+
+            KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting { _, _ in
+                preflightCount += 1
+                return .allowed
+            } operation: {
+                #expect(BrowserCookieAccessGate.shouldAttempt(.chrome, now: start.addingTimeInterval(60)) == false)
+                #expect(
+                    BrowserCookieAccessGate.shouldAttempt(
+                        .chrome,
+                        now: start.addingTimeInterval((60 * 60 * 6) + 1)) == true)
+            }
+        }
+
+        #expect(preflightCount == 2)
     }
 
     @Test

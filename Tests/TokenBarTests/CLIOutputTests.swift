@@ -12,7 +12,7 @@ struct CLIOutputTests {
 
     @Test
     func `cli error payload is JSON array`() throws {
-        let payload = CodexBarCLI.makeCLIErrorPayload(
+        let payload = TokenBarCLI.makeCLIErrorPayload(
             message: "Nope",
             code: .failure,
             kind: .args,
@@ -29,8 +29,8 @@ struct CLIOutputTests {
 
     @Test
     func `exit omits generic error when command already emitted payload`() {
-        #expect(!CodexBarCLI.shouldPrintExitError(code: .success, message: nil))
-        #expect(!CodexBarCLI.shouldPrintExitError(code: .failure, message: nil))
-        #expect(CodexBarCLI.shouldPrintExitError(code: .failure, message: "Nope"))
+        #expect(!TokenBarCLI.shouldPrintExitError(code: .success, message: nil))
+        #expect(!TokenBarCLI.shouldPrintExitError(code: .failure, message: nil))
+        #expect(TokenBarCLI.shouldPrintExitError(code: .failure, message: "Nope"))
     }
 }

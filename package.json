@@ -1,10 +1,10 @@
 {
-  "name": "codexbar",
+  "name": "tokenbar",
   "private": true,
   "scripts": {
     "start": "./Scripts/compile_and_run.sh",
     "start:debug": "./Scripts/compile_and_run.sh",
-    "start:release": "sh -c './Scripts/package_app.sh release && (pkill -x TokenBar || pkill -f TokenBar.app || true) && cd /Users/steipete/Projects/codexbar && open -n /Users/steipete/Projects/codexbar/TokenBar.app'",
+    "start:release": "sh -c './Scripts/package_app.sh release && (pkill -x TokenBar || pkill -f TokenBar.app || true) && cd /Users/areslee/Documents/TokenBar && open -n /Users/areslee/Documents/TokenBar/TokenBar.app'",
     "lint": "./Scripts/lint.sh lint",
     "format": "./Scripts/lint.sh format",
     "check": "./Scripts/lint.sh lint",

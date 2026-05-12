@@ -14,6 +14,7 @@ extension UsageStore {
         _ = self.lastSourceLabels
         _ = self.lastFetchAttempts
         _ = self.accountSnapshots
+        _ = self.codexAccountSnapshots
         _ = self.tokenSnapshots
         _ = self.tokenErrors
         _ = self.tokenRefreshInFlight
@@ -53,6 +54,9 @@ extension UsageStore {
             _ = self.settings.refreshFrequency
             _ = self.settings.statusChecksEnabled
             _ = self.settings.sessionQuotaNotificationsEnabled
+            _ = self.settings.quotaWarningNotificationsEnabled
+            _ = self.settings.quotaWarningThresholds
+            _ = self.settings.quotaWarningSoundEnabled
             _ = self.settings.usageBarsShowUsed
             _ = self.settings.costUsageEnabled
             _ = self.settings.randomBlinkEnabled
@@ -60,7 +64,7 @@ extension UsageStore {
             for implementation in ProviderCatalog.all {
                 implementation.observeSettings(self.settings)
             }
-            _ = self.settings.showAllTokenAccountsInMenu
+            _ = self.settings.multiAccountMenuLayout
             _ = self.settings.tokenAccountsByProvider
             _ = self.settings.mergeIcons
             _ = self.settings.selectedMenuProvider
@@ -126,6 +130,7 @@ final class UsageStore {
     var lastSourceLabels: [UsageProvider: String] = [:]
     var lastFetchAttempts: [UsageProvider: [ProviderFetchAttempt]] = [:]
     var accountSnapshots: [UsageProvider: [TokenAccountUsageSnapshot]] = [:]
+    var codexAccountSnapshots: [CodexAccountUsageSnapshot] = []
     var tokenSnapshots: [UsageProvider: CostUsageTokenSnapshot] = [:]
     var tokenErrors: [UsageProvider: String] = [:]
     var tokenRefreshInFlight: Set<UsageProvider> = []
@@ -213,6 +218,7 @@ final class UsageStore {
     @ObservationIgnored var lastKnownResetSnapshots: [UsageProvider: UsageSnapshot] = [:]
     @ObservationIgnored var lastKnownSessionRemaining: [UsageProvider: Double] = [:]
     @ObservationIgnored var lastKnownSessionWindowSource: [UsageProvider: SessionQuotaWindowSource] = [:]
+    @ObservationIgnored var quotaWarningState: [QuotaWarningStateKey: QuotaWarningState] = [:]
     @ObservationIgnored var lastTokenFetchAt: [UsageProvider: Date] = [:]
     @ObservationIgnored var planUtilizationHistory: [UsageProvider: PlanUtilizationHistoryBuckets] = [:]
     @ObservationIgnored var weeklyLimitResetDetectorStates: [String: WeeklyLimitResetDetectorState] = [:]
@@ -618,6 +624,16 @@ final class UsageStore {
         case copilotSecondaryFallback
     }
 
+    struct QuotaWarningStateKey: Hashable {
+        let provider: UsageProvider
+        let window: QuotaWarningWindow
+    }
+
+    struct QuotaWarningState {
+        var lastRemaining: Double?
+        var firedThresholds: Set<Int> = []
+    }
+
     private func sessionQuotaWindow(
         provider: UsageProvider,
         snapshot: UsageSnapshot) -> (window: RateWindow, source: SessionQuotaWindowSource)?
@@ -713,6 +729,58 @@ final class UsageStore {
         self.sessionQuotaNotifier.post(transition: transition, provider: provider, badge: nil)
     }
 
+    func handleQuotaWarningTransitions(provider: UsageProvider, snapshot: UsageSnapshot) {
+        guard self.settings.quotaWarningNotificationsEnabled else { return }
+
+        self.handleQuotaWarningTransition(provider: provider, window: .session, rateWindow: snapshot.primary)
+        self.handleQuotaWarningTransition(provider: provider, window: .weekly, rateWindow: snapshot.secondary)
+    }
+
+    private func handleQuotaWarningTransition(
+        provider: UsageProvider,
+        window: QuotaWarningWindow,
+        rateWindow: RateWindow?)
+    {
+        let key = QuotaWarningStateKey(provider: provider, window: window)
+        guard self.settings.quotaWarningEnabled(provider: provider, window: window) else {
+            self.quotaWarningState.removeValue(forKey: key)
+            return
+        }
+        guard let rateWindow else {
+            self.quotaWarningState.removeValue(forKey: key)
+            return
+        }
+
+        let thresholds = self.settings.resolvedQuotaWarningThresholds(provider: provider, window: window)
+        let currentRemaining = rateWindow.remainingPercent
+        var state = self.quotaWarningState[key] ?? QuotaWarningState()
+        let cleared = QuotaWarningNotificationLogic.thresholdsToClear(
+            currentRemaining: currentRemaining,
+            alreadyFired: state.firedThresholds)
+        state.firedThresholds.subtract(cleared)
+
+        if let threshold = QuotaWarningNotificationLogic.crossedThreshold(
+            previousRemaining: state.lastRemaining,
+            currentRemaining: currentRemaining,
+            thresholds: thresholds,
+            alreadyFired: state.firedThresholds)
+        {
+            state.firedThresholds.formUnion(QuotaWarningNotificationLogic.firedThresholdsAfterWarning(
+                threshold: threshold,
+                thresholds: thresholds))
+            self.sessionQuotaNotifier.postQuotaWarning(
+                event: QuotaWarningEvent(
+                    window: window,
+                    threshold: threshold,
+                    currentRemaining: currentRemaining),
+                provider: provider,
+                soundEnabled: self.settings.quotaWarningSoundEnabled)
+        }
+
+        state.lastRemaining = currentRemaining
+        self.quotaWarningState[key] = state
+    }
+
     private func refreshStatus(_ provider: UsageProvider) async {
         guard self.settings.statusChecksEnabled else { return }
         guard let meta = self.providerMetadata[provider] else { return }
@@ -747,7 +815,7 @@ extension UsageStore {
             browserDetection: self.browserDetection,
             keepCLISessionsAlive: self.settings.debugKeepCLISessionsAlive)
         let output = await fetcher.debugRawProbe(model: "sonnet")
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("codexbar-claude-probe.txt")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("tokenbar-claude-probe.txt")
         try? output.write(to: url, atomically: true, encoding: .utf8)
         await MainActor.run {
             let snippet = String(output.prefix(180)).replacingOccurrences(of: "\n", with: " ")
@@ -758,7 +826,7 @@ extension UsageStore {
 
     func dumpLog(toFileFor provider: UsageProvider) async -> URL? {
         let text = await self.debugLog(for: provider)
-        let filename = "codexbar-\(provider.rawValue)-probe.txt"
+        let filename = "tokenbar-\(provider.rawValue)-probe.txt"
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(filename)
         do {
             try text.write(to: url, atomically: true, encoding: .utf8)
@@ -801,12 +869,8 @@ extension UsageStore {
         let ollamaCookieSource = self.settings.ollamaCookieSource
         let ollamaCookieHeader = self.settings.ollamaCookieHeader
         let processEnvironment = self.environmentBase
-        let openRouterConfigToken = self.settings.providerConfig(for: .openrouter)?.sanitizedAPIKey
-        let openRouterHasEnvToken = OpenRouterSettingsReader.apiToken(environment: processEnvironment) != nil
-        let openRouterEnvironment = ProviderConfigEnvironment.applyAPIKeyOverride(
-            base: processEnvironment,
-            provider: .openrouter,
-            config: self.settings.providerConfig(for: .openrouter))
+        let openAIDebugContext = self.openAIAPIKeyDebugContext(processEnvironment: processEnvironment)
+        let openRouterDebugContext = self.openRouterAPIKeyDebugContext(processEnvironment: processEnvironment)
         let deepSeekHasEnvToken = DeepSeekSettingsReader.apiKey(environment: processEnvironment) != nil
         let deepSeekHasTokenAccount = self.settings.selectedTokenAccount(for: .deepseek) != nil
         let deepSeekEnvironment = ProviderRegistry.makeEnvironment(
@@ -825,17 +889,25 @@ extension UsageStore {
                 .alibaba: "Alibaba Coding Plan debug log not yet implemented",
                 .factory: "Droid debug log not yet implemented",
                 .copilot: "Copilot debug log not yet implemented",
+                .manus: "Manus debug log not yet implemented",
                 .vertexai: "Vertex AI debug log not yet implemented",
                 .kilo: "Kilo debug log not yet implemented",
                 .kiro: "Kiro debug log not yet implemented",
                 .kimi: "Kimi debug log not yet implemented",
                 .kimik2: "Kimi K2 debug log not yet implemented",
                 .jetbrains: "JetBrains AI debug log not yet implemented",
+                .mimo: "Xiaomi MiMo debug log not yet implemented",
+                .doubao: "Doubao debug log not yet implemented",
+                .venice: "Venice debug log not yet implemented",
+                .commandcode: "Command Code debug log not yet implemented",
+                .stepfun: "StepFun debug log not yet implemented",
             ]
             let buildText = {
                 switch provider {
                 case .codex:
                     return await codexFetcher.debugRawRateLimits()
+                case .openai:
+                    return Self.apiKeyDebugLine(openAIDebugContext)
                 case .claude:
                     guard let claudeDebugConfiguration else {
                         return "Claude debug log configuration unavailable"
@@ -886,11 +958,7 @@ extension UsageStore {
                         ollamaCookieSource: ollamaCookieSource,
                         ollamaCookieHeader: ollamaCookieHeader)
                 case .openrouter:
-                    return Self.apiKeyDebugLine(
-                        label: "OPENROUTER_API_KEY",
-                        resolution: ProviderTokenResolver.openRouterResolution(environment: openRouterEnvironment),
-                        configToken: openRouterConfigToken,
-                        hasEnvToken: openRouterHasEnvToken)
+                    return Self.apiKeyDebugLine(openRouterDebugContext)
                 case .warp:
                     let resolution = ProviderTokenResolver.warpResolution()
                     let hasAny = resolution != nil
@@ -903,8 +971,9 @@ extension UsageStore {
                         configToken: nil,
                         hasEnvToken: deepSeekHasEnvToken,
                         hasTokenAccount: deepSeekHasTokenAccount)
-                case .gemini, .antigravity, .opencode, .opencodego, .factory, .copilot, .vertexai, .kilo, .kiro, .kimi,
-                     .kimik2, .jetbrains, .perplexity, .abacus, .mistral, .codebuff, .windsurf, .custom, .krill:
+                case .gemini, .antigravity, .opencode, .opencodego, .factory, .copilot, .vertexai, .kilo, .kiro,
+                     .kimi, .kimik2, .jetbrains, .perplexity, .mimo, .doubao, .abacus, .mistral, .codebuff, .crof,
+                     .windsurf, .venice, .manus, .commandcode, .stepfun, .custom, .krill:
                     return unimplementedDebugLogMessages[provider] ?? "Debug log not yet implemented"
                 }
             }
@@ -1023,6 +1092,51 @@ extension UsageStore {
             interaction: ProviderInteractionContext.current,
             refreshPhase: ProviderRefreshContext.current)
         #endif
+    }
+
+    private struct APIKeyDebugContext {
+        let label: String
+        let resolution: ProviderTokenResolution?
+        let configToken: String?
+        let hasEnvToken: Bool
+        let hasTokenAccount: Bool
+    }
+
+    private func openAIAPIKeyDebugContext(processEnvironment: [String: String]) -> APIKeyDebugContext {
+        let config = self.settings.providerConfig(for: .openai)
+        let environment = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: processEnvironment,
+            provider: .openai,
+            config: config)
+        return APIKeyDebugContext(
+            label: "OPENAI_API_KEY",
+            resolution: ProviderTokenResolver.openAIAPIResolution(environment: environment),
+            configToken: config?.sanitizedAPIKey,
+            hasEnvToken: OpenAIAPISettingsReader.apiKey(environment: processEnvironment) != nil,
+            hasTokenAccount: false)
+    }
+
+    private func openRouterAPIKeyDebugContext(processEnvironment: [String: String]) -> APIKeyDebugContext {
+        let config = self.settings.providerConfig(for: .openrouter)
+        let environment = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: processEnvironment,
+            provider: .openrouter,
+            config: config)
+        return APIKeyDebugContext(
+            label: "OPENROUTER_API_KEY",
+            resolution: ProviderTokenResolver.openRouterResolution(environment: environment),
+            configToken: config?.sanitizedAPIKey,
+            hasEnvToken: OpenRouterSettingsReader.apiToken(environment: processEnvironment) != nil,
+            hasTokenAccount: false)
+    }
+
+    private nonisolated static func apiKeyDebugLine(_ context: APIKeyDebugContext) -> String {
+        self.apiKeyDebugLine(
+            label: context.label,
+            resolution: context.resolution,
+            configToken: context.configToken,
+            hasEnvToken: context.hasEnvToken,
+            hasTokenAccount: context.hasTokenAccount)
     }
 
     private nonisolated static func apiKeyDebugLine(

@@ -15,7 +15,7 @@ import FoundationNetworking
 #endif
 
 @main
-enum CodexBarCLI {
+enum TokenBarCLI {
     static func main() {
         trace("main:start")
         let rawArgv = Array(CommandLine.arguments.dropFirst())
