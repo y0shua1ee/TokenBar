@@ -140,12 +140,20 @@ extension StatusItemController {
             return true
         }
 
+        let modelBreakdownLoader: ((String) async -> [CostUsageDailyReport.ModelBreakdown]?)? = if provider == .krill {
+            { [weak store = self.store] dayKey in
+                await store?.loadCostModelBreakdowns(provider: provider, dayKey: dayKey)
+            }
+        } else {
+            nil
+        }
         let chartView = CostHistoryChartMenuView(
             provider: provider,
             daily: tokenSnapshot.daily,
             totalCostUSD: tokenSnapshot.last30DaysCostUSD,
             currencyCode: tokenSnapshot.costCurrencyCode,
-            width: width)
+            width: width,
+            loadModelBreakdowns: modelBreakdownLoader)
         let hosting = MenuHostingView(rootView: chartView)
         let controller = NSHostingController(rootView: chartView)
         let size = controller.sizeThatFits(in: CGSize(width: width, height: .greatestFiniteMagnitude))

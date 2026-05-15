@@ -14,7 +14,7 @@ request stats, and cost usage through Krill's own API.
 
 ## Data sources
 
-All Krill data goes through `https://www.krill-ai.com/api/`. Authentication uses a JWT
+All Krill management data goes through `https://api.krill-ai.com/api/`. Authentication uses a JWT
 obtained via WebView login and stored in the macOS Keychain.
 
 ### Auth & login
@@ -38,7 +38,10 @@ obtained via WebView login and stored in the macOS Keychain.
 - `POST /api/request-logs/stats` with 30-day + today windows (2 requests).
 - Returns aggregate cost, tokens, requests, and a trend array.
 - The trend data powers the Cost history chart in the menu.
-- Does **not** scan full 30-day request logs. For today's hover model rows only, TokenBar may fetch raw `POST /api/request-logs` pages, capped at 80 pages / 8,000 rows and cached for 10 minutes; failures, 429s, or larger days fall back to aggregate-only display.
+- `POST /api/request-logs/model-stats` powers hover model rows with aggregate per-model cost/tokens, avoiding raw-log pagination on normal refreshes.
+- Today model rows load during normal Krill cost refresh and cache for 10 minutes.
+- Historical bar model rows load on demand when the user hovers a day in the Cost history chart and cache for 6 hours.
+- Raw `POST /api/request-logs` pages remain a compatibility fallback for model rows, capped at 80 pages / 8,000 rows; failures, 429s, or larger days fall back to aggregate-only display.
 
 ### Active subscription quota
 

@@ -53,6 +53,20 @@ public enum KrillAPIClient: Sendable {
         return try JSONDecoder().decode(KrillStatsResponse.self, from: data)
     }
 
+    public static func fetchModelStats(
+        jwt: String,
+        startTime: Date,
+        endTime: Date) async throws -> KrillModelStatsResponse
+    {
+        let url = self.urlFor("/api/request-logs/model-stats")
+        let body: [String: Any] = [
+            "start_time": self.iso8601String(startTime),
+            "end_time": self.iso8601String(endTime),
+        ]
+        let data = try await post(url: url, jwt: jwt, body: jsonBody(body))
+        return try JSONDecoder().decode(KrillModelStatsResponse.self, from: data)
+    }
+
     // MARK: - Request Logs
 
     public static func fetchRequestLogs(

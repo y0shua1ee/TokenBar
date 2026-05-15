@@ -67,6 +67,43 @@ struct KrillCostUsageFetcherTests {
     }
 
     @Test
+    func `builds day ranges for on demand Krill model stats`() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(secondsFromGMT: 0))
+        let now = try #require(calendar.date(from: DateComponents(
+            year: 2026,
+            month: 5,
+            day: 5,
+            hour: 10,
+            minute: 30)))
+
+        let historical = try #require(KrillCostUsageFetcher.dayRange(
+            for: "2026-05-04",
+            now: now,
+            calendar: calendar))
+        #expect(historical.startTime == calendar.date(from: DateComponents(
+            year: 2026,
+            month: 5,
+            day: 4)))
+        #expect(historical.endTime == calendar.date(from: DateComponents(
+            year: 2026,
+            month: 5,
+            day: 5)))
+
+        let today = try #require(KrillCostUsageFetcher.dayRange(
+            for: "2026-05-05",
+            now: now,
+            calendar: calendar))
+        #expect(today.startTime == calendar.date(from: DateComponents(
+            year: 2026,
+            month: 5,
+            day: 5)))
+        #expect(today.endTime == now)
+        #expect(KrillCostUsageFetcher.dayRange(for: "2026-05-06", now: now, calendar: calendar) == nil)
+        #expect(KrillCostUsageFetcher.dayRange(for: "bad", now: now, calendar: calendar) == nil)
+    }
+
+    @Test
     func `builds chart entries from adaptive Krill trend buckets`() throws {
         let json = """
         {
@@ -113,6 +150,50 @@ struct KrillCostUsageFetcherTests {
         #expect(entries[1].date == "2026-05-04")
         #expect(entries[1].totalTokens == 500)
         #expect(abs((entries[1].costUSD ?? 0) - 0.05) < 0.000000001)
+    }
+
+    @Test
+    func `builds model breakdowns from Krill model stats response`() throws {
+        let json = """
+        {
+          "success": true,
+          "code": 0,
+          "data": {
+            "items": [
+              {
+                "model": "deepseek-v4-flash",
+                "request_count": 56922,
+                "total_tokens": "81927506",
+                "total_cost_usd": "103.11546199999999373630998886"
+              },
+              {
+                "model": "claude-sonnet-4-20250514",
+                "request_count": "10",
+                "total_tokens": 2000,
+                "total_cost_usd": 15.5
+              },
+              {
+                "model": "   ",
+                "request_count": 1,
+                "total_tokens": 1,
+                "total_cost_usd": "0.01"
+              }
+            ]
+          }
+        }
+        """
+        let response = try JSONDecoder().decode(KrillModelStatsResponse.self, from: Data(json.utf8))
+        let items = try #require(response.data?.items)
+
+        let breakdowns = KrillCostUsageFetcher.modelBreakdowns(from: items)
+
+        #expect(breakdowns.count == 2)
+        #expect(breakdowns[0].modelName == "deepseek-v4-flash")
+        #expect(abs((breakdowns[0].costUSD ?? 0) - 103.11546199999999) < 0.000000001)
+        #expect(breakdowns[0].totalTokens == 81_927_506)
+        #expect(breakdowns[1].modelName == "claude-sonnet-4-20250514")
+        #expect(abs((breakdowns[1].costUSD ?? 0) - 15.5) < 0.000000001)
+        #expect(breakdowns[1].totalTokens == 2000)
     }
 
     @Test
