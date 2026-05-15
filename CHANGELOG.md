@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.25.1 — 2026-05-15 / upstream CodexBar 0.25.1 — 2026-05-11
+
+### TokenBar Fork
+- Sync upstream CodexBar 0.25.1 into the TokenBar fork while preserving TokenBar branding, config namespace, adhoc release metadata, and local Custom/Krill providers.
+- Krill: use `request-logs/model-stats` for Cost history model distribution rows, preload Today during refresh, and load historical bar breakdowns on hover with per-day caching.
+- Krill: keep the normal Cost history refresh lightweight by using aggregate `request-logs/stats` for 30-day trends and avoiding full raw-log scans.
+
+### Highlights
+- Add Simplified Chinese localization, in-app language selection, quota warning controls, VoiceOver labels, and better balance-style menu bar text.
+- Add or expand providers for Manus, MiMo, Qwen, Doubao, Command Code, StepFun, Crof, Venice, OpenAI API balance, Antigravity, MiniMax multi-service quotas, and Factory Droid billing limits.
+- Add live models.dev pricing metadata for Cost history, preserve tiered pricing boundaries, and keep large Codex/Claude scans incremental.
+- Improve Codex multi-account switchers, official Pro 5x/Pro 20x labels, CLI release version fallback, and packaged Settings localization stability.
+
+### Fixes
+- Reduce development Keychain prompt churn and rebuild stale Pi session cost caches after cache-version migrations.
+- Fix menu switcher tab routing, hidden/stale status items, menu widening from long Codex account labels, display picker crash, and hosted submenu rebuild stability.
+- Improve DeepSeek balance currency handling, Vertex AI service-account ADC, Gemini curl timeout fallback, Homebrew Gemini OAuth bundle detection, and Alibaba INTL quota messaging.
+
 ## 0.24.5 — 2026-05-07
 
 ### Providers & Usage
