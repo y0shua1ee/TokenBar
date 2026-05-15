@@ -45,7 +45,7 @@ struct MenuCardDeepSeekTests {
             now: now))
 
         let primary = try #require(model.metrics.first)
-        #expect(primary.title == "Balance")
+        #expect(primary.title == "Recharge balance")
         #expect(primary.statusText == "$9.32 (Paid: $9.32 / Granted: $0.00)")
         #expect(primary.detailText == nil)
         #expect(primary.resetText == nil)

@@ -46,6 +46,7 @@ jobs:
           swift test --parallel \
             --skip ClaudeOAuthCredentialsStoreSecurityCLITests \
             --skip CLIOpenAIDashboardCacheTests \
+            --skip CodexAccountPromotionServiceTests \
             --skip CodexAccountScopedRefreshDashboardCleanupTests \
             --skip CodexAccountScopedRefreshTests \
             --skip CodexBaselineCharacterizationTests \
@@ -60,7 +61,7 @@ jobs:
             --skip StatusMenuTokenAccountSwitcherTests \
             --skip SubprocessRunnerTests
           swift test --no-parallel \
-            --filter 'ClaudeOAuthCredentialsStoreSecurityCLITests|CLIOpenAIDashboardCacheTests|CodexAccountScopedRefreshDashboardCleanupTests|CodexAccountScopedRefreshTests|CodexBaselineCharacterizationTests|CodexDashboardWorkedExampleParityTests|CodexUsageFetcherFallbackTests|CodexWebDashboardStrategyAuthorityTests|OpenAIDashboardNavigationDelegateTests|StatusMenuCodexSwitcherTests|StatusMenuHostedSubmenuRefreshTests|StatusMenuSwitcherClickTests|StatusMenuTests|SubprocessRunnerTests'
+            --filter 'ClaudeOAuthCredentialsStoreSecurityCLITests|CLIOpenAIDashboardCacheTests|CodexAccountPromotionServiceTests|CodexAccountScopedRefreshDashboardCleanupTests|CodexAccountScopedRefreshTests|CodexBaselineCharacterizationTests|CodexDashboardWorkedExampleParityTests|CodexUsageFetcherFallbackTests|CodexWebDashboardStrategyAuthorityTests|OpenAIDashboardNavigationDelegateTests|StatusMenuCodexSwitcherTests|StatusMenuHostedSubmenuRefreshTests|StatusMenuSwitcherClickTests|StatusMenuTests|SubprocessRunnerTests'
 
   build-linux-cli:
     timeout-minutes: 20

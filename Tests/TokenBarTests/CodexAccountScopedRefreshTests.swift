@@ -573,6 +573,8 @@ struct CodexAccountScopedRefreshTests {
         self.installImmediateCodexProvider(
             on: store,
             snapshot: self.codexSnapshot(email: "alpha@example.com", usedPercent: 18))
+        store._test_codexCreditsLoaderOverride = { self.credits(remaining: 55) }
+        defer { store._test_codexCreditsLoaderOverride = nil }
         let dashboardBlocker = BlockingOpenAIDashboardLoader()
         store._test_openAIDashboardLoaderOverride = { _, _, _ in
             try await dashboardBlocker.awaitResult()
