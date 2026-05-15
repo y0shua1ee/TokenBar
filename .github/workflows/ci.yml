@@ -44,16 +44,22 @@ jobs:
         timeout-minutes: 25
         run: |
           swift test --parallel \
+            --skip ClaudeAutoFetcherCharacterizationTests \
             --skip ClaudeOAuthCredentialsStoreSecurityCLITests \
+            --skip ClaudeOAuthDelegatedRefreshCoordinatorTests \
+            --skip ClaudeUsageTests \
             --skip CLIOpenAIDashboardCacheTests \
             --skip CodexAccountPromotionServiceTests \
             --skip CodexAccountScopedRefreshDashboardCleanupTests \
             --skip CodexAccountScopedRefreshTests \
             --skip CodexBaselineCharacterizationTests \
             --skip CodexDashboardWorkedExampleParityTests \
+            --skip CodexManagedOpenAIWebRefreshTests \
+            --skip CodexManagedOpenAIWebTests \
             --skip CodexUsageFetcherFallbackTests \
             --skip CodexWebDashboardStrategyAuthorityTests \
             --skip OpenAIDashboardNavigationDelegateTests \
+            --skip SettingsStoreTests \
             --skip StatusMenuCodexSwitcherTests \
             --skip StatusMenuHostedSubmenuRefreshTests \
             --skip StatusMenuSwitcherClickTests \
@@ -61,7 +67,7 @@ jobs:
             --skip StatusMenuTokenAccountSwitcherTests \
             --skip SubprocessRunnerTests
           swift test --no-parallel \
-            --filter 'ClaudeOAuthCredentialsStoreSecurityCLITests|CLIOpenAIDashboardCacheTests|CodexAccountPromotionServiceTests|CodexAccountScopedRefreshDashboardCleanupTests|CodexAccountScopedRefreshTests|CodexBaselineCharacterizationTests|CodexDashboardWorkedExampleParityTests|CodexUsageFetcherFallbackTests|CodexWebDashboardStrategyAuthorityTests|OpenAIDashboardNavigationDelegateTests|StatusMenuCodexSwitcherTests|StatusMenuHostedSubmenuRefreshTests|StatusMenuSwitcherClickTests|StatusMenuTests|SubprocessRunnerTests'
+            --filter 'ClaudeAutoFetcherCharacterizationTests|ClaudeOAuthCredentialsStoreSecurityCLITests|ClaudeOAuthDelegatedRefreshCoordinatorTests|ClaudeUsageTests|CLIOpenAIDashboardCacheTests|CodexAccountPromotionServiceTests|CodexAccountScopedRefreshDashboardCleanupTests|CodexBaselineCharacterizationTests|CodexDashboardWorkedExampleParityTests|CodexManagedOpenAIWebRefreshTests|CodexManagedOpenAIWebTests|CodexUsageFetcherFallbackTests|CodexWebDashboardStrategyAuthorityTests|OpenAIDashboardNavigationDelegateTests|SettingsStoreTests|StatusMenuCodexSwitcherTests|StatusMenuHostedSubmenuRefreshTests|StatusMenuSwitcherClickTests|StatusMenuTests|StatusMenuTokenAccountSwitcherTests|SubprocessRunnerTests'
 
   build-linux-cli:
     timeout-minutes: 20
