@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.25.2 — 2026-05-20
+
+### OpenRouter
+- Add Management Key support for OpenRouter so account-level balance, API-key quota, and Activity usage can be fetched when the regular API key is absent.
+- Add OpenRouter 30-day Cost history from the Activity API, including request counts, prompt/completion/reasoning tokens, BYOK inference usage, and per-model breakdown rows.
+- Normalize Activity API date-time values to `YYYY-MM-DD` so Cost history bars render reliably across fresh and cached snapshots.
+
+### CI
+- Port CodexBar's suite-sharded macOS Swift test runner to avoid aggregate `swift test` hangs on GitHub Actions and identify timed-out suites directly.
+- Apply SwiftFormat/SwiftLint fixes for the OpenRouter changes.
+
 ## 0.25.1 — 2026-05-15 / upstream CodexBar 0.25.1 — 2026-05-11
 
 ### TokenBar Fork
