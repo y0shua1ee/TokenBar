@@ -42,7 +42,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 | Warp | API token (config/env) → GraphQL request limits (`api`). |
 | Ollama | Web settings page via browser cookies (`web`). |
 | Synthetic | API key from config/env → quota API (`api`). |
-| OpenRouter | API token (config, overrides env) → credits API (`api`). |
+| OpenRouter | API token (config, overrides env) → credits/key APIs (`api`); management key → Activity cost history (`api`). |
 | Perplexity | Browser cookies/manual cookie/env session token → credits API (`web`). |
 | Xiaomi MiMo | Browser cookies → balance/token plan endpoints (`web`). |
 | Doubao | API key from config/env → Volcengine Ark chat-completions probe (`api`). |
@@ -214,6 +214,8 @@ headers, source selection, provider ordering, and token accounts are stored in `
 ## OpenRouter
 - API token from `~/.tokenbar/config.json` (`providers[].apiKey`) or `OPENROUTER_API_KEY` env var.
 - Reads credits and key rate-limit info from OpenRouter APIs.
+- Reads detailed cost/token/request/model history from `GET /api/v1/activity` when `OPENROUTER_MANAGEMENT_KEY`, `OPENROUTER_ACTIVITY_API_KEY`, or a management-capable provider API key is available.
+- Activity data covers the last 30 completed UTC days and is grouped by endpoint.
 - Override base URL with `OPENROUTER_API_URL` env var.
 - Status: `https://status.openrouter.ai` (link only, no auto-polling yet).
 - Details: `docs/openrouter.md`.

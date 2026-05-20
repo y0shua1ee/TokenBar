@@ -1581,7 +1581,7 @@ extension StatusItemController {
 
     private func makeCostHistorySubmenu(provider: UsageProvider) -> NSMenu? {
         guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek
+            || provider == .deepseek || provider == .openrouter
         else { return nil }
         guard self.store.tokenSnapshot(for: provider)?.daily.isEmpty == false else { return nil }
         return self.makeHostedSubviewPlaceholderMenu(chartID: Self.costHistoryChartID, provider: provider)

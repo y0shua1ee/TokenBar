@@ -5,9 +5,32 @@ public enum OpenRouterSettingsReader {
     /// Environment variable key for OpenRouter API token
     public static let envKey = "OPENROUTER_API_KEY"
 
+    /// Environment variable key for OpenRouter management API token.
+    public static let managementEnvKey = "OPENROUTER_MANAGEMENT_KEY"
+
+    /// Alternate environment variable key for OpenRouter Activity API token.
+    public static let activityEnvKey = "OPENROUTER_ACTIVITY_API_KEY"
+
+    /// Candidate environment variables for the Activity endpoint, in precedence order.
+    public static let activityEnvironmentKeys = [
+        managementEnvKey,
+        activityEnvKey,
+        envKey,
+    ]
+
     /// Returns the API token from environment if present and non-empty
     public static func apiToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
         self.cleaned(environment[self.envKey])
+    }
+
+    /// Returns a token for the Activity endpoint. The endpoint requires management-key permissions.
+    public static func activityAPIKey(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        for key in self.activityEnvironmentKeys {
+            if let value = self.cleaned(environment[key]) {
+                return value
+            }
+        }
+        return nil
     }
 
     /// Returns the API URL, defaulting to production endpoint

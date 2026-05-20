@@ -211,6 +211,83 @@ struct OpenRouterUsageStatsTests {
         #expect(decoded.openRouterUsage?.keyQuotaStatus == .noLimitConfigured)
     }
 
+    @Test
+    func `activity report aggregates cost tokens requests and models by day`() {
+        let report = OpenRouterActivityUsageFetcher.report(from: [
+            OpenRouterActivityItem(
+                byokUsageInference: 0.002,
+                completionTokens: 125,
+                date: "2025-08-24",
+                endpointID: "endpoint-a",
+                model: "openai/gpt-4.1",
+                modelPermaslug: "openai/gpt-4.1-2025-04-14",
+                promptTokens: 50,
+                providerName: "OpenAI",
+                reasoningTokens: 25,
+                requests: 5,
+                usage: 0.015),
+            OpenRouterActivityItem(
+                byokUsageInference: nil,
+                completionTokens: 10,
+                date: "2025-08-24",
+                endpointID: "endpoint-b",
+                model: "anthropic/claude-sonnet-4",
+                modelPermaslug: nil,
+                promptTokens: 20,
+                providerName: "Anthropic",
+                reasoningTokens: nil,
+                requests: 2,
+                usage: 0.004),
+        ], now: Date(timeIntervalSince1970: 1_756_080_000))
+
+        #expect(report.daily.count == 1)
+        let day = report.daily[0]
+        #expect(day.date == "2025-08-24")
+        #expect(day.inputTokens == 70)
+        #expect(day.outputTokens == 160)
+        #expect(day.totalTokens == 230)
+        #expect(day.costUSD == 0.021)
+        #expect(day.modelsUsed == ["anthropic/claude-sonnet-4", "openai/gpt-4.1"])
+        #expect(day.modelBreakdowns?.first?.modelName == "openai/gpt-4.1")
+        #expect(report.requestsByDate["2025-08-24"] == 7)
+
+        let snapshot = report.toTokenSnapshot(now: Date(timeIntervalSince1970: 1_756_080_000))
+        #expect(snapshot.sessionRequests == 7)
+        #expect(snapshot.last30DaysRequests == 7)
+        #expect(snapshot.last30DaysTokens == 230)
+        #expect(snapshot.last30DaysCostUSD == 0.021)
+    }
+
+    @Test
+    func `activity fetcher calls activity endpoint with management key`() async throws {
+        let registered = URLProtocol.registerClass(OpenRouterStubURLProtocol.self)
+        defer {
+            if registered {
+                URLProtocol.unregisterClass(OpenRouterStubURLProtocol.self)
+            }
+            OpenRouterStubURLProtocol.handler = nil
+        }
+
+        OpenRouterStubURLProtocol.handler = { request in
+            guard let url = request.url else { throw URLError(.badURL) }
+            #expect(url.path == "/api/v1/activity")
+            #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer mgmt-test-key")
+            #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
+            let body = #"{"data":[{"byok_usage_inference":0.012,"completion_tokens":125,"date":"2025-08-24","endpoint_id":"550e8400-e29b-41d4-a716-446655440000","model":"openai/gpt-4.1","model_permaslug":"openai/gpt-4.1-2025-04-14","prompt_tokens":50,"provider_name":"OpenAI","reasoning_tokens":25,"requests":5,"usage":0.015}]}"#
+            return Self.makeResponse(url: url, body: body, statusCode: 200)
+        }
+
+        let report = try await OpenRouterActivityUsageFetcher.loadDailyReport(
+            managementKey: "mgmt-test-key",
+            environment: ["OPENROUTER_API_URL": "https://openrouter.test/api/v1"],
+            now: Date(timeIntervalSince1970: 1_756_080_000))
+
+        #expect(report.daily.count == 1)
+        #expect(report.daily[0].costUSD == 0.027)
+        #expect(report.daily[0].totalTokens == 200)
+        #expect(report.requestsByDate["2025-08-24"] == 5)
+    }
+
     private static func makeResponse(
         url: URL,
         body: String,

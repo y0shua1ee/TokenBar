@@ -18,19 +18,25 @@ public enum CostUsageError: LocalizedError, Sendable {
 }
 
 public struct CostUsageFetcher: Sendable {
-    public init() {}
+    private let environment: [String: String]
+
+    public init(environment: [String: String] = ProcessInfo.processInfo.environment) {
+        self.environment = environment
+    }
 
     public func loadTokenSnapshot(
         provider: UsageProvider,
         now: Date = Date(),
         forceRefresh: Bool = false,
-        allowVertexClaudeFallback: Bool = false) async throws -> CostUsageTokenSnapshot
+        allowVertexClaudeFallback: Bool = false,
+        environment: [String: String]? = nil) async throws -> CostUsageTokenSnapshot
     {
         try await Self.loadTokenSnapshot(
             provider: provider,
             now: now,
             forceRefresh: forceRefresh,
-            allowVertexClaudeFallback: allowVertexClaudeFallback)
+            allowVertexClaudeFallback: allowVertexClaudeFallback,
+            environment: environment ?? self.environment)
     }
 
     static func loadTokenSnapshot(
@@ -38,17 +44,22 @@ public struct CostUsageFetcher: Sendable {
         now: Date = Date(),
         forceRefresh: Bool = false,
         allowVertexClaudeFallback: Bool = false,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
         scannerOptions overrideScannerOptions: CostUsageScanner.Options? = nil,
         piScannerOptions overridePiScannerOptions: PiSessionCostScanner
             .Options? = nil) async throws -> CostUsageTokenSnapshot
     {
         #if os(macOS)
-        let supportsRemoteCost = provider == .krill || provider == .deepseek
+        let supportsRemoteCost = provider == .krill || provider == .deepseek || provider == .openrouter
         #else
-        let supportsRemoteCost = false
+        let supportsRemoteCost = provider == .openrouter
         #endif
         guard provider == .codex || provider == .claude || provider == .vertexai || supportsRemoteCost else {
             throw CostUsageError.unsupportedProvider(provider)
+        }
+
+        if provider == .openrouter {
+            return try await OpenRouterActivityUsageFetcher.loadTokenSnapshot(environment: environment, now: now)
         }
 
         #if os(macOS)

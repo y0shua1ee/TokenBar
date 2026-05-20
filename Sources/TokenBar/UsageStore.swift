@@ -1336,7 +1336,7 @@ extension UsageStore {
 
     private func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
         guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek
+            || provider == .deepseek || provider == .openrouter
         else {
             self.tokenSnapshots.removeValue(forKey: provider)
             self.tokenErrors[provider] = nil
@@ -1381,6 +1381,11 @@ extension UsageStore {
 
         do {
             let fetcher = self.costUsageFetcher
+            let environment = ProviderRegistry.makeEnvironment(
+                base: ProcessInfo.processInfo.environment,
+                provider: provider,
+                settings: self.settings,
+                tokenOverride: nil)
             let timeoutSeconds = self.tokenFetchTimeout
             // CostUsageFetcher scans local Codex session logs from this machine. That data is
             // intentionally presented as provider-level local telemetry rather than managed-account
@@ -1393,7 +1398,8 @@ extension UsageStore {
                         provider: provider,
                         now: now,
                         forceRefresh: force,
-                        allowVertexClaudeFallback: !self.isEnabled(.claude))
+                        allowVertexClaudeFallback: !self.isEnabled(.claude),
+                        environment: environment)
                 }
                 group.addTask {
                     try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1_000_000_000))

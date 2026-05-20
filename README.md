@@ -20,7 +20,7 @@ TokenBar keeps your API limits visible at a glance. Enable what you use:
 | [Cursor](docs/cursor.md) | Native | Cursor IDE |
 | Gemini | Native | Google Gemini |
 | [Copilot](docs/copilot.md) | Native | GitHub Copilot, including multi-account support |
-| [OpenRouter](docs/openrouter.md) | Native | OpenRouter API |
+| [OpenRouter](docs/openrouter.md) | Native | OpenRouter credits/key API + Activity cost history |
 | [DeepSeek](docs/deepseek.md) | Native | API-key balance + token-account support |
 | ... and 20+ more | | See [all providers](docs/providers.md) |
 

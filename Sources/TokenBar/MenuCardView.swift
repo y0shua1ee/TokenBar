@@ -1521,7 +1521,7 @@ extension UsageMenuCardView.Model {
         error: String?) -> TokenUsageSection?
     {
         guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek
+            || provider == .deepseek || provider == .openrouter
         else { return nil }
         guard enabled else { return nil }
         guard let snapshot else { return nil }
@@ -1530,11 +1530,12 @@ extension UsageMenuCardView.Model {
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let sessionLine: String = {
-            var parts = ["Today: \(sessionCost)"]
+            let label = provider == .openrouter ? "Latest day" : "Today"
+            var parts = ["\(label): \(sessionCost)"]
             if let sessionTokens {
                 parts.append("\(sessionTokens) tokens")
             }
-            if provider == .deepseek,
+            if (provider == .deepseek || provider == .openrouter),
                let sessionRequests = snapshot.sessionRequests,
                sessionRequests > 0
             {
@@ -1549,12 +1550,18 @@ extension UsageMenuCardView.Model {
         let monthTokensValue = snapshot.last30DaysTokens ?? (fallbackTokens > 0 ? fallbackTokens : nil)
         let monthTokens = monthTokensValue.map { UsageFormatter.tokenCountString($0) }
         let monthLine: String = {
-            let label = provider == .deepseek ? "This month" : "Last 30 days"
+            let label = if provider == .deepseek {
+                "This month"
+            } else if provider == .openrouter {
+                "Last 30 completed days"
+            } else {
+                "Last 30 days"
+            }
             var parts = ["\(label): \(monthCost)"]
             if let monthTokens {
                 parts.append("\(monthTokens) tokens")
             }
-            if provider == .deepseek,
+            if (provider == .deepseek || provider == .openrouter),
                let requests = snapshot.last30DaysRequests,
                requests > 0
             {

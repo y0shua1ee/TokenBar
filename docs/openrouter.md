@@ -6,6 +6,8 @@
 
 OpenRouter uses API key authentication. Get your API key from [OpenRouter Settings](https://openrouter.ai/settings/keys).
 
+Detailed Activity usage requires an OpenRouter management key. A regular API key can read credits and key limits, while the Activity endpoint may return `403` until the key has management permissions.
+
 ### Environment Variable
 
 Set the `OPENROUTER_API_KEY` environment variable:
@@ -20,11 +22,13 @@ You can also configure the API key in TokenBar Settings → Providers → OpenRo
 
 ## Data Source
 
-The OpenRouter provider fetches usage data from two API endpoints:
+The OpenRouter provider fetches usage data from three API endpoints:
 
 1. **Credits API** (`/api/v1/credits`): Returns total credits purchased and total usage. The balance is calculated as `total_credits - total_usage`.
 
 2. **Key API** (`/api/v1/key`): Returns rate limit information for your API key.
+
+3. **Activity API** (`/api/v1/activity`): Returns cost, token, request, provider, and model activity grouped by endpoint for the last 30 completed UTC days. TokenBar uses this data for the Cost section and cost history chart when a management key is available.
 
 ## Display
 
@@ -32,6 +36,7 @@ The OpenRouter menu card shows:
 
 - **Primary meter**: Credit usage percentage (how much of your purchased credits have been used)
 - **Balance**: Displayed in the identity section as "Balance: $X.XX"
+- **Cost section**: Latest completed day and last 30 completed UTC days, including spend, tokens, request counts, and model breakdowns from the Activity API
 
 ## CLI Usage
 
@@ -45,6 +50,8 @@ codexbar -p or  # alias
 | Variable | Description |
 |----------|-------------|
 | `OPENROUTER_API_KEY` | Your OpenRouter API key (required) |
+| `OPENROUTER_MANAGEMENT_KEY` | Management key for `/api/v1/activity` cost/token/request history (optional; preferred for Activity) |
+| `OPENROUTER_ACTIVITY_API_KEY` | Alternate Activity API key env var (optional) |
 | `OPENROUTER_API_URL` | Override the base API URL (optional, defaults to `https://openrouter.ai/api/v1`) |
 | `OPENROUTER_HTTP_REFERER` | Optional client referer sent as `HTTP-Referer` header |
 | `OPENROUTER_X_TITLE` | Optional client title sent as `X-Title` header (defaults to `TokenBar`) |
@@ -54,3 +61,5 @@ codexbar -p or  # alias
 - Credit values are cached on OpenRouter's side and may be up to 60 seconds stale
 - OpenRouter uses a credit-based billing system where you pre-purchase credits
 - Rate limits depend on your credit balance (10+ credits = 1000 free model requests/day)
+- Activity data is grouped by endpoint for completed UTC days; today's live usage may appear after OpenRouter completes the UTC day
+- TokenBar includes `usage` and `byok_usage_inference` in Activity spend totals
