@@ -1122,6 +1122,39 @@ struct MenuCardModelTests {
         #expect(model.tokenUsage?.monthLine.contains("$") == false)
     }
 
+    @Test
+    func `openrouter cost error renders without a token snapshot`() throws {
+        let now = Date(timeIntervalSince1970: 1_777_777_777)
+        let metadata = try #require(ProviderDefaults.metadata[.openrouter])
+        let error = "OpenRouter Activity API error: HTTP 403: OpenRouter Activity requires a management key — Only management keys can fetch activity for an account"
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .openrouter,
+            metadata: metadata,
+            snapshot: nil,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: error,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: nil,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: true,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        let tokenUsage = try #require(model.tokenUsage)
+        #expect(tokenUsage.sessionLine == "Latest day: —")
+        #expect(tokenUsage.monthLine == "Last 30 completed days: —")
+        #expect(tokenUsage.errorLine == error)
+        #expect(tokenUsage.errorCopyText == error)
+    }
+
     #if os(macOS)
     @Test
     func `krill model separates wallet elite credits and premium requests`() throws {

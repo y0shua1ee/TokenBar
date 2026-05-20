@@ -287,7 +287,8 @@ public enum OpenRouterActivityUsageFetcher: Sendable {
                 throw OpenRouterActivityUsageError.networkError("Invalid response")
             }
             guard httpResponse.statusCode == 200 else {
-                throw OpenRouterActivityUsageError.apiError(self.apiErrorMessage(statusCode: httpResponse.statusCode))
+                throw OpenRouterActivityUsageError.apiError(
+                    self.apiErrorMessage(statusCode: httpResponse.statusCode, data: data))
             }
             let decoded = try JSONDecoder().decode(OpenRouterActivityResponse.self, from: data)
             return self.report(from: decoded.data, now: now)
@@ -324,15 +325,42 @@ public enum OpenRouterActivityUsageFetcher: Sendable {
         return OpenRouterActivityUsageReport(daily: daily, requestsByDate: requestsByDate, updatedAt: now)
     }
 
-    private static func apiErrorMessage(statusCode: Int) -> String {
+    private static func apiErrorMessage(statusCode: Int, data: Data) -> String {
+        let bodyMessage = self.apiErrorBodyMessage(data: data)
         switch statusCode {
         case 401:
-            "HTTP 401: authentication required"
+            return ["HTTP 401: authentication required", bodyMessage]
+                .compactMap { $0 }
+                .joined(separator: " — ")
         case 403:
-            "HTTP 403: OpenRouter Activity requires a management key"
+            return ["HTTP 403: OpenRouter Activity requires a management key", bodyMessage]
+                .compactMap { $0 }
+                .joined(separator: " — ")
         default:
-            "HTTP \(statusCode)"
+            return ["HTTP \(statusCode)", bodyMessage]
+                .compactMap { $0 }
+                .joined(separator: " — ")
         }
+    }
+
+    private static func apiErrorBodyMessage(data: Data) -> String? {
+        guard !data.isEmpty,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        else { return nil }
+        if let error = object["error"] as? [String: Any],
+           let message = error["message"] as? String
+        {
+            return self.cleaned(message)
+        }
+        if let message = object["message"] as? String {
+            return self.cleaned(message)
+        }
+        return nil
+    }
+
+    private static func cleaned(_ value: String) -> String? {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     private struct DayAccumulator {

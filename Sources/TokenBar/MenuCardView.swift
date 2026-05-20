@@ -1524,7 +1524,24 @@ extension UsageMenuCardView.Model {
             || provider == .deepseek || provider == .openrouter
         else { return nil }
         guard enabled else { return nil }
-        guard let snapshot else { return nil }
+        let err = (error?.isEmpty ?? true) ? nil : error
+        guard let snapshot else {
+            guard let err else { return nil }
+            let sessionLabel = provider == .openrouter ? "Latest day" : "Today"
+            let monthLabel = if provider == .deepseek {
+                "This month"
+            } else if provider == .openrouter {
+                "Last 30 completed days"
+            } else {
+                "Last 30 days"
+            }
+            return TokenUsageSection(
+                sessionLine: "\(sessionLabel): —",
+                monthLine: "\(monthLabel): —",
+                hintLine: nil,
+                errorLine: err,
+                errorCopyText: err)
+        }
 
         let sessionCost = snapshot.sessionCostUSD
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
@@ -1569,7 +1586,6 @@ extension UsageMenuCardView.Model {
             }
             return parts.joined(separator: " · ")
         }()
-        let err = (error?.isEmpty ?? true) ? nil : error
         return TokenUsageSection(
             sessionLine: sessionLine,
             monthLine: monthLine,

@@ -570,7 +570,7 @@ struct ProvidersPane: View {
             dashboardError = codexProjection.userFacingErrors.dashboard
             tokenSnapshot = self.store.tokenSnapshot(for: provider)
             tokenError = self.store.tokenError(for: provider)
-        } else if provider == .claude || provider == .vertexai {
+        } else if provider == .claude || provider == .vertexai || provider == .krill || provider == .deepseek || provider == .openrouter {
             credits = nil
             creditsError = nil
             dashboard = nil
