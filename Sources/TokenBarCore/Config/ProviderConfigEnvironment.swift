@@ -6,8 +6,16 @@ public enum ProviderConfigEnvironment {
         provider: UsageProvider,
         config: ProviderConfig?) -> [String: String]
     {
-        guard let apiKey = config?.sanitizedAPIKey, !apiKey.isEmpty else { return base }
         var env = base
+
+        if provider == .openrouter,
+           let managementAPIKey = config?.sanitizedManagementAPIKey,
+           !managementAPIKey.isEmpty
+        {
+            env[OpenRouterSettingsReader.managementEnvKey] = managementAPIKey
+        }
+
+        guard let apiKey = config?.sanitizedAPIKey, !apiKey.isEmpty else { return env }
         if let key = self.directAPIKeyEnvironmentKey(for: provider) {
             env[key] = apiKey
             return env

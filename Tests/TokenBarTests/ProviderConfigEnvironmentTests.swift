@@ -40,6 +40,18 @@ struct ProviderConfigEnvironmentTests {
     }
 
     @Test
+    func `applies management key override for open router activity`() {
+        let config = ProviderConfig(id: .openrouter, managementAPIKey: "or-management-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .openrouter,
+            config: config)
+
+        #expect(env[OpenRouterSettingsReader.managementEnvKey] == "or-management-token")
+        #expect(OpenRouterSettingsReader.activityAPIKey(environment: env) == "or-management-token")
+    }
+
+    @Test
     func `applies API key override for doubao`() {
         let config = ProviderConfig(id: .doubao, apiKey: "db-token")
         let env = ProviderConfigEnvironment.applyAPIKeyOverride(

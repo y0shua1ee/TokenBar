@@ -7,6 +7,7 @@ import TokenBarMacroSupport
 @ProviderImplementationRegistration
 struct OpenRouterProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .openrouter
+    let supportsLoginFlow: Bool = true
 
     @MainActor
     func presentation(context _: ProviderPresentationContext) -> ProviderPresentation {
@@ -16,6 +17,7 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
     @MainActor
     func observeSettings(_ settings: SettingsStore) {
         _ = settings.openRouterAPIToken
+        _ = settings.openRouterManagementAPIKey
     }
 
     @MainActor
@@ -27,6 +29,12 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
     @MainActor
     func isAvailable(context: ProviderAvailabilityContext) -> Bool {
         if OpenRouterSettingsReader.apiToken(environment: context.environment) != nil {
+            return true
+        }
+        if OpenRouterSettingsReader.activityAPIKey(environment: context.environment) != nil {
+            return true
+        }
+        if !context.settings.openRouterManagementAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return true
         }
         return !context.settings.openRouterAPIToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -49,9 +57,49 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
                 kind: .secure,
                 placeholder: "sk-or-v1-...",
                 binding: context.stringBinding(\.openRouterAPIToken),
-                actions: [],
+                actions: [Self.openKeysAction(id: "openrouter-open-api-keys")],
+                isVisible: nil,
+                onActivate: nil),
+            ProviderSettingsFieldDescriptor(
+                id: "openrouter-management-api-key",
+                title: "Management API key",
+                subtitle: "Used for OpenRouter Activity cost history across the account. "
+                    + "You can also provide OPENROUTER_MANAGEMENT_KEY or OPENROUTER_ACTIVITY_API_KEY.",
+                kind: .secure,
+                placeholder: "sk-or-v1-...",
+                binding: context.stringBinding(\.openRouterManagementAPIKey),
+                actions: [Self.openKeysAction(id: "openrouter-open-management-keys")],
                 isVisible: nil,
                 onActivate: nil),
         ]
+    }
+
+    @MainActor
+    func loginMenuAction(context _: ProviderMenuLoginContext)
+        -> (label: String, action: MenuDescriptor.MenuAction)?
+    {
+        ("OpenRouter Keys...", .loginToProvider(url: "https://openrouter.ai/settings/keys"))
+    }
+
+    @MainActor
+    func runLoginFlow(context _: ProviderLoginContext) async -> Bool {
+        if let url = URL(string: "https://openrouter.ai/settings/keys") {
+            NSWorkspace.shared.open(url)
+        }
+        return false
+    }
+
+    @MainActor
+    private static func openKeysAction(id: String) -> ProviderSettingsActionDescriptor {
+        ProviderSettingsActionDescriptor(
+            id: id,
+            title: "Open keys",
+            style: .link,
+            isVisible: nil,
+            perform: {
+                if let url = URL(string: "https://openrouter.ai/settings/keys") {
+                    NSWorkspace.shared.open(url)
+                }
+            })
     }
 }

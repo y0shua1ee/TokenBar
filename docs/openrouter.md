@@ -18,7 +18,10 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 
 ### Settings
 
-You can also configure the API key in TokenBar Settings → Providers → OpenRouter.
+You can configure both keys in TokenBar Settings → Providers → OpenRouter:
+
+- **API key** powers credits and current-key quota.
+- **Management API key** powers Activity cost history across the account.
 
 ## Data Source
 
