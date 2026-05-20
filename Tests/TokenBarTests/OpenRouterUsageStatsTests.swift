@@ -217,7 +217,7 @@ struct OpenRouterUsageStatsTests {
             OpenRouterActivityItem(
                 byokUsageInference: 0.002,
                 completionTokens: 125,
-                date: "2025-08-24",
+                date: "2025-08-24T00:00:00.000Z",
                 endpointID: "endpoint-a",
                 model: "openai/gpt-4.1",
                 modelPermaslug: "openai/gpt-4.1-2025-04-14",
@@ -229,7 +229,7 @@ struct OpenRouterUsageStatsTests {
             OpenRouterActivityItem(
                 byokUsageInference: nil,
                 completionTokens: 10,
-                date: "2025-08-24",
+                date: "2025-08-24 00:00:00",
                 endpointID: "endpoint-b",
                 model: "anthropic/claude-sonnet-4",
                 modelPermaslug: nil,
@@ -273,7 +273,7 @@ struct OpenRouterUsageStatsTests {
             #expect(url.path == "/api/v1/activity")
             #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer mgmt-test-key")
             #expect(request.value(forHTTPHeaderField: "Accept") == "application/json")
-            let body = #"{"data":[{"byok_usage_inference":0.012,"completion_tokens":125,"date":"2025-08-24","endpoint_id":"550e8400-e29b-41d4-a716-446655440000","model":"openai/gpt-4.1","model_permaslug":"openai/gpt-4.1-2025-04-14","prompt_tokens":50,"provider_name":"OpenAI","reasoning_tokens":25,"requests":5,"usage":0.015}]}"#
+            let body = #"{"data":[{"byok_usage_inference":0.012,"completion_tokens":125,"date":"2025-08-24T00:00:00.000Z","endpoint_id":"550e8400-e29b-41d4-a716-446655440000","model":"openai/gpt-4.1","model_permaslug":"openai/gpt-4.1-2025-04-14","prompt_tokens":50,"provider_name":"OpenAI","reasoning_tokens":25,"requests":5,"usage":0.015}]}"#
             return Self.makeResponse(url: url, body: body, statusCode: 200)
         }
 

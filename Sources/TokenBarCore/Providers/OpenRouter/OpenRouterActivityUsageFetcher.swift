@@ -307,8 +307,7 @@ public enum OpenRouterActivityUsageFetcher: Sendable {
     {
         var dayAccumulators: [String: DayAccumulator] = [:]
         for item in items {
-            let day = item.date.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !day.isEmpty else { continue }
+            guard let day = self.normalizedDayKey(from: item.date) else { continue }
             var accumulator = dayAccumulators[day] ?? DayAccumulator()
             accumulator.add(item)
             dayAccumulators[day] = accumulator
@@ -323,6 +322,29 @@ public enum OpenRouterActivityUsageFetcher: Sendable {
             }
         }
         return OpenRouterActivityUsageReport(daily: daily, requestsByDate: requestsByDate, updatedAt: now)
+    }
+
+    private static func normalizedDayKey(from rawDate: String) -> String? {
+        let trimmed = rawDate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        let prefix = String(trimmed.prefix(10))
+        if self.isYYYYMMDD(prefix) { return prefix }
+        guard let parsed = CostUsageDateParser.parse(trimmed) else { return nil }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: parsed)
+    }
+
+    private static func isYYYYMMDD(_ value: String) -> Bool {
+        guard value.count == 10 else { return false }
+        let scalars = Array(value.unicodeScalars)
+        guard scalars[4] == "-", scalars[7] == "-" else { return false }
+        return scalars.enumerated().allSatisfy { index, scalar in
+            if index == 4 || index == 7 { return true }
+            return CharacterSet.decimalDigits.contains(scalar)
+        }
     }
 
     private static func apiErrorMessage(statusCode: Int, data: Data) -> String {

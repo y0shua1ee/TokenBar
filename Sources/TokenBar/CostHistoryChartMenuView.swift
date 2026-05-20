@@ -268,7 +268,8 @@ struct CostHistoryChartMenuView: View {
     }
 
     private static func dateFromDayKey(_ key: String) -> Date? {
-        let parts = key.split(separator: "-")
+        let normalized = Self.normalizedDayKey(key)
+        let parts = normalized.split(separator: "-")
         guard parts.count == 3,
               let year = Int(parts[0]),
               let month = Int(parts[1]),
@@ -282,6 +283,22 @@ struct CostHistoryChartMenuView: View {
         comps.day = day
         comps.hour = 12
         return comps.date
+    }
+
+    private static func normalizedDayKey(_ key: String) -> String {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        let prefix = String(trimmed.prefix(10))
+        return self.isYYYYMMDD(prefix) ? prefix : trimmed
+    }
+
+    private static func isYYYYMMDD(_ value: String) -> Bool {
+        guard value.count == 10 else { return false }
+        let scalars = Array(value.unicodeScalars)
+        guard scalars[4] == "-", scalars[7] == "-" else { return false }
+        return scalars.enumerated().allSatisfy { index, scalar in
+            if index == 4 || index == 7 { return true }
+            return CharacterSet.decimalDigits.contains(scalar)
+        }
     }
 
     private static func peakPoint(model: Model) -> Point? {
