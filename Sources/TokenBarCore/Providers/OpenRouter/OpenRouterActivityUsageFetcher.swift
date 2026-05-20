@@ -13,7 +13,11 @@ public enum OpenRouterActivityUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingManagementKey:
-            "OpenRouter Activity key missing. Set OPENROUTER_MANAGEMENT_KEY or OPENROUTER_ACTIVITY_API_KEY, or paste a management key in OpenRouter settings."
+            [
+                "OpenRouter Activity key missing.",
+                "Set OPENROUTER_MANAGEMENT_KEY or OPENROUTER_ACTIVITY_API_KEY,",
+                "or paste a management key in OpenRouter settings.",
+            ].joined(separator: " ")
         case .invalidCredentials:
             "Invalid OpenRouter Activity credentials."
         case let .networkError(message):
@@ -113,7 +117,8 @@ public struct OpenRouterActivityItem: Decodable, Sendable, Equatable {
         let prompt = self.promptTokens ?? 0
         let completion = self.completionTokens ?? 0
         let reasoning = self.reasoningTokens ?? 0
-        guard self.promptTokens != nil || self.completionTokens != nil || self.reasoningTokens != nil else { return nil }
+        guard self.promptTokens != nil || self.completionTokens != nil || self.reasoningTokens != nil
+        else { return nil }
         return prompt + completion + reasoning
     }
 
@@ -352,15 +357,15 @@ public enum OpenRouterActivityUsageFetcher: Sendable {
         switch statusCode {
         case 401:
             return ["HTTP 401: authentication required", bodyMessage]
-                .compactMap { $0 }
+                .compactMap(\.self)
                 .joined(separator: " — ")
         case 403:
             return ["HTTP 403: OpenRouter Activity requires a management key", bodyMessage]
-                .compactMap { $0 }
+                .compactMap(\.self)
                 .joined(separator: " — ")
         default:
             return ["HTTP \(statusCode)", bodyMessage]
-                .compactMap { $0 }
+                .compactMap(\.self)
                 .joined(separator: " — ")
         }
     }

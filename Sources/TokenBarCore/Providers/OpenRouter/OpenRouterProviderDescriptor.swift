@@ -30,7 +30,9 @@ public enum OpenRouterProviderDescriptor {
                 color: ProviderColor(red: 100 / 255, green: 103 / 255, blue: 242 / 255)),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: true,
-                noDataMessage: { "OpenRouter Activity returned no cost data. Use a management key for full account activity." }),
+                noDataMessage: {
+                    "OpenRouter Activity returned no cost data. Use a management key for full account activity."
+                }),
             fetchPlan: ProviderFetchPlan(
                 sourceModes: [.auto, .api],
                 pipeline: ProviderFetchPipeline(resolveStrategies: { _ in [OpenRouterAPIFetchStrategy()] })),

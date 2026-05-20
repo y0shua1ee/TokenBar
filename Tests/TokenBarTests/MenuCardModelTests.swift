@@ -1126,7 +1126,11 @@ struct MenuCardModelTests {
     func `openrouter cost error renders without a token snapshot`() throws {
         let now = Date(timeIntervalSince1970: 1_777_777_777)
         let metadata = try #require(ProviderDefaults.metadata[.openrouter])
-        let error = "OpenRouter Activity API error: HTTP 403: OpenRouter Activity requires a management key — Only management keys can fetch activity for an account"
+        let error = [
+            "OpenRouter Activity API error: HTTP 403:",
+            "OpenRouter Activity requires a management key —",
+            "Only management keys can fetch activity for an account",
+        ].joined(separator: " ")
 
         let model = UsageMenuCardView.Model.make(.init(
             provider: .openrouter,

@@ -1552,7 +1552,7 @@ extension UsageMenuCardView.Model {
             if let sessionTokens {
                 parts.append("\(sessionTokens) tokens")
             }
-            if (provider == .deepseek || provider == .openrouter),
+            if provider == .deepseek || provider == .openrouter,
                let sessionRequests = snapshot.sessionRequests,
                sessionRequests > 0
             {
@@ -1578,7 +1578,7 @@ extension UsageMenuCardView.Model {
             if let monthTokens {
                 parts.append("\(monthTokens) tokens")
             }
-            if (provider == .deepseek || provider == .openrouter),
+            if provider == .deepseek || provider == .openrouter,
                let requests = snapshot.last30DaysRequests,
                requests > 0
             {

@@ -50,8 +50,9 @@ extension StatusItemController {
                 tokenSnapshot = nil
                 tokenError = nil
             }
-        } else if target == .claude || target == .vertexai || target == .krill || target == .deepseek || target == .openrouter,
-                  snapshotOverride == nil
+        } else if target == .claude || target == .vertexai || target == .krill || target == .deepseek || target ==
+            .openrouter,
+            snapshotOverride == nil
         {
             credits = nil
             creditsError = nil
