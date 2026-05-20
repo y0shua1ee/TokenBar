@@ -52,8 +52,8 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
                 id: "openrouter-api-key",
                 title: "API key",
                 subtitle: "Stored in ~/.tokenbar/config.json. "
-                    + "Get your key from openrouter.ai/settings/keys and set a key spending limit "
-                    + "there to enable API key quota tracking.",
+                    + "Optional when Management API key is set; add a spending limit "
+                    + "to show current-key quota tracking.",
                 kind: .secure,
                 placeholder: "sk-or-v1-...",
                 binding: context.stringBinding(\.openRouterAPIToken),
@@ -63,8 +63,8 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "openrouter-management-api-key",
                 title: "Management API key",
-                subtitle: "Used for OpenRouter Activity cost history across the account. "
-                    + "You can also provide OPENROUTER_MANAGEMENT_KEY or OPENROUTER_ACTIVITY_API_KEY.",
+                subtitle: "Used for OpenRouter Activity cost history across the account; "
+                    + "also powers balance when API key is empty. Environment: OPENROUTER_MANAGEMENT_KEY.",
                 kind: .secure,
                 placeholder: "sk-or-v1-...",
                 binding: context.stringBinding(\.openRouterManagementAPIKey),

@@ -21,7 +21,7 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 You can configure both keys in TokenBar Settings → Providers → OpenRouter:
 
 - **API key** powers credits and current-key quota.
-- **Management API key** powers Activity cost history across the account. This must be an OpenRouter management key; a normal generation/API key returns `HTTP 403: Only management keys can fetch activity for an account`.
+- **Management API key** powers Activity cost history across the account, and can also power credits when no regular API key is configured. This must be an OpenRouter management key; a normal generation/API key returns `HTTP 403: Only management keys can fetch activity for an account`.
 
 ## Data Source
 
@@ -52,7 +52,7 @@ codexbar -p or  # alias
 
 | Variable | Description |
 |----------|-------------|
-| `OPENROUTER_API_KEY` | Your OpenRouter API key (required) |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key (optional when a management key is configured) |
 | `OPENROUTER_MANAGEMENT_KEY` | Management key for `/api/v1/activity` cost/token/request history (optional; preferred for Activity) |
 | `OPENROUTER_ACTIVITY_API_KEY` | Alternate Activity API key env var (optional) |
 | `OPENROUTER_API_URL` | Override the base API URL (optional, defaults to `https://openrouter.ai/api/v1`) |

@@ -49,6 +49,22 @@ struct ProviderConfigEnvironmentTests {
 
         #expect(env[OpenRouterSettingsReader.managementEnvKey] == "or-management-token")
         #expect(OpenRouterSettingsReader.activityAPIKey(environment: env) == "or-management-token")
+        #expect(ProviderTokenResolver.openRouterToken(environment: env) == "or-management-token")
+    }
+
+    @Test
+    func `open router API key remains primary when management key also exists`() {
+        let config = ProviderConfig(
+            id: .openrouter,
+            apiKey: "or-api-token",
+            managementAPIKey: "or-management-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .openrouter,
+            config: config)
+
+        #expect(ProviderTokenResolver.openRouterToken(environment: env) == "or-api-token")
+        #expect(OpenRouterSettingsReader.activityAPIKey(environment: env) == "or-management-token")
     }
 
     @Test
