@@ -213,7 +213,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 
 ## OpenRouter
 - API token from `~/.tokenbar/config.json` (`providers[].apiKey`) or `OPENROUTER_API_KEY` env var.
-- Management key from `~/.tokenbar/config.json` (`providers[].managementAPIKey`), `OPENROUTER_MANAGEMENT_KEY`, or `OPENROUTER_ACTIVITY_API_KEY`.
+- Management key from `~/.tokenbar/config.json` (`providers[].managementAPIKey`), `OPENROUTER_MANAGEMENT_KEY`, or `OPENROUTER_ACTIVITY_API_KEY`; this must be an OpenRouter management key because normal generation keys return `HTTP 403: Only management keys can fetch activity for an account`.
 - Reads credits and key rate-limit info from OpenRouter APIs.
 - Reads detailed cost/token/request/model history from `GET /api/v1/activity` when a management key or management-capable provider API key is available.
 - Activity data covers the last 30 completed UTC days and is grouped by endpoint.
