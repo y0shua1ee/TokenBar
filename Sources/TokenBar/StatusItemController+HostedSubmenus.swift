@@ -192,6 +192,7 @@ extension StatusItemController {
             daily: tokenSnapshot.daily,
             totalCostUSD: tokenSnapshot.last30DaysCostUSD,
             currencyCode: tokenSnapshot.costCurrencyCode,
+            historyDays: tokenSnapshot.historyDays,
             width: width,
             loadModelBreakdowns: modelBreakdownLoader)
         let hosting = MenuHostingView(rootView: chartView)

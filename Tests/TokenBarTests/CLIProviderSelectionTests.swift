@@ -1,13 +1,13 @@
+import CodexBarCore
 import Foundation
 import Testing
-import TokenBarCore
-@testable import TokenBarCLI
+@testable import CodexBarCLI
 
 struct CLIProviderSelectionTests {
     @Test
     func `help includes gemini and all`() {
-        let usage = TokenBarCLI.usageHelp(version: "0.0.0")
-        let root = TokenBarCLI.rootHelp(version: "0.0.0")
+        let usage = CodexBarCLI.usageHelp(version: "0.0.0")
+        let root = CodexBarCLI.rootHelp(version: "0.0.0")
         let expectedProviders = [
             "--provider codex|",
             "|claude|",
@@ -38,15 +38,15 @@ struct CLIProviderSelectionTests {
         #expect(root.contains("--log-level"))
         #expect(usage.contains("--verbose"))
         #expect(root.contains("--verbose"))
-        #expect(usage.contains("tokenbar usage --provider gemini"))
-        #expect(usage.contains("tokenbar usage --format json --provider all --pretty"))
-        #expect(root.contains("tokenbar --provider gemini"))
+        #expect(usage.contains("codexbar usage --provider gemini"))
+        #expect(usage.contains("codexbar usage --format json --provider all --pretty"))
+        #expect(root.contains("codexbar --provider gemini"))
     }
 
     @Test
     func `help mentions source flag`() {
-        let usage = TokenBarCLI.usageHelp(version: "0.0.0")
-        let root = TokenBarCLI.rootHelp(version: "0.0.0")
+        let usage = CodexBarCLI.usageHelp(version: "0.0.0")
+        let root = CodexBarCLI.rootHelp(version: "0.0.0")
 
         func tokens(_ text: String) -> [String] {
             let split = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "[]|,"))
@@ -65,13 +65,13 @@ struct CLIProviderSelectionTests {
 
     @Test
     func `provider selection respects override`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: "gemini", enabled: [.codex, .claude])
+        let selection = CodexBarCLI.providerSelection(rawOverride: "gemini", enabled: [.codex, .claude])
         #expect(selection.asList == [.gemini])
     }
 
     @Test
     func `provider selection uses enabled providers when three or more are enabled`() {
-        let selection = TokenBarCLI.providerSelection(
+        let selection = CodexBarCLI.providerSelection(
             rawOverride: nil,
             enabled: [.codex, .claude, .zai, .cursor, .gemini, .antigravity, .factory, .copilot])
         #expect(selection.asList == [.codex, .claude, .zai, .cursor, .gemini, .antigravity, .factory, .copilot])
@@ -80,33 +80,33 @@ struct CLIProviderSelectionTests {
     @Test
     func `provider selection does not expand three enabled providers to all providers`() {
         let enabled: [UsageProvider] = [.codex, .claude, .copilot]
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: enabled)
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: enabled)
         #expect(selection.asList == enabled)
         #expect(!selection.asList.contains(.gemini))
     }
 
     @Test
     func `provider selection uses both for codex and claude`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .claude])
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .claude])
         #expect(selection.asList == [.codex, .claude])
     }
 
     @Test
     func `provider selection uses custom for codex and gemini`() {
         let enabled: [UsageProvider] = [.codex, .gemini]
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: enabled)
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: enabled)
         #expect(selection.asList == enabled)
     }
 
     @Test
     func `provider selection accepts kiro alias`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: "kiro-cli", enabled: [.codex])
+        let selection = CodexBarCLI.providerSelection(rawOverride: "kiro-cli", enabled: [.codex])
         #expect(selection.asList == [.kiro])
     }
 
     @Test
-    func `provider selection defaults to codex when empty`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [])
-        #expect(selection.asList == [.codex])
+    func `provider selection honors empty enabled set`() {
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: [])
+        #expect(selection.asList == [])
     }
 }

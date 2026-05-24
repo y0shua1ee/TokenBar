@@ -49,7 +49,7 @@ Usage source picker:
   3) Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
   - Domains loaded: `chatgpt.com`, `openai.com`.
   - No cookie-name filter; we import all matching domain cookies.
-- Cached cookies: Keychain cache `com.y0shua1ee.tokenbar.cache` (account `cookie.codex`, source + timestamp).
+- Cached cookies: Keychain cache `com.steipete.codexbar.cache` (account `cookie.codex`, source + timestamp).
   Reused before re-importing from browsers.
 - Manual cookie header:
   - Paste the `Cookie:` header from a `chatgpt.com` request in Preferences → Providers → Codex.
@@ -74,7 +74,7 @@ Usage source picker:
   - `account/read`
   - `account/rateLimits/read`
 - RPC reads are bounded: initialization has a longer startup budget, and normal requests have a shorter per-method
-  timeout. On timeout, TokenBar terminates the child `codex app-server` process so the stdout reader unwinds instead
+  timeout. On timeout, CodexBar terminates the child `codex app-server` process so the stdout reader unwinds instead
   of leaving refresh stuck indefinitely.
 - Provides:
   - Usage windows (primary + secondary) with reset timestamps.
@@ -83,9 +83,12 @@ Usage source picker:
 - App-server errors are terminal for the CLI strategy, except when Codex includes a recoverable `wham/usage` JSON body in the error text.
 - If macOS blocks or quarantines the `codex` executable, CodexBar records the launch failure and skips background CLI
   launches for 30 minutes. Use a manual refresh after reinstalling or unblocking `codex` to retry immediately.
+- If managed Codex account login fails after macOS moved `codex` to Trash, first confirm `codex --version` works in
+  Terminal. Check `which -a codex` for stale duplicate installs, then run
+  `npm install -g --include=optional @openai/codex@latest` before retrying Add Account.
 
 ### Codex CLI PTY diagnostics (`/status`)
-- Manual/debug parser only; automatic background refresh and `TokenBarCLI usage --source cli` do not launch bare Codex TUI.
+- Manual/debug parser only; automatic background refresh and `CodexBarCLI usage --source cli` do not launch bare Codex TUI.
 - Kept for explicit diagnostics/parser coverage because bare `codex` TUI can start interactive auth and open browser tabs.
 - Parses rendered `/status` output:
   - `Credits:` line
@@ -119,15 +122,15 @@ Usage source picker:
   - pi assistant usage is bucketed by assistant-turn timestamp, so mixed-model pi sessions can contribute to multiple
     days/models correctly.
 - Cache:
-  - Native + merged provider cache: `~/Library/Caches/TokenBar/cost-usage/codex-v2.json`
-  - pi session cache: `~/Library/Caches/TokenBar/cost-usage/pi-sessions-v1.json`
-- Window: last 30 days (rolling), with a 60s minimum refresh interval.
+  - Native + merged provider cache: `~/Library/Caches/CodexBar/cost-usage/codex-v2.json`
+  - pi session cache: `~/Library/Caches/CodexBar/cost-usage/pi-sessions-v1.json`
+- Window: configurable 1-365 day rolling history, with a 60s minimum refresh interval.
 
 ## Key files
-- Web: `Sources/TokenBarCore/OpenAIWeb/*`
-- CLI RPC + diagnostic PTY parser: `Sources/TokenBarCore/UsageFetcher.swift`,
-  `Sources/TokenBarCore/Providers/Codex/CodexStatusProbe.swift`
-- Cost usage: `Sources/TokenBarCore/CostUsageFetcher.swift`,
-  `Sources/TokenBarCore/PiSessionCostScanner.swift`,
-  `Sources/TokenBarCore/PiSessionCostCache.swift`,
-  `Sources/TokenBarCore/Vendored/CostUsage/*`
+- Web: `Sources/CodexBarCore/OpenAIWeb/*`
+- CLI RPC + diagnostic PTY parser: `Sources/CodexBarCore/UsageFetcher.swift`,
+  `Sources/CodexBarCore/Providers/Codex/CodexStatusProbe.swift`
+- Cost usage: `Sources/CodexBarCore/CostUsageFetcher.swift`,
+  `Sources/CodexBarCore/PiSessionCostScanner.swift`,
+  `Sources/CodexBarCore/PiSessionCostCache.swift`,
+  `Sources/CodexBarCore/Vendored/CostUsage/*`

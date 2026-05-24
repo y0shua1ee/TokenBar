@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key><string>TokenBar</string>
+    <key>CFBundleDisplayName</key><string>TokenBar</string>
+    <key>CFBundleIdentifier</key><string>com.y0shua1ee.tokenbar</string>
+    <key>CFBundleExecutable</key><string>TokenBar</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>0.25.2</string>
+    <key>CFBundleVersion</key><string>68</string>
+    <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <key>LSUIElement</key><true/>
+    <key>CFBundleIconFile</key><string>Icon</string>
+    <key>NSHumanReadableCopyright</key><string>© 2026 Peter Steinberger. MIT License.</string>
+    <key>SUFeedURL</key><string></string>
+    <key>SUPublicEDKey</key><string></string>
+    <key>SUEnableAutomaticChecks</key><false/>
+    <key>TokenBarBuildTimestamp</key><string>2026-05-20T07:51:40Z</string>
+    <key>TokenBarGitCommit</key><string>1dc45599</string>
+    <key>TokenBarTeamID</key><string>Y5PE65HELJ</string>
+</dict>
+</plist>

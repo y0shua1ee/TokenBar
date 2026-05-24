@@ -76,6 +76,11 @@ enum ProviderBrandIcon {
         case .kilo: "scalemass"
         case .synthetic: "testtube.2"
         case .bedrock: "shippingbox.and.arrow.backward"
+        case .elevenlabs: "waveform.badge.mic"
+        case .grok: "xmark.circle"
+        case .groq: "bolt.circle"
+        case .llmproxy: "network"
+        case .deepgram: "waveform"
         }
     }
     // swiftlint:enable cyclomatic_complexity

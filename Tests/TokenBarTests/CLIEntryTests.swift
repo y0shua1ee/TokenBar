@@ -1,46 +1,42 @@
+import CodexBarCore
 import Commander
 import Foundation
-import Testing
-import TokenBarCore
-@testable import TokenBarCLI
+import XCTest
+@testable import CodexBarCLI
 
-struct CLIEntryTests {
-    @Test
-    func `effective argv defaults to usage`() {
-        #expect(TokenBarCLI.effectiveArgv([]) == ["usage"])
-        #expect(TokenBarCLI.effectiveArgv(["--json"]) == ["usage", "--json"])
-        #expect(TokenBarCLI.effectiveArgv(["usage", "--json"]) == ["usage", "--json"])
+final class CLIEntryTests: XCTestCase {
+    func test_effectiveArgvDefaultsToUsage() {
+        XCTAssertEqual(CodexBarCLI.effectiveArgv([]), ["usage"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["--json"]), ["usage", "--json"])
+        XCTAssertEqual(CodexBarCLI.effectiveArgv(["usage", "--json"]), ["usage", "--json"])
     }
 
     func test_decodesFormatFromOptionsAndFlags() {
         let jsonOption = ParsedValues(positional: [], options: ["format": ["json"]], flags: [])
-        #expect(TokenBarCLI._decodeFormatForTesting(from: jsonOption) == .json)
+        XCTAssertEqual(CodexBarCLI._decodeFormatForTesting(from: jsonOption), .json)
 
         let jsonFlag = ParsedValues(positional: [], options: [:], flags: ["json"])
-        #expect(TokenBarCLI._decodeFormatForTesting(from: jsonFlag) == .json)
+        XCTAssertEqual(CodexBarCLI._decodeFormatForTesting(from: jsonFlag), .json)
 
         let textDefault = ParsedValues(positional: [], options: [:], flags: [])
-        #expect(TokenBarCLI._decodeFormatForTesting(from: textDefault) == .text)
+        XCTAssertEqual(CodexBarCLI._decodeFormatForTesting(from: textDefault), .text)
     }
 
-    @Test
-    func `provider selection prefers override`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: "codex", enabled: [.claude, .gemini])
-        #expect(selection.asList == [.codex])
+    func test_providerSelectionPrefersOverride() {
+        let selection = CodexBarCLI.providerSelection(rawOverride: "codex", enabled: [.claude, .gemini])
+        XCTAssertEqual(selection.asList, [.codex])
     }
 
-    @Test
-    func `normalize version extracts numeric`() {
-        #expect(TokenBarCLI.normalizeVersion(raw: "codex 1.2.3 (build 4)") == "1.2.3")
-        #expect(TokenBarCLI.normalizeVersion(raw: "  v2.0  ") == "2.0")
+    func test_normalizeVersionExtractsNumeric() {
+        XCTAssertEqual(CodexBarCLI.normalizeVersion(raw: "codex 1.2.3 (build 4)"), "1.2.3")
+        XCTAssertEqual(CodexBarCLI.normalizeVersion(raw: "  v2.0  "), "2.0")
     }
 
-    @Test
-    func `make header includes version when available`() {
-        let header = TokenBarCLI.makeHeader(provider: .codex, version: "1.2.3", source: "cli")
-        #expect(header.contains("Codex"))
-        #expect(header.contains("1.2.3"))
-        #expect(header.contains("cli"))
+    func test_makeHeaderIncludesVersionWhenAvailable() {
+        let header = CodexBarCLI.makeHeader(provider: .codex, version: "1.2.3", source: "cli")
+        XCTAssertTrue(header.contains("Codex"))
+        XCTAssertTrue(header.contains("1.2.3"))
+        XCTAssertTrue(header.contains("cli"))
     }
 
     func test_cliVersionFallsBackToContainingAppBundle() throws {
@@ -48,7 +44,7 @@ struct CLIEntryTests {
             .appendingPathComponent("codexbar-cli-version-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
-        let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
+        let appURL = root.appendingPathComponent("CodexBar.app", isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
         let helpersURL = contentsURL.appendingPathComponent("Helpers", isDirectory: true)
         try FileManager.default.createDirectory(at: helpersURL, withIntermediateDirectories: true)
@@ -58,10 +54,10 @@ struct CLIEntryTests {
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
         try data.write(to: infoURL)
 
-        let helperURL = helpersURL.appendingPathComponent("TokenBarCLI")
+        let helperURL = helpersURL.appendingPathComponent("CodexBarCLI")
         try Data().write(to: helperURL)
 
-        #expect(TokenBarCLI.containingAppVersion(for: helperURL) == "9.8.7")
+        XCTAssertEqual(CodexBarCLI.containingAppVersion(for: helperURL), "9.8.7")
     }
 
     func test_cliVersionFollowsSymlinkedHelper() throws {
@@ -69,8 +65,7 @@ struct CLIEntryTests {
             .appendingPathComponent("codexbar-cli-version-symlink-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
-        let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
-        let emptyBundleURL = root.appendingPathComponent("Empty.bundle", isDirectory: true)
+        let appURL = root.appendingPathComponent("CodexBar.app", isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
         let helpersURL = contentsURL.appendingPathComponent("Helpers", isDirectory: true)
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
@@ -82,19 +77,13 @@ struct CLIEntryTests {
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
         try data.write(to: infoURL)
 
-        let helperURL = helpersURL.appendingPathComponent("TokenBarCLI")
+        let helperURL = helpersURL.appendingPathComponent("CodexBarCLI")
         try Data().write(to: helperURL)
 
-        let symlinkURL = binURL.appendingPathComponent("tokenbar")
+        let symlinkURL = binURL.appendingPathComponent("codexbar")
         try FileManager.default.createSymbolicLink(at: symlinkURL, withDestinationURL: helperURL)
 
-        let emptyBundle = try #require(Bundle(url: emptyBundleURL))
-        #expect(TokenBarCLI.currentVersion(bundle: emptyBundle, executablePath: symlinkURL.path) == "2.4.6")
-    }
-
-    @Test
-    func `raw SwiftPM CLI version can skip bundle and filesystem lookup`() {
-        #expect(TokenBarCLI.currentVersion(bundle: nil, executablePath: nil) == nil)
+        XCTAssertEqual(CodexBarCLI.currentVersion(bundleVersion: nil, executablePath: symlinkURL.path), "2.4.6")
     }
 
     func test_cliVersionFallsBackToAdjacentVersionFile() throws {
@@ -105,33 +94,22 @@ struct CLIEntryTests {
 
     func test_cliVersionPrefersAdjacentVersionOverStandaloneBundleName() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-cli-version-bundle-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
         try FileManager.default.createDirectory(at: binURL, withIntermediateDirectories: true)
 
-        let helperURL = binURL.appendingPathComponent("TokenBarCLI")
+        let helperURL = binURL.appendingPathComponent("CodexBarCLI")
         try Data().write(to: helperURL)
         try "4.5.6\n".write(
             to: binURL.appendingPathComponent("VERSION"),
             atomically: false,
             encoding: .utf8)
 
-        let emptyBundle = try #require(Bundle(url: emptyBundleURL))
-        #expect(TokenBarCLI.currentVersion(bundle: emptyBundle, executablePath: helperURL.path) == "3.2.1")
-
-        try "3.2.2\n".write(
-            to: binURL.appendingPathComponent("VERSION"),
-            atomically: true,
-            encoding: .utf8)
-        #expect(TokenBarCLI.currentVersion(bundle: emptyBundle, executablePath: helperURL.path) == "3.2.2")
-
-        try "version-3.2.3\n".write(
-            to: binURL.appendingPathComponent("VERSION"),
-            atomically: true,
-            encoding: .utf8)
-        #expect(TokenBarCLI.currentVersion(bundle: emptyBundle, executablePath: helperURL.path) == "version-3.2.3")
+        XCTAssertEqual(
+            CodexBarCLI.currentVersion(bundleVersion: "CodexBar", executablePath: helperURL.path),
+            "4.5.6")
     }
 
     private func expectAdjacentVersionFile(raw: String, expected: String) throws {
@@ -142,14 +120,14 @@ struct CLIEntryTests {
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
         try FileManager.default.createDirectory(at: binURL, withIntermediateDirectories: true)
 
-        let helperURL = binURL.appendingPathComponent("TokenBarCLI")
+        let helperURL = binURL.appendingPathComponent("CodexBarCLI")
         try Data().write(to: helperURL)
         try raw.write(
             to: binURL.appendingPathComponent("VERSION"),
             atomically: false,
             encoding: .utf8)
 
-        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: nil, executablePath: helperURL.path), expected)
+        XCTAssertEqual(CodexBarCLI.currentVersion(bundleVersion: nil, executablePath: helperURL.path), expected)
     }
 
     func test_renderOpenAIWebDashboardTextIncludesSummary() {
@@ -171,23 +149,21 @@ struct CLIEntryTests {
             creditsPurchaseURL: nil,
             updatedAt: Date())
 
-        let text = TokenBarCLI.renderOpenAIWebDashboardText(snapshot)
+        let text = CodexBarCLI.renderOpenAIWebDashboardText(snapshot)
 
         XCTAssertTrue(text.contains("Web session: user@example.com"))
         XCTAssertTrue(text.contains("Code review: 45% remaining (Resets in "))
         XCTAssertTrue(text.contains("Web history: 1 events"))
     }
 
-    @Test
-    func `maps errors to exit codes`() {
-        #expect(TokenBarCLI.mapError(CodexStatusProbeError.codexNotInstalled) == ExitCode(2))
-        #expect(TokenBarCLI.mapError(CodexStatusProbeError.timedOut) == ExitCode(4))
-        #expect(TokenBarCLI.mapError(UsageError.noRateLimitsFound) == ExitCode(3))
+    func test_mapsErrorsToExitCodes() {
+        XCTAssertEqual(CodexBarCLI.mapError(CodexStatusProbeError.codexNotInstalled), ExitCode(2))
+        XCTAssertEqual(CodexBarCLI.mapError(CodexStatusProbeError.timedOut), ExitCode(4))
+        XCTAssertEqual(CodexBarCLI.mapError(UsageError.noRateLimitsFound), ExitCode(3))
     }
 
-    @Test
-    func `provider selection falls back to both for primary pair`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .claude])
+    func test_providerSelectionFallsBackToBothForPrimaryPair() {
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .claude])
         switch selection {
         case .both:
             break
@@ -196,9 +172,8 @@ struct CLIEntryTests {
         }
     }
 
-    @Test
-    func `provider selection falls back to custom when non primary`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .gemini])
+    func test_providerSelectionFallsBackToCustomWhenNonPrimary() {
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .gemini])
         switch selection {
         case let .custom(providers):
             XCTAssertEqual(providers, [.codex, .gemini])
@@ -207,46 +182,42 @@ struct CLIEntryTests {
         }
     }
 
-    @Test
-    func `provider selection defaults to codex when empty`() {
-        let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [])
+    func test_providerSelectionHonorsEmptyEnabledSet() {
+        let selection = CodexBarCLI.providerSelection(rawOverride: nil, enabled: [])
         switch selection {
-        case let .single(provider):
-            XCTAssertEqual(provider, .codex)
+        case let .custom(providers):
+            XCTAssertEqual(providers, [])
         default:
-            XCTFail("Expected single Codex selection")
+            XCTFail("Expected empty custom selection")
         }
     }
 
-    @Test
-    func `decodes source and timeout options`() throws {
-        let signature = TokenBarCLI._usageSignatureForTesting()
+    func test_decodesSourceAndTimeoutOptions() throws {
+        let signature = CodexBarCLI._usageSignatureForTesting()
         let parser = CommandParser(signature: signature)
         let parsed = try parser.parse(arguments: ["--web-timeout", "45", "--source", "oauth"])
-        #expect(TokenBarCLI._decodeWebTimeoutForTesting(from: parsed) == 45)
-        #expect(TokenBarCLI._decodeSourceModeForTesting(from: parsed) == .oauth)
+        XCTAssertEqual(CodexBarCLI._decodeWebTimeoutForTesting(from: parsed), 45)
+        XCTAssertEqual(CodexBarCLI._decodeSourceModeForTesting(from: parsed), .oauth)
 
         let parsedWeb = try parser.parse(arguments: ["--web"])
-        #expect(TokenBarCLI._decodeSourceModeForTesting(from: parsedWeb) == .web)
+        XCTAssertEqual(CodexBarCLI._decodeSourceModeForTesting(from: parsedWeb), .web)
     }
 
-    @Test
-    func `should use color respects format and flags`() {
-        #expect(!TokenBarCLI.shouldUseColor(noColor: true, format: .text))
-        #expect(!TokenBarCLI.shouldUseColor(noColor: false, format: .json))
+    func test_shouldUseColorRespectsFormatAndFlags() {
+        XCTAssertFalse(CodexBarCLI.shouldUseColor(noColor: true, format: .text))
+        XCTAssertFalse(CodexBarCLI.shouldUseColor(noColor: false, format: .json))
     }
 
-    @Test
-    func `kilo usage text notes show fallback only for auto resolved to CLI`() {
-        #expect(TokenBarCLI.usageTextNotes(
+    func test_kiloUsageTextNotesShowFallbackOnlyForAutoResolvedToCLI() {
+        XCTAssertEqual(CodexBarCLI.usageTextNotes(
             provider: .kilo,
             sourceMode: .auto,
-            resolvedSourceLabel: "cli") == ["Using CLI fallback"])
-        #expect(TokenBarCLI.usageTextNotes(
+            resolvedSourceLabel: "cli"), ["Using CLI fallback"])
+        XCTAssertTrue(CodexBarCLI.usageTextNotes(
             provider: .kilo,
             sourceMode: .api,
             resolvedSourceLabel: "cli").isEmpty)
-        #expect(TokenBarCLI.usageTextNotes(
+        XCTAssertTrue(CodexBarCLI.usageTextNotes(
             provider: .codex,
             sourceMode: .auto,
             resolvedSourceLabel: "cli").isEmpty)
@@ -266,7 +237,7 @@ struct CLIEntryTests {
                 errorDescription: "Kilo CLI session not found."),
         ]
 
-        let summary = TokenBarCLI.kiloAutoFallbackSummary(
+        let summary = CodexBarCLI.kiloAutoFallbackSummary(
             provider: .kilo,
             sourceMode: .auto,
             attempts: attempts)
@@ -287,21 +258,22 @@ struct CLIEntryTests {
                 errorDescription: "example"),
         ]
 
-        #expect(TokenBarCLI.kiloAutoFallbackSummary(
+        XCTAssertNil(CodexBarCLI.kiloAutoFallbackSummary(
             provider: .kilo,
             sourceMode: .api,
-            attempts: attempts) == nil)
-        #expect(TokenBarCLI.kiloAutoFallbackSummary(
+            attempts: attempts))
+        XCTAssertNil(CodexBarCLI.kiloAutoFallbackSummary(
             provider: .codex,
             sourceMode: .auto,
             attempts: attempts))
     }
 
-    @Test
-    func `source mode requires web support is provider aware`() {
-        #expect(TokenBarCLI.sourceModeRequiresWebSupport(.web, provider: .kilo))
-        #expect(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .codex))
-        #expect(!TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .kilo))
-        #expect(!TokenBarCLI.sourceModeRequiresWebSupport(.api, provider: .kilo))
+    func test_sourceModeRequiresWebSupportIsProviderAware() {
+        XCTAssertTrue(CodexBarCLI.sourceModeRequiresWebSupport(.web, provider: .kilo))
+        XCTAssertTrue(CodexBarCLI.sourceModeRequiresWebSupport(.auto, provider: .codex))
+        XCTAssertFalse(CodexBarCLI.sourceModeRequiresWebSupport(.auto, provider: .kilo))
+        XCTAssertFalse(CodexBarCLI.sourceModeRequiresWebSupport(.auto, provider: .grok))
+        XCTAssertFalse(CodexBarCLI.sourceModeRequiresWebSupport(.web, provider: .grok))
+        XCTAssertFalse(CodexBarCLI.sourceModeRequiresWebSupport(.api, provider: .kilo))
     }
 }

@@ -30,6 +30,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case synthetic
     case warp
     case openrouter
+    case elevenlabs
     case windsurf
     case perplexity
     case mimo
@@ -45,6 +46,10 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case commandcode
     case stepfun
     case bedrock
+    case grok
+    case groq
+    case llmproxy
+    case deepgram
 }
 
 // swiftformat:enable sortDeclarations
@@ -77,6 +82,7 @@ public enum IconStyle: Sendable, CaseIterable {
     case synthetic
     case warp
     case openrouter
+    case elevenlabs
     case windsurf
     case perplexity
     case mimo
@@ -92,6 +98,10 @@ public enum IconStyle: Sendable, CaseIterable {
     case commandcode
     case stepfun
     case bedrock
+    case grok
+    case groq
+    case llmproxy
+    case deepgram
     case combined
 }
 
@@ -196,6 +206,16 @@ public enum ProviderBrowserCookieDefaults {
         #if os(macOS)
         let preferredPrefix: [Browser] = [.safari, .chrome, .firefox]
         return preferredPrefix + Browser.defaultImportOrder.filter { !preferredPrefix.contains($0) }
+        #else
+        nil
+        #endif
+    }
+
+    /// Grok is normally signed in through Chrome; keep this narrow so CLI/live probes do not touch
+    /// unrelated browser keychains.
+    public static var grokCookieImportOrder: BrowserCookieImportOrder? {
+        #if os(macOS)
+        [.chrome]
         #else
         nil
         #endif

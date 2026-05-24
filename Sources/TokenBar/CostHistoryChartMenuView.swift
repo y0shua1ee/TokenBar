@@ -42,6 +42,7 @@ struct CostHistoryChartMenuView: View {
     private let daily: [DailyEntry]
     private let totalCostUSD: Double?
     private let currencyCode: String
+    private let historyDays: Int
     private let width: CGFloat
     private let loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)?
     @State private var selectedDateKey: String?
@@ -53,6 +54,7 @@ struct CostHistoryChartMenuView: View {
         daily: [DailyEntry],
         totalCostUSD: Double?,
         currencyCode: String = "USD",
+        historyDays: Int = 30,
         width: CGFloat,
         loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)? = nil)
     {
@@ -60,6 +62,7 @@ struct CostHistoryChartMenuView: View {
         self.daily = daily
         self.totalCostUSD = totalCostUSD
         self.currencyCode = currencyCode
+        self.historyDays = max(1, min(365, historyDays))
         self.width = width
         self.loadModelBreakdowns = loadModelBreakdowns
     }
@@ -170,7 +173,7 @@ struct CostHistoryChartMenuView: View {
             }
 
             if let total = self.totalCostUSD {
-                Text("Total (30d): \(UsageFormatter.currencyString(total, currencyCode: self.currencyCode))")
+                Text("Est. total (\(Self.windowLabel(days: self.historyDays))): \(UsageFormatter.currencyString(total, currencyCode: self.currencyCode))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -199,6 +202,10 @@ struct CostHistoryChartMenuView: View {
     private static let detailPrimaryLineHeight: CGFloat = 16
     private static let detailRowHeight: CGFloat = 24
     private static let detailSpacing: CGFloat = 6
+
+    private static func windowLabel(days: Int) -> String {
+        days == 1 ? "today" : "\(days)d"
+    }
 
     private static func capHeight(maxValue: Double) -> Double {
         maxValue * 0.05

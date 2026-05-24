@@ -29,6 +29,7 @@ struct SettingsDefaultsState {
     var multiAccountMenuLayoutRaw: String
     var menuBarMetricPreferencesRaw: [String: String]
     var costUsageEnabled: Bool
+    var costUsageHistoryDays: Int
     var hidePersonalInfo: Bool
     var randomBlinkEnabled: Bool
     var confettiOnWeeklyLimitResetsEnabled: Bool

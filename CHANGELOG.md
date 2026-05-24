@@ -1,85 +1,200 @@
 # Changelog
 
-## 0.26.1 — 2026-05-24 / upstream CodexBar 0.26.1 sync
+## 0.27.0 — 2026-05-18
 
-### Upstream Sync
-- Sync upstream CodexBar 0.26.1 and 0.26.0 into the TokenBar fork while preserving TokenBar product/target names, `~/.tokenbar` config storage, `com.y0shua1ee.tokenbar` bundle surfaces, appcast/release paths, and Homebrew cask flow.
-- Add upstream Bedrock Cost Explorer usage, Moonshot/Kimi API balance support, Kilo organization refresh/scoped stacked cards, Kiro account/credit details, Antigravity Google OAuth account switching, z.ai hourly charts, status-menu/menu-bar stability fixes, and provider changelog/status menu improvements.
-- Add OpenAI API usage summaries/charts, `tokenbar serve` localhost JSON endpoints, Codex isolated status probes, Codex managed-account local cost scoping, Cursor browser-login import, Claude enterprise/spend-limit handling, Gemini OAuth refresh fixes, and the new upstream scripts/tests/docs.
+### Added
+- Usage charts: reuse the OpenAI API inline dashboard for local Codex/Claude/Vertex/Bedrock cost history, OpenRouter day/week/month spend, z.ai hourly tokens, and Mistral daily spend.
+- Usage history: let OpenAI Admin API charts and local cost-history scans use a configurable 1–365 day window instead of a fixed 30 days (#83).
+- Grok: add xAI Grok provider support with local identity detection and billing decoding for the Grok CLI integration (#965). Thanks @taibaran!
+- ElevenLabs: add API-key usage tracking for subscription credits, reset time, and voice-slot limits.
+- Deepgram: add API-key usage tracking with project discovery and speech/agent usage breakdowns (#1003, fixes #994). Thanks @czjzpz!
+- GroqCloud: add API-key usage tracking for Enterprise Prometheus metrics with request, token, and cache-hit rate summaries (#993).
+- LLM Proxy: add API-key quota-stats support for aggregate proxy usage, key health, spend, provider breakdowns, and reset windows (#264).
+- Claude: add an Anthropic Admin API source and allow `sk-ant-admin...` keys in Claude token accounts for API spend/token tracking (#966).
+- MiniMax: add web-session billing-history summaries with 30-day token charts and top model/method breakdowns (#1007).
+- OpenCode Go: show the optional Zen pay-as-you-go balance from the workspace dashboard alongside subscription windows (#1006).
+- Kiro: add overage-credit and overage-cost menu bar display modes for exhausted plans (#972). Thanks @raflyazf!
+- CLI: add `codexbar config set-api-key` for safely storing provider API keys from stdin.
+- CLI: add `codexbar config providers`, `enable`, and `disable` for scripting the same provider toggles used by Settings.
+- CLI: let `--all-accounts` and `codexbar serve` export every visible Codex account instead of only the selected account (#1019).
+- Permissions: notify when a provider probe detects a macOS/browser permission prompt waiting for user action (#456).
+- Quota warnings: include the triggering account in notification copy when personal info is visible (#973). Thanks @raflyazf!
+- Website: replace provider-letter tiles with brand logos, add light/dark landing-page themes, and collapse OpenCode/OpenCode Go into one company entry (#989). Thanks @pasangimhana!
+- Providers: route app-owned provider HTTP calls through a shared transport seam for cleaner proxy and test support (#892). Thanks @serezha93!
 
-### TokenBar Fork
-- Preserve native Custom and Krill providers, including Krill provider files, settings, icons, docs, cost refresh allowlists, and model-breakdown cost history.
-- Preserve TokenBar 0.25.2 OpenRouter Management Key support and OpenRouter Activity cost history while unioning upstream OpenRouter key-spend updates.
-- Keep user-facing app, config, release, and CLI documentation TokenBar-branded while retaining upstream CodexBar attribution links where they intentionally reference the original project.
+### Fixed
+- Codex: make local cost-history scans faster and more stable for large session archives while preserving fork attribution, priority pricing, and cached history windows.
+- Codex: collapse near-duplicate session and weekly plan-utilization history windows so charts no longer show repeated tabs (#1027). Thanks @ngutman!
+- Multi-account menus: fetch stacked Codex/token-account usage concurrently so account switchers stay responsive with many accounts (#1011).
+- Codex: keep local cost history attributed to the correct model when long or oversized `turn_context` rows precede model-less token events (#1014, fixes #1013). Thanks @hhh2210!
+- Codex: prefer per-event token usage over divergent total counters when scanning local cost history, preventing large false cost spikes (#968). Thanks @Ifan24!
+- Claude: de-duplicate copied fork/resume transcript history by provider response identity so local cost estimates do not overcount repeated rows (#1002). Thanks @Neverdie-2!
+- Codex: improve multi-account switching with quota-aware ordering, workspace grouping, persisted per-account snapshots, health labels, and auth fingerprint matching.
+- Codex: improve managed account login recovery guidance when macOS blocks or moves a stale `codex` CLI to Trash (#977).
+- Codex: show weekly pace reserve details in the menu even when the caller did not precompute pace data (#1009). Thanks @zhulijin1991!
+- Overview: expose provider chart and storage detail submenus from overview rows instead of requiring a provider-tab switch first.
+- Claude: reset stuck CLI sessions after usage probe timeouts, give slow probes longer to render, and keep stale data visible across transient timeouts.
+- Claude: keep the last successful usage card visible across transient probe timeouts while still clearing stale data after Claude auth changes.
+- Claude: keep Team and Personal Max plan-utilization history separate when the same email appears on multiple Claude accounts (#213).
+- Claude: label Extra usage denominators as the monthly cap so recharge balances are not confused with the maximum spend limit (#975).
+- Claude: wait for the CLI usage panel to finish rendering after the Current session label so slow Claude Code builds do not produce false "Missing Current session" errors (#959).
+- Claude: label five-hour session pace as "Projected empty" so it is not confused with the reset countdown (#960).
+- Claude: show Enterprise spend-limit usage in automatic menu bar metrics and expose the Extra usage metric picker when spend data is available (#964).
+- Grok: retry transient web billing timeouts once and allow slower billing RPCs to finish before showing an error.
+- Grok: fall back to grok.com's billing endpoint when `grok agent stdio` omits the xAI billing method (#984). Thanks @bcharleson!
+- OpenAI: shorten the provider label to "OpenAI" so the menu tab no longer clips.
+- OpenAI: accept numeric-string Admin API cost amounts so usage does not fail when `/v1/organization/costs` returns `"amount": { "value": "12.50" }` (#999, #1000). Thanks @SergeyLavrentev!
+- Menu: keep provider switcher buttons centered by moving quota indicators out of the button layout.
+- Menu: rebuild the selected provider content after switching tabs while an overview chart submenu is open.
+- Menu: keep the persistent Refresh row at a fixed height while highlighted or pressed so nearby items no longer jump (#1001).
+- Menu bar: avoid re-reading provider credentials, Codex account state, Claude terminal probe text, and storage footprints on hot menu paths, reducing idle CPU while providers are still loading.
+- Menu bar: skip unchanged split-provider icon redraws and avoid an extra animation-state scan during blink ticks.
+- Menu bar: recover visible status items after the display hosting the menu bar item is unplugged (#998, fixes #997). Thanks @Llldmiao!
+- Menu bar: recreate status items on startup when macOS reports them visible but never attaches a menu bar button/window (#988).
+- MiniMax: show Coding Plan model-remains quotas as used/limit cards and include weekly text-generation quota windows (#970). Thanks @Yuxin-Qiao!
+- Ollama: let automatic session import fall back from Chrome to Safari, Comet, and the rest of the browser import order when Chrome has no Ollama session (#962).
+- Kimi K2: label the legacy provider as unofficial and remove links that presented the legacy endpoint as an official Kimi account surface (#967, fixes #473). Thanks @mturac!
+- CLI: use explicit provider HTTP timeouts so blocked network connections fail instead of leaving usage commands stuck for days (#1005, fixes #1004). Thanks @msmolkin!
+- CLI: reject non-loopback `Host` headers in `codexbar serve` before serving local usage and cost metadata (#995). Thanks @rohitjavvadi!
+- Packaging: skip slow widget App Intents metadata during dev restarts and preserve the previous app bundle if required metadata generation times out.
+- Localization: fall back to English when a bundled localized string is blank instead of rendering empty menu/settings text (#952). Thanks @xiaoqianWX!
+- Settings: localize the provider storage usage toggle in the Advanced pane (#985, fixes #971). Thanks @tanish19078!
 
-## 0.25.2 — 2026-05-20
+## 0.26.1 — 2026-05-15
 
-### OpenRouter
-- Add Management Key support for OpenRouter so account-level balance, API-key quota, and Activity usage can be fetched when the regular API key is absent.
-- Add OpenRouter 30-day Cost history from the Activity API, including request counts, prompt/completion/reasoning tokens, BYOK inference usage, and per-model breakdown rows.
-- Normalize Activity API date-time values to `YYYY-MM-DD` so Cost history bars render reliably across fresh and cached snapshots.
+### Added
+- OpenAI API: show Admin API usage inline with Today/7d/30d summaries, a 30-day spend graph, and an interactive detail chart for daily spend, tokens, and requests.
+- CLI: add `codexbar serve` for localhost JSON access to usage and cost endpoints (#957). Thanks @ThiagoCAltoe!
 
-### CI
-- Port CodexBar's suite-sharded macOS Swift test runner to avoid aggregate `swift test` hangs on GitHub Actions and identify timed-out suites directly.
-- Apply SwiftFormat/SwiftLint fixes for the OpenRouter changes.
+### Fixed
+- OpenCode Go: block cross-host redirects when fetching usage so imported cookies cannot follow external redirect targets (#969). Thanks @pavbar!
+- Codex: keep background `/status` probes out of Codex Desktop history by using isolated non-persistent CLI storage (#953).
+- Menu: stabilize the Cost submenu by using a native menu item and deferring open-menu rebuilds while tracking (#954). Thanks @getogrand!
+- Localization: add Brazilian Portuguese quota-warning settings strings (#958). Thanks @ThiagoCAltoe!
 
-## 0.25.1 — 2026-05-15 / upstream CodexBar 0.25.1 — 2026-05-11
+## 0.26.0 — 2026-05-15
 
-### TokenBar Fork
-- Sync upstream CodexBar 0.25.1 into the TokenBar fork while preserving TokenBar branding, config namespace, adhoc release metadata, and local Custom/Krill providers.
-- Krill: use `request-logs/model-stats` for Cost history model distribution rows, preload Today during refresh, and load historical bar breakdowns on hover with per-day caching.
-- Krill: keep the normal Cost history refresh lightweight by using aggregate `request-logs/stats` for 30-day trends and avoiding full raw-log scans.
+### Added
+- Codex: add tiered long-context and Fast/Priority pricing to local cost history using local app-server priority traces (#917). Thanks @iam-brain!
+- Kiro: show account/auth details, plan labels, credit and bonus-credit balances, overage state, and Kiro-specific menu bar display options (#933, fixes #934). Thanks @solnikhil!
+- Antigravity: add Google OAuth token-account switching with selected-account refresh persistence (#937, fixes #936). Thanks @hhh2210!
+- OpenRouter: show daily and weekly API key spend from `/api/v1/key` in the menu (#685). Thanks @ThiagoCAltoe!
+- Display: add a setting to hide quota-warning tick marks on usage bars while keeping quota warning notifications active (#918, fixes #916). Thanks @ThiagoCAltoe!
+- Menu: add left/right arrow keyboard navigation for the merged provider switcher (#266).
+- Menu: add an opt-in setting for provider changelog links, starting with Codex, Claude Code, and Gemini CLI (#929, fixes #660). Thanks @ThiagoCAltoe!
+- AWS Bedrock: add Cost Explorer usage and monthly budget tracking (#897). Thanks @afalk42!
+- Kilo: add organization selection, scoped organization fetches, and stacked Kilo usage cards (#920). Thanks @NoeFabris!
+- Moonshot / Kimi API: add API-key balance tracking, CLI support, docs, and menu bar balance copy (#899). Thanks @giuseppebisemi!
+- z.ai: add an hourly per-model token usage chart in the menu (#913). Thanks @n1majne3!
+- Localization: add Brazilian Portuguese translations (#902). Thanks @ThiagoCAltoe!
+- Localization: add Simplified Chinese translations for Claude peak-hour labels (#921). Thanks @whtis!
+
+### Fixed
+- Codex: show authenticated plan/account rows as "Limits not available" instead of a red no-rate-limit error when Codex reports profile data but no rate-limit windows yet.
+- Overview: hide provider rows that only contain an error, and avoid showing a one-item Codex System Account submenu.
+- Menu: disable implicit provider-switcher layer animations and reuse the deferred rebuild path so open menus stay stable under pointer movement (#950).
+- Menu: defer account-switcher menu rebuilds so switching Codex or token accounts does not send the open menu into a flicker loop (#946, fixes #944). Thanks @kubahasek!
+- Menu: avoid rebuilding visible menus during background open-menu refreshes so hover submenus stay responsive (#923, fixes #909). Thanks @AmrMohamad!
+- Codex: scope local cost history to the selected managed account's `CODEX_HOME` and label cost cards as local-log estimates (#910).
+- Cost history: label local log totals as API-rate estimates in menu cards, charts, and CLI output (#926). Thanks @yashiels!
+- Cursor: open Add Account in the user's browser and import the resulting browser session instead of trapping login in an embedded web view (#922).
+- Claude: handle Enterprise and organization spend-limit usage across OAuth/web accounts, including null session quota windows, inline spend-limit usage, `extra_usage`-only responses, and token-account Org ID support (#925, #941, fixes #940). Thanks @clintandrewhall!
+- OpenCode Go: let automatic cookie import scan all supported browser sources instead of Chrome only (#665).
+- Copilot: preserve over-quota usage so paid overage can show above 100% instead of clamping to exhausted (#818).
+- Codex: pause background CLI launches after macOS blocks or quarantines `codex`, avoiding repeated "Malware Blocked" prompts (#942).
+- Claude: clarify that local cost/token estimates include cache read/write tokens and may differ from Claude Code `/status` (#781, #787).
+- Updates: make the restart/apply-update menu action use Sparkle's prepared install callback on the first click (#947). Thanks @velvet-shark!
+- Multi-account menus: keep stacked token-account cards capped to current accounts and ignore stale snapshots from removed accounts (#949).
+- Droid: accept pasted Factory `Authorization: Bearer` headers and bearer tokens for manual sessions when cookies alone are insufficient (#914).
+- Menu bar: detect when macOS Tahoe hides CodexBar behind the new Allow in Menu Bar setting and show recovery guidance (#945, fixes #890). Thanks @pdurlej!
+- CLI: route Claude token-account `--source cli` reads through the selected OAuth/session credential so `--all-accounts` no longer relabels ambient CLI usage (#403).
+- Codex: route menu account refreshes through the resolved live-vs-managed account source so matched accounts keep using the stable `CODEX_HOME` (#932, fixes #931). Thanks @ThiagoCAltoe!
+- Gemini: refresh OAuth credentials when the CLI has a refresh token but no cached access token instead of reporting "not logged in" after authentication (#915).
+- Gemini: label OAuth-backed API fetches as `oauth-api` instead of plain `api` (#930). Thanks @ThiagoCAltoe!
+- Codex: keep session and weekly quota-warning marker thresholds independent so usage bars do not duplicate marker lines (#938, fixes #927). Thanks @iam-brain!
+- Codex: coalesce historical pace reset timestamps into 5-minute buckets so dashboard and live reset jitter do not duplicate weekly history windows (#901). Thanks @zhulijin1991!
+- Menu: middle-truncate long account emails in Codex account controls and keep the Codex account switcher visible during merged-menu refreshes with transient account snapshots.
+- Settings: apply the selected app language from packaged SwiftPM resources instead of falling back to English when the `.lproj` directory casing differs (#908).
+- Settings: let stale managed Codex account records be removed even when their stored home path is outside CodexBar's managed-home directory, and keep CLI known-owner tests from writing fixtures into the live app store.
+- ChatGPT credits: restrict purchase links to real HTTPS `chatgpt.com` settings/usage/billing/credits paths and drop query/fragment data (#903). Thanks @ThiagoCAltoe!
+- z.ai: show the MCP quota bucket as monthly instead of a misleading 1-minute window (#904). Thanks @ThiagoCAltoe!
+- Kimi: rebalance provider icon alignment within its viewBox (#912). Thanks @giuseppebisemi!
+- Release: include macOS platform and architecture in notarized app and dSYM asset names (#164).
+- Upstream tooling: resolve remote default branches and tolerate missing upstream remotes in review scripts (#906).
+
+## 0.25.1 — 2026-05-11
+
+### Fixed
+- Settings: avoid packaged-app crashes from SwiftPM localization bundle lookup when opening Settings or About (#896, fixes #891). Thanks @lederniermagicien!
+- CLI: include a VERSION file in standalone release archives so `--version` reports the release tag outside the app bundle (#898). Thanks @ThiagoCAltoe!
+- Pi: rebuild stale session cost caches after cache-version migrations so refreshed cost history reflects current scanner data.
+- Keychain cache: reduce repeated development prompt churn by trusting the bundled helper when writing CodexBar-owned cache items (#888).
+
+## 0.25 — 2026-05-10
 
 ### Highlights
-- Add Simplified Chinese localization, in-app language selection, quota warning controls, VoiceOver labels, and better balance-style menu bar text.
-- Add or expand providers for Manus, MiMo, Qwen, Doubao, Command Code, StepFun, Crof, Venice, OpenAI API balance, Antigravity, MiniMax multi-service quotas, and Factory Droid billing limits.
-- Add live models.dev pricing metadata for Cost history, preserve tiered pricing boundaries, and keep large Codex/Claude scans incremental.
-- Improve Codex multi-account switchers, official Pro 5x/Pro 20x labels, CLI release version fallback, and packaged Settings localization stability.
-
-### Fixes
-- Reduce development Keychain prompt churn and rebuild stale Pi session cost caches after cache-version migrations.
-- Fix menu switcher tab routing, hidden/stale status items, menu widening from long Codex account labels, display picker crash, and hosted submenu rebuild stability.
-- Improve DeepSeek balance currency handling, Vertex AI service-account ADC, Gemini curl timeout fallback, Homebrew Gemini OAuth bundle detection, and Alibaba INTL quota messaging.
-
-## 0.24.5 — 2026-05-07
+- Localization: add Simplified Chinese app strings and an in-app language selector (#819). Thanks @markhome1!
+- New providers: Manus, MiMo, Qwen, Doubao, Command Code, StepFun, Crof, Venice, and OpenAI API balance support.
+- MiniMax: add multi-service quota cards for text, speech, image, video, and music coding-plan usage (#605). Thanks @XWind18!
+- Notifications: add opt-in quota warning notifications, warning markers, and provider-level thresholds for session and weekly quota windows (#852). Thanks @Alekstodo!
+- Codex: add stacked multi-account switchers and show official Pro 5x/Pro 20x plan labels (#869, #882). Thanks @ajmccall and @xiaoqianWX!
+- Cost history: use live models.dev pricing metadata, preserve tiered pricing boundaries, and keep large Codex/Claude log scans incremental (#863, #884, #886). Thanks @iam-brain!
+- Menu bar: fix hidden/stale status items, keep manual refreshes open, and improve balance-style menu bar text for providers without useful quota percentages (#845, #853, #861). Thanks @OlimjonovOtabek and @willytop8!
+- Accessibility: add VoiceOver labels for status icons, menu rows, provider switcher buttons, and usage charts (#860, fixes #859). Thanks @WadydX!
 
 ### Providers & Usage
-- DeepSeek: add dashboard login and current-month cost/tokens/requests history from the platform usage endpoints, fetched concurrently with the API-key balance so the balance card stays responsive.
-- DeepSeek: render dashboard spend in CNY, show monthly request counts, and keep recharge balance as a text status instead of a misleading 100% quota bar.
-- Krill: attach today-only model cost breakdowns from request logs when the day is below the safe scan cap, while preserving aggregate-only history for high-volume days.
+- Manus: add browser-cookie provider support for credit balance, monthly credits, and daily refresh tracking (#700). Thanks @hhh2210!
+- MiMo: add browser-cookie provider support for Xiaomi token-plan usage, plan labels, balance fallback, CLI, widget, and docs (#651). Thanks @debpramanik!
+- Qwen and Doubao: add API-key provider support for Alibaba Qwen and Volcengine Ark request-limit tracking (#498). Thanks @LeoLin990405!
+- MiniMax: add multi-service quota cards for text, speech, image, video, and music coding-plan usage (#605). Thanks @XWind18!
+- Antigravity: add OAuth-backed remote usage fetching so quotas can refresh even when the IDE is closed (#635). Thanks @abnormal749!
+- Venice: add API-key balance provider support with DIEM/USD balance display and token-account CLI wiring (#865). Thanks @clawSean!
+- Crof: add API-key provider support with request quota and credit balance tracking (#872). Thanks @baanish!
+- OpenAI API: add optional platform credit-balance tracking from the billing credit-grants endpoint (#877).
+- Command Code: add browser-cookie provider support for monthly USD billing credits (#857). Thanks @sixhobbits!
+- StepFun: add username/password or Oasis-Token provider support for Step Plan rate-limit tracking (#815). Thanks @tevenfeng!
+- Factory/Droid: add token-rate-limit billing windows, Core fallback buckets, and extra usage balance display (#878). Thanks @dantemoon1!
+- OpenRouter, Mistral, and Kimi K2: show balance/spend metrics in menu bar text when quota percentage is not useful (#853). Thanks @willytop8!
+- Usage pace: show session-level pace indicators for Codex and Claude 5-hour windows, and compute pace for any explicit reset window instead of a provider allowlist (#355, #875). Thanks @johnlarkin1 and @ViperThanks!
+- Cost history: add a models.dev pricing metadata parser/cache pipeline and prefer cached models.dev pricing for Codex and Claude before bundled fallback tables (#863, #884). Thanks @iam-brain!
+- Browser cookies: bump SweetCookieKit to 0.4.1 for Comet and Yandex browser discovery, Safari profile cookie stores, and per-browser Chromium Safe Storage keys.
 
-## 0.24.4 — 2026-05-06
+### Menu & Settings
+- Codex: add a stacked multi-account menu layout for account switchers (#869). Thanks @ajmccall!
+- Notifications: add opt-in quota warning notifications, warning markers, and provider-level thresholds for session and weekly quota windows (#852). Thanks @Alekstodo!
+- Accessibility: add VoiceOver labels for status icons, menu rows, provider switcher buttons, and usage charts (#860, fixes #859). Thanks @WadydX!
+- Menu bar: keep status items visible on launch by avoiding macOS autosaved hidden menu-extra state from v0.24 (#861).
+- Menu bar: remove stale split provider status items instead of hiding them, avoiding leftover second-icon slots on macOS 26.4.
+- Menu: keep the status menu open when manually refreshing usage from the menu (#845). Thanks @OlimjonovOtabek!
+- Menu: route provider switcher tab clicks through the parent view's mouse tracking so a sub-provider tab still responds after switching back from the Overview tab (#867). Thanks @Karl-Dai!
+- Menu: keep long Codex account labels from widening the status menu when switching to the Codex tab.
+- Menu: keep Cost and Subscription Utilization submenus stable by deferring parent card rebuilds while hosted submenus are open (#862).
+- Settings: avoid a crash when opening the display overview provider picker.
 
-### CI & Release
-- Fix Linux CLI build by making the Krill provider descriptor available to non-macOS builds while keeping macOS-only runtime implementation gated.
-- Apply project SwiftFormat output after the upstream v0.24 merge so the lint workflow passes.
-- Keep adhoc package metadata on the fork namespace (`com.y0shua1ee.tokenbar`) and remove upstream Sparkle release-key defaults.
+### Fixes
+- Startup: avoid blocking menu-bar creation on synchronous defaults migration/default seeding when macOS preferences services stall.
+- Codex: honor the legacy `openAIWebAccess` defaults key when importing OpenAI web extras preferences, so existing terminal workarounds no longer get ignored on launch (#794).
+- Codex: restrict OAuth auto fallback to missing/invalid auth so transient API/decode errors do not spawn `codex app-server` and burn tokens (#876, fixes #874). Thanks @ViperThanks!
+- Codex: show official Pro 5x/Pro 20x plan labels instead of Pro Lite/Pro in menu and CLI output (#882). Thanks @xiaoqianWX!
+- Cost history: keep manual refreshes on the incremental scanner cache and drain per-line JSON parse allocations so large Codex/Claude histories do not trigger full local log rescans and CPU/memory spikes.
+- Cost history: preserve cached models.dev pricing when an upstream catalog only changes a pinned snapshot suffix for the same model family (#883). Thanks @iam-brain!
+- Cost history: preserve per-request tiered pricing boundaries when aggregating Claude/Pi daily reports (#886). Thanks @iam-brain!
+- Keychain cache: trust the bundled CodexBarCLI helper when writing CodexBar-owned cache items, reducing repeated "CodexBar Cache" prompts from CLI usage (#679). Thanks @QuarkAssistant!
+- Locale: keep relative timestamps in hardcoded-English UI labels consistently English on non-English macOS systems (#868, fixes #866). Thanks @Karl-Dai!
+- Droid: send the bearer JWT subject as the usage `userId` when Factory omits `userProfile.id`, avoiding false login failures (#626). Thanks @CrystalChen1017!
+- Droid: fall back to token/allowance math when the Factory API reports a zero ratio despite non-zero usage (#864). Thanks @proxynico!
+- Alibaba: point the International Coding Plan dashboard link at the current `coding_plan` route and clarify unsupported API-key quota errors (#612).
+- Claude: allow web/sessionKey token accounts to specify `organizationId` so linked Anthropic emails can target the intended org (#848).
+- DeepSeek: show a positive CNY balance when the API also returns an empty USD balance (#873).
+- Vertex AI: detect service-account ADC files from `GOOGLE_APPLICATION_CREDENTIALS` and use `gcloud` to fetch access tokens (#871).
+- Gemini: retry direct API requests with curl when URLSession times out on hosts where curl succeeds (#826).
+- Gemini: locate Homebrew-installed CLI bundles and parse bundled OAuth client constants so token refresh works with newer `gemini-cli` installs (#695).
+- OpenRouter: keep the menu bar rendering the usage meter instead of falling back to the provider logo when no key limit is configured (#854). Thanks @willytop8!
+- DeepSeek: show balance as plain text instead of a misleading quota-style progress bar (#856). Thanks @jb381!
+- Augment: report the real 1-minute keepalive check/min-refresh intervals in startup logs and docs (#434). Thanks @guglielmofonda!
+- Website: refresh codex.bar with the current canonical domain, structured background, and updated social preview.
 
-## 0.24.3 — 2026-05-06
-
-### Upstream Sync
-- Merge upstream CodexBar v0.24 into the TokenBar fork while preserving local Custom and Krill providers.
-- Bring in upstream Windsurf, Codebuff, Copilot Enterprise, provider storage usage, menu/keychain hardening, CLI/provider fixes, and documentation refreshes.
-- Keep TokenBar fork branding, config namespace, adhoc release flow, and Krill/custom provider integrations intact.
-
-## 0.24.2 — 2026-05-05
-
-### Krill Provider
-- Cost history: Krill now shows token cost summary (Today / Last 30 days) and cost chart in the menu
-- Active quota: Krill menu card displays active subscription daily quota (e.g. Elite #1150: $300.44 / $439.99)
-- Fix: Krill cost data was being silently dropped during periodic refresh — added missing whitelist entry in UsageStore
-
-### Dev Tooling
-- package_app.sh: xcodebuild widget metadata output is now visible (was hidden behind >/dev/null, making hangs undiagnosable)
-- Clean up: removed old CodexBar.app and codexbar.png resource artifacts
-
-## 0.24.1 — 2026-05-04
-
-### About
-- Update About pane links to y0shua1ee fork (GitHub, Twitter, Email)
-- Remove website link; add Yoshua copyright attribution
-
-## 0.24 — 2026-05-04 / upstream CodexBar 0.24 — 2026-05-06
+## 0.24 — 2026-05-06
 
 ### Providers & Usage
 - Windsurf: add provider support with web-session usage fetching and local SQLite-cache fallback (#583). Thanks @Coooolfan!
@@ -90,7 +205,6 @@
 - OpenRouter and DeepSeek: show remaining account balances in the menu bar, while preserving OpenRouter's API-key limit metric when explicitly selected (#832). Thanks @giuseppebisemi!
 - Claude: add a peak-hours menu-card indicator with countdowns and a provider setting to hide it (#611). Thanks @hello-amed!
 - Cost history: show per-model cost details as a compact vertical list when hovering daily bars (#513). Thanks @iam-brain!
-- Krill: rename menu labels to Elite Credits / 尊享月卡 Requests / Wallet for clarity; show Elite quota usage alongside limits; fix login label build (#y0shua1ee/TokenBar#1)
 - Copilot: support GitHub Enterprise hosts for the device-flow login and usage API paths (#827). Thanks @ramzesenok!
 - Alibaba: clarify China-region API-key failures when the console endpoint requires a browser session (#628). Thanks @XWind18!
 
@@ -206,7 +320,7 @@
 ### Development & Tooling
 - CLI / Debug: add user-facing browser-cookie cache clearing, including provider-scoped CLI clearing that removes managed Codex account cookie caches (#592, fixes #591). Thanks @coygeek!
 - Diagnostics: add lightweight battery instrumentation for menu updates and refresh work (#708).
-- Build script: make TokenBar-owned ad-hoc keychain cleanup opt-in with `--clear-adhoc-keychain`, and extend the explicit reset path to clear both `com.y0shua1ee.TokenBar` and `com.y0shua1ee.tokenbar.cache`. Thanks @magnaprog!
+- Build script: make CodexBar-owned ad-hoc keychain cleanup opt-in with `--clear-adhoc-keychain`, and extend the explicit reset path to clear both `com.steipete.CodexBar` and `com.steipete.codexbar.cache`. Thanks @magnaprog!
 
 ## 0.20 — 2026-04-07
 
@@ -324,7 +438,7 @@
 - CI/tooling reliability improved via pinned lint tools, deterministic macOS test execution, and PTY timing test stabilization plus Node 24-ready GitHub Actions upgrades (#292, #312, #290).
 
 ### Claude OAuth & Keychain
-- Claude OAuth creds are cached in TokenBar Keychain to reduce repeated prompts.
+- Claude OAuth creds are cached in CodexBar Keychain to reduce repeated prompts.
 - Prompts can still appear when Claude OAuth credentials are expired, invalid, or missing and re-auth is required.
 - In Auto mode, background refresh keeps prompts suppressed; interactive prompts are limited to user actions (menu open or manual refresh).
 - OAuth-only mode remains strict (no silent Web/CLI fallback); Auto mode may do one delegated CLI refresh + one OAuth retry before falling back.
@@ -460,7 +574,7 @@
 - CLI: add pink accents, usage bars, and weekly pace lines to text output.
 - CLI: add config-backed provider settings, `--json-only`, and `--source api` for key-based providers.
 - CLI: add `config validate`/`config dump` commands and per-provider JSON error payloads.
-- CLI/App: move provider secrets + ordering to `~/.tokenbar/config.json` (no Keychain persistence).
+- CLI/App: move provider secrets + ordering to `~/.codexbar/config.json` (no Keychain persistence).
 - Providers: resolve API tokens from config/env only (no Keychain fallback).
 
 ### Dev & Tests
@@ -492,7 +606,7 @@
 
 ## 0.16.0 — 2025-12-29
 - Menu bar: optional “percent mode” (provider brand icons + percentage labels) via Advanced toggle.
-- CLI: add `tokenbar cost` to print local cost usage (text/JSON) for Codex + Claude.
+- CLI: add `codexbar cost` to print local cost usage (text/JSON) for Codex + Claude.
 - Cost: align local cost scanner with ccusage; stabilize parsing/decoding and handle large JSONL lines.
 - Claude: skip pricing for unknown models (tokens still tracked) to avoid hard-coded legacy prices.
 - Performance: reduce menu bar CPU usage by caching morph icons, skipping redundant status-item updates, and caching provider enablement/order during animations.
@@ -516,7 +630,7 @@
 
 ## 0.15.0 — 2025-12-28
 - New providers: Droid (Factory), Cursor, z.ai, Copilot.
-- macOS: TokenBar now supports Intel Macs (x86_64 builds + Sonoma fallbacks). Thanks @epoyraz!
+- macOS: CodexBar now supports Intel Macs (x86_64 builds + Sonoma fallbacks). Thanks @epoyraz!
 - Droid (Factory): new provider with Standard + Premium usage via browser cookies, plus dashboard + status links. Thanks @shashank-factory!
 - Menu: allow multi-line error messages in the provider subtitle (up to 4 lines).
 - Menu: fix subtitle sizing for multi-line error states.
@@ -527,7 +641,7 @@
 - Codex: OpenAI web dashboard is now the primary source for usage + credits; CLI fallback only when no matching cookies exist.
 - Claude: prefer OAuth when credentials exist; fall back to web cookies or CLI (thanks @ibehnam).
 - CLI: replace `--web`/`--claude-source` with `--source` (auto/web/cli/oauth); auto falls back only when cookies are missing.
-- Homebrew: cask now installs the `tokenbar` CLI symlink. Thanks @dalisoft!
+- Homebrew: cask now installs the `codexbar` CLI symlink. Thanks @dalisoft!
 - Cursor: add new usage provider with browser cookie auth (cursor.com + cursor.sh), on-demand bar support, and dashboard access.
 - Cursor: keep stored sessions on transient failures; clear only on invalid auth.
 - z.ai: new provider support with Tokens + MCP usage bars and MCP details submenu; API token now lives in Preferences (stored in Keychain); usage bars respect the show-used toggle. Thanks @uwe-schwarz for the initial work!
@@ -535,7 +649,7 @@
 - Preferences: fix Advanced Display checkboxes and move the Quit button to the bottom of General.
 - Preferences: hide “Augment Claude via web” unless Claude usage source is CLI; rename the cost toggle to “Show cost summary”.
 - Preferences: add an Advanced toggle to show/hide optional Codex Credits + Claude Extra usage sections (on by default).
-- Widgets: add a new “TokenBar Switcher” widget that lets you switch providers and remember the selection.
+- Widgets: add a new “CodexBar Switcher” widget that lets you switch providers and remember the selection.
 - Menu: provider switcher now uses crisp brand icons with equal-width segments and a per-provider usage indicator.
 - Menu: tighten provider switcher sizing and increase spacing between label and weekly indicator bar.
 - Menu: provider switcher no longer forces a wider menu when many providers are enabled; segments clamp to the menu width.
@@ -543,7 +657,7 @@
 - Dev: `compile_and_run.sh` now force-kills old instances to avoid launching duplicates.
 - Dev: `compile_and_run.sh` now waits for slow launches (polling for the process).
 - Dev: `compile_and_run.sh` now launches a single app instance (no more extra windows).
-- CI: build/test Linux `TokenBarCLI` (x86_64 + aarch64) and publish release assets as `TokenBarCLI-<tag>-linux-<arch>.tar.gz` (+ `.sha256`).
+- CI: build/test Linux `CodexBarCLI` (x86_64 + aarch64) and publish release assets as `CodexBarCLI-<tag>-linux-<arch>.tar.gz` (+ `.sha256`).
 - CLI: add alias fallback for Codex/Claude detection when PATH lookups fail.
 - Providers: support Arc browser cookies for Factory/Droid (and other Chromium-based cookie imports).
 - Providers: support ChatGPT Atlas browser data for Chromium cookie imports.
@@ -644,7 +758,7 @@
 - Claude trust prompts (“Do you trust the files in this folder?”) are now auto-accepted during probes to prevent stuck refreshes. Thanks @tobihagemann!
 
 ## 0.8.0 — 2025-12-17
-- TokenBar is now available via Homebrew: `brew install --cask tokenbar` (updates via `brew upgrade --cask tokenbar`).
+- CodexBar is now available via Homebrew: `brew install --cask steipete/tap/codexbar` (updates via `brew upgrade --cask steipete/tap/codexbar`).
 - Added session quota notifications for the sliding 5-hour window (Codex + Claude): notifies when it hits 0% and when it’s available again, based only on observed refresh data (including startup when already depleted). Thanks @GKannanDev!
 
 ## 0.7.3 — 2025-12-17
@@ -679,9 +793,9 @@
 - Claude CLI probes stop passing `--dangerously-skip-permissions`, aligning with the default permission prompt and avoiding hidden first-run failures.
 
 ## 0.6.0 — 2025-12-04
-- New bundled CLI (`tokenbar`) with single `usage` command, `--format text|json`, `--status`, and fast `-h/-V`.
+- New bundled CLI (`codexbar`) with single `usage` command, `--format text|json`, `--status`, and fast `-h/-V`.
 - CLI output now shows consistent headers (`Codex 0.x.y (codex-cli)`, `Claude Code <ver> (claude)`) and JSON includes `source` + `status`.
-- Advanced prefs install button symlinks `tokenbar` into /usr/local/bin and /opt/homebrew/bin; docs refreshed.
+- Advanced prefs install button symlinks `codexbar` into /usr/local/bin and /opt/homebrew/bin; docs refreshed.
 
 ## 0.5.7 — 2025-11-26
 - Status Page and Usage Dashboard menu actions now honor the icon you click; Codex menus no longer open the Claude status site.
@@ -763,7 +877,7 @@
 
 ## 0.2.0 — 2025-11-16
 - CADisplayLink-based loading animations (macOS 15 displayLink API) with randomized patterns (Knight Rider, Cylon, outside-in, race, pulse) and debug replay cycling through all.
-- Debug replay toggle (`defaults write com.y0shua1ee.tokenbar debugMenuEnabled -bool YES`) to view every pattern.
+- Debug replay toggle (`defaults write com.steipete.codexbar debugMenuEnabled -bool YES`) to view every pattern.
 - Usage Dashboard link in menu; menu layout tweaked.
 - Updated time now shows relative formatting when fresher than 24h; refactored sources into smaller files for maintainability.
 - Version bumped to 0.2.0 (4).
@@ -781,10 +895,10 @@
 - Usage parser scans newest session logs until it finds `token_count` events.
 - Icon pipeline fixed: regenerated `.icns` via ictool with proper transparency (docs in docs/icon.md).
 - Added lint/format configs, Swift Testing, strict concurrency, and usage parser tests.
-- Notarized release build "TokenBar-0.1.0.zip" remains current artifact; app version 0.1.1.
+- Notarized release build "CodexBar-0.1.0.zip" remains current artifact; app version 0.1.1.
 
 ## 0.1.0 — 2025-11-16
-- Initial TokenBar release: macOS 15+ menu bar app, no Dock icon.
+- Initial CodexBar release: macOS 15+ menu bar app, no Dock icon.
 - Reads latest Codex CLI `token_count` events from session logs (5h + weekly usage, reset times); no extra login or browser scraping.
 - Shows account email/plan decoded locally from `auth.json`.
 - Horizontal dual-bar icon (top = 5h, bottom = weekly); dims on errors.

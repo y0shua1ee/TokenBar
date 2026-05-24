@@ -27,7 +27,8 @@ extension TokenBarCLI {
           - Kilo: app.kilo.ai API.
             Auto falls back to Kilo CLI when API credentials are missing or unauthorized.
           Token accounts are loaded from ~/.tokenbar/config.json.
-          Use --account or --account-index to select a specific token account, or --all-accounts to fetch all.
+          Use --account or --account-index to select a specific token account.
+          Use --all-accounts to fetch every token account, or every visible Codex account for Codex.
           Account selection requires a single provider.
 
         Global flags:
@@ -74,10 +75,10 @@ extension TokenBarCLI {
 
     static func serveHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar serve [--port <port>] [--refresh-interval <seconds>]
+          tokenbar serve [--port <port>] [--refresh-interval <seconds>]
                          [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                          [-v|--verbose]
 
@@ -94,8 +95,8 @@ extension TokenBarCLI {
           GET /cost?provider=codex
 
         Examples:
-          codexbar serve
-          codexbar serve --port 8080 --refresh-interval 60
+          tokenbar serve
+          tokenbar serve --port 8080 --refresh-interval 60
           curl http://127.0.0.1:8080/usage?provider=all
         """
     }
@@ -117,13 +118,26 @@ extension TokenBarCLI {
                              [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                              [-v|--verbose]
                              [--pretty]
+          tokenbar config providers [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config enable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config disable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
+                                    [--no-enable]
+                                    [--format text|json] [--json] [--json-only] [--pretty]
 
         Description:
           Validate or print the TokenBar config file (default: validate).
+          providers lists persistent provider enablement.
+          enable/disable updates the same provider toggle used by Settings.
+          set-api-key stores a provider API key in ~/.tokenbar/config.json and enables that provider by default.
 
         Examples:
           tokenbar config validate --format json --pretty
           tokenbar config dump --pretty
+          tokenbar config providers
+          tokenbar config enable --provider grok
+          tokenbar config disable --provider cursor
+          printf '%s' "$ELEVENLABS_API_KEY" | tokenbar config set-api-key --provider elevenlabs --stdin
         """
     }
 
@@ -175,12 +189,15 @@ extension TokenBarCLI {
                        [--provider \(ProviderHelp.list)] [--no-color] [--pretty] [--refresh]
           tokenbar serve [--port <port>] [--refresh-interval <seconds>]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
-          tokenbar config <validate|dump> [--format text|json]
+          tokenbar config <validate|dump|providers> [--format text|json]
                                         [--json]
                                         [--json-only]
                                         [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                                         [-v|--verbose]
                                         [--pretty]
+          tokenbar config enable --provider <name>
+          tokenbar config disable --provider <name>
+          tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
           tokenbar cache clear <--cookies|--cost|--all> [--provider <name>]
 
         Global flags:
@@ -199,6 +216,8 @@ extension TokenBarCLI {
           tokenbar cost --provider claude --format json --pretty
           tokenbar serve --port 8080
           tokenbar config validate --format json --pretty
+          tokenbar config enable --provider grok
+          tokenbar config set-api-key --provider elevenlabs --stdin
           tokenbar cache clear --cookies
         """
     }

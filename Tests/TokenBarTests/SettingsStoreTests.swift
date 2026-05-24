@@ -1,8 +1,8 @@
+import CodexBarCore
 import Foundation
 import Observation
 import Testing
-import TokenBarCore
-@testable import TokenBar
+@testable import CodexBar
 
 @Suite(.serialized)
 @MainActor
@@ -807,7 +807,7 @@ struct SettingsStoreTests {
 
         let notifications = NotificationCounter()
         let token = NotificationCenter.default.addObserver(
-            forName: .tokenbarProviderConfigDidChange,
+            forName: .codexbarProviderConfigDidChange,
             object: store,
             queue: .main)
         { _ in
@@ -1158,50 +1158,9 @@ struct SettingsStoreTests {
             zaiTokenStore: NoopZaiTokenStore(),
             syntheticTokenStore: NoopSyntheticTokenStore())
 
-        #expect(storeA.orderedProviders() == [
-            .gemini,
-            .codex,
-            .openai,
-            .claude,
-            .cursor,
-            .opencode,
-            .opencodego,
-            .alibaba,
-            .factory,
-            .antigravity,
-            .copilot,
-            .zai,
-            .minimax,
-            .manus,
-            .kimi,
-            .kilo,
-            .kiro,
-            .vertexai,
-            .augment,
-            .jetbrains,
-            .kimik2,
-            .moonshot,
-            .amp,
-            .ollama,
-            .synthetic,
-            .warp,
-            .openrouter,
-            .windsurf,
-            .perplexity,
-            .mimo,
-            .doubao,
-            .abacus,
-            .mistral,
-            .deepseek,
-            .codebuff,
-            .custom,
-            .krill,
-            .crof,
-            .venice,
-            .commandcode,
-            .stepfun,
-            .bedrock,
-        ])
+        let legacyOrder: [UsageProvider] = [.gemini, .codex]
+        let appendedProviders = UsageProvider.allCases.filter { !legacyOrder.contains($0) }
+        #expect(storeA.orderedProviders() == legacyOrder + appendedProviders)
 
         // Move one provider; ensure it's persisted across instances.
         let antigravityIndex = try #require(storeA.orderedProviders().firstIndex(of: .antigravity))
