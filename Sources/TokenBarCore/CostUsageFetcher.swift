@@ -29,22 +29,24 @@ public struct CostUsageFetcher: Sendable {
         now: Date = Date(),
         forceRefresh: Bool = false,
         allowVertexClaudeFallback: Bool = false,
-        environment: [String: String]? = nil) async throws -> CostUsageTokenSnapshot
+        codexHomePath: String? = nil) async throws -> CostUsageTokenSnapshot
     {
         try await Self.loadTokenSnapshot(
             provider: provider,
+            environment: self.environment,
             now: now,
             forceRefresh: forceRefresh,
             allowVertexClaudeFallback: allowVertexClaudeFallback,
-            environment: environment ?? self.environment)
+            codexHomePath: codexHomePath)
     }
 
     static func loadTokenSnapshot(
         provider: UsageProvider,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
         now: Date = Date(),
         forceRefresh: Bool = false,
         allowVertexClaudeFallback: Bool = false,
-        environment: [String: String] = ProcessInfo.processInfo.environment,
+        codexHomePath: String? = nil,
         scannerOptions overrideScannerOptions: CostUsageScanner.Options? = nil,
         piScannerOptions overridePiScannerOptions: PiSessionCostScanner
             .Options? = nil) async throws -> CostUsageTokenSnapshot
@@ -54,7 +56,9 @@ public struct CostUsageFetcher: Sendable {
         #else
         let supportsRemoteCost = provider == .openrouter
         #endif
-        guard provider == .codex || provider == .claude || provider == .vertexai || supportsRemoteCost else {
+        guard provider == .codex || provider == .claude || provider == .vertexai || provider == .bedrock
+            || supportsRemoteCost
+        else {
             throw CostUsageError.unsupportedProvider(provider)
         }
 
@@ -75,7 +79,22 @@ public struct CostUsageFetcher: Sendable {
         // Rolling window: last 30 days (inclusive). Use -29 for inclusive boundaries.
         let since = Calendar.current.date(byAdding: .day, value: -29, to: now) ?? now
 
+        if provider == .bedrock {
+            let daily = try await Self.loadBedrockDailyReport(
+                environment: environment,
+                since: since,
+                until: until)
+            return Self.tokenSnapshot(from: daily, now: now)
+        }
+
         var options = overrideScannerOptions ?? CostUsageScanner.Options()
+        if provider == .codex,
+           let codexHomePath = codexHomePath?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !codexHomePath.isEmpty
+        {
+            options.codexSessionsRoot = URL(fileURLWithPath: codexHomePath, isDirectory: true)
+                .appendingPathComponent("sessions", isDirectory: true)
+        }
         if provider == .codex || provider == .claude {
             await ModelsDevPricingPipeline.refreshIfNeeded(now: now, cacheRoot: options.cacheRoot)
         }
@@ -128,6 +147,27 @@ public struct CostUsageFetcher: Sendable {
         }
 
         return Self.tokenSnapshot(from: daily, now: now)
+    }
+
+    private static func loadBedrockDailyReport(
+        environment: [String: String],
+        since: Date,
+        until: Date) async throws -> CostUsageDailyReport
+    {
+        guard let accessKeyID = BedrockSettingsReader.accessKeyID(environment: environment),
+              let secretAccessKey = BedrockSettingsReader.secretAccessKey(environment: environment)
+        else {
+            throw BedrockUsageError.missingCredentials
+        }
+        let credentials = BedrockAWSSigner.Credentials(
+            accessKeyID: accessKeyID,
+            secretAccessKey: secretAccessKey,
+            sessionToken: BedrockSettingsReader.sessionToken(environment: environment))
+        return try await BedrockUsageFetcher.fetchDailyReport(
+            credentials: credentials,
+            since: since,
+            until: until,
+            environment: environment)
     }
 
     static func tokenSnapshot(from daily: CostUsageDailyReport, now: Date) -> CostUsageTokenSnapshot {

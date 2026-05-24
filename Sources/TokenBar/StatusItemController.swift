@@ -146,6 +146,8 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var lastMergedSwitcherSelection: ProviderSwitcherSelection?
     /// Tracks the visible Codex account switcher contents for merged-menu smart updates.
     var lastCodexAccountMenuDisplay: CodexAccountMenuDisplay?
+    /// Tracks the visible token account switcher contents for merged-menu smart updates.
+    var lastTokenAccountMenuDisplay: TokenAccountMenuDisplay?
     /// Monotonic token used to ignore stale deferred provider-switcher menu rebuilds.
     var providerSwitcherUpdateToken = 0
     var lastAppliedMergedIconRenderSignature: String?
@@ -269,6 +271,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         self.wireBindings()
         self.updateVisibility()
         self.updateIcons()
+        self.scheduleTahoeAllowListVisibilityCheck()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(self.handleDebugReplayNotification(_:)),
@@ -330,7 +333,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 self.observeStoreChanges()
-                self.invalidateMenus(refreshOpenMenus: !self.store.isRefreshing)
+                self.invalidateMenus()
             }
         }
     }
@@ -455,12 +458,12 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         guard Self.menuRefreshEnabled else { return }
         if !self.openMenus.isEmpty {
             guard refreshOpenMenus else { return }
-            self.refreshOpenMenusIfNeeded()
+            self.refreshOpenMenusAllowingParentRebuild()
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 // AppKit can ignore menu mutations while tracking; retry on the next run loop.
                 await Task.yield()
-                self.refreshOpenMenusIfNeeded()
+                self.refreshOpenMenusAllowingParentRebuild()
             }
             return
         }
@@ -518,7 +521,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         self.updateVisibility()
         self.updateIcons()
         if shouldRefreshOpenMenus {
-            self.refreshOpenMenusIfNeeded()
+            self.refreshOpenMenusForStructureChange()
         }
     }
 

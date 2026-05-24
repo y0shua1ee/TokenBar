@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.26.1 — 2026-05-24 / upstream CodexBar 0.26.1 sync
+
+### Upstream Sync
+- Sync upstream CodexBar 0.26.1 and 0.26.0 into the TokenBar fork while preserving TokenBar product/target names, `~/.tokenbar` config storage, `com.y0shua1ee.tokenbar` bundle surfaces, appcast/release paths, and Homebrew cask flow.
+- Add upstream Bedrock Cost Explorer usage, Moonshot/Kimi API balance support, Kilo organization refresh/scoped stacked cards, Kiro account/credit details, Antigravity Google OAuth account switching, z.ai hourly charts, status-menu/menu-bar stability fixes, and provider changelog/status menu improvements.
+- Add OpenAI API usage summaries/charts, `tokenbar serve` localhost JSON endpoints, Codex isolated status probes, Codex managed-account local cost scoping, Cursor browser-login import, Claude enterprise/spend-limit handling, Gemini OAuth refresh fixes, and the new upstream scripts/tests/docs.
+
+### TokenBar Fork
+- Preserve native Custom and Krill providers, including Krill provider files, settings, icons, docs, cost refresh allowlists, and model-breakdown cost history.
+- Preserve TokenBar 0.25.2 OpenRouter Management Key support and OpenRouter Activity cost history while unioning upstream OpenRouter key-spend updates.
+- Keep user-facing app, config, release, and CLI documentation TokenBar-branded while retaining upstream CodexBar attribution links where they intentionally reference the original project.
+
 ## 0.25.2 — 2026-05-20
 
 ### OpenRouter

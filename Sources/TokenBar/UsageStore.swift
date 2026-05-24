@@ -15,6 +15,7 @@ extension UsageStore {
         _ = self.lastFetchAttempts
         _ = self.accountSnapshots
         _ = self.codexAccountSnapshots
+        _ = self.kiloScopeSnapshots
         _ = self.tokenSnapshots
         _ = self.tokenErrors
         _ = self.tokenRefreshInFlight
@@ -56,6 +57,8 @@ extension UsageStore {
             _ = self.settings.sessionQuotaNotificationsEnabled
             _ = self.settings.quotaWarningNotificationsEnabled
             _ = self.settings.quotaWarningThresholds
+            _ = self.settings.quotaWarningThresholds(.session)
+            _ = self.settings.quotaWarningThresholds(.weekly)
             _ = self.settings.quotaWarningSoundEnabled
             _ = self.settings.usageBarsShowUsed
             _ = self.settings.costUsageEnabled
@@ -131,6 +134,7 @@ final class UsageStore {
     var lastFetchAttempts: [UsageProvider: [ProviderFetchAttempt]] = [:]
     var accountSnapshots: [UsageProvider: [TokenAccountUsageSnapshot]] = [:]
     var codexAccountSnapshots: [CodexAccountUsageSnapshot] = []
+    var kiloScopeSnapshots: [KiloScopeSnapshot] = []
     var tokenSnapshots: [UsageProvider: CostUsageTokenSnapshot] = [:]
     var tokenErrors: [UsageProvider: String] = [:]
     var tokenRefreshInFlight: Set<UsageProvider> = []
@@ -220,6 +224,7 @@ final class UsageStore {
     @ObservationIgnored var lastKnownSessionWindowSource: [UsageProvider: SessionQuotaWindowSource] = [:]
     @ObservationIgnored var quotaWarningState: [QuotaWarningStateKey: QuotaWarningState] = [:]
     @ObservationIgnored var lastTokenFetchAt: [UsageProvider: Date] = [:]
+    @ObservationIgnored var lastTokenFetchScope: [UsageProvider: String] = [:]
     @ObservationIgnored var planUtilizationHistory: [UsageProvider: PlanUtilizationHistoryBuckets] = [:]
     @ObservationIgnored var weeklyLimitResetDetectorStates: [String: WeeklyLimitResetDetectorState] = [:]
     @ObservationIgnored private var hasCompletedInitialRefresh: Bool = false
@@ -901,6 +906,7 @@ extension UsageStore {
                 .venice: "Venice debug log not yet implemented",
                 .commandcode: "Command Code debug log not yet implemented",
                 .stepfun: "StepFun debug log not yet implemented",
+                .bedrock: "Bedrock debug log not yet implemented",
             ]
             let buildText = {
                 switch provider {
@@ -971,9 +977,9 @@ extension UsageStore {
                         configToken: nil,
                         hasEnvToken: deepSeekHasEnvToken,
                         hasTokenAccount: deepSeekHasTokenAccount)
-                case .gemini, .antigravity, .opencode, .opencodego, .factory, .copilot, .vertexai, .kilo, .kiro,
-                     .kimi, .kimik2, .jetbrains, .perplexity, .mimo, .doubao, .abacus, .mistral, .codebuff, .crof,
-                     .windsurf, .venice, .manus, .commandcode, .stepfun, .custom, .krill:
+                case .gemini, .antigravity, .opencode, .opencodego, .factory, .copilot, .vertexai, .kilo, .kiro, .kimi,
+                     .kimik2, .moonshot, .jetbrains, .perplexity, .mimo, .doubao, .abacus, .mistral, .codebuff, .crof,
+                     .windsurf, .venice, .manus, .commandcode, .stepfun, .custom, .krill, .bedrock:
                     return unimplementedDebugLogMessages[provider] ?? "Debug log not yet implemented"
                 }
             }
@@ -1329,6 +1335,7 @@ extension UsageStore {
         self.tokenSnapshots.removeAll()
         self.tokenErrors.removeAll()
         self.lastTokenFetchAt.removeAll()
+        self.lastTokenFetchScope.removeAll()
         self.tokenFailureGates[.codex]?.reset()
         self.tokenFailureGates[.claude]?.reset()
         return nil
@@ -1336,12 +1343,13 @@ extension UsageStore {
 
     private func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
         guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek || provider == .openrouter
+            || provider == .deepseek || provider == .openrouter || provider == .bedrock
         else {
             self.tokenSnapshots.removeValue(forKey: provider)
             self.tokenErrors[provider] = nil
             self.tokenFailureGates[provider]?.reset()
             self.lastTokenFetchAt.removeValue(forKey: provider)
+            self.lastTokenFetchScope.removeValue(forKey: provider)
             return
         }
 
@@ -1350,6 +1358,7 @@ extension UsageStore {
             self.tokenErrors[provider] = nil
             self.tokenFailureGates[provider]?.reset()
             self.lastTokenFetchAt.removeValue(forKey: provider)
+            self.lastTokenFetchScope.removeValue(forKey: provider)
             return
         }
 
@@ -1358,19 +1367,23 @@ extension UsageStore {
             self.tokenErrors[provider] = nil
             self.tokenFailureGates[provider]?.reset()
             self.lastTokenFetchAt.removeValue(forKey: provider)
+            self.lastTokenFetchScope.removeValue(forKey: provider)
             return
         }
 
         guard !self.tokenRefreshInFlight.contains(provider) else { return }
 
         let now = Date()
+        let costScope = self.tokenCostScope(for: provider)
         if !force,
            let last = self.lastTokenFetchAt[provider],
+           self.lastTokenFetchScope[provider] == costScope.signature,
            now.timeIntervalSince(last) < self.tokenFetchTTL
         {
             return
         }
         self.lastTokenFetchAt[provider] = now
+        self.lastTokenFetchScope[provider] = costScope.signature
         self.tokenRefreshInFlight.insert(provider)
         defer { self.tokenRefreshInFlight.remove(provider) }
 
@@ -1380,12 +1393,12 @@ extension UsageStore {
             .debug("cost usage start provider=\(providerText) force=\(force)")
 
         do {
-            let fetcher = self.costUsageFetcher
             let environment = ProviderRegistry.makeEnvironment(
-                base: ProcessInfo.processInfo.environment,
+                base: self.environmentBase,
                 provider: provider,
                 settings: self.settings,
                 tokenOverride: nil)
+            let fetcher = CostUsageFetcher(environment: environment)
             let timeoutSeconds = self.tokenFetchTimeout
             // CostUsageFetcher scans local Codex session logs from this machine. That data is
             // intentionally presented as provider-level local telemetry rather than managed-account
@@ -1399,7 +1412,7 @@ extension UsageStore {
                         now: now,
                         forceRefresh: force,
                         allowVertexClaudeFallback: !self.isEnabled(.claude),
-                        environment: environment)
+                        codexHomePath: costScope.codexHomePath)
                 }
                 group.addTask {
                     try await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1_000_000_000))

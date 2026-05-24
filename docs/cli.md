@@ -44,6 +44,11 @@ See `docs/configuration.md` for the schema.
 - `tokenbar cost` prints local token cost usage for Claude + Codex without web/CLI access.
   - `--format text|json` (default: text).
   - `--refresh` ignores cached scans.
+- `tokenbar serve` starts a foreground localhost-only HTTP server for usage and cost JSON.
+  - `--port <port>` defaults to `8080`.
+  - `--refresh-interval <seconds>` defaults to `60` and controls the in-memory response cache TTL.
+  - v1 binds to `127.0.0.1` only. It does not expose remote bind, auth, CORS, TLS, or daemon mode.
+  - Endpoints: `GET /health`, `GET /usage`, `GET /usage?provider=<id|both|all>`, `GET /cost`, `GET /cost?provider=<id|both|all>`.
 - `tokenbar cache clear` clears local TokenBar caches.
   - `--cookies` removes cached browser-cookie headers from the TokenBar Keychain cache.
   - `--cookies --provider <id>` removes browser-cookie cache entries for that provider, including managed Codex account scopes.
@@ -63,7 +68,7 @@ See `docs/configuration.md` for the schema.
     - `web` (macOS only): web-only where that provider exposes an explicit web source; no CLI/API fallback.
     - `cli`: CLI/local-helper source where the provider exposes one (for example Codex RPC/PTy, Claude PTY, Kilo CLI fallback, Kiro CLI, local probes).
     - `oauth`: OAuth-backed source where supported (Codex, Claude, Vertex AI).
-    - `api`: API-key/token flow when the provider supports it (z.ai, Gemini, Alibaba, Copilot, Kilo, Kimi K2, MiniMax, Warp, OpenRouter, Synthetic, DeepSeek, Codebuff).
+    - `api`: API-key/token flow when the provider supports it (z.ai, Gemini, Alibaba, Copilot, Kilo, Kimi K2, MiniMax, Warp, OpenRouter, Synthetic, DeepSeek, Moonshot, Codebuff).
     - Output `source` reflects the strategy actually used (`openai-web`, `web`, `oauth`, `api`, `local`, `cli`, or provider CLI label).
     - Codex web: OpenAI web dashboard (usage limits, credits remaining, code review remaining, usage breakdown).
         - `--web-timeout <seconds>` (default: 60)
@@ -106,6 +111,7 @@ tokenbar --format json --pretty   # machine output
 tokenbar --format json --provider both
 tokenbar cost                     # local cost usage (last 30 days + today)
 tokenbar cost --provider claude --format json --pretty
+tokenbar serve --port 8080        # localhost HTTP JSON server
 COPILOT_API_TOKEN=... tokenbar --provider copilot --format json --pretty
 tokenbar --status                 # include status page indicator/description
 tokenbar --provider codex --source oauth --format json --pretty
@@ -115,6 +121,7 @@ tokenbar --provider claude --all-accounts --format json --pretty
 tokenbar --json-only --format json --pretty
 tokenbar --provider gemini --source api --format json --pretty
 KILO_API_KEY=... tokenbar --provider kilo --source api --format json --pretty
+MOONSHOT_API_KEY=... tokenbar --provider moonshot --source api --format json --pretty
 tokenbar config validate --format json --pretty
 tokenbar config dump --pretty
 tokenbar cache clear --cookies
@@ -125,7 +132,7 @@ tokenbar cache clear --all --format json --pretty
 ### Sample output (text)
 ```
 == Codex 0.6.0 (codex-cli) ==
-Session: 72% left [========----]
+Session: 72% left [####----]
 Resets today at 2:15 PM
 Weekly: 41% left [====--------]
 Pace: 6% in reserve | Expected 47% used | Lasts until reset
@@ -133,17 +140,17 @@ Resets Fri at 9:00 AM
 Credits: 112.4 left
 
 == Claude Code 2.0.58 (web) ==
-Session: 88% left [==========--]
+Session: 88% left [#####--]
 Resets tomorrow at 1:00 AM
-Weekly: 63% left [=======-----]
+Weekly: 63% left [####-----]
 Pace: On pace | Expected 37% used | Runs out in 4d
 Resets Sat at 6:00 AM
-Sonnet: 95% left [===========-]
+Sonnet: 95% left [######-]
 Account: user@example.com
 Plan: Pro
 
 == Kilo (cli) ==
-Credits: 60% left [=======-----]
+Credits: 60% left [####-----]
 40/100 credits
 Plan: Kilo Pass Pro
 Activity: Auto top-up: visa

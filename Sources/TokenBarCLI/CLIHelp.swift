@@ -72,6 +72,34 @@ extension TokenBarCLI {
         """
     }
 
+    static func serveHelp(version: String) -> String {
+        """
+        CodexBar \(version)
+
+        Usage:
+          codexbar serve [--port <port>] [--refresh-interval <seconds>]
+                         [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
+                         [-v|--verbose]
+
+        Description:
+          Start a foreground localhost-only HTTP server that exposes existing CLI JSON payloads.
+          The server binds to 127.0.0.1 only in this initial version.
+
+        Endpoints:
+          GET /health
+          GET /usage
+          GET /usage?provider=claude
+          GET /usage?provider=all
+          GET /cost
+          GET /cost?provider=codex
+
+        Examples:
+          codexbar serve
+          codexbar serve --port 8080 --refresh-interval 60
+          curl http://127.0.0.1:8080/usage?provider=all
+        """
+    }
+
     static func configHelp(version: String) -> String {
         """
         TokenBar \(version)
@@ -145,6 +173,8 @@ extension TokenBarCLI {
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
                        [--provider \(ProviderHelp.list)] [--no-color] [--pretty] [--refresh]
+          tokenbar serve [--port <port>] [--refresh-interval <seconds>]
+                       [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
           tokenbar config <validate|dump> [--format text|json]
                                         [--json]
                                         [--json-only]
@@ -167,6 +197,7 @@ extension TokenBarCLI {
           tokenbar --provider all --json
           tokenbar --provider gemini
           tokenbar cost --provider claude --format json --pretty
+          tokenbar serve --port 8080
           tokenbar config validate --format json --pretty
           tokenbar cache clear --cookies
         """

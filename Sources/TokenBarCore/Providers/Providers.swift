@@ -24,6 +24,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case augment
     case jetbrains
     case kimik2
+    case moonshot
     case amp
     case ollama
     case synthetic
@@ -43,6 +44,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case venice
     case commandcode
     case stepfun
+    case bedrock
 }
 
 // swiftformat:enable sortDeclarations
@@ -69,6 +71,7 @@ public enum IconStyle: Sendable, CaseIterable {
     case vertexai
     case augment
     case jetbrains
+    case moonshot
     case amp
     case ollama
     case synthetic
@@ -88,6 +91,7 @@ public enum IconStyle: Sendable, CaseIterable {
     case venice
     case commandcode
     case stepfun
+    case bedrock
     case combined
 }
 
@@ -108,6 +112,8 @@ public struct ProviderMetadata: Sendable {
     public let browserCookieOrder: BrowserCookieImportOrder?
     public let dashboardURL: String?
     public let subscriptionDashboardURL: String?
+    /// Provider-specific release notes or changelog URL for CLI/provider updates.
+    public let changelogURL: String?
     /// Statuspage.io base URL for incident polling (append /api/v2/status.json).
     public let statusPageURL: String?
     /// Browser-only status link (no API polling); used when statusPageURL is nil.
@@ -132,6 +138,7 @@ public struct ProviderMetadata: Sendable {
         browserCookieOrder: BrowserCookieImportOrder? = nil,
         dashboardURL: String?,
         subscriptionDashboardURL: String? = nil,
+        changelogURL: String? = nil,
         statusPageURL: String?,
         statusLinkURL: String? = nil,
         statusWorkspaceProductID: String? = nil)
@@ -152,6 +159,7 @@ public struct ProviderMetadata: Sendable {
         self.browserCookieOrder = browserCookieOrder
         self.dashboardURL = dashboardURL
         self.subscriptionDashboardURL = subscriptionDashboardURL
+        self.changelogURL = changelogURL
         self.statusPageURL = statusPageURL
         self.statusLinkURL = statusLinkURL
         self.statusWorkspaceProductID = statusWorkspaceProductID

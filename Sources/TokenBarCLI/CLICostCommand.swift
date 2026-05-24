@@ -94,7 +94,8 @@ extension TokenBarCLI {
         let monthTokens = snapshot.last30DaysTokens.map { UsageFormatter.tokenCountString($0) }
         let monthLine = monthTokens.map { "Last 30 days: \(monthCost) · \($0) tokens" } ?? "Last 30 days: \(monthCost)"
 
-        return [header, todayLine, monthLine].joined(separator: "\n")
+        let hintLine = UsageFormatter.costEstimateHint(provider: provider)
+        return [header, todayLine, monthLine, hintLine].joined(separator: "\n")
     }
 
     private static func costHeaderLine(_ header: String, useColor: Bool) -> String {
@@ -102,11 +103,11 @@ extension TokenBarCLI {
         return "\u{001B}[1;36m\(header)\u{001B}[0m"
     }
 
-    private static func costProviders(from selection: ProviderSelection) -> [UsageProvider] {
+    static func costProviders(from selection: ProviderSelection) -> [UsageProvider] {
         selection.asList.filter { Self.costSupportedProviders.contains($0) }
     }
 
-    private static func makeCostPayload(
+    static func makeCostPayload(
         provider: UsageProvider,
         snapshot: CostUsageTokenSnapshot?,
         error: Error?) -> CostPayload

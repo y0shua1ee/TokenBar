@@ -12,8 +12,7 @@ struct CLIEntryTests {
         #expect(TokenBarCLI.effectiveArgv(["usage", "--json"]) == ["usage", "--json"])
     }
 
-    @Test
-    func `decodes format from options and flags`() {
+    func test_decodesFormatFromOptionsAndFlags() {
         let jsonOption = ParsedValues(positional: [], options: ["format": ["json"]], flags: [])
         #expect(TokenBarCLI._decodeFormatForTesting(from: jsonOption) == .json)
 
@@ -44,8 +43,7 @@ struct CLIEntryTests {
         #expect(header.contains("cli"))
     }
 
-    @Test
-    func `CLI version falls back to containing app bundle`() throws {
+    func test_cliVersionFallsBackToContainingAppBundle() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("codexbar-cli-version-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -66,8 +64,7 @@ struct CLIEntryTests {
         #expect(TokenBarCLI.containingAppVersion(for: helperURL) == "9.8.7")
     }
 
-    @Test
-    func `CLI version follows symlinked helper`() throws {
+    func test_cliVersionFollowsSymlinkedHelper() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("codexbar-cli-version-symlink-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -79,7 +76,6 @@ struct CLIEntryTests {
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
         try FileManager.default.createDirectory(at: helpersURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: binURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(at: emptyBundleURL, withIntermediateDirectories: true)
 
         let infoURL = contentsURL.appendingPathComponent("Info.plist")
         let plist: [String: Any] = ["CFBundleShortVersionString": "2.4.6"]
@@ -101,22 +97,25 @@ struct CLIEntryTests {
         #expect(TokenBarCLI.currentVersion(bundle: nil, executablePath: nil) == nil)
     }
 
-    @Test
-    func `CLI version falls back to adjacent VERSION file`() throws {
+    func test_cliVersionFallsBackToAdjacentVersionFile() throws {
+        try self.expectAdjacentVersionFile(raw: "v3.2.1\n", expected: "3.2.1")
+        try self.expectAdjacentVersionFile(raw: "3.2.2\n", expected: "3.2.2")
+        try self.expectAdjacentVersionFile(raw: "version-3.2.3\n", expected: "version-3.2.3")
+    }
+
+    func test_cliVersionPrefersAdjacentVersionOverStandaloneBundleName() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("tokenbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
-        let emptyBundleURL = root.appendingPathComponent("Empty.bundle", isDirectory: true)
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
-        try FileManager.default.createDirectory(at: emptyBundleURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: binURL, withIntermediateDirectories: true)
 
         let helperURL = binURL.appendingPathComponent("TokenBarCLI")
         try Data().write(to: helperURL)
-        try "v3.2.1\n".write(
+        try "4.5.6\n".write(
             to: binURL.appendingPathComponent("VERSION"),
-            atomically: true,
+            atomically: false,
             encoding: .utf8)
 
         let emptyBundle = try #require(Bundle(url: emptyBundleURL))
@@ -135,8 +134,25 @@ struct CLIEntryTests {
         #expect(TokenBarCLI.currentVersion(bundle: emptyBundle, executablePath: helperURL.path) == "version-3.2.3")
     }
 
-    @Test
-    func `render open AI web dashboard text includes summary`() {
+    private func expectAdjacentVersionFile(raw: String, expected: String) throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("codexbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let binURL = root.appendingPathComponent("bin", isDirectory: true)
+        try FileManager.default.createDirectory(at: binURL, withIntermediateDirectories: true)
+
+        let helperURL = binURL.appendingPathComponent("TokenBarCLI")
+        try Data().write(to: helperURL)
+        try raw.write(
+            to: binURL.appendingPathComponent("VERSION"),
+            atomically: false,
+            encoding: .utf8)
+
+        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: nil, executablePath: helperURL.path), expected)
+    }
+
+    func test_renderOpenAIWebDashboardTextIncludesSummary() {
         let event = CreditEvent(
             date: Date(timeIntervalSince1970: 1_700_000_000),
             service: "codex",
@@ -157,9 +173,9 @@ struct CLIEntryTests {
 
         let text = TokenBarCLI.renderOpenAIWebDashboardText(snapshot)
 
-        #expect(text.contains("Web session: user@example.com"))
-        #expect(text.contains("Code review: 45% remaining (Resets in "))
-        #expect(text.contains("Web history: 1 events"))
+        XCTAssertTrue(text.contains("Web session: user@example.com"))
+        XCTAssertTrue(text.contains("Code review: 45% remaining (Resets in "))
+        XCTAssertTrue(text.contains("Web history: 1 events"))
     }
 
     @Test
@@ -176,7 +192,7 @@ struct CLIEntryTests {
         case .both:
             break
         default:
-            #expect(Bool(false))
+            XCTFail("Expected both selection")
         }
     }
 
@@ -185,9 +201,9 @@ struct CLIEntryTests {
         let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [.codex, .gemini])
         switch selection {
         case let .custom(providers):
-            #expect(providers == [.codex, .gemini])
+            XCTAssertEqual(providers, [.codex, .gemini])
         default:
-            #expect(Bool(false))
+            XCTFail("Expected custom selection")
         }
     }
 
@@ -196,9 +212,9 @@ struct CLIEntryTests {
         let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [])
         switch selection {
         case let .single(provider):
-            #expect(provider == .codex)
+            XCTAssertEqual(provider, .codex)
         default:
-            #expect(Bool(false))
+            XCTFail("Expected single Codex selection")
         }
     }
 
@@ -236,8 +252,7 @@ struct CLIEntryTests {
             resolvedSourceLabel: "cli").isEmpty)
     }
 
-    @Test
-    func `kilo auto fallback summary includes ordered attempt details`() {
+    func test_kiloAutoFallbackSummaryIncludesOrderedAttemptDetails() {
         let attempts = [
             ProviderFetchAttempt(
                 strategyID: "kilo.api",
@@ -260,13 +275,10 @@ struct CLIEntryTests {
             " -> cli: Kilo CLI session not found.",
         ].joined()
 
-        #expect(
-            summary ==
-                expected)
+        XCTAssertEqual(summary, expected)
     }
 
-    @Test
-    func `kilo auto fallback summary is nil outside kilo auto failures`() {
+    func test_kiloAutoFallbackSummaryIsNilOutsideKiloAutoFailures() {
         let attempts = [
             ProviderFetchAttempt(
                 strategyID: "kilo.api",
@@ -282,7 +294,7 @@ struct CLIEntryTests {
         #expect(TokenBarCLI.kiloAutoFallbackSummary(
             provider: .codex,
             sourceMode: .auto,
-            attempts: attempts) == nil)
+            attempts: attempts))
     }
 
     @Test

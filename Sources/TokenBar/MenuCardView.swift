@@ -102,6 +102,7 @@ struct UsageMenuCardView: View {
         let planText: String?
         let metrics: [Metric]
         let usageNotes: [String]
+        let openAIAPIUsage: OpenAIAPIUsageSnapshot?
         let creditsText: String?
         let creditsRemaining: Double?
         let creditsHintText: String?
@@ -132,7 +133,9 @@ struct UsageMenuCardView: View {
             }
 
             if self.model.metrics.isEmpty {
-                if !self.model.usageNotes.isEmpty {
+                if let usage = self.model.openAIAPIUsage {
+                    OpenAIAPIInlineDashboardContent(snapshot: usage)
+                } else if !self.model.usageNotes.isEmpty {
                     UsageNotesContent(notes: self.model.usageNotes)
                 } else if let placeholder = self.model.placeholder {
                     Text(placeholder)
@@ -140,7 +143,7 @@ struct UsageMenuCardView: View {
                         .font(.subheadline)
                 }
             } else {
-                let hasUsage = !self.model.metrics.isEmpty || !self.model.usageNotes.isEmpty
+                let hasUsage = self.model.hasUsageContent
                 let hasCredits = self.model.creditsText != nil
                 let hasProviderCost = self.model.providerCost != nil
                 let hasCost = self.model.tokenUsage != nil || hasProviderCost
@@ -154,7 +157,9 @@ struct UsageMenuCardView: View {
                                     title: Self.popupMetricTitle(provider: self.model.provider, metric: metric),
                                     progressColor: self.model.progressColor)
                             }
-                            if !self.model.usageNotes.isEmpty {
+                            if let usage = self.model.openAIAPIUsage {
+                                OpenAIAPIInlineDashboardContent(snapshot: usage)
+                            } else if !self.model.usageNotes.isEmpty {
                                 UsageNotesContent(notes: self.model.usageNotes)
                             }
                         }
@@ -183,7 +188,7 @@ struct UsageMenuCardView: View {
                     }
                     if let tokenUsage = self.model.tokenUsage {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Cost")
+                            Text("cost_header_estimated")
                                 .font(.body)
                                 .fontWeight(.medium)
                             Text(tokenUsage.sessionLine)
@@ -220,7 +225,7 @@ struct UsageMenuCardView: View {
     }
 
     private var hasDetails: Bool {
-        !self.model.metrics.isEmpty || !self.model.usageNotes.isEmpty || self.model.placeholder != nil ||
+        self.model.hasUsageContent ||
             self.model.tokenUsage != nil ||
             self.model.providerCost != nil
     }
@@ -233,13 +238,13 @@ private struct UsageMenuCardHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(alignment: .firstTextBaseline) {
-                Text(self.model.providerName)
-                    .font(.headline)
+                Text(self.model.providerName).font(.headline)
                     .fontWeight(.semibold)
+                    .lineLimit(1).truncationMode(.tail).layoutPriority(1)
                 Spacer()
-                Text(self.model.email)
-                    .font(.subheadline)
+                Text(self.model.email).font(.subheadline)
                     .foregroundStyle(MenuHighlightStyle.secondary(self.isHighlighted))
+                    .lineLimit(1).truncationMode(.middle)
             }
             let subtitleAlignment: VerticalAlignment = self.model.subtitleStyle == .error ? .top : .firstTextBaseline
             HStack(alignment: subtitleAlignment) {
@@ -442,7 +447,9 @@ struct UsageMenuCardUsageSectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if self.model.metrics.isEmpty {
-                if !self.model.usageNotes.isEmpty {
+                if let usage = self.model.openAIAPIUsage {
+                    OpenAIAPIInlineDashboardContent(snapshot: usage)
+                } else if !self.model.usageNotes.isEmpty {
                     UsageNotesContent(notes: self.model.usageNotes)
                 } else if let placeholder = self.model.placeholder {
                     Text(placeholder)
@@ -456,7 +463,9 @@ struct UsageMenuCardUsageSectionView: View {
                         title: UsageMenuCardView.popupMetricTitle(provider: self.model.provider, metric: metric),
                         progressColor: self.model.progressColor)
                 }
-                if !self.model.usageNotes.isEmpty {
+                if let usage = self.model.openAIAPIUsage {
+                    OpenAIAPIInlineDashboardContent(snapshot: usage)
+                } else if !self.model.usageNotes.isEmpty {
                     UsageNotesContent(notes: self.model.usageNotes)
                 }
             }
@@ -570,7 +579,7 @@ struct UsageMenuCardCostSectionView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let tokenUsage = self.model.tokenUsage {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Cost")
+                            Text("cost_header_estimated")
                                 .font(.body)
                                 .fontWeight(.medium)
                             Text(tokenUsage.sessionLine)
@@ -716,6 +725,7 @@ extension UsageMenuCardView.Model {
             account: input.account,
             metadata: input.metadata)
         let metrics = Self.metrics(input: input)
+        let openAIAPIUsage = input.snapshot?.openAIAPIUsage
         let usageNotes = Self.usageNotes(input: input)
         let creditsText: String? = if input.provider == .openrouter {
             nil
@@ -726,7 +736,9 @@ extension UsageMenuCardView.Model {
         }
         let hidesOptionalProviderCost = (input.provider == .claude || input.provider == .factory) &&
             !input.showOptionalCreditsAndExtraUsage
-        let providerCost: ProviderCostSection? = if hidesOptionalProviderCost {
+        let providerCost: ProviderCostSection? = if hidesOptionalProviderCost ||
+            (input.provider == .openai && openAIAPIUsage != nil)
+        {
             nil
         } else {
             Self.providerCostSection(provider: input.provider, cost: input.snapshot?.providerCost)
@@ -739,10 +751,10 @@ extension UsageMenuCardView.Model {
         let subtitle = Self.subtitle(
             snapshot: input.snapshot,
             isRefreshing: input.isRefreshing,
-            lastError: input.lastError,
+            lastError: Self.lastError(input: input),
             now: input.now)
         let redacted = Self.redactedText(input: input, subtitle: subtitle)
-        let placeholder = input.snapshot == nil && !input.isRefreshing && input.lastError == nil ? "No usage yet" : nil
+        let placeholder = Self.placeholder(input: input)
 
         return UsageMenuCardView.Model(
             provider: input.provider,
@@ -753,6 +765,7 @@ extension UsageMenuCardView.Model {
             planText: planText,
             metrics: metrics,
             usageNotes: usageNotes,
+            openAIAPIUsage: openAIAPIUsage,
             creditsText: creditsText,
             creditsRemaining: input.credits?.remaining,
             creditsHintText: redacted.creditsHintText,
@@ -764,6 +777,10 @@ extension UsageMenuCardView.Model {
     }
 
     private static func usageNotes(input: Input) -> [String] {
+        if input.provider == .kiro {
+            return kiroUsageNotes(input: input)
+        }
+
         if input.provider == .kilo {
             var notes = Self.kiloLoginDetails(snapshot: input.snapshot)
             let resolvedSource = input.sourceLabel?
@@ -790,17 +807,44 @@ extension UsageMenuCardView.Model {
             ]
         }
 
+        if input.provider == .openai,
+           let usage = input.snapshot?.openAIAPIUsage
+        {
+            return self.openAIAPIUsageNotes(usage)
+        }
+
         guard input.provider == .openrouter,
               let openRouter = input.snapshot?.openRouterUsage
         else {
             return []
         }
 
-        return switch openRouter.keyQuotaStatus {
-        case .available: []
-        case .noLimitConfigured: ["No limit set for the API key"]
-        case .unavailable: ["API key limit unavailable right now"]
+        var notes = Self.openRouterSpendNotes(openRouter)
+        switch openRouter.keyQuotaStatus {
+        case .available:
+            break
+        case .noLimitConfigured:
+            notes.append("No limit set for the API key")
+        case .unavailable:
+            notes.append("API key limit unavailable right now")
         }
+        return notes
+    }
+
+    private static func openRouterSpendNotes(_ usage: OpenRouterUsageSnapshot) -> [String] {
+        var parts: [String] = []
+        if let daily = usage.keyUsageDaily {
+            parts.append("Today: \(Self.openRouterCurrencyString(daily))")
+        }
+        if let weekly = usage.keyUsageWeekly {
+            parts.append("This week: \(Self.openRouterCurrencyString(weekly))")
+        }
+        guard !parts.isEmpty else { return [] }
+        return [parts.joined(separator: " · ")]
+    }
+
+    private static func openRouterCurrencyString(_ value: Double) -> String {
+        String(format: "$%.2f", value)
     }
 
     private static func email(
@@ -824,6 +868,11 @@ extension UsageMenuCardView.Model {
         account: AccountInfo,
         metadata: ProviderMetadata) -> String?
     {
+        if provider == .kiro,
+           let plan = kiroPlan(snapshot: snapshot)
+        {
+            return plan
+        }
         if provider == .kilo {
             guard let pass = self.kiloLoginPass(snapshot: snapshot) else {
                 return nil
@@ -1114,13 +1163,26 @@ extension UsageMenuCardView.Model {
         {
             primaryResetText = openRouterQuotaDetail
         }
-        if input.provider == .warp || input.provider == .kilo || input.provider == .mimo || input
-            .provider == .deepseek ||
+        if input.provider == .copilot,
+           let detail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !detail.isEmpty
+        {
+            primaryDetailLeft = detail
+        }
+        if input.provider == .warp || input.provider == .kilo || input.provider == .mimo || input.provider == .deepseek ||
             input.provider == .krill,
-            let detail = primary.resetDescription,
-            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+           let detail = primary.resetDescription,
+           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
             primaryDetailText = detail
+        }
+        if input.provider == .kiro,
+           let kiroUsage = input.snapshot?.kiroUsage,
+           kiroUsage.creditsTotal > 0
+        {
+            let remaining = UsageFormatter.kiroCreditNumber(kiroUsage.creditsRemaining)
+            let total = UsageFormatter.kiroCreditNumber(kiroUsage.creditsTotal)
+            primaryDetailLeft = "\(remaining) of \(total) credits left"
         }
         if input.provider == .alibaba || input.provider == .mistral || input.provider == .manus,
            let detail = primary.resetDescription,
@@ -1242,6 +1304,19 @@ extension UsageMenuCardView.Model {
                 weeklyResetText = nil
             }
         }
+        if input.provider == .kiro,
+           let kiroUsage = input.snapshot?.kiroUsage,
+           let remaining = kiroUsage.bonusCreditsRemaining,
+           let total = kiroUsage.bonusCreditsTotal
+        {
+            let remainingText = UsageFormatter.kiroCreditNumber(remaining)
+            let totalText = UsageFormatter.kiroCreditNumber(total)
+            paceDetail = PaceDetail(
+                leftLabel: "\(remainingText) of \(totalText) bonus credits left",
+                rightLabel: nil,
+                pacePercent: nil,
+                paceOnTop: true)
+        }
         if input.provider == .alibaba,
            let detail = weekly.resetDescription,
            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -1259,6 +1334,12 @@ extension UsageMenuCardView.Model {
            !detail.isEmpty
         {
             weeklyResetText = detail
+        }
+        if input.provider == .copilot,
+           let detail = weekly.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !detail.isEmpty
+        {
+            paceDetail = PaceDetail(leftLabel: detail, rightLabel: nil, pacePercent: nil, paceOnTop: true)
         }
         // Perplexity bonus credits don't reset; show balance without "Resets" prefix.
         if input.provider == .perplexity,
@@ -1494,165 +1575,9 @@ extension UsageMenuCardView.Model {
         return (resetText, PaceDetail(leftLabel: left, rightLabel: right, pacePercent: nil, paceOnTop: true))
     }
 
-    private static func creditsLine(
-        metadata: ProviderMetadata,
-        credits: CreditsSnapshot?,
-        error: String?) -> String?
-    {
-        guard metadata.supportsCredits else { return nil }
-        if let credits {
-            return UsageFormatter.creditsString(from: credits.remaining)
-        }
-        if let error, !error.isEmpty {
-            return error.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        return metadata.creditsHint
-    }
-
     private static func dashboardHint(error: String?) -> String? {
         guard let error, !error.isEmpty else { return nil }
         return error
     }
 
-    private static func tokenUsageSection(
-        provider: UsageProvider,
-        enabled: Bool,
-        snapshot: CostUsageTokenSnapshot?,
-        error: String?) -> TokenUsageSection?
-    {
-        guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek || provider == .openrouter
-        else { return nil }
-        guard enabled else { return nil }
-        let err = (error?.isEmpty ?? true) ? nil : error
-        guard let snapshot else {
-            guard let err else { return nil }
-            let sessionLabel = provider == .openrouter ? "Latest day" : "Today"
-            let monthLabel = if provider == .deepseek {
-                "This month"
-            } else if provider == .openrouter {
-                "Last 30 completed days"
-            } else {
-                "Last 30 days"
-            }
-            return TokenUsageSection(
-                sessionLine: "\(sessionLabel): —",
-                monthLine: "\(monthLabel): —",
-                hintLine: nil,
-                errorLine: err,
-                errorCopyText: err)
-        }
-
-        let sessionCost = snapshot.sessionCostUSD
-            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
-        let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
-        let sessionLine: String = {
-            let label = provider == .openrouter ? "Latest day" : "Today"
-            var parts = ["\(label): \(sessionCost)"]
-            if let sessionTokens {
-                parts.append("\(sessionTokens) tokens")
-            }
-            if provider == .deepseek || provider == .openrouter,
-               let sessionRequests = snapshot.sessionRequests,
-               sessionRequests > 0
-            {
-                parts.append("\(UsageFormatter.countString(sessionRequests)) requests")
-            }
-            return parts.joined(separator: " · ")
-        }()
-
-        let monthCost = snapshot.last30DaysCostUSD
-            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
-        let fallbackTokens = snapshot.daily.compactMap(\.totalTokens).reduce(0, +)
-        let monthTokensValue = snapshot.last30DaysTokens ?? (fallbackTokens > 0 ? fallbackTokens : nil)
-        let monthTokens = monthTokensValue.map { UsageFormatter.tokenCountString($0) }
-        let monthLine: String = {
-            let label = if provider == .deepseek {
-                "This month"
-            } else if provider == .openrouter {
-                "Last 30 completed days"
-            } else {
-                "Last 30 days"
-            }
-            var parts = ["\(label): \(monthCost)"]
-            if let monthTokens {
-                parts.append("\(monthTokens) tokens")
-            }
-            if provider == .deepseek || provider == .openrouter,
-               let requests = snapshot.last30DaysRequests,
-               requests > 0
-            {
-                parts.append("\(UsageFormatter.countString(requests)) requests")
-            }
-            return parts.joined(separator: " · ")
-        }()
-        return TokenUsageSection(
-            sessionLine: sessionLine,
-            monthLine: monthLine,
-            hintLine: nil,
-            errorLine: err,
-            errorCopyText: (error?.isEmpty ?? true) ? nil : error)
-    }
-
-    private static func providerCostSection(
-        provider: UsageProvider,
-        cost: ProviderCostSnapshot?) -> ProviderCostSection?
-    {
-        if provider == .manus {
-            return nil
-        }
-        guard let cost else { return nil }
-        guard provider != .synthetic else { return nil }
-
-        let periodLabel = cost.period ?? "This month"
-        if provider == .deepseek {
-            guard cost.used > 0 else { return nil }
-            let used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            return ProviderCostSection(
-                title: "Monthly spend",
-                percentUsed: nil,
-                spendLine: "\(periodLabel): \(used)",
-                percentLine: nil)
-        }
-        if provider == .factory, cost.period == "Extra usage balance" {
-            let balance = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            return ProviderCostSection(
-                title: "Extra usage",
-                percentUsed: nil,
-                spendLine: "Balance: \(balance)",
-                percentLine: nil)
-        }
-
-        guard cost.limit > 0 else { return nil }
-
-        let used: String
-        let limit: String
-        let title: String
-
-        if provider == .krill {
-            title = "Active quota"
-            used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
-        } else if cost.currencyCode == "Quota" {
-            title = "Quota usage"
-            used = String(format: "%.0f", cost.used)
-            limit = String(format: "%.0f", cost.limit)
-        } else {
-            title = "Extra usage"
-            used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
-        }
-
-        let percentUsed = Self.clamped((cost.used / cost.limit) * 100)
-
-        return ProviderCostSection(
-            title: title,
-            percentUsed: percentUsed,
-            spendLine: "\(periodLabel): \(used) / \(limit)",
-            percentLine: String(format: "%.0f%% used", min(100, max(0, percentUsed))))
-    }
-
-    private static func clamped(_ value: Double) -> Double {
-        min(100, max(0, value))
-    }
 }

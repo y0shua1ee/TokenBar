@@ -29,7 +29,7 @@ The OpenRouter provider fetches usage data from three API endpoints:
 
 1. **Credits API** (`/api/v1/credits`): Returns total credits purchased and total usage. The balance is calculated as `total_credits - total_usage`.
 
-2. **Key API** (`/api/v1/key`): Returns rate limit information for your API key.
+2. **Key API** (`/api/v1/key`): Returns rate limit information plus current daily, weekly, and monthly spend for your API key.
 
 3. **Activity API** (`/api/v1/activity`): Returns cost, token, request, provider, and model activity grouped by endpoint for the last 30 completed UTC days. TokenBar uses this data for the Cost section and cost history chart when a management key is available.
 
@@ -37,15 +37,16 @@ The OpenRouter provider fetches usage data from three API endpoints:
 
 The OpenRouter menu card shows:
 
-- **Primary meter**: Credit usage percentage (how much of your purchased credits have been used)
+- **Primary meter**: API key limit usage when the key has a configured limit
+- **Spend notes**: Daily and weekly API key spend when OpenRouter returns those fields
 - **Balance**: Displayed in the identity section as "Balance: $X.XX"
 - **Cost section**: Latest completed day and last 30 completed UTC days, including spend, tokens, request counts, and model breakdowns from the Activity API
 
 ## CLI Usage
 
 ```bash
-codexbar --provider openrouter
-codexbar -p or  # alias
+tokenbar --provider openrouter
+tokenbar -p or  # alias
 ```
 
 ## Environment Variables

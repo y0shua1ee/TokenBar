@@ -173,6 +173,8 @@ struct CostHistoryChartMenuView: View {
                 Text("Total (30d): \(UsageFormatter.currencyString(total, currencyCode: self.currencyCode))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.head)
             }
         }
         .padding(.horizontal, 16)

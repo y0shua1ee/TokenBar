@@ -79,6 +79,7 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
     public var extrasEnabled: Bool?
     public var apiKey: String?
     public var managementAPIKey: String?
+    public var secretKey: String?
     public var cookieHeader: String?
     public var cookieSource: ProviderCookieSource?
     public var region: String?
@@ -91,6 +92,8 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
     public var baseURL: String?
     public var customModelFilter: String?
     public var quotaWarnings: QuotaWarningConfig?
+    public var kiloKnownOrganizations: [KiloOrganization]?
+    public var kiloEnabledOrganizationIDs: [String]?
 
     public init(
         id: UsageProvider,
@@ -99,6 +102,7 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         extrasEnabled: Bool? = nil,
         apiKey: String? = nil,
         managementAPIKey: String? = nil,
+        secretKey: String? = nil,
         cookieHeader: String? = nil,
         cookieSource: ProviderCookieSource? = nil,
         region: String? = nil,
@@ -109,7 +113,9 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         customName: String? = nil,
         baseURL: String? = nil,
         customModelFilter: String? = nil,
-        quotaWarnings: QuotaWarningConfig? = nil)
+        quotaWarnings: QuotaWarningConfig? = nil,
+        kiloKnownOrganizations: [KiloOrganization]? = nil,
+        kiloEnabledOrganizationIDs: [String]? = nil)
     {
         self.id = id
         self.enabled = enabled
@@ -117,6 +123,7 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         self.extrasEnabled = extrasEnabled
         self.apiKey = apiKey
         self.managementAPIKey = managementAPIKey
+        self.secretKey = secretKey
         self.cookieHeader = cookieHeader
         self.cookieSource = cookieSource
         self.region = region
@@ -128,6 +135,8 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         self.baseURL = baseURL
         self.customModelFilter = customModelFilter
         self.quotaWarnings = quotaWarnings
+        self.kiloKnownOrganizations = kiloKnownOrganizations
+        self.kiloEnabledOrganizationIDs = kiloEnabledOrganizationIDs
     }
 
     public var sanitizedAPIKey: String? {
@@ -138,8 +147,16 @@ public struct ProviderConfig: Codable, Sendable, Identifiable {
         Self.clean(self.managementAPIKey)
     }
 
+    public var sanitizedSecretKey: String? {
+        Self.clean(self.secretKey)
+    }
+
     public var sanitizedCookieHeader: String? {
         Self.clean(self.cookieHeader)
+    }
+
+    public var sanitizedRegion: String? {
+        Self.clean(self.region)
     }
 
     public var sanitizedEnterpriseHost: String? {

@@ -56,7 +56,9 @@ enum ProviderBrandIcon {
         case .antigravity: "arrow.up.and.down.and.sparkles"
         case .zai: "bolt"
         case .minimax: "m.square"
-        case .kimi, .kimik2: "k.square"
+        case .kimi: "k.square"
+        case .kimik2: "k.square.fill"
+        case .moonshot: "moon.stars"
         case .augment: "plus.square.on.square"
         case .jetbrains: "hammer"
         case .ollama: "lizard"
@@ -73,6 +75,7 @@ enum ProviderBrandIcon {
         case .kiro: "leaf"
         case .kilo: "scalemass"
         case .synthetic: "testtube.2"
+        case .bedrock: "shippingbox.and.arrow.backward"
         }
     }
     // swiftlint:enable cyclomatic_complexity
