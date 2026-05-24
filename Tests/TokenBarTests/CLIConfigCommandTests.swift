@@ -1,12 +1,12 @@
-import CodexBarCore
+@testable import TokenBarCore
 import Commander
 import Testing
-@testable import CodexBarCLI
+@testable import TokenBarCLI
 
 struct CLIConfigCommandTests {
     @Test
     func `config set api key parses provider stdin and no enable flags`() throws {
-        let parser = CommandParser(signature: CodexBarCLI._configSetAPIKeySignatureForTesting())
+        let parser = CommandParser(signature: TokenBarCLI._configSetAPIKeySignatureForTesting())
         let parsed = try parser.parse(arguments: [
             "--provider", "elevenlabs",
             "--stdin",
@@ -17,13 +17,13 @@ struct CLIConfigCommandTests {
         #expect(parsed.options["provider"] == ["elevenlabs"])
         #expect(parsed.flags.contains("stdin"))
         #expect(parsed.flags.contains("noEnable"))
-        #expect(CodexBarCLI._decodeFormatForTesting(from: parsed) == .json)
+        #expect(TokenBarCLI._decodeFormatForTesting(from: parsed) == .json)
     }
 
     @Test
     func `config set api key stores key and enables provider`() {
         let config = CodexBarConfig.makeDefault()
-        let updated = CodexBarCLI.configSettingAPIKey(
+        let updated = TokenBarCLI.configSettingAPIKey(
             config,
             provider: .elevenlabs,
             apiKey: "xi-test-token",
@@ -36,7 +36,7 @@ struct CLIConfigCommandTests {
 
     @Test
     func `config provider toggle parses provider and json flags`() throws {
-        let parser = CommandParser(signature: CodexBarCLI._configProviderToggleSignatureForTesting())
+        let parser = CommandParser(signature: TokenBarCLI._configProviderToggleSignatureForTesting())
         let parsed = try parser.parse(arguments: [
             "--provider", "grok",
             "--json",
@@ -44,15 +44,15 @@ struct CLIConfigCommandTests {
         ])
 
         #expect(parsed.options["provider"] == ["grok"])
-        #expect(CodexBarCLI._decodeFormatForTesting(from: parsed) == .json)
+        #expect(TokenBarCLI._decodeFormatForTesting(from: parsed) == .json)
         #expect(parsed.flags.contains("pretty"))
     }
 
     @Test
     func `config provider toggle enables and disables provider`() {
         let config = CodexBarConfig.makeDefault()
-        let enabled = CodexBarCLI.configSettingProviderEnabled(config, provider: .grok, enabled: true)
-        let disabled = CodexBarCLI.configSettingProviderEnabled(enabled, provider: .grok, enabled: false)
+        let enabled = TokenBarCLI.configSettingProviderEnabled(config, provider: .grok, enabled: true)
+        let disabled = TokenBarCLI.configSettingProviderEnabled(enabled, provider: .grok, enabled: false)
 
         #expect(enabled.providerConfig(for: .grok)?.enabled == true)
         #expect(disabled.providerConfig(for: .grok)?.enabled == false)
@@ -64,7 +64,7 @@ struct CLIConfigCommandTests {
             ProviderConfig(id: .grok, enabled: true),
             ProviderConfig(id: .cursor, enabled: false),
         ])
-        let statuses = CodexBarCLI.configProviderStatuses(config)
+        let statuses = TokenBarCLI.configProviderStatuses(config)
         let grok = try #require(statuses.first { $0.provider == "grok" })
         let cursor = try #require(statuses.first { $0.provider == "cursor" })
 
@@ -89,7 +89,7 @@ struct CLIConfigCommandTests {
         var config = CodexBarConfig.makeDefault()
         config.setProviderConfig(ProviderConfig(id: .elevenlabs, enabled: false))
 
-        let updated = CodexBarCLI.configSettingAPIKey(
+        let updated = TokenBarCLI.configSettingAPIKey(
             config,
             provider: .elevenlabs,
             apiKey: "xi-test-token",
@@ -103,13 +103,13 @@ struct CLIConfigCommandTests {
     @Test
     func `config set api key rejects ambiguous input`() {
         #expect(throws: CLIArgumentError.self) {
-            try CodexBarCLI.resolveConfigAPIKeyInput(apiKey: "xi-test-token", readFromStdin: true)
+            try TokenBarCLI.resolveConfigAPIKeyInput(apiKey: "xi-test-token", readFromStdin: true)
         }
     }
 
     @Test
     func `config help documents set api key`() {
-        let help = CodexBarCLI.configHelp(version: "0.0.0")
+        let help = TokenBarCLI.configHelp(version: "0.0.0")
 
         #expect(help.contains("config set-api-key --provider <name>"))
         #expect(help.contains("config providers"))

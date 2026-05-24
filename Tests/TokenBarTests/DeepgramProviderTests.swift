@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 import Testing
-@testable import CodexBar
-@testable import CodexBarCore
+@testable import TokenBar
+@testable import TokenBarCore
 
 @MainActor
 struct DeepgramProviderTests {

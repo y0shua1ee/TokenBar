@@ -69,6 +69,7 @@ enum ProviderBrandIcon {
         case .mistral: "wind"
         case .warp: "terminal"
         case .alibaba: "shippingbox"
+        case .alibabatokenplan: "shippingbox.fill"
         case .abacus: "function"
         case .factory: "gearshape"
         case .opencode: "lock.open"

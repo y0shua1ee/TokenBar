@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBar
+@testable import TokenBar
 
 @MainActor
 struct GoogleWorkspaceStatusNetworkTests {

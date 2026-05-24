@@ -1,8 +1,8 @@
-import CodexBarCore
+@testable import TokenBarCore
 import Foundation
 import Observation
 import Testing
-@testable import CodexBar
+@testable import TokenBar
 
 @Suite(.serialized)
 @MainActor
@@ -807,7 +807,7 @@ struct SettingsStoreTests {
 
         let notifications = NotificationCounter()
         let token = NotificationCenter.default.addObserver(
-            forName: .codexbarProviderConfigDidChange,
+            forName: .tokenbarProviderConfigDidChange,
             object: store,
             queue: .main)
         { _ in

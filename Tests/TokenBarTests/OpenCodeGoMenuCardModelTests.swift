@@ -1,7 +1,7 @@
-import CodexBarCore
+@testable import TokenBarCore
 import Foundation
 import Testing
-@testable import CodexBar
+@testable import TokenBar
 
 struct OpenCodeGoMenuCardModelTests {
     @Test

@@ -1,5 +1,5 @@
 import Foundation
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 actor ProviderHTTPTransportStub: ProviderHTTPTransport {
     private let handler: @Sendable (URLRequest) async throws -> (Data, URLResponse)

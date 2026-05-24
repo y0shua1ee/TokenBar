@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @Suite(.serialized)
 struct CostUsageJsonlShapeBenchmarkTests {
@@ -117,7 +117,7 @@ struct CostUsageJsonlShapeBenchmarkTests {
     }
 
     private static func shapeDivisor() -> Int {
-        let value = ProcessInfo.processInfo.environment["CODEXBAR_COST_JSONL_SHAPE_DIVISOR"] ?? "20"
+        let value = ProcessInfo.processInfo.environment["TOKENBAR_COST_JSONL_SHAPE_DIVISOR"] ?? "20"
         return max(1, Int(value) ?? 20)
     }
 

@@ -213,7 +213,7 @@ swiftlint --strict
 
 ### To Upstream
 1. Check if feature benefits all users
-2. Create PR to `steipete/TokenBar`
+2. Create PR to `y0shua1ee/TokenBar`
 3. Reference this fork if relevant
 4. Be patient with review process
 
@@ -228,7 +228,7 @@ See `docs/FORK_ROADMAP.md` for contribution strategy.
 - Email: [your-email]@topoffunnel.com
 
 ### Upstream Issues
-- GitHub Issues: https://github.com/steipete/TokenBar/issues
+- GitHub Issues: https://github.com/y0shua1ee/TokenBar/issues
 - Twitter: [@steipete](https://twitter.com/steipete)
 
 ---

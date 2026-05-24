@@ -22,7 +22,7 @@ for target in \
   linux-aarch64 \
   linux-x86_64
 do
-  asset="CodexBarCLI-v${VERSION}-${target}.tar.gz"
+  asset="TokenBarCLI-v${VERSION}-${target}.tar.gz"
   checksum="${asset}.sha256"
   if ! printf "%s\n" "$assets" | grep -Fxq "$asset"; then
     echo "ERROR: CLI asset missing on release $TAG: $asset" >&2
@@ -38,4 +38,4 @@ if [[ "$missing" == "1" ]]; then
   exit 1
 fi
 
-echo "Release $TAG has all CodexBarCLI tarballs and checksums."
+echo "Release $TAG has all TokenBarCLI tarballs and checksums."

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 private actor AntigravityCredentialUpdateCapture {
     private var captured: [AntigravityOAuthCredentials] = []

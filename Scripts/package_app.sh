@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 CONF=${1:-release}
-ALLOW_LLDB=${CODEXBAR_ALLOW_LLDB:-0}
-SIGNING_MODE=${CODEXBAR_SIGNING:-}
+ALLOW_LLDB=${TOKENBAR_ALLOW_LLDB:-0}
+SIGNING_MODE=${TOKENBAR_SIGNING:-}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 LOWER_CONF=$(printf "%s" "$CONF" | tr '[:upper:]' '[:lower:]')
@@ -11,7 +11,7 @@ LOWER_CONF=$(printf "%s" "$CONF" | tr '[:upper:]' '[:lower:]')
 source "$ROOT/version.env"
 
 # Clean build only when explicitly requested (slower).
-if [[ "${CODEXBAR_FORCE_CLEAN:-0}" == "1" ]]; then
+if [[ "${TOKENBAR_FORCE_CLEAN:-0}" == "1" ]]; then
   if [[ -d "$ROOT/.build" ]]; then
     if command -v trash >/dev/null 2>&1; then
       if ! trash "$ROOT/.build"; then
@@ -101,7 +101,7 @@ PY
 
 generate_widget_appintents_metadata() {
   local widget_resources_dir="$1"
-  local metadata_mode="${CODEXBAR_WIDGET_METADATA_MODE:-}"
+  local metadata_mode="${TOKENBAR_WIDGET_METADATA_MODE:-}"
   local xcode_conf
   local host_arch
   local derived_dir
@@ -126,7 +126,7 @@ generate_widget_appintents_metadata() {
   fi
 
   if [[ "$metadata_mode" == "skip" ]]; then
-    echo "Skipping widget App Intents metadata (CODEXBAR_WIDGET_METADATA_MODE=skip)."
+    echo "Skipping widget App Intents metadata (TOKENBAR_WIDGET_METADATA_MODE=skip)."
     return 0
   fi
 
@@ -147,12 +147,12 @@ generate_widget_appintents_metadata() {
 
   host_arch=$(uname -m)
   derived_dir="$ROOT/.build/xcode-widget-metadata-${LOWER_CONF}"
-  build_dir="$derived_dir/Build/Intermediates.noindex/CodexBar.build/${xcode_conf}/CodexBarWidget.build"
+  build_dir="$derived_dir/Build/Intermediates.noindex/TokenBar.build/${xcode_conf}/TokenBarWidget.build"
   object_dir="$build_dir/Objects-normal/${host_arch}"
-  source_file_list="$object_dir/CodexBarWidget.SwiftFileList"
-  const_values_list="$object_dir/CodexBarWidget.SwiftConstValuesFileList"
-  dependency_metadata="$build_dir/CodexBarWidget.DependencyMetadataFileList"
-  static_dependency_metadata="$build_dir/CodexBarWidget.DependencyStaticMetadataFileList"
+  source_file_list="$object_dir/TokenBarWidget.SwiftFileList"
+  const_values_list="$object_dir/TokenBarWidget.SwiftConstValuesFileList"
+  dependency_metadata="$build_dir/TokenBarWidget.DependencyMetadataFileList"
+  static_dependency_metadata="$build_dir/TokenBarWidget.DependencyStaticMetadataFileList"
 
   appintents_tool=$(xcrun --find appintentsmetadataprocessor)
   sdk_root=$(xcrun --sdk macosx --show-sdk-path)
@@ -160,12 +160,12 @@ generate_widget_appintents_metadata() {
   toolchain_dir=$(dirname "$(dirname "$(dirname "$swiftc_path")")")
   xcode_version=$(xcodebuild -version | awk '/Build version/ { print $3 }')
 
-  if [[ "${CODEXBAR_FORCE_WIDGET_METADATA_CLEAN:-0}" == "1" ]]; then
+  if [[ "${TOKENBAR_FORCE_WIDGET_METADATA_CLEAN:-0}" == "1" ]]; then
     rm -rf "$derived_dir"
   fi
   mkdir -p "$derived_dir"
   local xcodebuild_log="$derived_dir/xcodebuild.log"
-  local timeout_seconds="${CODEXBAR_WIDGET_METADATA_TIMEOUT_SECONDS:-}"
+  local timeout_seconds="${TOKENBAR_WIDGET_METADATA_TIMEOUT_SECONDS:-}"
   if [[ -z "$timeout_seconds" ]]; then
     if [[ "$metadata_mode" == "required" ]]; then
       timeout_seconds=600
@@ -176,7 +176,7 @@ generate_widget_appintents_metadata() {
   echo "Generating widget App Intents metadata (${metadata_mode}, timeout ${timeout_seconds}s)."
   xcodebuild \
     -workspace "$ROOT/.swiftpm/xcode/package.xcworkspace" \
-    -scheme CodexBarWidget \
+    -scheme TokenBarWidget \
     -configuration "$xcode_conf" \
     -destination "platform=macOS,arch=${host_arch}" \
     -derivedDataPath "$derived_dir" \
@@ -192,7 +192,7 @@ generate_widget_appintents_metadata() {
       kill "$xcodebuild_pid" 2>/dev/null || true
       wait "$xcodebuild_pid" 2>/dev/null || true
       tail -40 "$xcodebuild_log" >&2 || true
-      if [[ "${CODEXBAR_ALLOW_MISSING_WIDGET_METADATA:-0}" == "1" ]]; then
+      if [[ "${TOKENBAR_ALLOW_MISSING_WIDGET_METADATA:-0}" == "1" ]]; then
         echo "WARN: Timed out generating widget App Intents metadata after ${timeout_seconds}s; continuing without it." >&2
         return 0
       fi
@@ -207,11 +207,11 @@ generate_widget_appintents_metadata() {
   done
   if ! wait "$xcodebuild_pid"; then
     tail -80 "$xcodebuild_log" >&2 || true
-    widget_metadata_warn_or_fail "Failed to build CodexBarWidget metadata inputs"
+    widget_metadata_warn_or_fail "Failed to build TokenBarWidget metadata inputs"
     return 0
   fi
 
-  local xcode_metadata_dir="$derived_dir/Build/Products/${xcode_conf}/CodexBarWidget.appintents/Metadata.appintents"
+  local xcode_metadata_dir="$derived_dir/Build/Products/${xcode_conf}/TokenBarWidget.appintents/Metadata.appintents"
   if [[ -f "$xcode_metadata_dir/extract.actionsdata" ]]; then
     rm -rf "$widget_resources_dir/Metadata.appintents"
     mkdir -p "$widget_resources_dir"
@@ -220,13 +220,13 @@ generate_widget_appintents_metadata() {
   fi
 
   if [[ ! -f "$source_file_list" ]]; then
-    widget_metadata_warn_or_fail "Missing App Intents metadata inputs for CodexBarWidget"
+    widget_metadata_warn_or_fail "Missing App Intents metadata inputs for TokenBarWidget"
     return 0
   fi
 
   find "$object_dir" -name '*.swiftconstvalues' | sort > "$const_values_list"
   if [[ ! -s "$const_values_list" ]]; then
-    widget_metadata_warn_or_fail "Missing App Intents const-values outputs for CodexBarWidget"
+    widget_metadata_warn_or_fail "Missing App Intents const-values outputs for TokenBarWidget"
     return 0
   fi
   rm -rf "$widget_resources_dir/Metadata.appintents"
@@ -235,7 +235,7 @@ generate_widget_appintents_metadata() {
   "$appintents_tool" \
     --output "$widget_resources_dir" \
     --toolchain-dir "$toolchain_dir" \
-    --module-name CodexBarWidget \
+    --module-name TokenBarWidget \
     --sdk-root "$sdk_root" \
     --xcode-version "$xcode_version" \
     --platform-family macOS \
@@ -248,7 +248,7 @@ generate_widget_appintents_metadata() {
     --force >/dev/null
 
   if [[ ! -f "$widget_resources_dir/Metadata.appintents/extract.actionsdata" ]]; then
-    widget_metadata_warn_or_fail "Failed to generate App Intents metadata for CodexBarWidget"
+    widget_metadata_warn_or_fail "Failed to generate App Intents metadata for TokenBarWidget"
     return 0
   fi
 }
@@ -263,8 +263,8 @@ for ARCH in "${ARCH_LIST[@]}"; do
   swift build -c "$CONF" --arch "$ARCH"
 done
 
-APP_FINAL="$ROOT/CodexBar.app"
-APP_STAGE="$ROOT/.build/package/CodexBar.app"
+APP_FINAL="$ROOT/TokenBar.app"
+APP_STAGE="$ROOT/.build/package/TokenBar.app"
 rm -rf "$APP_STAGE"
 APP="$APP_STAGE"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
@@ -277,11 +277,11 @@ if [[ -f "$ICON_SOURCE" ]]; then
   iconutil --convert icns --output "$ICON_TARGET" "$ICON_SOURCE"
 fi
 
-BUNDLE_ID="com.steipete.codexbar"
-FEED_URL="https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml"
+BUNDLE_ID="com.y0shua1ee.tokenbar"
+FEED_URL="https://raw.githubusercontent.com/y0shua1ee/TokenBar/main/appcast.xml"
 AUTO_CHECKS=true
 if [[ "$LOWER_CONF" == "debug" ]]; then
-  BUNDLE_ID="com.steipete.codexbar.debug"
+  BUNDLE_ID="com.y0shua1ee.tokenbar.debug"
   FEED_URL=""
   AUTO_CHECKS=false
 fi
@@ -291,16 +291,16 @@ if [[ "$SIGNING_MODE" == "adhoc" ]]; then
 fi
 WIDGET_BUNDLE_ID="${BUNDLE_ID}.widget"
 APP_TEAM_ID="${APP_TEAM_ID:-Y5PE65HELJ}"
-APP_GROUP_ID="${APP_TEAM_ID}.com.steipete.codexbar"
+APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar"
 if [[ "$BUNDLE_ID" == *".debug"* ]]; then
-  APP_GROUP_ID="${APP_TEAM_ID}.com.steipete.codexbar.debug"
+  APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar.debug"
 fi
 ENTITLEMENTS_DIR="$ROOT/.build/entitlements"
-APP_ENTITLEMENTS="${ENTITLEMENTS_DIR}/CodexBar.entitlements"
-WIDGET_ENTITLEMENTS="${ENTITLEMENTS_DIR}/CodexBarWidget.entitlements"
+APP_ENTITLEMENTS="${ENTITLEMENTS_DIR}/TokenBar.entitlements"
+WIDGET_ENTITLEMENTS="${ENTITLEMENTS_DIR}/TokenBarWidget.entitlements"
 mkdir -p "$ENTITLEMENTS_DIR"
 if [[ "$ALLOW_LLDB" == "1" && "$LOWER_CONF" != "debug" ]]; then
-  echo "ERROR: CODEXBAR_ALLOW_LLDB requires debug configuration" >&2
+  echo "ERROR: TOKENBAR_ALLOW_LLDB requires debug configuration" >&2
   exit 1
 fi
 cat > "$APP_ENTITLEMENTS" <<PLIST
@@ -338,10 +338,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>CodexBar</string>
-    <key>CFBundleDisplayName</key><string>CodexBar</string>
+    <key>CFBundleName</key><string>TokenBar</string>
+    <key>CFBundleDisplayName</key><string>TokenBar</string>
     <key>CFBundleIdentifier</key><string>${BUNDLE_ID}</string>
-    <key>CFBundleExecutable</key><string>CodexBar</string>
+    <key>CFBundleExecutable</key><string>TokenBar</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>${MARKETING_VERSION}</string>
     <key>CFBundleVersion</key><string>${BUILD_NUMBER}</string>
@@ -354,7 +354,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>SUEnableAutomaticChecks</key><${AUTO_CHECKS}/>
     <key>CodexBuildTimestamp</key><string>${BUILD_TIMESTAMP}</string>
     <key>CodexGitCommit</key><string>${GIT_COMMIT}</string>
-    <key>CodexBarTeamID</key><string>${APP_TEAM_ID}</string>
+    <key>TokenBarTeamID</key><string>${APP_TEAM_ID}</string>
 </dict>
 </plist>
 PLIST
@@ -425,48 +425,48 @@ install_binary() {
   verify_binary_arches "$dest" "${ARCH_LIST[@]}"
 }
 
-install_binary "CodexBar" "$APP/Contents/MacOS/CodexBar"
-# Ship CodexBarCLI alongside the app for easy symlinking.
-if [[ -n "$(resolve_binary_path "CodexBarCLI" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "CodexBarCLI" "$APP/Contents/Helpers/CodexBarCLI"
+install_binary "TokenBar" "$APP/Contents/MacOS/TokenBar"
+# Ship TokenBarCLI alongside the app for easy symlinking.
+if [[ -n "$(resolve_binary_path "TokenBarCLI" "${ARCH_LIST[0]}")" ]]; then
+  install_binary "TokenBarCLI" "$APP/Contents/Helpers/TokenBarCLI"
 fi
-# Watchdog helper: ensures `claude` probes die when CodexBar crashes/gets killed.
-if [[ -n "$(resolve_binary_path "CodexBarClaudeWatchdog" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "CodexBarClaudeWatchdog" "$APP/Contents/Helpers/CodexBarClaudeWatchdog"
+# Watchdog helper: ensures `claude` probes die when TokenBar crashes/gets killed.
+if [[ -n "$(resolve_binary_path "TokenBarClaudeWatchdog" "${ARCH_LIST[0]}")" ]]; then
+  install_binary "TokenBarClaudeWatchdog" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
 fi
-if [[ -n "$(resolve_binary_path "CodexBarWidget" "${ARCH_LIST[0]}")" ]]; then
-  WIDGET_APP="$APP/Contents/PlugIns/CodexBarWidget.appex"
+if [[ -n "$(resolve_binary_path "TokenBarWidget" "${ARCH_LIST[0]}")" ]]; then
+  WIDGET_APP="$APP/Contents/PlugIns/TokenBarWidget.appex"
   mkdir -p "$WIDGET_APP/Contents/MacOS" "$WIDGET_APP/Contents/Resources"
   cat > "$WIDGET_APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>CodexBarWidget</string>
-    <key>CFBundleDisplayName</key><string>CodexBar</string>
+    <key>CFBundleName</key><string>TokenBarWidget</string>
+    <key>CFBundleDisplayName</key><string>TokenBar</string>
     <key>CFBundleIdentifier</key><string>${WIDGET_BUNDLE_ID}</string>
-    <key>CFBundleExecutable</key><string>CodexBarWidget</string>
+    <key>CFBundleExecutable</key><string>TokenBarWidget</string>
     <key>CFBundlePackageType</key><string>XPC!</string>
     <key>CFBundleShortVersionString</key><string>${MARKETING_VERSION}</string>
     <key>CFBundleVersion</key><string>${BUILD_NUMBER}</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
-    <key>CodexBarTeamID</key><string>${APP_TEAM_ID}</string>
+    <key>TokenBarTeamID</key><string>${APP_TEAM_ID}</string>
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key><string>com.apple.widgetkit-extension</string>
-        <key>NSExtensionPrincipalClass</key><string>CodexBarWidget.CodexBarWidgetBundle</string>
+        <key>NSExtensionPrincipalClass</key><string>TokenBarWidget.TokenBarWidgetBundle</string>
     </dict>
 </dict>
 </plist>
 PLIST
-  install_binary "CodexBarWidget" "$WIDGET_APP/Contents/MacOS/CodexBarWidget"
+  install_binary "TokenBarWidget" "$WIDGET_APP/Contents/MacOS/TokenBarWidget"
   generate_widget_appintents_metadata "$WIDGET_APP/Contents/Resources"
 fi
 # Embed Sparkle.framework
 if [[ -d ".build/$CONF/Sparkle.framework" ]]; then
   cp -R ".build/$CONF/Sparkle.framework" "$APP/Contents/Frameworks/"
   chmod -R a+rX "$APP/Contents/Frameworks/Sparkle.framework"
-  install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/CodexBar"
+  install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/TokenBar"
   # Re-sign Sparkle and all nested components with Developer ID + timestamp
   SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
 if [[ "$SIGNING_MODE" == "adhoc" ]]; then
@@ -499,7 +499,7 @@ if [[ -f "$ICON_TARGET" ]]; then
 fi
 
 # Bundle app resources (provider icons, etc.).
-APP_RESOURCES_DIR="$ROOT/Sources/CodexBar/Resources"
+APP_RESOURCES_DIR="$ROOT/Sources/TokenBar/Resources"
 if [[ -d "$APP_RESOURCES_DIR" ]]; then
   cp -R "$APP_RESOURCES_DIR/." "$APP/Contents/Resources/"
 fi
@@ -509,8 +509,8 @@ if [[ ! -f "$APP/Contents/Resources/Icon-classic.icns" ]]; then
 fi
 
 # SwiftPM resource bundles (e.g. KeyboardShortcuts) are emitted next to the built binary.
-CODEXBAR_BINARY="$(resolve_binary_path "CodexBar" "${ARCH_LIST[0]}")"
-PREFERRED_BUILD_DIR="$(dirname "${CODEXBAR_BINARY:-$(build_product_path "CodexBar" "${ARCH_LIST[0]}")}")"
+TOKENBAR_BINARY="$(resolve_binary_path "TokenBar" "${ARCH_LIST[0]}")"
+PREFERRED_BUILD_DIR="$(dirname "${TOKENBAR_BINARY:-$(build_product_path "TokenBar" "${ARCH_LIST[0]}")}")"
 shopt -s nullglob
 SWIFTPM_BUNDLES=("${PREFERRED_BUILD_DIR}/"*.bundle)
 shopt -u nullglob
@@ -534,21 +534,21 @@ xattr -cr "$APP"
 find "$APP" -name '._*' -delete
 
 # Sign helper binaries if present
-if [[ -f "${APP}/Contents/Helpers/CodexBarCLI" ]]; then
-  codesign "${CODESIGN_ARGS[@]}" "${APP}/Contents/Helpers/CodexBarCLI"
+if [[ -f "${APP}/Contents/Helpers/TokenBarCLI" ]]; then
+  codesign "${CODESIGN_ARGS[@]}" "${APP}/Contents/Helpers/TokenBarCLI"
 fi
-if [[ -f "${APP}/Contents/Helpers/CodexBarClaudeWatchdog" ]]; then
-  codesign "${CODESIGN_ARGS[@]}" "${APP}/Contents/Helpers/CodexBarClaudeWatchdog"
+if [[ -f "${APP}/Contents/Helpers/TokenBarClaudeWatchdog" ]]; then
+  codesign "${CODESIGN_ARGS[@]}" "${APP}/Contents/Helpers/TokenBarClaudeWatchdog"
 fi
 
 # Sign widget extension if present
-if [[ -d "${APP}/Contents/PlugIns/CodexBarWidget.appex" ]]; then
+if [[ -d "${APP}/Contents/PlugIns/TokenBarWidget.appex" ]]; then
   codesign "${CODESIGN_ARGS[@]}" \
     --entitlements "$WIDGET_ENTITLEMENTS" \
-    "$APP/Contents/PlugIns/CodexBarWidget.appex/Contents/MacOS/CodexBarWidget"
+    "$APP/Contents/PlugIns/TokenBarWidget.appex/Contents/MacOS/TokenBarWidget"
   codesign "${CODESIGN_ARGS[@]}" \
     --entitlements "$WIDGET_ENTITLEMENTS" \
-    "$APP/Contents/PlugIns/CodexBarWidget.appex"
+    "$APP/Contents/PlugIns/TokenBarWidget.appex"
 fi
 
 # Finally sign the app bundle itself

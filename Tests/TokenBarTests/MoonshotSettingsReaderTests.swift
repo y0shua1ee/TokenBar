@@ -1,4 +1,4 @@
-import TokenBarCore
+@testable import TokenBarCore
 import Testing
 
 struct MoonshotSettingsReaderTests {

@@ -1,8 +1,8 @@
 import AppKit
-import CodexBarCore
+@testable import TokenBarCore
 import Foundation
 import Testing
-@testable import CodexBar
+@testable import TokenBar
 
 @Suite(.serialized)
 @MainActor

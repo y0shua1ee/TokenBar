@@ -1,5 +1,5 @@
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 struct ClaudeCredentialRoutingTests {
     @Test

@@ -1036,7 +1036,7 @@ extension UsageMenuCardView.Model {
         }
         if labels.showsTertiary, let opus = snapshot.tertiary {
             var tertiaryDetailText: String?
-            if input.provider == .alibaba,
+            if input.provider == .alibaba || input.provider == .alibabatokenplan,
                let detail = opus.resetDescription,
                !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             {
@@ -1187,9 +1187,10 @@ extension UsageMenuCardView.Model {
             let total = UsageFormatter.kiroCreditNumber(kiroUsage.creditsTotal)
             primaryDetailLeft = "\(remaining) of \(total) credits left"
         }
-        if input.provider == .alibaba || input.provider == .mistral || input.provider == .manus,
-           let detail = primary.resetDescription,
-           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if input.provider == .alibaba || input.provider == .alibabatokenplan || input.provider == .mistral || input
+            .provider == .manus,
+            let detail = primary.resetDescription,
+            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
             primaryDetailText = detail
             if input.provider == .manus { primaryResetText = nil }
@@ -1320,7 +1321,7 @@ extension UsageMenuCardView.Model {
                 pacePercent: nil,
                 paceOnTop: true)
         }
-        if input.provider == .alibaba,
+        if input.provider == .alibaba || input.provider == .alibabatokenplan,
            let detail = weekly.resetDescription,
            !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {

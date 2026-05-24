@@ -1,5 +1,5 @@
 import Foundation
-import TokenBarCore
+@testable import TokenBarCore
 @testable import TokenBar
 
 @MainActor

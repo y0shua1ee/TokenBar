@@ -1,7 +1,7 @@
-import TokenBarCore
+@testable import TokenBarCore
 import Foundation
 import Testing
- import TokenBar
+@testable import TokenBar
 
 struct MenuCardCostHintTests {
     @Test

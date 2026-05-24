@@ -1,5 +1,5 @@
 import AppKit
-import TokenBarCore
+@testable import TokenBarCore
 import Testing
 @testable import TokenBar
 

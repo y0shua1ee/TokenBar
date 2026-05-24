@@ -24,7 +24,7 @@ Optional:
 
 ```bash
 export AWS_SESSION_TOKEN="..."
-export CODEXBAR_BEDROCK_BUDGET="250"
+export TOKENBAR_BEDROCK_BUDGET="250"
 ```
 
 The AWS identity must have permission to call Cost Explorer APIs, including `ce:GetCostAndUsage`.
@@ -34,8 +34,8 @@ The AWS identity must have permission to call Cost Explorer APIs, including `ce:
 - Service: AWS Cost Explorer.
 - Region: `AWS_REGION` or `AWS_DEFAULT_REGION`, defaulting to `us-east-1`.
 - Usage: current-month Bedrock spend and historical daily cost buckets.
-- Budget: `CODEXBAR_BEDROCK_BUDGET`, when set to a positive dollar amount.
-- Test override: `CODEXBAR_BEDROCK_API_URL` replaces the Cost Explorer endpoint.
+- Budget: `TOKENBAR_BEDROCK_BUDGET`, when set to a positive dollar amount.
+- Test override: `TOKENBAR_BEDROCK_API_URL` replaces the Cost Explorer endpoint.
 
 ## Display
 
@@ -65,7 +65,7 @@ Set `AWS_REGION` or `AWS_DEFAULT_REGION`. Bedrock usage is regional, but Cost Ex
 
 ## Key files
 
-- `Sources/CodexBarCore/Providers/Bedrock/BedrockProviderDescriptor.swift`
-- `Sources/CodexBarCore/Providers/Bedrock/BedrockSettingsReader.swift`
-- `Sources/CodexBarCore/Providers/Bedrock/BedrockUsageStats.swift`
-- `Sources/CodexBarCore/Providers/Bedrock/BedrockAWSSigner.swift`
+- `Sources/TokenBarCore/Providers/Bedrock/BedrockProviderDescriptor.swift`
+- `Sources/TokenBarCore/Providers/Bedrock/BedrockSettingsReader.swift`
+- `Sources/TokenBarCore/Providers/Bedrock/BedrockUsageStats.swift`
+- `Sources/TokenBarCore/Providers/Bedrock/BedrockAWSSigner.swift`

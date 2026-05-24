@@ -1,6 +1,6 @@
 import Foundation
 import Testing
- import TokenBar
+@testable import TokenBar
 
 struct StatusItemPurchaseURLTests {
     @Test

@@ -36,7 +36,7 @@ browser session when the CLI surface does not expose billing.
    - Uses grok.com browser session cookies. CodexBar imports Chrome only by
      default to avoid unrelated browser Keychain prompts.
    - CLI/test runtime does not import browser cookies unless
-     `CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
+     `TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
    - `~/.grok/auth.json` is still used for identity and as a last best-effort
      bearer probe, but the production grok.com billing endpoint currently
      authenticates browser sessions.
@@ -134,10 +134,10 @@ points to `https://status.x.ai`.
 
 ## Key files
 
-- `Sources/CodexBarCore/Providers/Grok/GrokProviderDescriptor.swift`
-- `Sources/CodexBarCore/Providers/Grok/GrokAuth.swift`
-- `Sources/CodexBarCore/Providers/Grok/GrokRPCClient.swift`
-- `Sources/CodexBarCore/Providers/Grok/GrokWebBillingFetcher.swift`
-- `Sources/CodexBarCore/Providers/Grok/GrokStatusProbe.swift`
-- `Sources/CodexBarCore/Providers/Grok/GrokLocalSessionScanner.swift`
-- `Sources/CodexBar/Providers/Grok/GrokProviderImplementation.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokProviderDescriptor.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokAuth.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokRPCClient.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokWebBillingFetcher.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokStatusProbe.swift`
+- `Sources/TokenBarCore/Providers/Grok/GrokLocalSessionScanner.swift`
+- `Sources/TokenBar/Providers/Grok/GrokProviderImplementation.swift`

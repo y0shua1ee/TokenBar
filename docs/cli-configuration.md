@@ -71,7 +71,7 @@ in `~/.codexbar/config.json`.
 For tests, demos, and CI, point CodexBar at a temporary config file:
 
 ```bash
-export CODEXBAR_CONFIG=/tmp/codexbar-config.json
+export TOKENBAR_CONFIG=/tmp/codexbar-config.json
 codexbar config enable --provider grok
 codexbar config providers --json --pretty
 ```

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
- import TokenBar
+@testable import TokenBar
 
 struct MenuBarVisibilityWatcherTests {
     @Test
@@ -221,6 +221,50 @@ struct MenuBarVisibilityWatcherTests {
         #expect(!MenuBarVisibilityWatcher.shouldAttemptScreenChangeRecovery(
             previousScreenCount: 1,
             currentScreenCount: 2,
+            snapshots: [healthy]))
+    }
+
+    @Test
+    func `screen change retry continues while blocked before retry limit`() {
+        let blocked = StatusItemVisibilitySnapshot(
+            isVisible: true,
+            hasButton: true,
+            hasWindow: true,
+            hasScreen: false,
+            isOnCurrentScreen: false,
+            buttonWidth: 18)
+
+        #expect(MenuBarVisibilityWatcher.shouldRetryScreenChangeRecovery(
+            attempt: MenuBarVisibilityWatcher.screenChangeRecoveryRetryLimit - 1,
+            snapshots: [blocked]))
+    }
+
+    @Test
+    func `screen change retry stops at retry limit`() {
+        let blocked = StatusItemVisibilitySnapshot(
+            isVisible: true,
+            hasButton: true,
+            hasWindow: true,
+            hasScreen: false,
+            isOnCurrentScreen: false,
+            buttonWidth: 18)
+
+        #expect(!MenuBarVisibilityWatcher.shouldRetryScreenChangeRecovery(
+            attempt: MenuBarVisibilityWatcher.screenChangeRecoveryRetryLimit,
+            snapshots: [blocked]))
+    }
+
+    @Test
+    func `screen change retry stops when recovered`() {
+        let healthy = StatusItemVisibilitySnapshot(
+            isVisible: true,
+            hasButton: true,
+            hasWindow: true,
+            hasScreen: true,
+            buttonWidth: 18)
+
+        #expect(!MenuBarVisibilityWatcher.shouldRetryScreenChangeRecovery(
+            attempt: 1,
             snapshots: [healthy]))
     }
 }

@@ -1,5 +1,5 @@
 import Testing
- import TokenBar
+@testable import TokenBar
 
 @MainActor
 @Suite(.serialized)

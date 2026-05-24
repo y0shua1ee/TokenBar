@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.29.0 — 2026-05-22
+
+### Added
+- Cost history: show Codex standard and fast spend/token splits in model breakdowns (#1070). Thanks @iam-brain!
+- Alibaba Token Plan: add Bailian token-plan quota tracking via browser or manual cookies (#1098). Thanks @YanxinXue!
+- OpenCode: show workspace renewal dates for OpenCode and OpenCode Go usage windows (#1099). Thanks @Yuxin-Qiao!
+
+### Fixed
+- Localization: improve Simplified Chinese settings and menu translations (#1059). Thanks @narallee!
+- Alibaba Token Plan: reject non-HTTPS endpoint overrides and keep the provider building on Linux (#1104). Thanks @YanxinXue!
+- Settings: avoid crashing when API key or cookie settings contain only a single quote character (#1106). Thanks @m1qaweb!
+- Build scripts: derive the local development signing team ID from the certificate OU before falling back to the CN suffix (#1095).
+- Menu bar: keep retrying display-change recovery when macOS leaves status items detached from the current screen (#1077, #1088).
+- Codex: preserve last successful per-account quota snapshots when later network or DNS refreshes fail (#1097, #1101). Thanks @Yuxin-Qiao!
+
 ## 0.28.0 — 2026-05-22
 
 ### Added
@@ -795,7 +810,7 @@
 - Claude trust prompts (“Do you trust the files in this folder?”) are now auto-accepted during probes to prevent stuck refreshes. Thanks @tobihagemann!
 
 ## 0.8.0 — 2025-12-17
-- TokenBar is now available via Homebrew: `brew install --cask steipete/tap/tokenbar` (updates via `brew upgrade --cask steipete/tap/tokenbar`).
+- TokenBar is now available via Homebrew: `brew install --cask y0shua1ee/tokenbar/tokenbar` (updates via `brew upgrade --cask y0shua1ee/tokenbar/tokenbar`).
 - Added session quota notifications for the sliding 5-hour window (Codex + Claude): notifies when it hits 0% and when it’s available again, based only on observed refresh data (including startup when already depleted). Thanks @GKannanDev!
 
 ## 0.7.3 — 2025-12-17

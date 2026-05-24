@@ -4,7 +4,7 @@
 
 **Goal:** Let CodexBar users opt in to one or more Kilo organizations from Preferences → Providers → Kilo. Enabled orgs render as stacked cards alongside their personal account in the Kilo menu.
 
-**Architecture:** Add `KiloUsageScope` and `KiloOrganization` types in `CodexBarCore`. Inject `X-KILOCODE-ORGANIZATIONID` header in `KiloUsageFetcher` when a scope is `.organization`. Persist known orgs and enabled-ids in `ProviderConfig` JSON. Mirror the existing tokenAccounts pattern in `UsageStore` to fan out a fetch per enabled scope and store stacked snapshots. Render via the existing stacked-snapshot menu pipeline by surfacing a Kilo-scoped accounts adapter.
+**Architecture:** Add `KiloUsageScope` and `KiloOrganization` types in `TokenBarCore`. Inject `X-KILOCODE-ORGANIZATIONID` header in `KiloUsageFetcher` when a scope is `.organization`. Persist known orgs and enabled-ids in `ProviderConfig` JSON. Mirror the existing tokenAccounts pattern in `UsageStore` to fan out a fetch per enabled scope and store stacked snapshots. Render via the existing stacked-snapshot menu pipeline by surfacing a Kilo-scoped accounts adapter.
 
 **Tech Stack:** Swift 6, SwiftUI, Swift Testing (`@Test`), `swift build` / `swift test` / `make check`, GitHub CLI for PR.
 

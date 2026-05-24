@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 struct DoubaoProviderTests {
     @Test

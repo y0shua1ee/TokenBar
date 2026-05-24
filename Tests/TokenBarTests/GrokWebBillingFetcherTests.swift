@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBarCore
+@testable import TokenBarCore
 
 @Suite(.serialized)
 struct GrokWebBillingFetcherTests {
@@ -33,7 +33,7 @@ struct GrokWebBillingFetcherTests {
         #expect(!GrokWebFetchStrategy.canImportBrowserCookies(runtime: .cli, env: [:]))
         #expect(GrokWebFetchStrategy.canImportBrowserCookies(
             runtime: .cli,
-            env: ["CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT": "1"]))
+            env: ["TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT": "1"]))
     }
 
     @Test

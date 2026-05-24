@@ -81,7 +81,7 @@ struct GrokWebFetchStrategy: ProviderFetchStrategy {
     let kind: ProviderFetchKind = .web
 
     static func canImportBrowserCookies(runtime: ProviderRuntime, env: [String: String]) -> Bool {
-        runtime == .app || env["CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT"] == "1"
+        runtime == .app || env["TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT"] == "1"
     }
 
     func isAvailable(_ context: ProviderFetchContext) async -> Bool {

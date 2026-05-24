@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 @testable import TokenBar
 
 /// Regression coverage for battery drain caused by fallback-provider animation.

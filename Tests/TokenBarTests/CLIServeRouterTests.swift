@@ -1,7 +1,7 @@
 import Commander
 import Foundation
 import Testing
- import TokenBarCLI
+@testable import TokenBarCLI
 
 struct CLIServeRouterTests {
     @Test

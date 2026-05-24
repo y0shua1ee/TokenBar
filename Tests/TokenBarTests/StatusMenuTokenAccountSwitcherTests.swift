@@ -1,6 +1,6 @@
 import AppKit
 import Foundation
-import TokenBarCore
+@testable import TokenBarCore
 import XCTest
 @testable import TokenBar
 

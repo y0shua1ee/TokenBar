@@ -2,7 +2,7 @@
 import AppKit
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 @testable import TokenBar
 
 @MainActor

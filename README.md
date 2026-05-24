@@ -2,9 +2,9 @@
 
 > Every AI coding limit, in your menu bar.
 
-[![Latest release](https://img.shields.io/github/v/release/steipete/TokenBar?style=flat-square&color=0a0a0c)](https://github.com/steipete/TokenBar/releases/latest)
-[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0a0a0c?style=flat-square)](https://github.com/steipete/TokenBar/releases/latest)
-[![Homebrew](https://img.shields.io/badge/brew-steipete%2Ftap%2Ftokenbar-orange?style=flat-square)](https://github.com/steipete/homebrew-tap)
+[![Latest release](https://img.shields.io/github/v/release/y0shua1ee/TokenBar?style=flat-square&color=0a0a0c)](https://github.com/y0shua1ee/TokenBar/releases/latest)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0a0a0c?style=flat-square)](https://github.com/y0shua1ee/TokenBar/releases/latest)
+[![Homebrew](https://img.shields.io/badge/brew-y0shua1ee%2Ftokenbar-orange?style=flat-square)](https://github.com/y0shua1ee/homebrew-tokenbar)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6e5aff?style=flat-square)](LICENSE)
 [![Site](https://img.shields.io/badge/site-tokenbar.app-16d3b4?style=flat-square)](https://tokenbar.app)
 
@@ -27,17 +27,17 @@ Tiny macOS 14+ menu bar app that keeps **AI coding-provider limits visible** and
 - macOS 14+ (Sonoma)
 
 ### GitHub Releases
-Download: <https://github.com/steipete/TokenBar/releases>
+Download: <https://github.com/y0shua1ee/TokenBar/releases>
 
 ### Homebrew
 ```bash
-brew install --cask steipete/tap/tokenbar
+brew install --cask y0shua1ee/tokenbar/tokenbar
 ```
 
 ### CLI Tarballs (macOS/Linux)
 Homebrew formula (Linux today):
 ```bash
-brew install steipete/tap/tokenbar
+brew install y0shua1ee/tokenbar/tokenbar
 ```
 Or download release tarballs from GitHub Releases:
 - macOS: `TokenBarCLI-v<tag>-macos-arm64.tar.gz`, `TokenBarCLI-v<tag>-macos-x86_64.tar.gz`
@@ -134,7 +134,7 @@ show an incident indicator.
 - Privacy-first: on-device parsing by default; browser cookies are opt-in and reused (no passwords stored).
 
 ## Privacy note
-Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, provider config files, local JSONL logs) when the related features are enabled. Provider tokens and token-account settings live in `~/.tokenbar/config.json` with restrictive file permissions. See the discussion and audit notes in [issue #12](https://github.com/steipete/TokenBar/issues/12).
+Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, provider config files, local JSONL logs) when the related features are enabled. Provider tokens and token-account settings live in `~/.tokenbar/config.json` with restrictive file permissions. See the discussion and audit notes in [issue #12](https://github.com/y0shua1ee/TokenBar/issues/12).
 
 ## macOS permissions (why they’re needed)
 - **Full Disk Access (optional)**: only required to read Safari cookies/local storage for web-based providers. If you don’t grant it, use another supported browser, manual cookies/API keys, OAuth, or CLI/local sources where that provider supports them.

@@ -1,6 +1,6 @@
 import AppKit
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 @testable import TokenBar
 
 private final class RefreshShortcutRecorder: StatusItemMenuPersistentActionDelegate {

@@ -37,7 +37,7 @@ public struct SubprocessResult: Sendable {
 public enum SubprocessRunner {
     private static let log = CodexBarLog.logger(LogCategories.subprocess)
     private static let timeoutQueue = DispatchQueue(
-        label: "com.steipete.codexbar.subprocess.timeout",
+        label: "com.y0shua1ee.tokenbar.subprocess.timeout",
         qos: .userInitiated,
         attributes: .concurrent)
 

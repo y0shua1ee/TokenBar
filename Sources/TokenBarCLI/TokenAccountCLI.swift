@@ -172,6 +172,11 @@ struct TokenAccountCLIContext {
                     cookieSource: cookieSource,
                     manualCookieHeader: cookieHeader,
                     apiRegion: self.resolveAlibabaCodingPlanRegion(config)))
+        case .alibabatokenplan:
+            return self.makeSnapshot(
+                alibabaTokenPlan: ProviderSettingsSnapshot.AlibabaTokenPlanProviderSettings(
+                    cookieSource: cookieSource,
+                    manualCookieHeader: cookieHeader))
         case .factory:
             return self.makeSnapshot(
                 factory: ProviderSettingsSnapshot.FactoryProviderSettings(
@@ -252,6 +257,7 @@ struct TokenAccountCLIContext {
         opencode: ProviderSettingsSnapshot.OpenCodeProviderSettings? = nil,
         opencodego: ProviderSettingsSnapshot.OpenCodeProviderSettings? = nil,
         alibaba: ProviderSettingsSnapshot.AlibabaCodingPlanProviderSettings? = nil,
+        alibabaTokenPlan: ProviderSettingsSnapshot.AlibabaTokenPlanProviderSettings? = nil,
         factory: ProviderSettingsSnapshot.FactoryProviderSettings? = nil,
         minimax: ProviderSettingsSnapshot.MiniMaxProviderSettings? = nil,
         manus: ProviderSettingsSnapshot.ManusProviderSettings? = nil,
@@ -276,6 +282,7 @@ struct TokenAccountCLIContext {
             opencode: opencode,
             opencodego: opencodego,
             alibaba: alibaba,
+            alibabaTokenPlan: alibabaTokenPlan,
             factory: factory,
             minimax: minimax,
             manus: manus,

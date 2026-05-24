@@ -1,4 +1,4 @@
-import TokenBarCore
+@testable import TokenBarCore
 import Commander
 import Foundation
 import XCTest

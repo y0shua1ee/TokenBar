@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import CodexBar
+@testable import TokenBar
 
 struct LocalizationBundleTests {
     @Test
@@ -10,7 +10,7 @@ struct LocalizationBundleTests {
 
         let bundle = codexBarLocalizationResourceBundle(mainBundle: fixture.appBundle)
 
-        #expect(bundle.bundleURL.lastPathComponent == "CodexBar_CodexBar.bundle")
+        #expect(bundle.bundleURL.lastPathComponent == "TokenBar_TokenBar.bundle")
         #expect(bundle.path(forResource: "en", ofType: "lproj") != nil)
     }
 
@@ -68,7 +68,7 @@ struct LocalizationBundleTests {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
             "codexbar-localization-\(UUID().uuidString)",
             isDirectory: true)
-        let appURL = root.appendingPathComponent("CodexBar.app", isDirectory: true)
+        let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
         let resourcesURL = contentsURL.appendingPathComponent("Resources", isDirectory: true)
         try FileManager.default.createDirectory(at: resourcesURL, withIntermediateDirectories: true)
@@ -78,9 +78,9 @@ struct LocalizationBundleTests {
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
         <dict>
-            <key>CFBundleExecutable</key><string>CodexBar</string>
-            <key>CFBundleIdentifier</key><string>com.steipete.codexbar.tests</string>
-            <key>CFBundleName</key><string>CodexBar</string>
+            <key>CFBundleExecutable</key><string>TokenBar</string>
+            <key>CFBundleIdentifier</key><string>com.y0shua1ee.tokenbar.tests</string>
+            <key>CFBundleName</key><string>TokenBar</string>
             <key>CFBundlePackageType</key><string>APPL</string>
         </dict>
         </plist>
@@ -95,7 +95,7 @@ struct LocalizationBundleTests {
         }
 
         if includeLocalizationBundle {
-            let bundleURL = resourcesURL.appendingPathComponent("CodexBar_CodexBar.bundle", isDirectory: true)
+            let bundleURL = resourcesURL.appendingPathComponent("TokenBar_TokenBar.bundle", isDirectory: true)
             try Self.writeEnglishLocalization(to: bundleURL.appendingPathComponent("en.lproj", isDirectory: true))
             if includeEmptyChineseLocalization {
                 try Self.writeEmptyChineseLocalization(
