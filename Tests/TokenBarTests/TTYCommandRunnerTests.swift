@@ -93,6 +93,43 @@ struct TTYCommandRunnerEnvTests {
     }
 
     @Test
+    func `descendant resolver walks process tree once`() {
+        let children: [pid_t: [pid_t]] = [
+            100: [101, 102],
+            101: [103],
+            102: [103],
+            103: [100],
+        ]
+
+        let descendants = TTYProcessTreeTerminator.descendantPIDs(of: 100) { children[$0] ?? [] }
+
+        #expect(Set(descendants) == Set([101, 102, 103]))
+        #expect(descendants.count == 3)
+    }
+
+    @Test
+    func `process tree termination signals escaped descendants`() {
+        let children: [pid_t: [pid_t]] = [
+            100: [101, 102],
+            102: [103],
+        ]
+        var signaled: [(pid: pid_t, signal: Int32)] = []
+
+        TTYProcessTreeTerminator.terminateProcessTree(
+            rootPID: 100,
+            processGroup: 200,
+            signal: 15,
+            childResolver: { children[$0] ?? [] },
+            signalSender: { pid, signal in
+                signaled.append((pid: pid, signal: signal))
+            })
+
+        #expect(Set(signaled.map(\.pid)) == Set([100, 101, 102, 103, -200]))
+        #expect(signaled.allSatisfy { $0.signal == 15 })
+        #expect(signaled.last?.pid == 100)
+    }
+
+    @Test
     func `preserves environment and sets term`() {
         let baseEnv: [String: String] = [
             "PATH": "/custom/bin",
@@ -142,13 +179,13 @@ struct TTYCommandRunnerEnvTests {
 
     @Test
     func `codex status probe uses non persistent thread storage`() {
-        let stateHome = URL(fileURLWithPath: "/tmp/codexbar status \"state\"", isDirectory: true)
+        let stateHome = URL(fileURLWithPath: "/tmp/tokenbar status \"state\"", isDirectory: true)
         let args = CodexStatusProbeIsolation.codexArguments(stateHome: stateHome)
 
         #expect(args.starts(with: ["-s", "read-only", "-a", "untrusted"]))
         #expect(args.contains("history.persistence=\"none\""))
-        #expect(args.contains("experimental_thread_store={type=\"in_memory\",id=\"codexbar-status\"}"))
-        #expect(args.contains("sqlite_home=\"/tmp/codexbar status \\\"state\\\"\""))
+        #expect(args.contains("experimental_thread_store={type=\"in_memory\",id=\"tokenbar-status\"}"))
+        #expect(args.contains("sqlite_home=\"/tmp/tokenbar status \\\"state\\\"\""))
     }
 
     @Test
@@ -161,7 +198,7 @@ struct TTYCommandRunnerEnvTests {
     @Test
     func `sets working directory when provided`() throws {
         let fm = FileManager.default
-        let dir = fm.temporaryDirectory.appendingPathComponent("codexbar-tty-\(UUID().uuidString)", isDirectory: true)
+        let dir = fm.temporaryDirectory.appendingPathComponent("tokenbar-tty-\(UUID().uuidString)", isDirectory: true)
         try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
         let runner = TTYCommandRunner()
@@ -171,9 +208,58 @@ struct TTYCommandRunnerEnvTests {
     }
 
     @Test
+    func `claude runner keeps normal working directory by default`() throws {
+        let runner = TTYCommandRunner()
+        let fakeClaude = try Self.makeFakeClaudeCLI()
+        let result = try runner.run(
+            binary: fakeClaude.path,
+            send: "",
+            options: .init(timeout: 3, stopOnSubstrings: ["deep-link-enabled"]))
+        let clean = result.text.replacingOccurrences(of: "\r", with: "")
+
+        #expect(clean.contains("deep-link-enabled"))
+    }
+
+    @Test
+    func `claude runner uses probe directory with deep link registration disabled when requested`() throws {
+        let runner = TTYCommandRunner()
+        let fakeClaude = try Self.makeFakeClaudeCLI()
+        let result = try runner.run(
+            binary: fakeClaude.path,
+            send: "",
+            options: .init(
+                timeout: 3,
+                stopOnSubstrings: ["deep-link-disabled"],
+                useClaudeProbeWorkingDirectory: true))
+        let clean = result.text.replacingOccurrences(of: "\r", with: "")
+
+        #expect(clean.contains("deep-link-disabled"))
+    }
+
+    @Test
+    func `claude runner uses probe directory for versioned CLI override`() throws {
+        let runner = TTYCommandRunner()
+        let fakeClaude = try Self.makeFakeClaudeCLI(fileName: "2.1.114")
+        var env = ProcessInfo.processInfo.environment
+        env["CLAUDE_CLI_PATH"] = fakeClaude.path
+
+        let result = try runner.run(
+            binary: fakeClaude.path,
+            send: "",
+            options: .init(
+                timeout: 3,
+                baseEnvironment: env,
+                stopOnSubstrings: ["deep-link-disabled"],
+                useClaudeProbeWorkingDirectory: true))
+        let clean = result.text.replacingOccurrences(of: "\r", with: "")
+
+        #expect(clean.contains("deep-link-disabled"))
+    }
+
+    @Test
     func `auto responds to trust prompt`() throws {
         let fm = FileManager.default
-        let dir = fm.temporaryDirectory.appendingPathComponent("codexbar-tty-\(UUID().uuidString)", isDirectory: true)
+        let dir = fm.temporaryDirectory.appendingPathComponent("tokenbar-tty-\(UUID().uuidString)", isDirectory: true)
         try fm.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: dir) }
 
@@ -205,6 +291,27 @@ struct TTYCommandRunnerEnvTests {
                 settleAfterStop: 0.1))
 
         #expect(result.text.contains("accepted"))
+    }
+
+    private static func makeFakeClaudeCLI(fileName: String = "claude") throws -> URL {
+        let fm = FileManager.default
+        let dir = fm.temporaryDirectory.appendingPathComponent("tokenbar-tty-\(UUID().uuidString)", isDirectory: true)
+        try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        let scriptURL = dir.appendingPathComponent(fileName)
+        let script = """
+        #!/bin/sh
+        settings="$PWD/.claude/settings.local.json"
+        if [ -f "$settings" ] \
+          && grep -q '"disableDeepLinkRegistration"' "$settings" \
+          && grep -q '"disable"' "$settings"; then
+          echo "deep-link-disabled"
+        else
+          echo "deep-link-enabled"
+        fi
+        """
+        try script.write(to: scriptURL, atomically: true, encoding: .utf8)
+        try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+        return scriptURL
     }
 
     @Test
@@ -299,7 +406,7 @@ struct TTYCommandRunnerEnvTests {
     @Test
     func `stops when output is idle`() throws {
         let fm = FileManager.default
-        let dir = fm.temporaryDirectory.appendingPathComponent("codexbar-tty-\(UUID().uuidString)", isDirectory: true)
+        let dir = fm.temporaryDirectory.appendingPathComponent("tokenbar-tty-\(UUID().uuidString)", isDirectory: true)
         try fm.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: dir) }
 

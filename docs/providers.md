@@ -1,5 +1,5 @@
 ---
-summary: "Provider data sources and parsing overview for every registered CodexBar provider."
+summary: "Provider data sources and parsing overview for every registered TokenBar provider."
 read_when:
   - Adding or modifying provider fetch/parsing
   - Adjusting provider labels, toggles, or metadata
@@ -8,7 +8,7 @@ read_when:
 
 # Providers
 
-CodexBar currently registers 45 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
+TokenBar currently registers 47 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
 OpenCode vs OpenCode Go, because the auth source and quota shape differ.
 
 ## Fetch strategies (current)
@@ -17,12 +17,13 @@ Source labels (CLI/header): `openai-web`, `web`, `oauth`, `api`, `local`, `cli`,
 
 Cookie-based providers expose a Cookie source picker (Automatic or Manual) in Settings → Providers.
 Some browser cookie imports are cached in Keychain and reused until the session is invalid. API keys, manual cookie
-headers, source selection, provider ordering, and token accounts are stored in `~/.codexbar/config.json`.
+headers, source selection, provider ordering, and token accounts are stored in `~/.tokenbar/config.json`.
 
 | Provider | Strategies (ordered for auto) |
 | --- | --- |
 | Codex | App Auto: OAuth API (`oauth`) → CLI RPC/PTy (`codex-cli`). CLI Auto: Web dashboard (`openai-web`) → CLI RPC/PTy (`codex-cli`). |
 | OpenAI | Admin API key (`api`) for organization spend/usage; legacy API-key balance fallback. |
+| Azure OpenAI | API key + endpoint + deployment probe (`api`) for deployment status validation. |
 | Claude | Admin API key (`api`) when configured; otherwise App Auto: OAuth API (`oauth`) → CLI PTY (`claude`) → Web API (`web`). CLI Auto: Web API (`web`) → CLI PTY (`claude`). |
 | Gemini | OAuth-backed API via Gemini CLI credentials (`api`). |
 | Antigravity | Local LSP/HTTP probe (`local`). |
@@ -43,10 +44,11 @@ headers, source selection, provider ordering, and token accounts are stored in `
 | Augment | `auggie` CLI first, then browser-cookie web fallback (`cli`, `web`). |
 | JetBrains AI | Local XML quota file (`local`). |
 | Amp | Web settings page via browser cookies (`web`). |
+| T3 Chat | Web tRPC customer-data endpoint via browser cookies (`web`). |
 | Warp | API token (config/env) → GraphQL request limits (`api`). |
 | ElevenLabs | API key from config/env → subscription usage API (`api`). |
 | Windsurf | Web session bundle from browser localStorage (`web`) → local SQLite cache (`local`). |
-| Ollama | Web settings page via browser cookies (`web`). |
+| Ollama | API key verifies Cloud API access (`api`); browser cookies expose Cloud quota windows (`web`). |
 | Synthetic | API key from config/env → quota API (`api`). |
 | OpenRouter | API token (config, overrides env) → credits API (`api`). |
 | Perplexity | Browser cookies/manual cookie/env session token → credits API (`web`). |
@@ -78,10 +80,16 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/codex.md`.
 
 ## OpenAI
-- API key from `~/.codexbar/config.json`, `OPENAI_ADMIN_KEY`, or `OPENAI_API_KEY`.
+- API key from `~/.tokenbar/config.json`, `OPENAI_ADMIN_KEY`, or `OPENAI_API_KEY`.
 - Admin API keys are preferred and fetch organization costs plus completion usage for inline Today/7d/configured-window dashboards.
 - Normal API keys fall back to the legacy credit-grants balance endpoint when organization usage is unavailable.
 - Details: `docs/openai.md`.
+
+## Azure OpenAI
+- API key, endpoint, and deployment from `~/.tokenbar/config.json` or `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, and `AZURE_OPENAI_DEPLOYMENT_NAME`.
+- Validates the configured deployment with a minimal chat-completions request; it does not expose Azure spend or quota history.
+- Use `AZURE_OPENAI_API_VERSION` to override the API version. Set it to `v1` for Azure's OpenAI-compatible v1 API path.
+- Status: Azure status page link.
 
 ## Claude
 - Admin API: `sk-ant-admin...` key in Settings/config, token accounts, or `ANTHROPIC_ADMIN_KEY`.
@@ -93,7 +101,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/claude.md`.
 
 ## z.ai
-- API token from `~/.codexbar/config.json` (`providers[].apiKey`) or `Z_AI_API_KEY` env var.
+- API token from `~/.tokenbar/config.json` (`providers[].apiKey`) or `Z_AI_API_KEY` env var.
 - Supports global and BigModel CN quota hosts; override with `Z_AI_API_HOST` or `Z_AI_QUOTA_URL`.
 - Status: none yet.
 - Details: `docs/zai.md`.
@@ -118,14 +126,14 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/kimi.md`.
 
 ## Kilo
-- API token from `~/.codexbar/config.json` (`providers[].apiKey`) or `KILO_API_KEY`.
+- API token from `~/.tokenbar/config.json` (`providers[].apiKey`) or `KILO_API_KEY`.
 - Auto mode tries API first and falls back to CLI auth when API credentials are missing or unauthorized.
 - CLI auth source: `~/.local/share/kilo/auth.json` (`kilo.access`), typically created by `kilo login`.
 - Status: none yet.
 - Details: `docs/kilo.md`.
 
 ## Kimi K2 (unofficial)
-- API key via `~/.codexbar/config.json` or `KIMI_K2_API_KEY`/`KIMI_API_KEY` env var.
+- API key via `~/.tokenbar/config.json` or `KIMI_K2_API_KEY`/`KIMI_API_KEY` env var.
 - Shows credit usage from the legacy `kimi-k2.ai` consumed/remaining totals.
 - Use Moonshot / Kimi API for the official Kimi API account and billing surface.
 - Status: none yet.
@@ -158,7 +166,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 ## OpenCode Go
 - Web dashboard via browser cookies (`opencode.ai`).
 - Uses the workspace Go page/server data for rolling 5-hour, weekly, and optional monthly usage windows.
-- Optional workspace ID comes from `~/.codexbar/config.json` (`providers[].workspaceID`) or `CODEXBAR_OPENCODEGO_WORKSPACE_ID`.
+- Optional workspace ID comes from `~/.tokenbar/config.json` (`providers[].workspaceID`) or `TOKENBAR_OPENCODEGO_WORKSPACE_ID`.
 - Status: none yet.
 - Details: `docs/opencode.md`.
 
@@ -231,6 +239,12 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Status: none yet.
 - Details: `docs/amp.md`.
 
+## T3 Chat
+- Web tRPC endpoint (`https://t3.chat/api/trpc/getCustomerData`) via browser cookies.
+- Parses JSONL response lines and extracts customer data from the embedded tRPC payload.
+- Shows the 4-hour Base bucket and monthly Overage bucket documented in the T3 Chat FAQ.
+- Status: none yet.
+
 ## Ollama
 - Web settings page (`https://ollama.com/settings`) via browser cookies.
 - Parses Cloud Usage plan badge, session/weekly usage, and reset timestamps.
@@ -238,12 +252,12 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/ollama.md`.
 
 ## Synthetic
-- API key from `~/.codexbar/config.json` (`providers[].apiKey`) or `SYNTHETIC_API_KEY`.
+- API key from `~/.tokenbar/config.json` (`providers[].apiKey`) or `SYNTHETIC_API_KEY`.
 - Shows rolling five-hour, weekly token, search-hourly, and cost/credit quota lanes when present.
 - Status: none yet.
 
 ## OpenRouter
-- API token from `~/.codexbar/config.json` (`providers[].apiKey`) or `OPENROUTER_API_KEY` env var.
+- API token from `~/.tokenbar/config.json` (`providers[].apiKey`) or `OPENROUTER_API_KEY` env var.
 - Reads credits and key rate-limit info from OpenRouter APIs.
 - Shows daily, weekly, and monthly API-key spend when `/api/v1/key` returns those fields.
 - Override base URL with `OPENROUTER_API_URL` env var.
@@ -304,7 +318,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/venice.md`.
 
 ## Codebuff
-- API token from `~/.codexbar/config.json`, `CODEBUFF_API_KEY`, or `~/.config/manicode/credentials.json` created by `codebuff login`.
+- API token from `~/.tokenbar/config.json`, `CODEBUFF_API_KEY`, or `~/.config/manicode/credentials.json` created by `codebuff login`.
 - Reads usage and subscription data from Codebuff APIs.
 - Shows credit balance, weekly rate limit, reset timing, subscription status, and auto-top-up flag when present.
 - Override base URL with `CODEBUFF_API_URL`.
@@ -312,7 +326,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - Details: `docs/codebuff.md`.
 
 ## Crof
-- API key from `~/.codexbar/config.json`, `CROF_API_KEY`, or `CROFAI_API_KEY`.
+- API key from `~/.tokenbar/config.json`, `CROF_API_KEY`, or `CROFAI_API_KEY`.
 - Reads `credits`, `requests_plan`, and `usable_requests` from `GET https://crof.ai/usage_api/`.
 - Shows request quota as the primary usage window and dollar credits as the secondary row.
 - Infers the daily request reset from midnight America/Chicago until the usage API exposes reset metadata.
@@ -330,7 +344,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 - `grok agent stdio` (ACP) JSON-RPC `x.ai/billing` method; requires `grok login` (SuperGrok OAuth/OIDC).
 - Reads cached credentials from `~/.grok/auth.json` for identity (email, team).
 - Falls back to grok.com's billing gRPC-web endpoint via Chrome session cookies when the CLI does not expose billing.
-- CLI/test runs do not import browser cookies unless `CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
+- CLI/test runs do not import browser cookies unless `TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
 - Local fallback aggregates `~/.grok/sessions/**/signals.json` token counts when the RPC is unavailable.
 - Status: link only to `https://status.x.ai` (no auto-polling yet).
 - Details: `docs/grok.md`.
@@ -338,8 +352,8 @@ headers, source selection, provider ordering, and token accounts are stored in `
 ## AWS Bedrock
 - AWS credentials from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and optional `AWS_SESSION_TOKEN`.
 - Region from `AWS_REGION` / `AWS_DEFAULT_REGION`, defaulting to `us-east-1`.
-- Reads AWS Cost Explorer for Bedrock spend and can compare usage against `CODEXBAR_BEDROCK_BUDGET`.
-- Override Cost Explorer base URL with `CODEXBAR_BEDROCK_API_URL` for tests.
+- Reads AWS Cost Explorer for Bedrock spend and can compare usage against `TOKENBAR_BEDROCK_BUDGET`.
+- Override Cost Explorer base URL with `TOKENBAR_BEDROCK_API_URL` for tests.
 - Details: `docs/bedrock.md`.
 
 ## Deepgram

@@ -104,13 +104,13 @@ jobs:
           hash -r
           swift --version
 
-      - name: Build CodexBarCLI (release)
+      - name: Build TokenBarCLI (release)
         id: build
         shell: bash
         run: |
           set -euo pipefail
 
-          BUILD_ARGS=(swift build -c release --product CodexBarCLI)
+          BUILD_ARGS=(swift build -c release --product TokenBarCLI)
           if [[ -n "${{ matrix.build-arch }}" ]]; then
             BUILD_ARGS+=(--arch "${{ matrix.build-arch }}")
           fi
@@ -119,7 +119,7 @@ jobs:
           fi
           "${BUILD_ARGS[@]}"
 
-          SHOW_BIN_ARGS=(swift build -c release --product CodexBarCLI --show-bin-path)
+          SHOW_BIN_ARGS=(swift build -c release --product TokenBarCLI --show-bin-path)
           if [[ -n "${{ matrix.build-arch }}" ]]; then
             SHOW_BIN_ARGS+=(--arch "${{ matrix.build-arch }}")
           fi
@@ -129,14 +129,14 @@ jobs:
 
           echo "bin_dir=$("${SHOW_BIN_ARGS[@]}")" >> "$GITHUB_OUTPUT"
 
-      - name: Smoke test CodexBarCLI
+      - name: Smoke test TokenBarCLI
         timeout-minutes: 5
         shell: bash
         run: |
           set -euo pipefail
 
           BIN_DIR="${{ steps.build.outputs.bin_dir }}"
-          BIN="$BIN_DIR/CodexBarCLI"
+          BIN="$BIN_DIR/TokenBarCLI"
           run_with_timeout() {
             local output="$1"
             shift
@@ -169,15 +169,15 @@ jobs:
           file "$BIN"
           if [[ "${{ matrix.platform }}" == "macos" ]]; then
             lipo -archs "$BIN" | tr ' ' '\n' | grep -Fx "${{ matrix.asset-arch }}"
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-smoke-${{ matrix.name }}.txt" "$BIN" config validate --format json
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-smoke-${{ matrix.name }}.txt" "$BIN" config validate --format json
           else
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
             file "$BIN" | grep -q "${{ matrix.asset-arch }}"
           fi
           printf '%s\n' "${RELEASE_TAG#v}" > "$BIN_DIR/VERSION"
-          VERSION_OUTPUT="$RUNNER_TEMP/codexbar-cli-version-${{ matrix.name }}.txt"
+          VERSION_OUTPUT="$RUNNER_TEMP/tokenbar-cli-version-${{ matrix.name }}.txt"
           run_with_timeout "$VERSION_OUTPUT" "$BIN" --version
-          grep -Fx "CodexBar ${RELEASE_TAG#v}" "$VERSION_OUTPUT"
+          grep -Fx "TokenBar ${RELEASE_TAG#v}" "$VERSION_OUTPUT"
           rm "$BIN_DIR/VERSION"
 
       - name: Package
@@ -195,12 +195,12 @@ jobs:
 
           BIN_DIR="${{ steps.build.outputs.bin_dir }}"
           OUT_DIR="$(mktemp -d)"
-          install -m 0755 "$BIN_DIR/CodexBarCLI" "$OUT_DIR/CodexBarCLI"
-          ln -s "CodexBarCLI" "$OUT_DIR/codexbar"
+          install -m 0755 "$BIN_DIR/TokenBarCLI" "$OUT_DIR/TokenBarCLI"
+          ln -s "TokenBarCLI" "$OUT_DIR/tokenbar"
           printf '%s\n' "${SAFE_REF_NAME#v}" > "$OUT_DIR/VERSION"
 
-          ASSET="CodexBarCLI-${SAFE_REF_NAME}-${{ matrix.platform }}-${{ matrix.asset-arch }}.tar.gz"
-          (cd "$OUT_DIR" && tar czf "$ASSET" CodexBarCLI codexbar VERSION)
+          ASSET="TokenBarCLI-${SAFE_REF_NAME}-${{ matrix.platform }}-${{ matrix.asset-arch }}.tar.gz"
+          (cd "$OUT_DIR" && tar czf "$ASSET" TokenBarCLI tokenbar VERSION)
           if command -v sha256sum >/dev/null 2>&1; then
             sha256sum "$OUT_DIR/$ASSET" > "$OUT_DIR/$ASSET.sha256"
           else
@@ -226,7 +226,7 @@ jobs:
         if: github.event_name != 'release' && inputs.tag == ''
         uses: actions/upload-artifact@v6
         with:
-          name: codexbar-cli-${{ matrix.name }}
+          name: tokenbar-cli-${{ matrix.name }}
           path: |
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}.sha256
@@ -247,7 +247,7 @@ jobs:
             exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "request_id=codexbar-${tag}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+          echo "request_id=tokenbar-${tag}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch tap update
         env:
@@ -259,11 +259,13 @@ jobs:
           for attempt in {1..6}; do
             if gh workflow run update-formula.yml \
               --repo steipete/homebrew-tap \
-              -f formula=codexbar \
+              -f formula=tokenbar \
               -f tag="${{ steps.release.outputs.tag }}" \
-              -f repository=steipete/CodexBar \
-              -f artifact_template='CodexBarCLI-{tag}-{target}.tar.gz' \
+              -f repository=steipete/TokenBar \
+              -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
               -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
+              -f cask=tokenbar \
+              -f cask_artifact='TokenBar-macos-universal-{version}.zip' \
               -f request_id="${{ steps.release.outputs.request_id }}"; then
               exit 0
             fi
@@ -286,14 +288,14 @@ jobs:
                 --repo steipete/homebrew-tap \
                 --workflow update-formula.yml \
                 --json databaseId,displayTitle \
-                --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' 2>/tmp/codexbar-tap-run-list.err \
+                --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' 2>/tmp/tokenbar-tap-run-list.err \
                 | head -n1 || true
             )"
             if [[ -n "$run_id" ]]; then
               gh run watch "$run_id" --repo steipete/homebrew-tap --exit-status
               exit 0
             fi
-            cat /tmp/codexbar-tap-run-list.err >&2 || true
+            cat /tmp/tokenbar-tap-run-list.err >&2 || true
             sleep 5
           done
           echo "Timed out waiting for tap workflow to appear." >&2

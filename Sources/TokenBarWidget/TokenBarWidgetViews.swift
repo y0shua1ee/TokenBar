@@ -259,6 +259,7 @@ private struct ProviderSwitchChip: View {
         switch self.provider {
         case .codex: "Codex"
         case .openai: "OpenAI"
+        case .azureopenai: "Azure OpenAI"
         case .claude: "Claude"
         case .gemini: "Gemini"
         case .antigravity: "Anti"
@@ -280,6 +281,7 @@ private struct ProviderSwitchChip: View {
         case .kimik2: "Kimi K2"
         case .moonshot: "Moonshot"
         case .amp: "Amp"
+        case .t3chat: "T3 Chat"
         case .ollama: "Ollama"
         case .synthetic: "Synthetic"
         case .openrouter: "OpenRouter"
@@ -617,6 +619,8 @@ enum WidgetColors {
             Color(red: 73 / 255, green: 163 / 255, blue: 176 / 255)
         case .openai:
             Color(red: 15 / 255, green: 130 / 255, blue: 110 / 255)
+        case .azureopenai:
+            Color(red: 0, green: 120 / 255, blue: 212 / 255)
         case .claude:
             Color(red: 204 / 255, green: 124 / 255, blue: 94 / 255)
         case .gemini:
@@ -659,6 +663,8 @@ enum WidgetColors {
             Color(red: 32 / 255, green: 93 / 255, blue: 235 / 255)
         case .amp:
             Color(red: 220 / 255, green: 38 / 255, blue: 38 / 255) // Amp red
+        case .t3chat:
+            Color(red: 245 / 255, green: 102 / 255, blue: 71 / 255)
         case .ollama:
             Color(red: 32 / 255, green: 32 / 255, blue: 32 / 255) // Ollama charcoal
         case .synthetic:

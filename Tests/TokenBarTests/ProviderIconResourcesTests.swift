@@ -31,6 +31,7 @@ struct ProviderIconResourcesTests {
             "mimo",
             "stepfun",
             "venice",
+            "t3chat",
             "kimi",
             "bedrock",
             "elevenlabs",

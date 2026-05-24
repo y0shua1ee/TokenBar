@@ -46,6 +46,8 @@ enum ProviderBrandIcon {
         case .krill: "fish"
         case .custom: "gearshape.2"
         case .openai: "creditcard"
+        case .azureopenai: "cloud"
+        case .t3chat: "bubble.left.and.bubble.right"
         case .manus: "brain"
         case .mimo: "m.circle"
         case .doubao: "d.circle"

@@ -1,5 +1,4 @@
-/* Chinese (Simplified) localization for TokenBar */
-
+// Merged TokenBar localization strings.
 " providers" = "";
 "(System)" = "";
 "30d" = "";
@@ -9,7 +8,7 @@
 "API token" = "";
 "API tokens" = "";
 "About" = "";
-"Account" = "";
+"Account" = "账户";
 "Accounts" = "";
 "Accounts subtitle" = "";
 "Active" = "";
@@ -21,12 +20,12 @@
 "Animation pattern" = "";
 "Antigravity login is managed in the app" = "";
 "Applies only to the Security.framework OAuth keychain reader." = "";
-"Auto falls back to the next source if the preferred one fails." = "";
+"Auto falls back to the next source if the preferred one fails." = "自动模式会在首选来源失败时回退到下一个来源。";
 "Auto uses API first, then falls back to CLI on auth failures." = "";
 "Auto-detect" = "";
 "Auto-refresh is off; use the menu's Refresh command." = "";
 "Auto-refresh: hourly · Timeout: 10m" = "";
-"Automatic" = "";
+"Automatic" = "自动";
 "Automatic imports browser cookies and WorkOS tokens." = "";
 "Automatic imports browser cookies and local storage tokens." = "";
 "Automatic imports browser cookies for dashboard extras." = "";
@@ -42,7 +41,7 @@
 "Average (\\(label1) + \\(label2))" = "";
 "Average (\\(metadata.sessionLabel) + \\(metadata.weeklyLabel))" = "";
 "Avoid Keychain prompts" = "";
-"Balance" = "";
+"Balance" = "余额";
 "Battery Saver" = "";
 "Bordered" = "";
 "Build" = "";
@@ -91,13 +90,13 @@
 "Cookie: \\u{2026}\\\n\\\nor paste the kimi-auth token value" = "";
 "Cookie: …" = "";
 "CopilotDeviceFlow" = "";
-"Cost" = "";
+"Cost" = "费用";
 "Could not add Codex account" = "";
 "Could not open Terminal for Gemini" = "";
 "Could not start claude /login" = "";
 "Could not start codex login" = "";
 "Could not switch system account" = "";
-"Credits" = "";
+"Credits" = "积分";
 "Credits history" = "";
 "Cursor login failed" = "";
 "Custom" = "";
@@ -107,7 +106,7 @@
 "Default" = "";
 "Designs" = "";
 "Disable Keychain access" = "";
-"Disabled" = "";
+"Disabled" = "已禁用";
 "Disconnected" = "";
 "Display" = "";
 "Display mode" = "";
@@ -117,7 +116,7 @@
 "Email" = "";
 "Enable Merge Icons to configure Overview tab providers." = "";
 "Enable file logging" = "";
-"Enabled" = "";
+"Enabled" = "已启用";
 "Error" = "";
 "Error simulation" = "";
 "Expose troubleshooting tools in the Debug tab." = "";
@@ -169,7 +168,7 @@
 "May your tokens never run out—keep agent limits in view." = "";
 "Menu bar" = "";
 "Menu bar auto-shows the provider closest to its rate limit." = "";
-"Menu bar metric" = "";
+"Menu bar metric" = "菜单栏指标";
 "Menu bar shows percent" = "";
 "Menu content" = "";
 "Merge Icons" = "";
@@ -217,7 +216,7 @@
 "Option A" = "";
 "Option B" = "";
 "Optional override if workspace lookup fails." = "";
-"Options" = "";
+"Options" = "选项";
 "Override auto-detection with a custom IDE base path" = "";
 "Overview" = "";
 "Overview rows always follow provider order." = "";
@@ -233,7 +232,7 @@
 "Picker" = "";
 "Picker subtitle" = "";
 "Placeholder" = "";
-"Plan" = "";
+"Plan" = "套餐";
 "Play full-screen confetti when weekly usage resets." = "";
 "Polls OpenAI/Claude status pages and Google Workspace for " = "";
 "Prevents any Keychain access while enabled." = "";
@@ -267,7 +266,7 @@
 "Select the IDE to monitor" = "";
 "Session quota notifications" = "";
 "Session tokens" = "";
-"Settings" = "";
+"Settings" = "设置";
 "Show Codex Credits and Claude Extra usage sections in the menu." = "";
 "Show Debug Settings" = "";
 "Show all token accounts" = "";
@@ -284,7 +283,7 @@
 "Skip teardown between probes (debug-only)." = "";
 "Stack token accounts in the menu (otherwise show an account switcher bar)." = "";
 "Start at Login" = "";
-"Status" = "";
+"Status" = "状态";
 "Store Claude sessionKey cookies or OAuth access tokens." = "";
 "Store multiple Abacus AI Cookie headers." = "";
 "Store multiple Augment Cookie headers." = "";
@@ -320,16 +319,16 @@
 "Twitter" = "";
 "Unsupported" = "";
 "Update Channel" = "";
-"Updated" = "";
+"Updated" = "已更新";
 "Updates unavailable in this build." = "";
-"Usage" = "";
+"Usage" = "用量";
 "Usage breakdown" = "";
 "Usage history (30 days)" = "";
-"Usage source" = "";
+"Usage source" = "用量来源";
 "Use BigModel for the China mainland endpoints (open.bigmodel.cn)." = "";
 "Use a single menu bar icon with a provider switcher." = "";
 "Use international or China mainland console gateways for quota fetches." = "";
-"Version" = "";
+"Version" = "版本";
 "Version \\(self.versionString)" = "";
 "Version \\(version)" = "";
 "Version \\(versionString)" = "";
@@ -355,13 +354,8 @@
 "available again." = "";
 "built_format" = "构建于 %@";
 "copilot_complete_in_browser" = "";
-"copilot_device_code" = "设备代码已复制到剪贴板：%1$@
-
-请在以下地址验证：%2$@";
 "copilot_device_code_copied" = "";
 "copilot_verify_at" = "";
-"copilot_waiting_text" = "请在浏览器中完成登录。
-完成后此窗口将自动关闭。";
 "copilot_window_closes_auto" = "";
 "cost_status_error" = "%@：%@";
 "cost_status_fetching" = "%1$@：获取中…%2$@";
@@ -392,18 +386,8 @@
 "peak_ends_in" = "高峰 · %@ 后结束";
 "remove_account_message" = "从 TokenBar 中移除 %@？其托管的 Codex 主目录将被删除。";
 "version_format" = "版本 %@";
-"vertex_ai_login_instructions" = "要使用 Vertex AI 跟踪，您需要通过 Google Cloud 进行认证。
-
-1. 打开终端
-2. 运行：gcloud auth application-default login
-3. 按照浏览器提示登录
-4. 设置项目：gcloud config set project PROJECT_ID
-
-是否现在打开终端？";
 "workspaceID is set but only opencode, opencodego, and deepgram support workspaceID." = "";
 "© 2026 Peter Steinberger. MIT License." = "";
-
-/* General Pane */
 "section_system" = "系统";
 "section_usage" = "用量";
 "section_automation" = "自动化";
@@ -447,16 +431,12 @@
 "quota_warning_lower" = "下限";
 "apply" = "应用";
 "quit_app" = "退出 TokenBar";
-
-/* Tab titles */
 "tab_general" = "通用";
 "tab_providers" = "提供商";
 "tab_display" = "显示";
 "tab_advanced" = "高级";
 "tab_about" = "关于";
 "tab_debug" = "调试";
-
-/* Providers Pane */
 "select_a_provider" = "选择一个提供商";
 "cancel" = "取消";
 "last_fetch_failed" = "上次获取失败";
@@ -477,8 +457,6 @@
 "menu_bar_metric_subtitle_kimik2" = "在菜单栏显示 Kimi K2 API Key 额度。";
 "automatic" = "自动";
 "primary_api_key_limit" = "主要（API 密钥限制）";
-
-/* Display Pane */
 "section_menu_bar" = "菜单栏";
 "merge_icons_title" = "合并图标";
 "merge_icons_subtitle" = "使用单个菜单栏图标并带提供商切换器。";
@@ -513,8 +491,6 @@
 "overview_no_providers_hint" = "概览没有可用的已启用提供商。";
 "overview_rows_follow_order" = "概览行始终遵循提供商顺序。";
 "overview_no_providers_selected" = "未选择提供商";
-
-/* Advanced Pane */
 "section_keyboard_shortcut" = "快捷键";
 "open_menu_shortcut_title" = "打开菜单";
 "open_menu_shortcut_subtitle" = "从任意位置触发菜单栏菜单。";
@@ -536,8 +512,6 @@
 "keychain_access_caption" = "禁用所有钥匙串读写。浏览器 cookie 导入不可用；在提供商中手动粘贴 Cookie 标头。";
 "disable_keychain_access_title" = "禁用钥匙串访问";
 "disable_keychain_access_subtitle" = "启用时阻止任何钥匙串访问。";
-
-/* About Pane */
 "about_tagline" = "愿你的令牌永不耗尽——时刻关注智能体限制。";
 "link_github" = "GitHub";
 "link_website" = "网站";
@@ -548,8 +522,6 @@
 "check_for_updates" = "检查更新…";
 "updates_unavailable" = "此构建中更新不可用。";
 "copyright" = "© 2026 Peter Steinberger. MIT License.";
-
-/* Debug Pane */
 "section_logging" = "日志";
 "enable_file_logging" = "启用文件日志";
 "enable_file_logging_subtitle" = "将日志写入 %@ 以进行调试。";
@@ -605,42 +577,67 @@
 "login_shell_path" = "登录 shell PATH（启动捕获）";
 "cleared" = "已清除。";
 "no_fetch_attempts" = "尚无获取尝试。";
-
-/* Metric preferences */
 "metric_pref_automatic" = "自动";
 "metric_pref_primary" = "主要";
 "metric_pref_secondary" = "次要";
 "metric_pref_tertiary" = "第三";
 "metric_pref_extra_usage" = "额外用量";
 "metric_pref_average" = "平均";
-
-/* Display modes */
 "display_mode_percent" = "百分比";
 "display_mode_pace" = "节奏";
 "display_mode_both" = "两者";
 "display_mode_percent_desc" = "显示剩余/已使用百分比（例如 45%）";
 "display_mode_pace_desc" = "显示节奏指示器（例如 +5%）";
 "display_mode_both_desc" = "同时显示百分比和节奏（例如 45% · +5%）";
-
-/* Provider status */
 "status_operational" = "正常运行";
 "status_partial_outage" = "部分中断";
 "status_major_outage" = "重大中断";
 "status_critical_issue" = "严重问题";
 "status_maintenance" = "维护中";
 "status_unknown" = "状态未知";
-
-/* Refresh frequency */
 "refresh_manual" = "手动";
 "refresh_1min" = "1 分钟";
 "refresh_2min" = "2 分钟";
 "refresh_5min" = "5 分钟";
 "refresh_15min" = "15 分钟";
 "refresh_30min" = "30 分钟";
-
-/* Additional keys */
 "not_found" = "未找到";
-
-/* Cost estimation */
 "cost_header_estimated" = "费用（估算）";
 "cost_estimate_hint" = "根据本地日志估算 · 可能与账单不同";
+"API key limit" = "API 密钥限制";
+"Auth" = "认证";
+"Auto" = "自动";
+"Automatically opens TokenBar when you start your Mac." = "";
+"Choose which Codex account TokenBar should follow." = "";
+"TokenBar Lifecycle Keepalive" = "";
+"TokenBar could not read managed account storage. " = "";
+"Disabled — no recent data" = "已禁用 — 无近期数据";
+"How often TokenBar polls providers in the background." = "";
+"Limits not available" = "限制不可用";
+"No usage yet" = "尚无用量";
+"Not fetched yet" = "尚未获取";
+"Open Antigravity to sign in, then refresh TokenBar." = "";
+"Quit TokenBar" = "";
+"Refreshing" = "正在刷新";
+"Remove \\(account.email) from TokenBar? Its managed Codex home will be deleted." = "";
+"Remove \\(email) from TokenBar? Its managed Codex home will be deleted." = "";
+"Session" = "会话";
+"Source" = "来源";
+"State" = "状态";
+"Stored in the TokenBar config file." = "";
+"Stored in ~/.tokenbar/config.json. " = "";
+"Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai." = "";
+"Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard." = "";
+"Stored in ~/.tokenbar/config.json. Paste your Coding Plan API key from Model Studio." = "";
+"Stored in ~/.tokenbar/config.json. Paste your MiniMax API key." = "";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or " = "";
+"Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar." = "";
+"Unavailable" = "不可用";
+"Weekly" = "每周";
+"not detected" = "未检测到";
+"language_spanish" = "Español";
+"language_catalan" = "Català";
+"TokenBar can't show its menu bar icon" = "TokenBar 无法显示菜单栏图标";
+"Dismiss" = "关闭";
+"Open Menu Bar Settings" = "打开菜单栏设置";
+"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe 可能会在“系统设置”→“菜单栏”→“允许显示在菜单栏”中阻止菜单栏应用。TokenBar 正在运行，但 macOS 可能隐藏了它的图标。打开菜单栏设置并启用 TokenBar。";

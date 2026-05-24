@@ -175,6 +175,105 @@ let openAIDashboardScrapeScript = """
         const normalized = normalizeHref(anchorHref || dataHref || propHref);
         return normalized && isLikelyCreditsURL(normalized) ? normalized : null;
       };
+      const cleanPlanName = (raw) => String(raw || '')
+        .replace(/\\b(claude|codex|account|plan)\\b/gi, ' ')
+        .replace(/_/g, ' ')
+        .replace(/-/g, ' ')
+        .replace(/\\s+/g, ' ')
+        .trim();
+      const codexPlanDisplayName = (raw) => {
+        const trimmed = String(raw || '').trim();
+        if (!trimmed) return null;
+        const lower = trimmed.toLowerCase();
+        const exact = {
+          pro: 'Pro 20x',
+          prolite: 'Pro 5x',
+          'pro_lite': 'Pro 5x',
+          'pro-lite': 'Pro 5x',
+          'pro lite': 'Pro 5x'
+        };
+        if (exact[lower]) return exact[lower];
+        const cleaned = cleanPlanName(trimmed);
+        if (!cleaned) return trimmed;
+        if (exact[cleaned.toLowerCase()]) return exact[cleaned.toLowerCase()];
+        return cleaned.split(' ')
+          .filter(Boolean)
+          .map(word => {
+            const wordLower = word.toLowerCase();
+            if (wordLower === 'cbp' || wordLower === 'k12') return wordLower.toUpperCase();
+            if (word === word.toUpperCase() && /[a-z]/i.test(word)) return word;
+            return word.charAt(0).toUpperCase() + word.slice(1);
+          })
+          .join(' ') || cleaned;
+      };
+      const normalizePlanValue = (value) => {
+        const trimmed = String(value || '').trim();
+        if (!trimmed) return null;
+        const lower = trimmed.toLowerCase();
+        const allowed = [
+          'free',
+          'plus',
+          'pro',
+          'team',
+          'enterprise',
+          'business',
+          'edu',
+          'education',
+          'gov',
+          'premium',
+          'essential'
+        ];
+        if (!allowed.some(token => lower.includes(token))) return null;
+        return codexPlanDisplayName(trimmed) || cleanPlanName(trimmed);
+      };
+      const planCandidate = (key, value) => {
+        const lower = String(key || '').toLowerCase();
+        if (!lower.includes('plan') && !lower.includes('tier') && !lower.includes('subscription')) return null;
+        if (typeof value === 'string') return normalizePlanValue(value);
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          return normalizePlanValue(value.name) ||
+            normalizePlanValue(value.displayName) ||
+            normalizePlanValue(value.tier);
+        }
+        return null;
+      };
+      const findPlan = (root) => {
+        if (!root || typeof root !== 'object') return null;
+        const queue = [root];
+        const seenObjects = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+        let index = 0;
+        let seen = 0;
+        while (index < queue.length && seen < 6000) {
+          const cur = queue[index++];
+          seen++;
+          if (!cur || typeof cur !== 'object') continue;
+          if (seenObjects) {
+            if (seenObjects.has(cur)) continue;
+            seenObjects.add(cur);
+          }
+          if (Array.isArray(cur)) {
+            for (const v of cur) {
+              if (v && typeof v === 'object') queue.push(v);
+            }
+            continue;
+          }
+          for (const [k, v] of Object.entries(cur)) {
+            const plan = planCandidate(k, v);
+            if (plan) return plan;
+            if (v && typeof v === 'object') queue.push(v);
+          }
+        }
+        return null;
+      };
+      const parseJSONScript = (id) => {
+        try {
+          const node = document.getElementById(id);
+          const raw = node && node.textContent ? String(node.textContent) : '';
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      };
       const pickLikelyPurchaseButton = (buttons) => {
         if (!buttons || buttons.length === 0) return null;
         const labeled = buttons.find(btn => {
@@ -459,7 +558,7 @@ let openAIDashboardScrapeScript = """
       };
       const usageBreakdownJSON = (() => {
         try {
-          if (window.__codexbarUsageBreakdownJSON) return window.__codexbarUsageBreakdownJSON;
+          if (window.__tokenbarUsageBreakdownJSON) return window.__tokenbarUsageBreakdownJSON;
 
           const paths = Array.from(document.querySelectorAll('g.recharts-bar-rectangle path.recharts-rectangle'));
           let debug = {
@@ -540,8 +639,8 @@ let openAIDashboardScrapeScript = """
 
           const breakdown = eligibleCandidates[0] ? eligibleCandidates[0].breakdown : [];
           const json = (breakdown.length > 0) ? JSON.stringify(breakdown) : null;
-          window.__codexbarUsageBreakdownJSON = json;
-          window.__codexbarUsageBreakdownDebug = json ? null : JSON.stringify(debug);
+          window.__tokenbarUsageBreakdownJSON = json;
+          window.__tokenbarUsageBreakdownDebug = json ? null : JSON.stringify(debug);
           return json;
         } catch {
           return null;
@@ -549,7 +648,7 @@ let openAIDashboardScrapeScript = """
       })();
       const usageBreakdownDebug = (() => {
         try {
-          return window.__codexbarUsageBreakdownDebug || null;
+          return window.__tokenbarUsageBreakdownDebug || null;
         } catch {
           return null;
         }
@@ -627,8 +726,8 @@ let openAIDashboardScrapeScript = """
           if (rows.length === 0) {
             rows = allTableRows();
           }
-          if (rows.length === 0 && !window.__codexbarDidScrollToCredits) {
-            window.__codexbarDidScrollToCredits = true;
+          if (rows.length === 0 && !window.__tokenbarDidScrollToCredits) {
+            window.__tokenbarDidScrollToCredits = true;
             // If the table is virtualized/lazy-loaded, we need to scroll to trigger rendering even if the
             // header is already in view.
             header.scrollIntoView({ block: 'start', inline: 'nearest' });
@@ -637,17 +736,17 @@ let openAIDashboardScrapeScript = """
             }
             didScrollToCredits = true;
           }
-        } else if (rows.length === 0 && !window.__codexbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
+        } else if (rows.length === 0 && !window.__tokenbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
           rows = allTableRows();
           if (rows.length > 0) {
             creditsHeaderPresent = true;
             creditsHeaderInViewport = true;
           }
         }
-        if (rows.length === 0 && !window.__codexbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
+        if (rows.length === 0 && !window.__tokenbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
           // The credits history section often isn't part of the DOM until you scroll down. Nudge the page
           // once so subsequent scrapes can find the header and rows.
-          window.__codexbarDidScrollToCredits = true;
+          window.__tokenbarDidScrollToCredits = true;
           window.scrollTo(0, Math.max(0, scrollHeight - viewportHeight - 40));
           didScrollToCredits = true;
         }
@@ -687,6 +786,8 @@ let openAIDashboardScrapeScript = """
       } catch {}
 
       let signedInEmail = null;
+      let authStatus = null;
+      let accountPlan = null;
       try {
         const next = window.__NEXT_DATA__ || null;
         const props = (next && next.props && next.props.pageProps) ? next.props.pageProps : null;
@@ -695,12 +796,29 @@ let openAIDashboardScrapeScript = """
         signedInEmail = userEmail || sessionEmail || null;
       } catch {}
 
+      const clientBootstrap = parseJSONScript('client-bootstrap');
+      if (clientBootstrap) {
+        try {
+          authStatus = typeof clientBootstrap.authStatus === 'string' ? clientBootstrap.authStatus : null;
+          if (!signedInEmail) {
+            const session = clientBootstrap.session || null;
+            const user = (session && session.user) || clientBootstrap.user || null;
+            const email = user && typeof user.email === 'string' ? user.email : null;
+            if (email && email.includes('@')) signedInEmail = email;
+          }
+          if (!accountPlan) accountPlan = findPlan(clientBootstrap);
+        } catch {}
+      }
+      if (!accountPlan) {
+        try {
+          accountPlan = findPlan(window.__NEXT_DATA__ || parseJSONScript('__NEXT_DATA__'));
+        } catch {}
+      }
+
       if (!signedInEmail) {
         try {
-          const node = document.getElementById('__NEXT_DATA__');
-          const raw = node && node.textContent ? String(node.textContent) : '';
-          if (raw) {
-            const obj = JSON.parse(raw);
+          const obj = parseJSONScript('__NEXT_DATA__');
+          if (obj) {
             const queue = [obj];
             let seen = 0;
             while (queue.length && seen < 2000 && !signedInEmail) {
@@ -768,8 +886,9 @@ let openAIDashboardScrapeScript = """
         cloudflareInterstitial,
         href,
         bodyText,
-        bodyHTML: document.documentElement ? String(document.documentElement.outerHTML || '') : '',
         signedInEmail,
+        authStatus,
+        accountPlan,
         creditsPurchaseURL,
         rows,
         usageBreakdownJSON,

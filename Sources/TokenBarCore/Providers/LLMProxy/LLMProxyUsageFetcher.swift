@@ -13,9 +13,9 @@ public enum LLMProxyUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingCredentials:
-            "Missing LLM Proxy API key. Set apiKey in ~/.codexbar/config.json or LLM_PROXY_API_KEY."
+            "Missing LLM Proxy API key. Set apiKey in ~/.tokenbar/config.json or LLM_PROXY_API_KEY."
         case .missingBaseURL:
-            "Missing LLM Proxy base URL. Set enterpriseHost in ~/.codexbar/config.json or LLM_PROXY_BASE_URL."
+            "Missing LLM Proxy base URL. Set enterpriseHost in ~/.tokenbar/config.json or LLM_PROXY_BASE_URL."
         case .invalidURL:
             "LLM Proxy URL is invalid."
         case let .apiError(message):
@@ -291,7 +291,18 @@ public struct LLMProxyUsageFetcher: Sendable {
 
     private static func parseDate(_ raw: String?) -> Date? {
         guard let raw else { return nil }
-        return ISO8601DateFormatter().date(from: raw)
+        if let date = self.iso8601DateFormatter(fractionalSeconds: true).date(from: raw) {
+            return date
+        }
+        return self.iso8601DateFormatter(fractionalSeconds: false).date(from: raw)
+    }
+
+    private static func iso8601DateFormatter(fractionalSeconds: Bool) -> ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        if fractionalSeconds {
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        }
+        return formatter
     }
 
     private static func responseSummary(_ data: Data) -> String {

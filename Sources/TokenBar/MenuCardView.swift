@@ -667,7 +667,6 @@ extension UsageMenuCardView.Model {
         let sourceLabel: String?
         let kiloAutoMode: Bool
         let hidePersonalInfo: Bool
-        let claudePeakHoursEnabled: Bool
         let weeklyPace: UsagePace?
         let quotaWarningThresholds: [QuotaWarningWindow: [Int]]
         let now: Date
@@ -693,7 +692,6 @@ extension UsageMenuCardView.Model {
             sourceLabel: String? = nil,
             kiloAutoMode: Bool = false,
             hidePersonalInfo: Bool,
-            claudePeakHoursEnabled: Bool = true,
             weeklyPace: UsagePace? = nil,
             quotaWarningThresholds: [QuotaWarningWindow: [Int]] = [:],
             now: Date)
@@ -718,7 +716,6 @@ extension UsageMenuCardView.Model {
             self.sourceLabel = sourceLabel
             self.kiloAutoMode = kiloAutoMode
             self.hidePersonalInfo = hidePersonalInfo
-            self.claudePeakHoursEnabled = claudePeakHoursEnabled
             self.weeklyPace = weeklyPace
             self.quotaWarningThresholds = quotaWarningThresholds
             self.now = now
@@ -806,11 +803,6 @@ extension UsageMenuCardView.Model {
                 notes.append("Using CLI fallback")
             }
             return notes
-        }
-
-        if input.provider == .claude, input.claudePeakHoursEnabled {
-            let peakStatus = ClaudePeakHours.status(at: input.now)
-            return [peakStatus.label]
         }
 
         if input.provider == .mimo, input.snapshot != nil {

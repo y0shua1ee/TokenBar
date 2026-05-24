@@ -15,6 +15,9 @@ public enum ProviderConfigEnvironment {
         if provider == .llmproxy {
             return self.applyLLMProxyOverrides(base: base, config: config)
         }
+        if provider == .azureopenai {
+            return self.applyAzureOpenAIOverrides(base: base, config: config)
+        }
         var env = base
 
         if provider == .openrouter,
@@ -69,6 +72,8 @@ public enum ProviderConfigEnvironment {
         switch provider {
         case .copilot, .kimik2, .warp, .codebuff, .crof, .doubao:
             return true
+        case .azureopenai:
+            return true
         default:
             return false
         }
@@ -78,6 +83,8 @@ public enum ProviderConfigEnvironment {
         switch provider {
         case .openai:
             OpenAIAPISettingsReader.adminAPIKeyEnvironmentKey
+        case .azureopenai:
+            AzureOpenAISettingsReader.apiKeyEnvironmentKey
         case .claude:
             ClaudeAdminAPISettingsReader.adminAPIKeyEnvironmentKey
         case .zai:
@@ -96,6 +103,8 @@ public enum ProviderConfigEnvironment {
             ElevenLabsSettingsReader.apiKeyEnvironmentKey
         case .moonshot:
             MoonshotSettingsReader.apiKeyEnvironmentKeys.first
+        case .ollama:
+            OllamaAPISettingsReader.apiKeyEnvironmentKeys.first
         case .venice:
             VeniceSettingsReader.apiKeyEnvironmentKey
         case .deepgram:
@@ -156,6 +165,24 @@ public enum ProviderConfigEnvironment {
         }
         if let baseURL = config?.sanitizedEnterpriseHost {
             env[LLMProxySettingsReader.baseURLEnvironmentKey] = baseURL
+        }
+        return env
+    }
+
+    private static func applyAzureOpenAIOverrides(
+        base: [String: String],
+        config: ProviderConfig?) -> [String: String]
+    {
+        guard let config else { return base }
+        var env = base
+        if let apiKey = config.sanitizedAPIKey {
+            env[AzureOpenAISettingsReader.apiKeyEnvironmentKey] = apiKey
+        }
+        if let endpoint = config.sanitizedEnterpriseHost {
+            env[AzureOpenAISettingsReader.endpointEnvironmentKey] = endpoint
+        }
+        if let deploymentName = config.sanitizedWorkspaceID {
+            env[AzureOpenAISettingsReader.deploymentNameEnvironmentKey] = deploymentName
         }
         return env
     }

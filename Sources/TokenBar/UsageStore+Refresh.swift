@@ -12,9 +12,17 @@ extension UsageStore {
         await self.performRuntimeAction(.forceSessionRefresh, for: .augment)
     }
 
+    private func providerRefreshSpec(_ provider: UsageProvider) async -> ProviderSpec? {
+        if let override = self._test_providerRefreshOverride {
+            await override(provider)
+            return nil
+        }
+        return self.providerSpecs[provider]
+    }
+
     func refreshProvider(_ provider: UsageProvider, allowDisabled: Bool = false) async {
         self.prepareRefreshState(for: provider)
-        guard let spec = self.providerSpecs[provider] else { return }
+        guard let spec = await self.providerRefreshSpec(provider) else { return }
         let codexExpectedGuard = provider == .codex ? self.currentCodexAccountScopedRefreshGuard() : nil
 
         if !spec.isEnabled(), !allowDisabled {
