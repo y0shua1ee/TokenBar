@@ -4,118 +4,6 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/CodexBar_TokenBar.bundle/Icon-classic.icns</key>
-		<data>
-		JFOGTaHQxaiyMzcM3gAcZnIcXqU=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-abacus.svg</key>
-		<data>
-		ootu+vxxoR6DfCEET0mesRnU6rI=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-alibaba.svg</key>
-		<data>
-		k5eVs3/SXH5y4P/H2Nli8UCKpZo=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-amp.svg</key>
-		<data>
-		pMQfgnqpNl41ZtFhO+kUDzJj5qo=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-antigravity.svg</key>
-		<data>
-		Urq6R2garjMkuXc8IGPc74n62Dg=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-augment.svg</key>
-		<data>
-		a1mgwhrW3ZYs4n4V2o45JtaFwj8=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-claude.svg</key>
-		<data>
-		SSeCX3IKLyzo72mzoZMi4+QaiY8=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-codex.svg</key>
-		<data>
-		vmEtk8PFs09Bs5oywlZgORGU4gQ=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-copilot.svg</key>
-		<data>
-		SyYz9pmxYzpXUMKJUBVoaVpdAEk=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-cursor.svg</key>
-		<data>
-		EDeFr9IN1F/GiHm/18NDuWKRRYc=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-deepseek.svg</key>
-		<data>
-		8SAniMRMqXlfgrl44VE8HRSLsmg=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-factory.svg</key>
-		<data>
-		bN1PA9/2FsW4rjGtMBMxCyJrC5Q=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-gemini.svg</key>
-		<data>
-		6+g5CbLDMNdGGONsEQBaJ1fGlzg=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-jetbrains.svg</key>
-		<data>
-		FkjZi8UY+ldKnXyy6/DXNDkfYzk=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kilo.svg</key>
-		<data>
-		421aduuL8aTl75KNaa7nuPOK6EY=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kimi.svg</key>
-		<data>
-		EU5D65GW/KNEyvH4KMnWI/V08ng=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kiro.svg</key>
-		<data>
-		0F1wxWD3bM9hphRbYR1547zT+30=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-minimax.svg</key>
-		<data>
-		syb03s4H0xFaJKlWd3JgaiMq9ok=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-mistral.svg</key>
-		<data>
-		1u1EpFZy1tan6pnbvQ74ZYryU/8=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-ollama.svg</key>
-		<data>
-		rIAGoV3pLuxtr484Ru+zU7kEwpI=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-opencode.svg</key>
-		<data>
-		OVSnYZmGhWyTMpc7I4jqlAsGkY4=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-opencodego.svg</key>
-		<data>
-		OVSnYZmGhWyTMpc7I4jqlAsGkY4=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-openrouter.svg</key>
-		<data>
-		LhrRq0TV420AmMTTImF4k5F6YAA=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-perplexity.svg</key>
-		<data>
-		7qX6eCmBeR+ou+ba4FysOD/2iG4=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-synthetic.svg</key>
-		<data>
-		PkQyuW4VjXZFCRVQr29PWOAo3A4=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-vertexai.svg</key>
-		<data>
-		NGD2BLBCJ4letnYe4SISJ/Z61Vs=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-warp.svg</key>
-		<data>
-		Q/+pX/CQmuCCC/kkc2YNWnZL65M=
-		</data>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-zai.svg</key>
-		<data>
-		SvDaAcR40Fu7IhKZ1VRtKD8k6Z8=
-		</data>
 		<key>Resources/Icon-classic.icns</key>
 		<data>
 		JFOGTaHQxaiyMzcM3gAcZnIcXqU=
@@ -292,6 +180,10 @@
 		<data>
 		a1mgwhrW3ZYs4n4V2o45JtaFwj8=
 		</data>
+		<key>Resources/ProviderIcon-bedrock.svg</key>
+		<data>
+		++JLRMg0bW7hU5VmmPxCfWNJquw=
+		</data>
 		<key>Resources/ProviderIcon-claude.svg</key>
 		<data>
 		SSeCX3IKLyzo72mzoZMi4+QaiY8=
@@ -324,6 +216,10 @@
 		<data>
 		AHIuiSS3mt6HRMn9NIitU5BEhfU=
 		</data>
+		<key>Resources/ProviderIcon-deepgram.svg</key>
+		<data>
+		aRqbHlkrbFaDCxXAfZcQeoLpXfE=
+		</data>
 		<key>Resources/ProviderIcon-deepseek.svg</key>
 		<data>
 		oBVUeQOAM7NurPK++h1RhwdI6qo=
@@ -332,6 +228,10 @@
 		<data>
 		TmvI0PeGQzxFL0IJJ2E/ChElTYc=
 		</data>
+		<key>Resources/ProviderIcon-elevenlabs.svg</key>
+		<data>
+		WIi2y29wcohqcMuCrxxPINE+QeU=
+		</data>
 		<key>Resources/ProviderIcon-factory.svg</key>
 		<data>
 		bN1PA9/2FsW4rjGtMBMxCyJrC5Q=
@@ -339,6 +239,14 @@
 		<key>Resources/ProviderIcon-gemini.svg</key>
 		<data>
 		6+g5CbLDMNdGGONsEQBaJ1fGlzg=
+		</data>
+		<key>Resources/ProviderIcon-grok.svg</key>
+		<data>
+		lrzsqpNf0gwDm3RcUJOSleDbyO8=
+		</data>
+		<key>Resources/ProviderIcon-groq.svg</key>
+		<data>
+		lrzsqpNf0gwDm3RcUJOSleDbyO8=
 		</data>
 		<key>Resources/ProviderIcon-jetbrains.svg</key>
 		<data>
@@ -350,7 +258,7 @@
 		</data>
 		<key>Resources/ProviderIcon-kimi.svg</key>
 		<data>
-		EU5D65GW/KNEyvH4KMnWI/V08ng=
+		moL1tH4/63USBSbHUAILpr2xoGI=
 		</data>
 		<key>Resources/ProviderIcon-kiro.svg</key>
 		<data>
@@ -359,6 +267,10 @@
 		<key>Resources/ProviderIcon-krill.svg</key>
 		<data>
 		wzk3J3T5Y5xa+xIfuFCrfC3OJtU=
+		</data>
+		<key>Resources/ProviderIcon-llmproxy.svg</key>
+		<data>
+		p3zhe0XhJQFpP16YQ6KFqRTrRaU=
 		</data>
 		<key>Resources/ProviderIcon-manus.svg</key>
 		<data>
@@ -403,6 +315,10 @@
 		<key>Resources/ProviderIcon-synthetic.svg</key>
 		<data>
 		PkQyuW4VjXZFCRVQr29PWOAo3A4=
+		</data>
+		<key>Resources/ProviderIcon-t3chat.svg</key>
+		<data>
+		9+diq4CRZeZsICQy/7pkC4fEYpI=
 		</data>
 		<key>Resources/ProviderIcon-venice.svg</key>
 		<data>
@@ -452,6 +368,10 @@
 		<data>
 		a1mgwhrW3ZYs4n4V2o45JtaFwj8=
 		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-bedrock.svg</key>
+		<data>
+		++JLRMg0bW7hU5VmmPxCfWNJquw=
+		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-claude.svg</key>
 		<data>
 		SSeCX3IKLyzo72mzoZMi4+QaiY8=
@@ -484,6 +404,10 @@
 		<data>
 		AHIuiSS3mt6HRMn9NIitU5BEhfU=
 		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-deepgram.svg</key>
+		<data>
+		aRqbHlkrbFaDCxXAfZcQeoLpXfE=
+		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-deepseek.svg</key>
 		<data>
 		oBVUeQOAM7NurPK++h1RhwdI6qo=
@@ -492,6 +416,10 @@
 		<data>
 		TmvI0PeGQzxFL0IJJ2E/ChElTYc=
 		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-elevenlabs.svg</key>
+		<data>
+		WIi2y29wcohqcMuCrxxPINE+QeU=
+		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-factory.svg</key>
 		<data>
 		bN1PA9/2FsW4rjGtMBMxCyJrC5Q=
@@ -499,6 +427,14 @@
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-gemini.svg</key>
 		<data>
 		6+g5CbLDMNdGGONsEQBaJ1fGlzg=
+		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-grok.svg</key>
+		<data>
+		lrzsqpNf0gwDm3RcUJOSleDbyO8=
+		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-groq.svg</key>
+		<data>
+		lrzsqpNf0gwDm3RcUJOSleDbyO8=
 		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-jetbrains.svg</key>
 		<data>
@@ -510,7 +446,7 @@
 		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-kimi.svg</key>
 		<data>
-		EU5D65GW/KNEyvH4KMnWI/V08ng=
+		moL1tH4/63USBSbHUAILpr2xoGI=
 		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-kiro.svg</key>
 		<data>
@@ -519,6 +455,10 @@
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-krill.svg</key>
 		<data>
 		wzk3J3T5Y5xa+xIfuFCrfC3OJtU=
+		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-llmproxy.svg</key>
+		<data>
+		p3zhe0XhJQFpP16YQ6KFqRTrRaU=
 		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-manus.svg</key>
 		<data>
@@ -564,6 +504,10 @@
 		<data>
 		PkQyuW4VjXZFCRVQr29PWOAo3A4=
 		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-t3chat.svg</key>
+		<data>
+		9+diq4CRZeZsICQy/7pkC4fEYpI=
+		</data>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-venice.svg</key>
 		<data>
 		HLYKZbFeIxA2UFB15QRFejr0vak=
@@ -584,11 +528,38 @@
 		<data>
 		SvDaAcR40Fu7IhKZ1VRtKD8k6Z8=
 		</data>
+		<key>Resources/TokenBar_TokenBar.bundle/ca.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			SMoP5Py09CAtObu7NDf3tVk6KRk=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/en.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Ux5W3Wqxt/maKGgYw1+dio+HzFU=
+			ZJO2S+6wCFrKw41MAfMiEwskAgQ=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/es.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			2UO16hZNWiErPy/o6/QIXB5usAI=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/pt-br.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			t9uxFR0rXY/cj/dcy22hdsLHm2c=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -597,7 +568,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			LXcIFHVUTM3Y7LE8HokpCZmKZM4=
+			Gjn/4wpJ4X1SYa5rdM3DPVkxDBA=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -630,20 +601,51 @@
 		<data>
 		KpyIz4GRdkblRI3wWtIc4N6drh0=
 		</data>
-		<key>Resources/en.lproj/Localizable.strings</key>
+		<key>Resources/ca.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Ux5W3Wqxt/maKGgYw1+dio+HzFU=
+			SMoP5Py09CAtObu7NDf3tVk6KRk=
 			</data>
 			<key>optional</key>
 			<true/>
 		</dict>
+		<key>Resources/en.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			ZJO2S+6wCFrKw41MAfMiEwskAgQ=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/es.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			2UO16hZNWiErPy/o6/QIXB5usAI=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/pt-BR.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			t9uxFR0rXY/cj/dcy22hdsLHm2c=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
 		<key>Resources/zh-Hans.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			LXcIFHVUTM3Y7LE8HokpCZmKZM4=
+			Gjn/4wpJ4X1SYa5rdM3DPVkxDBA=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -664,224 +666,28 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			SWRoApCJchKvVAoa+IZ7UIGkLmo=
+			+uFIFouqwnkCgar5IhjCK1K6bFQ=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"4964680290897212af540a1af8867b5081a42e6a"</string>
+			<string>cdhash H"fae148168baac2790281aaf92218c22b52ba6c54"</string>
 		</dict>
 		<key>Helpers/TokenBarClaudeWatchdog</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			n+N/RmoG4wfwgDo/BQSBMbEH3SI=
+			n8Fsozro37zY4QtKhwxRz0fsXhg=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"9fe37f466a06e307f0803a3f05048131b107dd22"</string>
+			<string>cdhash H"9fc16ca33ae8dfbcd8e10b4a870c51cf47ec5e18"</string>
 		</dict>
 		<key>PlugIns/TokenBarWidget.appex</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			QSThE6WMW7G3DfPskUDPLJO4Kfc=
+			cI1xUpyZXjKEEnJ38XPnhQv1axs=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"4124e113a58c5bb1b70df3ec9140cf2c93b829f7"</string>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/Icon-classic.icns</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			yqmyKMI5elhjBkw5F4nlSCF6RNq7kBjVUyqtqmpNIbA=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-abacus.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			3RGxxgB1BzENnCBXfAqX4ftaI219P7iL0sfoczEuia8=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-alibaba.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			5SpzsLp1IllnxVn4vhMV7eG9bvaoAodSX39qNlc1zXk=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-amp.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			ULGH7HBthMbPrboGfWlvOoMbujco2HOh3hAlePq3BdM=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-antigravity.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			6vwtHUMrNpw0yY4bsM028LxYhypk7074FIYPPczvX3E=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-augment.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			V25+qDDme/tUy7I6fRCu+/rrtxj8mS3GqLp4TjjC6CA=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-claude.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			SXqIp4CDFRIxe23QYSheLsJgir8JqUpfJO6QGaTT74s=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-codex.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			XJmXkvbSbJ0UoZeqbmwg9a8970M0c/e2a9DYyKQc2M8=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-copilot.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			lFk07Ub2+x+LP971RlJkBRBoZkxHcAQZWlaonQPB2ZQ=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-cursor.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			AbrCd4JlK7n2B/NfrGNZ5jnWreDxoaCzTVMKNn4j7NM=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-deepseek.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			M/tkI+iEk0kztRAZ8uWGwrtp08BNHRZOxoULumvcZgY=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-factory.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			8qFjlfFmEEgyt/v0OwIck89dDxR0CulFPEHfgH0S6Ms=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-gemini.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			xn5UxmMEH96/DOLz/5qOduGSjKuu5095NkUKAcGkCqU=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-jetbrains.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			sEzJ9stnShp2+Al0SEtlVHUr39DdfX6JKoC6pLEmFW0=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kilo.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			UleAWKpdpvJ4OYEWLzajvYu9mxKOJ3gzLqY+GqwihPI=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kimi.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			6bYO301/x9FdQ8X5JRqfHJMaPXOPYrLzSIM+DXaaHMY=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-kiro.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			Vzsi0Jh0P2aTZMghgEMqgnFFiLbSWmaGhp8tuZ/W4uU=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-minimax.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			B7hvSZXjmAg9ryjYD9Hd9ospFGHmT7gYRZ6PqO5kVqU=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-mistral.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			aQ+knfQCzKWqkJSav/nQeJl4GuKeM7P+0q5dykUKzrU=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-ollama.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			SddKkDBwqP1San09jvJ/zOeCcYO2OrXgOl0yubr4rNI=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-opencode.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			bBaI5m5joEFfQ/FQtvMpB0CV926HXNcIh4RHIgYGUyo=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-opencodego.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			bBaI5m5joEFfQ/FQtvMpB0CV926HXNcIh4RHIgYGUyo=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-openrouter.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			i2XefkKr0zrLqktQFup/I4PLX3zbu8BZ+ZOoOMGKJeE=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-perplexity.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			iZQdQZ+U0nAh0haPnb9kNqutPyGGzW6ZActoNwQH+mM=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-synthetic.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			AR5DsMtogPACugX5ZM+kmMrHF2zs74udiLYJyhc1jC8=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-vertexai.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			AJ/7+oQDvHo4GRsQ0zGsFLldH0T+ZPIinuSh8abXPCg=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-warp.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			/WLfyluH3GHPXDFoCW977OqTVzCzHCbtfDeGTgd70KE=
-			</data>
-		</dict>
-		<key>Resources/CodexBar_TokenBar.bundle/ProviderIcon-zai.svg</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			WG9lj+MppS5fJeX5tj5QZyG5bC7WTMXesLUIfyd4BZg=
-			</data>
+			<string>cdhash H"708d71529c995e3284127277f173e7850bf56b1b"</string>
 		</dict>
 		<key>Resources/Icon-classic.icns</key>
 		<dict>
@@ -1083,6 +889,13 @@
 			V25+qDDme/tUy7I6fRCu+/rrtxj8mS3GqLp4TjjC6CA=
 			</data>
 		</dict>
+		<key>Resources/ProviderIcon-bedrock.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kqtIlCthfOeMdUDL2SRNF1JupcjtqpmyiyECLZDGx6Q=
+			</data>
+		</dict>
 		<key>Resources/ProviderIcon-claude.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1139,6 +952,13 @@
 			PRCILTDDaGciZ/Ps907k5vuFiIQObiefTUF0nrAfo8w=
 			</data>
 		</dict>
+		<key>Resources/ProviderIcon-deepgram.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hjUAAovM+AqIqg9WzGI3/HVHAvXjHkmahIlu6dqEUfo=
+			</data>
+		</dict>
 		<key>Resources/ProviderIcon-deepseek.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1153,6 +973,13 @@
 			GCNCn+XjQbYyqE64egTCQtG+ecmpOD9vAjn5/Frtkhw=
 			</data>
 		</dict>
+		<key>Resources/ProviderIcon-elevenlabs.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LFbIw57Dk4ix1D83ynLCGTrelMdfiQfUh2qZ8B1L588=
+			</data>
+		</dict>
 		<key>Resources/ProviderIcon-factory.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1165,6 +992,20 @@
 			<key>hash2</key>
 			<data>
 			xn5UxmMEH96/DOLz/5qOduGSjKuu5095NkUKAcGkCqU=
+			</data>
+		</dict>
+		<key>Resources/ProviderIcon-grok.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Qe2yTgs6MSaMY3S60ZhOgw6tYoVueFm4OqRwWaIhVi8=
+			</data>
+		</dict>
+		<key>Resources/ProviderIcon-groq.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Qe2yTgs6MSaMY3S60ZhOgw6tYoVueFm4OqRwWaIhVi8=
 			</data>
 		</dict>
 		<key>Resources/ProviderIcon-jetbrains.svg</key>
@@ -1185,7 +1026,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6bYO301/x9FdQ8X5JRqfHJMaPXOPYrLzSIM+DXaaHMY=
+			0tibaIDYYTved+LWNi3eEglGKkwtGMJcC1ZP8bSKqZA=
 			</data>
 		</dict>
 		<key>Resources/ProviderIcon-kiro.svg</key>
@@ -1200,6 +1041,13 @@
 			<key>hash2</key>
 			<data>
 			FgxokafD+SJVlUpvxwLMMjlETEsrioCcHAQhvxTJKOc=
+			</data>
+		</dict>
+		<key>Resources/ProviderIcon-llmproxy.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			pjJdeVBqcbEVv59HAo4+cXBNPaUckFAR1FWiu+snl8A=
 			</data>
 		</dict>
 		<key>Resources/ProviderIcon-manus.svg</key>
@@ -1277,6 +1125,13 @@
 			<key>hash2</key>
 			<data>
 			AR5DsMtogPACugX5ZM+kmMrHF2zs74udiLYJyhc1jC8=
+			</data>
+		</dict>
+		<key>Resources/ProviderIcon-t3chat.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			XB3gMlNlxh10cSSnSxAfWtBmibtsvuVHmlQzUy8f7nk=
 			</data>
 		</dict>
 		<key>Resources/ProviderIcon-venice.svg</key>
@@ -1363,6 +1218,13 @@
 			V25+qDDme/tUy7I6fRCu+/rrtxj8mS3GqLp4TjjC6CA=
 			</data>
 		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-bedrock.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kqtIlCthfOeMdUDL2SRNF1JupcjtqpmyiyECLZDGx6Q=
+			</data>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-claude.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1419,6 +1281,13 @@
 			PRCILTDDaGciZ/Ps907k5vuFiIQObiefTUF0nrAfo8w=
 			</data>
 		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-deepgram.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hjUAAovM+AqIqg9WzGI3/HVHAvXjHkmahIlu6dqEUfo=
+			</data>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-deepseek.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1433,6 +1302,13 @@
 			GCNCn+XjQbYyqE64egTCQtG+ecmpOD9vAjn5/Frtkhw=
 			</data>
 		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-elevenlabs.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LFbIw57Dk4ix1D83ynLCGTrelMdfiQfUh2qZ8B1L588=
+			</data>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-factory.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1445,6 +1321,20 @@
 			<key>hash2</key>
 			<data>
 			xn5UxmMEH96/DOLz/5qOduGSjKuu5095NkUKAcGkCqU=
+			</data>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-grok.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Qe2yTgs6MSaMY3S60ZhOgw6tYoVueFm4OqRwWaIhVi8=
+			</data>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-groq.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Qe2yTgs6MSaMY3S60ZhOgw6tYoVueFm4OqRwWaIhVi8=
 			</data>
 		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-jetbrains.svg</key>
@@ -1465,7 +1355,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6bYO301/x9FdQ8X5JRqfHJMaPXOPYrLzSIM+DXaaHMY=
+			0tibaIDYYTved+LWNi3eEglGKkwtGMJcC1ZP8bSKqZA=
 			</data>
 		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-kiro.svg</key>
@@ -1480,6 +1370,13 @@
 			<key>hash2</key>
 			<data>
 			FgxokafD+SJVlUpvxwLMMjlETEsrioCcHAQhvxTJKOc=
+			</data>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-llmproxy.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			pjJdeVBqcbEVv59HAo4+cXBNPaUckFAR1FWiu+snl8A=
 			</data>
 		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-manus.svg</key>
@@ -1559,6 +1456,13 @@
 			AR5DsMtogPACugX5ZM+kmMrHF2zs74udiLYJyhc1jC8=
 			</data>
 		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-t3chat.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			XB3gMlNlxh10cSSnSxAfWtBmibtsvuVHmlQzUy8f7nk=
+			</data>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/ProviderIcon-venice.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -1594,11 +1498,38 @@
 			WG9lj+MppS5fJeX5tj5QZyG5bC7WTMXesLUIfyd4BZg=
 			</data>
 		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/ca.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ba8mlpo1cv4n9txzH+qhn0xwDJ6oihsYGtTnx/Nym28=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
 		<key>Resources/TokenBar_TokenBar.bundle/en.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			6utBbyc5okIGAVkSJofFdks+2uBzpa3OuAxLxcBH/Xs=
+			8RTXDGPOPSKf4LcfU94P9SxZdeXT/OtWQgfec1CB5VA=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/es.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			1iKxeIfAfAmVtMh25EcA4N4eX7oOFxKH6xCuGucSVKw=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/TokenBar_TokenBar.bundle/pt-br.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Oe/BZrZ+0uAnIlIU8hm3vn3p1eusjijvcF0+pYTpPJE=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -1607,7 +1538,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			UEPlbWTGu7gAfHZnwGfdgqdozGXUYorLf7uSjXEwATc=
+			Qmidwg0L9L7DSicaRjknMAbb/o2/LFZbKkxqNtjuj44=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -1661,20 +1592,54 @@
 			tuI+3VZH/TVXgmww+LxWnwwjV2bPt4XVjomes7w8GBc=
 			</data>
 		</dict>
+		<key>Resources/ca.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ba8mlpo1cv4n9txzH+qhn0xwDJ6oihsYGtTnx/Nym28=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
 		<key>Resources/en.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			6utBbyc5okIGAVkSJofFdks+2uBzpa3OuAxLxcBH/Xs=
+			8RTXDGPOPSKf4LcfU94P9SxZdeXT/OtWQgfec1CB5VA=
 			</data>
 			<key>optional</key>
 			<true/>
+		</dict>
+		<key>Resources/es.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			1iKxeIfAfAmVtMh25EcA4N4eX7oOFxKH6xCuGucSVKw=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/pt-BR.lproj/Localizable.strings</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Oe/BZrZ+0uAnIlIU8hm3vn3p1eusjijvcF0+pYTpPJE=
+			</data>
+			<key>optional</key>
+			<true/>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
 		</dict>
 		<key>Resources/zh-Hans.lproj/Localizable.strings</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			UEPlbWTGu7gAfHZnwGfdgqdozGXUYorLf7uSjXEwATc=
+			Qmidwg0L9L7DSicaRjknMAbb/o2/LFZbKkxqNtjuj44=
 			</data>
 			<key>optional</key>
 			<true/>

@@ -7,7 +7,7 @@
     <key>CFBundleIdentifier</key><string>com.y0shua1ee.tokenbar.widget</string>
     <key>CFBundleExecutable</key><string>TokenBarWidget</string>
     <key>CFBundlePackageType</key><string>XPC!</string>
-    <key>CFBundleShortVersionString</key><string>0.25.2</string>
+    <key>CFBundleShortVersionString</key><string>0.29.0</string>
     <key>CFBundleVersion</key><string>68</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>TokenBarTeamID</key><string>Y5PE65HELJ</string>

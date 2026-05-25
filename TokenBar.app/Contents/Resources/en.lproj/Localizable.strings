@@ -1,5 +1,4 @@
-/* English localization for TokenBar (base/fallback) */
-
+// Merged TokenBar localization strings.
 " providers" = " providers";
 "(System)" = "(System)";
 "30d" = "30d";
@@ -79,6 +78,7 @@
 "Codex login failed" = "Codex login failed";
 "Codex login timed out" = "Codex login timed out";
 "TokenBar Lifecycle Keepalive" = "TokenBar Lifecycle Keepalive";
+"TokenBar can't show its menu bar icon" = "TokenBar can't show its menu bar icon";
 "TokenBar could not read managed account storage. " = "TokenBar could not read managed account storage. ";
 "Configure…" = "Configure…";
 "Connected" = "Connected";
@@ -108,6 +108,7 @@
 "Designs" = "Designs";
 "Disable Keychain access" = "Disable Keychain access";
 "Disabled" = "Disabled";
+"Dismiss" = "Dismiss";
 "Disconnected" = "Disconnected";
 "Display" = "Display";
 "Display mode" = "Display mode";
@@ -206,6 +207,7 @@
 "Open Console" = "Open Console";
 "Open Dashboard" = "Open Dashboard";
 "Open Mistral Admin" = "Open Mistral Admin";
+"Open Menu Bar Settings" = "Open Menu Bar Settings";
 "Open Ollama Settings" = "Open Ollama Settings";
 "Open Terminal" = "Open Terminal";
 "Open Usage Page" = "Open Usage Page";
@@ -246,7 +248,7 @@
 "Providers" = "Providers";
 "Quit TokenBar" = "Quit TokenBar";
 "Random (default)" = "Random (default)";
-"Reads local usage logs. Shows today + last 30 days cost in the menu." = "Reads local usage logs. Shows today + last 30 days cost in the menu.";
+"Reads local usage logs. Shows today + last 30 days cost in the menu." = "Reads local usage logs. Shows today + the selected history window in the menu.";
 "Refresh" = "Refresh";
 "Refresh cadence" = "Refresh cadence";
 "Remote" = "Remote";
@@ -324,7 +326,7 @@
 "Updates unavailable in this build." = "Updates unavailable in this build.";
 "Usage" = "Usage";
 "Usage breakdown" = "Usage breakdown";
-"Usage history (30 days)" = "Usage history (30 days)";
+"Usage history (30 days)" = "Usage history";
 "Usage source" = "Usage source";
 "Use BigModel for the China mainland endpoints (open.bigmodel.cn)." = "Use BigModel for the China mainland endpoints (open.bigmodel.cn).";
 "Use a single menu bar icon with a provider switcher." = "Use a single menu bar icon with a provider switcher.";
@@ -364,7 +366,7 @@
 "cost_status_fetching" = "%1$@: fetching… %2$@";
 "cost_status_last_attempt" = "%1$@: last attempt %2$@";
 "cost_status_no_data" = "%@: no data yet";
-"cost_status_snapshot" = "%1$@: %2$@ · 30d %3$@";
+"cost_status_snapshot" = "%1$@: %2$@ · %3$@ %4$@";
 "cost_status_unsupported" = "%@: unsupported";
 "credits_remaining" = "Credits: %@";
 "cursor_on_demand" = "On-demand: %@";
@@ -390,10 +392,8 @@
 "remove_account_message" = "Remove %@ from TokenBar? Its managed Codex home will be deleted.";
 "version_format" = "Version %@";
 "vertex_ai_login_instructions" = "To track Vertex AI usage, authenticate with Google Cloud.\n\n1. Open Terminal\n2. Run: gcloud auth application-default login\n3. Follow the browser prompts to sign in\n4. Set your project: gcloud config set project PROJECT_ID\n\nOpen Terminal now?";
-"workspaceID is set but only opencode and opencodego support workspaceID." = "workspaceID is set but only opencode and opencodego support workspaceID.";
+"workspaceID is set but only opencode, opencodego, and deepgram support workspaceID." = "workspaceID is set but only opencode, opencodego, and deepgram support workspaceID.";
 "© 2026 Peter Steinberger. MIT License." = "© 2026 Peter Steinberger. MIT License.";
-
-/* General Pane */
 "section_system" = "System";
 "section_usage" = "Usage";
 "section_automation" = "Automation";
@@ -402,10 +402,12 @@
 "language_system" = "System";
 "language_english" = "English";
 "language_chinese_simplified" = "简体中文";
+"language_portuguese_brazilian" = "Português (Brasil)";
 "start_at_login_title" = "Start at Login";
 "start_at_login_subtitle" = "Automatically opens TokenBar when you start your Mac.";
 "show_cost_summary" = "Show cost summary";
-"show_cost_summary_subtitle" = "Reads local usage logs. Shows today + last 30 days cost in the menu.";
+"show_cost_summary_subtitle" = "Reads local usage logs. Shows today + the selected history window in the menu.";
+"cost_history_days_title" = "History window: %d days";
 "cost_auto_refresh_info" = "Auto-refresh: hourly · Timeout: 10m";
 "refresh_cadence_title" = "Refresh cadence";
 "refresh_cadence_subtitle" = "How often TokenBar polls providers in the background.";
@@ -414,17 +416,33 @@
 "check_provider_status_subtitle" = "Polls OpenAI/Claude status pages and Google Workspace for Gemini/Antigravity, surfacing incidents in the icon and menu.";
 "session_quota_notifications_title" = "Session quota notifications";
 "session_quota_notifications_subtitle" = "Notifies when the 5-hour session quota hits 0% and when it becomes available again.";
+"quota_warning_notifications_title" = "Quota warning notifications";
+"quota_warning_notifications_subtitle" = "Warns when session or weekly quota remaining crosses configured thresholds.";
+"quota_warnings_title" = "Quota warnings";
+"quota_warning_session" = "session";
+"quota_warning_session_capitalized" = "Session";
+"quota_warning_weekly" = "weekly";
+"quota_warning_weekly_capitalized" = "Weekly";
+"quota_warning_warn_at" = "Warn at";
+"quota_warning_global_threshold_subtitle" = "Remaining percentages for session and weekly windows unless a provider overrides them.";
+"quota_warning_sound" = "Play notification sound";
+"quota_warning_provider_inherits" = "Uses the global quota warning settings unless a window is customized here.";
+"quota_warning_customize_thresholds" = "Customize %@ thresholds";
+"quota_warning_enable_warnings" = "Enable %@ warnings";
+"quota_warning_window_warn_at" = "%@ warn at";
+"quota_warning_off" = "Off";
+"quota_warning_inherited" = "Inherited: %@";
+"quota_warning_depleted_only" = "depleted only";
+"quota_warning_upper" = "Upper";
+"quota_warning_lower" = "Lower";
+"apply" = "Apply";
 "quit_app" = "Quit TokenBar";
-
-/* Tab titles */
 "tab_general" = "General";
 "tab_providers" = "Providers";
 "tab_display" = "Display";
 "tab_advanced" = "Advanced";
 "tab_about" = "About";
 "tab_debug" = "Debug";
-
-/* Providers Pane */
 "select_a_provider" = "Select a provider";
 "cancel" = "Cancel";
 "last_fetch_failed" = "last fetch failed";
@@ -433,19 +451,18 @@
 "remove_codex_account_title" = "Remove Codex account?";
 "remove" = "Remove";
 "managed_login_already_running" = "A managed Codex login is already running. Wait for it to finish before adding or re-authenticating another account.";
-"managed_login_failed" = "Managed Codex login did not complete. Try again after finishing the browser login flow.";
+"managed_login_failed" = "Managed Codex login did not complete. Verify that `codex --version` works in Terminal. If macOS blocked or moved `codex` to Trash, remove stale duplicate installs, run `npm install -g --include=optional @openai/codex@latest`, then try again.";
 "managed_login_missing_email" = "Codex login completed, but no account email was available. Try again after confirming the account is fully signed in.";
 "workspace_selection_cancelled" = "TokenBar found multiple workspaces, but no workspace was selected.";
 "unsafe_managed_home" = "TokenBar refused to modify an unexpected managed home path: %@";
 "menu_bar_metric_title" = "Menu bar metric";
 "menu_bar_metric_subtitle" = "Choose which window drives the menu bar percent.";
 "menu_bar_metric_subtitle_deepseek" = "Shows the DeepSeek balance in the menu bar.";
+"menu_bar_metric_subtitle_moonshot" = "Shows the Moonshot / Kimi API balance in the menu bar.";
 "menu_bar_metric_subtitle_mistral" = "Shows current-month Mistral API spend in the menu bar.";
 "menu_bar_metric_subtitle_kimik2" = "Shows Kimi K2 API-key credits in the menu bar.";
 "automatic" = "Automatic";
 "primary_api_key_limit" = "Primary (API key limit)";
-
-/* Display Pane */
 "section_menu_bar" = "Menu bar";
 "merge_icons_title" = "Merge Icons";
 "merge_icons_subtitle" = "Use a single menu bar icon with a provider switcher.";
@@ -460,8 +477,12 @@
 "section_menu_content" = "Menu content";
 "show_usage_as_used_title" = "Show usage as used";
 "show_usage_as_used_subtitle" = "Progress bars fill as you consume quota (instead of showing remaining).";
+"show_quota_warning_markers_title" = "Show quota warning markers";
+"show_quota_warning_markers_subtitle" = "Draw threshold tick marks on usage bars when quota warnings are configured.";
 "show_reset_time_as_clock_title" = "Show reset time as clock";
 "show_reset_time_as_clock_subtitle" = "Display reset times as absolute clock values instead of countdowns.";
+"show_provider_changelog_links_title" = "Show provider changelog links";
+"show_provider_changelog_links_subtitle" = "Adds release-notes links for supported CLI-backed providers to the menu.";
 "show_credits_extra_usage_title" = "Show credits + extra usage";
 "show_credits_extra_usage_subtitle" = "Show Codex Credits and Claude Extra usage sections in the menu.";
 "show_all_token_accounts_title" = "Show all token accounts";
@@ -476,8 +497,6 @@
 "overview_no_providers_hint" = "No enabled providers available for Overview.";
 "overview_rows_follow_order" = "Overview rows always follow provider order.";
 "overview_no_providers_selected" = "No providers selected";
-
-/* Advanced Pane */
 "section_keyboard_shortcut" = "Keyboard shortcut";
 "open_menu_shortcut_title" = "Open menu";
 "open_menu_shortcut_subtitle" = "Trigger the menu bar menu from anywhere.";
@@ -493,12 +512,12 @@
 "weekly_limit_confetti_subtitle" = "Play full-screen confetti when weekly usage resets.";
 "hide_personal_info_title" = "Hide personal information";
 "hide_personal_info_subtitle" = "Obscure email addresses in the menu bar and menu UI.";
+"show_provider_storage_usage_title" = "Show provider storage usage";
+"show_provider_storage_usage_subtitle" = "Show local disk usage in menus. Scans known provider-owned paths in the background.";
 "section_keychain_access" = "Keychain access";
-"keychain_access_caption" = "Disable all Keychain reads and writes. Browser cookie import is unavailable; paste Cookie headers manually in Providers.";
+"keychain_access_caption" = "Disable all Keychain reads and writes. Use this if macOS keeps prompting for 'Chrome/Brave/Edge Safe Storage' even after clicking Always Allow. Browser cookie import is unavailable while enabled; paste Cookie headers manually in Providers. Claude/Codex OAuth via the CLI still works.";
 "disable_keychain_access_title" = "Disable Keychain access";
 "disable_keychain_access_subtitle" = "Prevents any Keychain access while enabled.";
-
-/* About Pane */
 "about_tagline" = "May your tokens never run out—keep agent limits in view.";
 "link_github" = "GitHub";
 "link_website" = "Website";
@@ -509,8 +528,6 @@
 "check_for_updates" = "Check for Updates…";
 "updates_unavailable" = "Updates unavailable in this build.";
 "copyright" = "© 2026 Peter Steinberger. MIT License.";
-
-/* Debug Pane */
 "section_logging" = "Logging";
 "enable_file_logging" = "Enable file logging";
 "enable_file_logging_subtitle" = "Write logs to %@ for debugging.";
@@ -566,35 +583,52 @@
 "login_shell_path" = "Login shell PATH (startup capture)";
 "cleared" = "Cleared.";
 "no_fetch_attempts" = "No fetch attempts yet.";
-
-/* Metric preferences */
+"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on.";
 "metric_pref_automatic" = "Automatic";
 "metric_pref_primary" = "Primary";
 "metric_pref_secondary" = "Secondary";
 "metric_pref_tertiary" = "Tertiary";
 "metric_pref_extra_usage" = "Extra usage";
 "metric_pref_average" = "Average";
-
-/* Display modes */
 "display_mode_percent" = "Percent";
 "display_mode_pace" = "Pace";
 "display_mode_both" = "Both";
 "display_mode_percent_desc" = "Show remaining/used percentage (e.g. 45%)";
 "display_mode_pace_desc" = "Show pace indicator (e.g. +5%)";
 "display_mode_both_desc" = "Show both percentage and pace (e.g. 45% · +5%)";
-
-/* Provider status */
 "status_operational" = "Operational";
 "status_partial_outage" = "Partial outage";
 "status_major_outage" = "Major outage";
 "status_critical_issue" = "Critical issue";
 "status_maintenance" = "Maintenance";
 "status_unknown" = "Status unknown";
-
-/* Refresh frequency */
 "refresh_manual" = "Manual";
 "refresh_1min" = "1 min";
 "refresh_2min" = "2 min";
 "refresh_5min" = "5 min";
 "refresh_15min" = "15 min";
 "refresh_30min" = "30 min";
+"cost_header_estimated" = "Cost (estimated)";
+"cost_estimate_hint" = "Estimated from local logs · may differ from your bill";
+"Automatically opens TokenBar when you start your Mac." = "Automatically opens TokenBar when you start your Mac.";
+"Choose which Codex account TokenBar should follow." = "Choose which Codex account TokenBar should follow.";
+"TokenBar Lifecycle Keepalive" = "TokenBar Lifecycle Keepalive";
+"TokenBar can't show its menu bar icon" = "TokenBar can't show its menu bar icon";
+"TokenBar could not read managed account storage. " = "TokenBar could not read managed account storage. ";
+"How often TokenBar polls providers in the background." = "How often TokenBar polls providers in the background.";
+"Open Antigravity to sign in, then refresh TokenBar." = "Open Antigravity to sign in, then refresh TokenBar.";
+"Quit TokenBar" = "Quit TokenBar";
+"Remove \\(account.email) from TokenBar? Its managed Codex home will be deleted." = "Remove \\(account.email) from TokenBar? Its managed Codex home will be deleted.";
+"Remove \\(email) from TokenBar? Its managed Codex home will be deleted." = "Remove \\(email) from TokenBar? Its managed Codex home will be deleted.";
+"Stored in the TokenBar config file." = "Stored in the TokenBar config file.";
+"Stored in ~/.tokenbar/config.json. " = "Stored in ~/.tokenbar/config.json. ";
+"Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai." = "Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai.";
+"Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard." = "Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard.";
+"Stored in ~/.tokenbar/config.json. Paste your Coding Plan API key from Model Studio." = "Stored in ~/.tokenbar/config.json. Paste your Coding Plan API key from Model Studio.";
+"Stored in ~/.tokenbar/config.json. Paste your MiniMax API key." = "Stored in ~/.tokenbar/config.json. Paste your MiniMax API key.";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or " = "Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or ";
+"Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar." = "Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar.";
+"language_spanish" = "Español";
+"language_catalan" = "Català";
+"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on.";
+"not_found" = "Not found";
