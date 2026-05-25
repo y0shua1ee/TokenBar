@@ -11,13 +11,13 @@ Homebrew is for the UI app via Cask. When installed via Homebrew, TokenBar disab
 
 ## Prereqs
 - Homebrew installed.
-- Access to the tap repo: [`y0shua1ee/homebrew-tokenbar`](https://github.com/y0shua1ee/homebrew-tokenbar) (`~/Documents/homebrew-tokenbar`).
+- Access to the tap repo: [`y0shua1ee/homebrew-tokenbar`](https://github.com/y0shua1ee/homebrew-tokenbar) (`~/Documents/dev/taps/homebrew-tokenbar`).
 
 ## 1) Release TokenBar normally
 Follow `docs/RELEASING.md` to publish `TokenBar-<version>-adhoc.zip` to GitHub Releases.
 
 ## 2) Update the Homebrew tap cask
-In `~/Documents/homebrew-tokenbar`, update the cask at `Casks/tokenbar.rb`:
+In `~/Documents/dev/taps/homebrew-tokenbar`, update the cask at `Casks/tokenbar.rb`:
 - `url` points at the GitHub release asset: `.../releases/download/v<version>/TokenBar-<version>-adhoc.zip`
 - Update `version` and `sha256` to match that zip.
 - Keep `depends_on arch: :arm64` and `depends_on macos: ">= :sonoma"` while TokenBar app zips remain arm64-only/macOS 14+.

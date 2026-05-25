@@ -9,7 +9,7 @@
 ## Build, Test, Run
 - Dev loop: `./Scripts/compile_and_run.sh` kills old instances, runs `swift build` + `swift test`, packages, relaunches `TokenBar.app`, and confirms it stays running.
 - Quick build/test: `swift build` (debug) or `swift build -c release`; `swift test` for the full XCTest suite.
-- Package locally: `./Scripts/package_app.sh` to refresh `TokenBar.app`, then restart with `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/TokenBar && open -n /Users/areslee/Documents/TokenBar/TokenBar.app`.
+- Package locally: `./Scripts/package_app.sh` to refresh `TokenBar.app`, then restart with `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app`.
 - Release flow: `./Scripts/sign-and-notarize.sh` (arm64 notarized zip) and `./Scripts/make_appcast.sh <zip> <feed-url>`; follow validation steps in `docs/RELEASING.md`.
 
 ## Coding Style & Naming
@@ -30,7 +30,7 @@
 ## Agent Notes
 - Use the provided scripts and package manager (SwiftPM); avoid adding dependencies or tooling without confirmation.
 - Validate UI/runtime behavior against the freshly built bundle; restart via the pkill+open command above to avoid running stale binaries.
-- To guarantee the right bundle is running after a rebuild, use: `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/TokenBar && open -n /Users/areslee/Documents/TokenBar/TokenBar.app`.
+- To guarantee the right bundle is running after a rebuild, use: `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app`.
 - For CLI-testable provider/parser/settings behavior, use CLI/focused tests instead of `Scripts/package_app.sh` or `./Scripts/compile_and_run.sh`.
 - Run `./Scripts/compile_and_run.sh` only when UI/runtime behavior needs bundle-level validation; it builds, tests, packages, relaunches, and verifies the app stays running.
 - Widget/Tahoe UI issues: use Parallels macOS VM plus screenshots/clicks for autonomous verification.
