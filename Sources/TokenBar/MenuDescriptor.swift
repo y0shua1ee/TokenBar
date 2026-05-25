@@ -32,6 +32,7 @@ struct MenuDescriptor {
         case refresh = "arrow.clockwise"
         case dashboard = "chart.bar"
         case statusPage = "waveform.path.ecg"
+        case changelog = "list.bullet.rectangle"
         case addAccount = "plus"
         case systemAccount = "person.crop.circle"
         case switchAccount = "key"
@@ -55,6 +56,7 @@ struct MenuDescriptor {
         case refreshAugmentSession
         case dashboard
         case statusPage
+        case changelog
         case addCodexAccount
         case requestCodexSystemPromotion(UUID)
         case addProviderAccount(UsageProvider)
@@ -149,7 +151,7 @@ struct MenuDescriptor {
             let labels = Self.rateWindowLabels(provider: provider, metadata: meta, snapshot: snap)
             if let primary = snap.primary {
                 let primaryWindow = if provider == .warp || provider == .kilo || provider == .mimo || provider ==
-                    .abacus || provider == .deepseek || provider == .krill
+                    .abacus || provider == .deepseek || provider == .krill || provider == .azureopenai
                 {
                     // Some providers use resetDescription for non-reset detail
                     // (e.g., "Unlimited", "X/Y credits"). Avoid rendering it as a "Resets ..." line.
@@ -168,7 +170,7 @@ struct MenuDescriptor {
                     resetStyle: resetStyle,
                     showUsed: settings.usageBarsShowUsed)
                 if provider == .warp || provider == .kilo || provider == .mimo || provider == .abacus || provider ==
-                    .deepseek || provider == .krill,
+                    .deepseek || provider == .krill || provider == .azureopenai,
                     let detail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
                     !detail.isEmpty
                 {
@@ -236,13 +238,7 @@ struct MenuDescriptor {
                     resetOverride: opusResetOverride)
             }
 
-            if let cost = snap.providerCost {
-                if cost.currencyCode == "Quota" {
-                    let used = String(format: "%.0f", cost.used)
-                    let limit = String(format: "%.0f", cost.limit)
-                    entries.append(.text("Quota: \(used) / \(limit)", .primary))
-                }
-            }
+            Self.appendProviderUsageSummaries(entries: &entries, snapshot: snap)
         } else {
             entries.append(.text("No usage yet", .secondary))
         }
@@ -257,6 +253,131 @@ struct MenuDescriptor {
             .appendUsageMenuEntries(context: usageContext, entries: &entries)
 
         return Section(entries: entries)
+    }
+
+    private static func appendProviderUsageSummaries(
+        entries: inout [Entry],
+        snapshot: UsageSnapshot)
+    {
+        if let cost = snapshot.providerCost {
+            if cost.currencyCode == "Quota" {
+                let used = String(format: "%.0f", cost.used)
+                let limit = String(format: "%.0f", cost.limit)
+                entries.append(.text("Quota: \(used) / \(limit)", .primary))
+            }
+        }
+        if let openAIAPIUsage = snapshot.openAIAPIUsage {
+            Self.appendOpenAIAPIUsageSummary(entries: &entries, usage: openAIAPIUsage)
+        }
+        if let claudeAdminAPIUsage = snapshot.claudeAdminAPIUsage {
+            Self.appendClaudeAdminAPIUsageSummary(entries: &entries, usage: claudeAdminAPIUsage)
+        }
+        if let openRouterUsage = snapshot.openRouterUsage {
+            Self.appendOpenRouterUsageSummary(entries: &entries, usage: openRouterUsage)
+        }
+        if let mistralUsage = snapshot.mistralUsage, !mistralUsage.daily.isEmpty {
+            Self.appendMistralUsageSummary(entries: &entries, usage: mistralUsage)
+        }
+    }
+
+    private static func appendOpenAIAPIUsageSummary(
+        entries: inout [Entry],
+        usage: OpenAIAPIUsageSnapshot)
+    {
+        let today = usage.latestDay
+        let last7 = usage.last7Days
+        let last30 = usage.last30Days
+        let historyLabel = usage.historyWindowLabel
+
+        entries.append(.text(
+            "Today: \(UsageFormatter.usdString(today.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(today.totalTokens)) tokens",
+            .secondary))
+        entries.append(.text(
+            "7d: \(UsageFormatter.usdString(last7.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(last7.requests)) requests",
+            .secondary))
+        entries.append(.text(
+            "\(historyLabel): \(UsageFormatter.usdString(last30.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(last30.requests)) requests",
+            .secondary))
+        if let topModel = usage.topModels.first?.name {
+            entries.append(.text("Top model: \(topModel)", .secondary))
+        }
+    }
+
+    private static func appendClaudeAdminAPIUsageSummary(
+        entries: inout [Entry],
+        usage: ClaudeAdminAPIUsageSnapshot)
+    {
+        let today = usage.latestDay
+        let last7 = usage.last7Days
+        let last30 = usage.last30Days
+
+        entries.append(.text(
+            "Today: \(UsageFormatter.usdString(today.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(today.totalTokens)) tokens",
+            .secondary))
+        entries.append(.text(
+            "7d: \(UsageFormatter.usdString(last7.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(last7.totalTokens)) tokens",
+            .secondary))
+        entries.append(.text(
+            "30d: \(UsageFormatter.usdString(last30.costUSD)) · " +
+                "\(UsageFormatter.tokenCountString(last30.totalTokens)) tokens",
+            .secondary))
+        if let topModel = usage.topModels.first?.name {
+            entries.append(.text("Top model: \(topModel)", .secondary))
+        }
+    }
+
+    private static func appendOpenRouterUsageSummary(
+        entries: inout [Entry],
+        usage: OpenRouterUsageSnapshot)
+    {
+        if let daily = usage.keyUsageDaily {
+            entries.append(.text("Today: \(UsageFormatter.usdString(daily))", .secondary))
+        }
+        if let weekly = usage.keyUsageWeekly {
+            entries.append(.text("Week: \(UsageFormatter.usdString(weekly))", .secondary))
+        }
+        if let monthly = usage.keyUsageMonthly {
+            entries.append(.text("Month: \(UsageFormatter.usdString(monthly))", .secondary))
+        }
+    }
+
+    private static func appendMistralUsageSummary(
+        entries: inout [Entry],
+        usage: MistralUsageSnapshot)
+    {
+        let latest = usage.daily.last
+        if let latest {
+            entries.append(.text(
+                "Latest: \(usage.currencySymbol)\(String(format: "%.4f", max(0, latest.cost))) · " +
+                    "\(UsageFormatter.tokenCountString(latest.totalTokens)) tokens",
+                .secondary))
+        }
+        let totalTokens = usage.totalInputTokens + usage.totalCachedTokens + usage.totalOutputTokens
+        entries.append(.text(
+            "Month: \(usage.currencySymbol)\(String(format: "%.4f", max(0, usage.totalCost))) · " +
+                "\(UsageFormatter.tokenCountString(totalTokens)) tokens",
+            .secondary))
+        if let top = Self.topMistralModel(from: usage.daily) {
+            entries.append(.text("Top model: \(top)", .secondary))
+        }
+    }
+
+    private static func topMistralModel(from entries: [MistralDailyUsageBucket]) -> String? {
+        var tokens: [String: Int] = [:]
+        for entry in entries {
+            for model in entry.models {
+                tokens[model.name, default: 0] += model.totalTokens
+            }
+        }
+        return tokens.max {
+            if $0.value == $1.value { return $0.key > $1.key }
+            return $0.value < $1.value
+        }?.key
     }
 
     private static func accountSection(
@@ -294,7 +415,21 @@ struct MenuDescriptor {
         if let emailText, !emailText.isEmpty {
             entries.append(.text("Account: \(redactedEmail)", .secondary))
         }
-        if provider == .kilo {
+        if provider == .kiro {
+            if let plan = snapshot?.kiroUsage?.displayPlanName,
+               !plan.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            {
+                entries.append(.text("Plan: \(plan)", .secondary))
+            }
+            if let loginMethodText, !loginMethodText.isEmpty {
+                entries.append(.text("Auth: \(loginMethodText)", .secondary))
+            }
+            if let overages = snapshot?.kiroUsage?.overagesStatus,
+               !overages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            {
+                entries.append(.text("Overages: \(overages)", .secondary))
+            }
+        } else if provider == .kilo {
             let kiloLogin = self.kiloLoginParts(loginMethod: loginMethodText)
             if let pass = kiloLogin.pass {
                 entries.append(.text("Plan: \(AccountFormatter.plan(pass, provider: provider))", .secondary))
@@ -421,6 +556,9 @@ struct MenuDescriptor {
         }
         if metadata?.statusPageURL != nil || metadata?.statusLinkURL != nil {
             entries.append(.action("Status Page", .statusPage))
+        }
+        if store.settings.providerChangelogLinksEnabled, metadata?.changelogURL != nil {
+            entries.append(.action("Changelog", .changelog))
         }
 
         if let statusLine = self.statusLine(for: provider, store: store) {
@@ -550,6 +688,7 @@ extension MenuDescriptor.MenuAction {
         case .refreshAugmentSession: MenuDescriptor.MenuActionSystemImage.refresh.rawValue
         case .dashboard: MenuDescriptor.MenuActionSystemImage.dashboard.rawValue
         case .statusPage: MenuDescriptor.MenuActionSystemImage.statusPage.rawValue
+        case .changelog: MenuDescriptor.MenuActionSystemImage.changelog.rawValue
         case .addCodexAccount, .addProviderAccount: MenuDescriptor.MenuActionSystemImage.addAccount.rawValue
         case .requestCodexSystemPromotion:
             nil

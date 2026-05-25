@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 extension HistoricalUsagePaceTests {
     @Test
@@ -283,7 +283,7 @@ extension HistoricalUsagePaceTests {
                     windowMinutes: record.windowMinutes)
             },
             to: fileURL)
-        let expectedResetAt = fixtureResetAt.addingTimeInterval(dateShift)
+        let expectedResetAt = Self.normalizeReset(fixtureResetAt.addingTimeInterval(dateShift))
 
         let dataset = await store.loadCodexDataset(
             canonicalAccountKey: providerAccountKey,

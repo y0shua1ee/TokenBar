@@ -1,8 +1,8 @@
 import AppKit
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 struct CodexBarTests {
     @Test
@@ -111,6 +111,56 @@ struct CodexBarTests {
         let remaining = IconRemainingResolver.resolvedRemaining(snapshot: snapshot, style: .perplexity)
         #expect(remaining.primary == 55)
         #expect(remaining.secondary == 80)
+    }
+
+    @Test
+    func `kimi icon renders primary bar when secondary is nil`() throws {
+        // Regression: Kimi account connected with usage, but no progress bar shown (issue #1043).
+        // When secondary (rate limit) is absent, the icon renderer must still show
+        // the primary (weekly quota) bar.
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 18.3, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: nil,
+            updatedAt: Date())
+
+        let remaining = IconRemainingResolver.resolvedRemaining(snapshot: snapshot, style: .kimi)
+
+        guard let primaryRemaining = remaining.primary else {
+            Issue.record("remaining.primary was nil after IconRemainingResolver check")
+            return
+        }
+        #expect(primaryRemaining > 0) // 81.7% remaining
+        #expect(remaining.secondary == nil)
+
+        let image = IconRenderer.makeIcon(
+            primaryRemaining: remaining.primary,
+            weeklyRemaining: remaining.secondary,
+            creditsRemaining: nil,
+            stale: false,
+            style: .kimi)
+        #expect(image.size.width > 0)
+        #expect(image.isTemplate)
+
+        // Prove the primary bar is actually rendered using pixel inspection.
+        // Top bar rect: x ∈ [3, 33], y ∈ [19, 31] in the 36×36 canvas (barXPx=3, barWidthPx=30, y=19, h=12).
+        let bitmapReps = image.representations.compactMap { $0 as? NSBitmapImageRep }
+        let rep = try #require(bitmapReps.first { $0.pixelsWide == 36 && $0.pixelsHigh == 36 })
+
+        func alphaAt(px x: Int, _ y: Int) -> CGFloat {
+            (rep.colorAt(x: x, y: y) ?? .clear).alphaComponent
+        }
+
+        func regionHasFill(xRange: ClosedRange<Int>, yRange: ClosedRange<Int>) -> Bool {
+            for y in yRange {
+                for x in xRange where alphaAt(px: x, y) > 0.05 {
+                    return true
+                }
+            }
+            return false
+        }
+
+        // Primary bar (top track) must have fill to prove the progress bar rendered.
+        #expect(regionHasFill(xRange: 3...33, yRange: 19...31))
     }
 
     @Test

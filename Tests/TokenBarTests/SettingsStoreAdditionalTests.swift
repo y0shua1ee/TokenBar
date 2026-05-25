@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 @MainActor
 struct SettingsStoreAdditionalTests {
@@ -40,6 +40,11 @@ struct SettingsStoreAdditionalTests {
         #expect(settings.menuBarMetricPreference(for: .cursor) == .extraUsage)
         #expect(settings.menuBarMetricPreference(for: .cursor, snapshot: nil) == .automatic)
         #expect(settings.menuBarMetricSupportsExtraUsage(for: .cursor, snapshot: nil) == false)
+
+        settings.setMenuBarMetricPreference(.extraUsage, for: .claude)
+        #expect(settings.menuBarMetricPreference(for: .claude) == .extraUsage)
+        #expect(settings.menuBarMetricPreference(for: .claude, snapshot: nil) == .automatic)
+        #expect(settings.menuBarMetricSupportsExtraUsage(for: .claude, snapshot: nil) == false)
 
         settings.setMenuBarMetricPreference(.tertiary, for: .perplexity)
         #expect(settings.menuBarMetricPreference(for: .perplexity) == .tertiary)

@@ -14,6 +14,7 @@ struct UsageCommandContext {
     let useColor: Bool
     let resetStyle: ResetTimeDisplayStyle
     let jsonOnly: Bool
+    let includeAllCodexAccounts: Bool
     let fetcher: UsageFetcher
     let claudeFetcher: ClaudeUsageFetcher
     let browserDetection: BrowserDetection
@@ -85,7 +86,11 @@ extension TokenBarCLI {
                     output: output,
                     kind: .args)
             }
-            guard TokenAccountSupportCatalog.support(for: providerList[0]) != nil else {
+            let supportsAllCodexAccounts = providerList[0] == .codex
+                && tokenSelection.allAccounts
+                && tokenSelection.label == nil
+                && tokenSelection.index == nil
+            guard supportsAllCodexAccounts || TokenAccountSupportCatalog.support(for: providerList[0]) != nil else {
                 Self.exit(
                     code: .failure,
                     message: "Error: \(providerList[0].rawValue) does not support token accounts.",
@@ -93,21 +98,6 @@ extension TokenBarCLI {
                     kind: .args)
             }
         }
-
-        #if !os(macOS)
-        if let parsedSourceMode {
-            let requiresWeb = providerList.contains { selectedProvider in
-                Self.sourceModeRequiresWebSupport(parsedSourceMode, provider: selectedProvider)
-            }
-            if requiresWeb {
-                Self.exit(
-                    code: .failure,
-                    message: "Error: selected source requires web support and is only supported on macOS.",
-                    output: output,
-                    kind: .runtime)
-            }
-        }
-        #endif
 
         let browserDetection = BrowserDetection()
         let fetcher = UsageFetcher()
@@ -137,6 +127,7 @@ extension TokenBarCLI {
             useColor: useColor,
             resetStyle: resetStyle,
             jsonOnly: output.jsonOnly,
+            includeAllCodexAccounts: tokenSelection.allAccounts && providerList == [.codex],
             fetcher: fetcher,
             claudeFetcher: claudeFetcher,
             browserDetection: browserDetection)
@@ -164,9 +155,7 @@ extension TokenBarCLI {
                 print(sections.joined(separator: "\n\n"))
             }
         case .json:
-            if !payload.isEmpty {
-                Self.printJSON(payload, pretty: output.pretty)
-            }
+            Self.printJSON(payload, pretty: output.pretty)
         }
 
         Self.exit(code: exitCode, output: output, kind: exitCode == .success ? .runtime : .provider)
@@ -178,6 +167,23 @@ extension TokenBarCLI {
         tokenContext: TokenAccountCLIContext,
         command: UsageCommandContext) async -> UsageCommandOutput
     {
+        if provider == .codex, command.includeAllCodexAccounts {
+            var output = UsageCommandOutput()
+            let accounts = tokenContext.visibleCodexAccounts().visibleAccounts
+            let selections: [CodexVisibleAccount?] = accounts.isEmpty ? [nil] : accounts.map { Optional($0) }
+            for visibleAccount in selections {
+                let result = await Self.fetchUsageOutput(
+                    provider: provider,
+                    account: nil,
+                    codexVisibleAccount: visibleAccount,
+                    status: status,
+                    tokenContext: tokenContext,
+                    command: command)
+                output.merge(result)
+            }
+            return output
+        }
+
         let accounts: [ProviderTokenAccount]
         do {
             accounts = try tokenContext.resolvedAccounts(for: provider)
@@ -233,6 +239,7 @@ extension TokenBarCLI {
     private static func fetchUsageOutput(
         provider: UsageProvider,
         account: ProviderTokenAccount?,
+        codexVisibleAccount: CodexVisibleAccount? = nil,
         status: ProviderStatusPayload?,
         tokenContext: TokenAccountCLIContext,
         command: UsageCommandContext) async -> UsageCommandOutput
@@ -241,8 +248,12 @@ extension TokenBarCLI {
         let env = tokenContext.environment(
             base: ProcessInfo.processInfo.environment,
             provider: provider,
-            account: account)
-        let settings = tokenContext.settingsSnapshot(for: provider, account: account)
+            account: account,
+            codexActiveSourceOverride: codexVisibleAccount?.selectionSource)
+        let settings = tokenContext.settingsSnapshot(
+            for: provider,
+            account: account,
+            codexActiveSourceOverride: codexVisibleAccount?.selectionSource)
         let configSource = tokenContext.preferredSourceMode(for: provider)
         let baseSource = command.sourceModeOverride ?? configSource
         let effectiveSourceMode = tokenContext.effectiveSourceMode(
@@ -251,10 +262,15 @@ extension TokenBarCLI {
             account: account)
 
         #if !os(macOS)
-        if Self.sourceModeRequiresWebSupport(effectiveSourceMode, provider: provider) {
+        if Self.sourceModeRequiresWebSupport(
+            effectiveSourceMode,
+            provider: provider,
+            environment: env,
+            settings: settings)
+        {
             return Self.webSourceUnsupportedOutput(
                 provider: provider,
-                account: account,
+                account: account?.label ?? codexVisibleAccount?.menuDisplayName,
                 source: effectiveSourceMode.rawValue,
                 status: status,
                 command: command)
@@ -270,7 +286,7 @@ extension TokenBarCLI {
             verbose: command.verbose,
             env: env,
             settings: settings,
-            fetcher: command.fetcher,
+            fetcher: tokenContext.fetcher(base: command.fetcher, provider: provider, env: env),
             claudeFetcher: command.claudeFetcher,
             browserDetection: command.browserDetection)
         let outcome = await Self.fetchProviderUsage(
@@ -290,6 +306,8 @@ extension TokenBarCLI {
             var usage = result.usage.scoped(to: provider)
             if let account {
                 usage = tokenContext.applyAccountLabel(usage, provider: provider, account: account)
+            } else if let codexVisibleAccount {
+                usage = tokenContext.applyCodexVisibleAccountLabel(usage, account: codexVisibleAccount)
             }
 
             var dashboard = result.dashboard
@@ -333,7 +351,7 @@ extension TokenBarCLI {
             case .json:
                 output.payload.append(ProviderPayload(
                     provider: provider,
-                    account: account?.label,
+                    account: account?.label ?? codexVisibleAccount?.menuDisplayName,
                     version: version,
                     source: source,
                     status: status,
@@ -348,15 +366,15 @@ extension TokenBarCLI {
             if command.format == .json {
                 output.payload.append(Self.makeProviderErrorPayload(
                     provider: provider,
-                    account: account?.label,
+                    account: account?.label ?? codexVisibleAccount?.menuDisplayName,
                     source: effectiveSourceMode.rawValue,
                     status: status,
                     error: error,
                     kind: .provider))
             } else if !command.jsonOnly {
-                if let account {
+                if let accountLabel = account?.label ?? codexVisibleAccount?.menuDisplayName {
                     Self.writeStderr(
-                        "Error (\(provider.rawValue) - \(account.label)): \(error.localizedDescription)\n")
+                        "Error (\(provider.rawValue) - \(accountLabel)): \(error.localizedDescription)\n")
                 } else {
                     Self.writeStderr("Error: \(error.localizedDescription)\n")
                 }
@@ -405,7 +423,7 @@ extension TokenBarCLI {
 
     private static func webSourceUnsupportedOutput(
         provider: UsageProvider,
-        account: ProviderTokenAccount?,
+        account: String?,
         source: String,
         status: ProviderStatusPayload?,
         command: UsageCommandContext) -> UsageCommandOutput
@@ -420,7 +438,7 @@ extension TokenBarCLI {
         if command.format == .json {
             output.payload.append(Self.makeProviderErrorPayload(
                 provider: provider,
-                account: account?.label,
+                account: account,
                 source: source,
                 status: status,
                 error: error,
@@ -431,8 +449,23 @@ extension TokenBarCLI {
         return output
     }
 
-    static func sourceModeRequiresWebSupport(_ sourceMode: ProviderSourceMode, provider: UsageProvider) -> Bool {
-        switch sourceMode {
+    static func sourceModeRequiresWebSupport(
+        _ sourceMode: ProviderSourceMode,
+        provider: UsageProvider,
+        environment: [String: String]? = nil,
+        settings: ProviderSettingsSnapshot? = nil) -> Bool
+    {
+        guard provider != .grok else {
+            return false
+        }
+        if provider == .ollama,
+           sourceMode == .auto,
+           settings?.ollama?.cookieSource == .off
+           || environment.map({ ProviderTokenResolver.ollamaToken(environment: $0) != nil }) == true
+        {
+            return false
+        }
+        return switch sourceMode {
         case .web:
             true
         case .auto:

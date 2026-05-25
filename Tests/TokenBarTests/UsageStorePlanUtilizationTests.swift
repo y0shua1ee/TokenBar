@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 // swiftlint:disable:next type_body_length
 struct UsageStorePlanUtilizationTests {
@@ -131,6 +131,32 @@ struct UsageStorePlanUtilizationTests {
             ]),
             planSeries(name: .weekly, windowMinutes: 10080, entries: [
                 planEntry(at: Date(timeIntervalSince1970: 1_700_086_400), usedPercent: 48),
+            ]),
+        ]
+
+        let model = PlanUtilizationHistoryChartMenuView._modelSnapshotForTesting(
+            histories: histories,
+            provider: .codex)
+
+        #expect(model.visibleSeries == ["session:300", "weekly:10080"])
+        #expect(model.selectedSeries == "session:300")
+    }
+
+    @MainActor
+    @Test
+    func `native chart folds near canonical codex windows into single tabs`() {
+        let histories = [
+            planSeries(name: .session, windowMinutes: 299, entries: [
+                planEntry(at: Date(timeIntervalSince1970: 1_700_000_000), usedPercent: 20),
+            ]),
+            planSeries(name: .session, windowMinutes: 300, entries: [
+                planEntry(at: Date(timeIntervalSince1970: 1_700_003_600), usedPercent: 30),
+            ]),
+            planSeries(name: .weekly, windowMinutes: 10079, entries: [
+                planEntry(at: Date(timeIntervalSince1970: 1_700_086_400), usedPercent: 40),
+            ]),
+            planSeries(name: .weekly, windowMinutes: 10080, entries: [
+                planEntry(at: Date(timeIntervalSince1970: 1_700_172_800), usedPercent: 50),
             ]),
         ]
 

@@ -90,6 +90,14 @@ export_team_id_from_identity() {
   if [[ -n "${APP_TEAM_ID:-}" || -z "${identity}" ]]; then
     return
   fi
+  local subject
+  subject="$(security find-certificate -c "${identity}" -p 2>/dev/null \
+    | openssl x509 -noout -subject -nameopt RFC2253 2>/dev/null || true)"
+  if [[ "${subject}" =~ (^|,)OU=([A-Z0-9]{10})(,|$) ]]; then
+    APP_TEAM_ID="${BASH_REMATCH[2]}"
+    export APP_TEAM_ID
+    return
+  fi
   if [[ "${identity}" =~ \(([A-Z0-9]{10})\)$ ]]; then
     APP_TEAM_ID="${BASH_REMATCH[1]}"
     export APP_TEAM_ID
@@ -286,13 +294,17 @@ ARCHES_VALUE="${HOST_ARCH}"
 if [[ -n "${RELEASE_ARCHES}" ]]; then
   ARCHES_VALUE="${RELEASE_ARCHES}"
 fi
+PACKAGE_ENV=(
+  TOKENBAR_WIDGET_METADATA_MODE="${TOKENBAR_WIDGET_METADATA_MODE:-skip}"
+  ARCHES="${ARCHES_VALUE}"
+)
 if [[ "${DEBUG_LLDB}" == "1" ]]; then
-  run_step "package app" env TOKENBAR_ALLOW_LLDB=1 ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh" debug
+  run_step "package app" env TOKENBAR_ALLOW_LLDB=1 "${PACKAGE_ENV[@]}" "${ROOT_DIR}/Scripts/package_app.sh" debug
 else
   if [[ -n "${SIGNING_MODE}" ]]; then
-    run_step "package app" env TOKENBAR_SIGNING="${SIGNING_MODE}" ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh"
+    run_step "package app" env TOKENBAR_SIGNING="${SIGNING_MODE}" "${PACKAGE_ENV[@]}" "${ROOT_DIR}/Scripts/package_app.sh"
   else
-    run_step "package app" env ARCHES="${ARCHES_VALUE}" "${ROOT_DIR}/Scripts/package_app.sh"
+    run_step "package app" env "${PACKAGE_ENV[@]}" "${ROOT_DIR}/Scripts/package_app.sh"
   fi
 fi
 

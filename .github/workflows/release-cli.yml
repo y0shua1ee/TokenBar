@@ -49,9 +49,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Select Xcode 26.1.1 (macOS)
+      - name: Select Xcode 26.1.1 (if present) or fallback to default
         if: matrix.platform == 'macos'
-        shell: bash
         run: |
           set -euo pipefail
           for candidate in /Applications/Xcode_26.1.1.app /Applications/Xcode_26.1.app /Applications/Xcode.app; do
@@ -106,6 +105,7 @@ jobs:
           swift --version
 
       - name: Build TokenBarCLI (release)
+        id: build
         shell: bash
         run: |
           set -euo pipefail
@@ -119,11 +119,6 @@ jobs:
           fi
           "${BUILD_ARGS[@]}"
 
-      - name: Smoke test TokenBarCLI
-        shell: bash
-        run: |
-          set -euo pipefail
-
           SHOW_BIN_ARGS=(swift build -c release --product TokenBarCLI --show-bin-path)
           if [[ -n "${{ matrix.build-arch }}" ]]; then
             SHOW_BIN_ARGS+=(--arch "${{ matrix.build-arch }}")
@@ -132,49 +127,58 @@ jobs:
             SHOW_BIN_ARGS+=(--static-swift-stdlib)
           fi
 
-          BIN_DIR="$("${SHOW_BIN_ARGS[@]}")"
+          echo "bin_dir=$("${SHOW_BIN_ARGS[@]}")" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test TokenBarCLI
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BIN_DIR="${{ steps.build.outputs.bin_dir }}"
           BIN="$BIN_DIR/TokenBarCLI"
+          run_with_timeout() {
+            local output="$1"
+            shift
+            "$@" > "$output" &
+            local pid=$!
+            local run_status=
+            for _ in {1..20}; do
+              if ! kill -0 "$pid" 2>/dev/null; then
+                set +e
+                wait "$pid"
+                run_status=$?
+                set -e
+                break
+              fi
+              sleep 1
+            done
+            if [[ -z "$run_status" ]]; then
+              kill "$pid" 2>/dev/null || true
+              wait "$pid" 2>/dev/null || true
+              echo "$* timed out." >&2
+              exit 124
+            fi
+            if [[ "$run_status" -ne 0 ]]; then
+              cat "$output" >&2 || true
+              exit "$run_status"
+            fi
+          }
 
+          echo "BIN=$BIN"
+          file "$BIN"
           if [[ "${{ matrix.platform }}" == "macos" ]]; then
-            # macOS runners can kill freshly-built unsigned/ad-hoc SwiftPM executables with SIGKILL.
-            # Re-sign and clear quarantine before executing the smoke test; the embedded signature
-            # stays with the binary that is packaged in the next step.
-            /usr/bin/codesign --force --sign - "$BIN"
-            /usr/bin/xattr -dr com.apple.quarantine "$BIN" 2>/dev/null || true
-            /usr/bin/codesign --verify --strict --verbose=3 "$BIN"
-            /usr/sbin/spctl --assess --type execute --verbose=4 "$BIN" || true
+            lipo -archs "$BIN" | tr ' ' '\n' | grep -Fx "${{ matrix.asset-arch }}"
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-smoke-${{ matrix.name }}.txt" "$BIN" config validate --format json
+          else
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
+            file "$BIN" | grep -q "${{ matrix.asset-arch }}"
           fi
-
-          TOKENBAR_CLI_TRACE=1 TOKENBAR_BIN="$BIN" python3 - <<'PY'
-          import os
-          import subprocess
-          import sys
-
-          binary = os.environ["TOKENBAR_BIN"]
-          for args in (["--help"], ["--version"]):
-              try:
-                  result = subprocess.run(
-                      [binary, *args],
-                      stdout=subprocess.PIPE,
-                      stderr=subprocess.PIPE,
-                      text=True,
-                      timeout=30,
-                  )
-              except subprocess.TimeoutExpired as error:
-                  print(f"TokenBarCLI {' '.join(args)} timed out after 30s", file=sys.stderr)
-                  if error.stdout:
-                      print(error.stdout[:2_000], file=sys.stderr)
-                  if error.stderr:
-                      print(error.stderr[:2_000], file=sys.stderr)
-                  sys.exit(124)
-              if result.returncode != 0:
-                  print(f"TokenBarCLI {' '.join(args)} exited {result.returncode}", file=sys.stderr)
-                  print(result.stdout[:2_000], file=sys.stderr)
-                  print(result.stderr[:2_000], file=sys.stderr)
-                  sys.exit(result.returncode)
-          PY
-
-          file "$BIN" | grep -q "${{ matrix.asset-arch }}"
+          printf '%s\n' "${RELEASE_TAG#v}" > "$BIN_DIR/VERSION"
+          VERSION_OUTPUT="$RUNNER_TEMP/tokenbar-cli-version-${{ matrix.name }}.txt"
+          run_with_timeout "$VERSION_OUTPUT" "$BIN" --version
+          grep -Fx "TokenBar ${RELEASE_TAG#v}" "$VERSION_OUTPUT"
+          rm "$BIN_DIR/VERSION"
 
       - name: Package
         id: pkg
@@ -189,21 +193,14 @@ jobs:
           fi
           SAFE_REF_NAME="${REF_NAME//\//-}"
 
-          SHOW_BIN_ARGS=(swift build -c release --product TokenBarCLI --show-bin-path)
-          if [[ -n "${{ matrix.build-arch }}" ]]; then
-            SHOW_BIN_ARGS+=(--arch "${{ matrix.build-arch }}")
-          fi
-          if [[ "${{ matrix.static-swift-stdlib }}" == "true" ]]; then
-            SHOW_BIN_ARGS+=(--static-swift-stdlib)
-          fi
-
-          BIN_DIR="$("${SHOW_BIN_ARGS[@]}")"
+          BIN_DIR="${{ steps.build.outputs.bin_dir }}"
           OUT_DIR="$(mktemp -d)"
           install -m 0755 "$BIN_DIR/TokenBarCLI" "$OUT_DIR/TokenBarCLI"
           ln -s "TokenBarCLI" "$OUT_DIR/tokenbar"
+          printf '%s\n' "${SAFE_REF_NAME#v}" > "$OUT_DIR/VERSION"
 
           ASSET="TokenBarCLI-${SAFE_REF_NAME}-${{ matrix.platform }}-${{ matrix.asset-arch }}.tar.gz"
-          (cd "$OUT_DIR" && tar czf "$ASSET" TokenBarCLI tokenbar)
+          (cd "$OUT_DIR" && tar czf "$ASSET" TokenBarCLI tokenbar VERSION)
           if command -v sha256sum >/dev/null 2>&1; then
             sha256sum "$OUT_DIR/$ASSET" > "$OUT_DIR/$ASSET.sha256"
           else
@@ -259,14 +256,25 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$GH_TOKEN"
-          gh workflow run update-formula.yml \
-            --repo y0shua1ee/homebrew-tokenbar \
-            -f formula=tokenbar \
-            -f tag="${{ steps.release.outputs.tag }}" \
-            -f repository=y0shua1ee/TokenBar \
-            -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
-            -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
-            -f request_id="${{ steps.release.outputs.request_id }}"
+          for attempt in {1..6}; do
+            if gh workflow run update-formula.yml \
+              --repo y0shua1ee/homebrew-tokenbar \
+              -f formula=tokenbar \
+              -f tag="${{ steps.release.outputs.tag }}" \
+              -f repository=y0shua1ee/TokenBar \
+              -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
+              -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
+              -f cask=tokenbar \
+              -f cask_artifact='TokenBar-macos-universal-{version}.zip' \
+              -f request_id="${{ steps.release.outputs.request_id }}"; then
+              exit 0
+            fi
+            if [[ "$attempt" -eq 6 ]]; then
+              echo "Failed to dispatch tap update after ${attempt} attempts." >&2
+              exit 1
+            fi
+            sleep $((attempt * 30))
+          done
 
       - name: Wait for tap update
         env:
@@ -275,11 +283,19 @@ jobs:
         run: |
           set -euo pipefail
           for _ in {1..20}; do
-            run_id="$(gh run list --repo y0shua1ee/homebrew-tokenbar --workflow update-formula.yml --json databaseId,displayTitle --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' | head -n1)"
+            run_id="$(
+              gh run list \
+                --repo y0shua1ee/homebrew-tokenbar \
+                --workflow update-formula.yml \
+                --json databaseId,displayTitle \
+                --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' 2>/tmp/tokenbar-tap-run-list.err \
+                | head -n1 || true
+            )"
             if [[ -n "$run_id" ]]; then
               gh run watch "$run_id" --repo y0shua1ee/homebrew-tokenbar --exit-status
               exit 0
             fi
+            cat /tmp/tokenbar-tap-run-list.err >&2 || true
             sleep 5
           done
           echo "Timed out waiting for tap workflow to appear." >&2

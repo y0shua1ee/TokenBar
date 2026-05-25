@@ -44,10 +44,20 @@ enum TokenBarCLI {
                 Self.runAsync { await self.runUsage(invocation.parsedValues) }
             case ["cost"]:
                 Self.runAsync { await self.runCost(invocation.parsedValues) }
+            case ["serve"]:
+                Self.runAsync { await self.runServe(invocation.parsedValues) }
             case ["config", "validate"]:
                 self.runConfigValidate(invocation.parsedValues)
             case ["config", "dump"]:
                 self.runConfigDump(invocation.parsedValues)
+            case ["config", "providers"]:
+                self.runConfigProviders(invocation.parsedValues)
+            case ["config", "enable"]:
+                self.runConfigSetProviderEnabled(invocation.parsedValues, enabled: true)
+            case ["config", "disable"]:
+                self.runConfigSetProviderEnabled(invocation.parsedValues, enabled: false)
+            case ["config", "set-api-key"]:
+                self.runConfigSetAPIKey(invocation.parsedValues)
             case ["cache", "clear"]:
                 self.runCacheClear(invocation.parsedValues)
             default:
@@ -77,7 +87,10 @@ enum TokenBarCLI {
     private static func commandDescriptors() -> [CommandDescriptor] {
         let usageSignature = CommandSignature.describe(UsageOptions())
         let costSignature = CommandSignature.describe(CostOptions())
+        let serveSignature = CommandSignature.describe(ServeOptions())
         let configSignature = CommandSignature.describe(ConfigOptions())
+        let configProviderToggleSignature = CommandSignature.describe(ConfigProviderToggleOptions())
+        let configSetAPIKeySignature = CommandSignature.describe(ConfigSetAPIKeyOptions())
         let cacheSignature = CommandSignature.describe(CacheOptions())
 
         return [
@@ -91,6 +104,11 @@ enum TokenBarCLI {
                 abstract: "Print local cost usage as text or JSON",
                 discussion: nil,
                 signature: costSignature),
+            CommandDescriptor(
+                name: "serve",
+                abstract: "Serve usage and cost JSON over localhost HTTP",
+                discussion: nil,
+                signature: serveSignature),
             CommandDescriptor(
                 name: "config",
                 abstract: "Config utilities",
@@ -107,6 +125,26 @@ enum TokenBarCLI {
                         abstract: "Print normalized config JSON",
                         discussion: nil,
                         signature: configSignature),
+                    CommandDescriptor(
+                        name: "providers",
+                        abstract: "List provider enablement",
+                        discussion: nil,
+                        signature: configSignature),
+                    CommandDescriptor(
+                        name: "enable",
+                        abstract: "Enable a provider",
+                        discussion: nil,
+                        signature: configProviderToggleSignature),
+                    CommandDescriptor(
+                        name: "disable",
+                        abstract: "Disable a provider",
+                        discussion: nil,
+                        signature: configProviderToggleSignature),
+                    CommandDescriptor(
+                        name: "set-api-key",
+                        abstract: "Store a provider API key",
+                        discussion: nil,
+                        signature: configSetAPIKeySignature),
                 ],
                 defaultSubcommandName: "validate"),
             CommandDescriptor(

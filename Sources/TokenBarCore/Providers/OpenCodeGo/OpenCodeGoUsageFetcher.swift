@@ -33,6 +33,25 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
 
+    private final class RedirectGuardDelegate: NSObject, URLSessionTaskDelegate {
+        func urlSession(
+            _ session: URLSession,
+            task: URLSessionTask,
+            willPerformHTTPRedirection response: HTTPURLResponse,
+            newRequest request: URLRequest,
+            completionHandler: @escaping (URLRequest?) -> Void)
+        {
+            guard OpenCodeGoUsageFetcher.allowsRedirect(
+                from: task.originalRequest?.url,
+                to: request.url)
+            else {
+                completionHandler(nil)
+                return
+            }
+            completionHandler(request)
+        }
+    }
+
     private struct ServerRequest {
         let serverID: String
         let args: String?
@@ -73,14 +92,29 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         "renewAt",
         "renew_at",
     ]
+    private static let renewAtKeys = [
+        "renewAt",
+        "renew_at",
+    ]
+    private static let redirectGuardDelegate = RedirectGuardDelegate()
+    private static let redirectGuardSession: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpCookieStorage = nil
+        return URLSession(
+            configuration: configuration,
+            delegate: OpenCodeGoUsageFetcher.redirectGuardDelegate,
+            delegateQueue: nil)
+    }()
 
     public static func fetchUsage(
         cookieHeader: String,
         timeout: TimeInterval,
         now: Date = Date(),
         workspaceIDOverride: String? = nil,
-        session: URLSession = .shared) async throws -> OpenCodeGoUsageSnapshot
+        includeZenBalance: Bool = true,
+        session: URLSession? = nil) async throws -> OpenCodeGoUsageSnapshot
     {
+        let session = session ?? self.redirectGuardSession
         guard let requestCookieHeader = OpenCodeWebCookieSupport.requestCookieHeader(from: cookieHeader) else {
             throw OpenCodeGoUsageError.invalidCredentials
         }
@@ -92,12 +126,38 @@ public struct OpenCodeGoUsageFetcher: Sendable {
                 timeout: timeout,
                 session: session)
         }
-        let subscriptionText = try await self.fetchUsagePage(
-            workspaceID: workspaceID,
-            cookieHeader: requestCookieHeader,
-            timeout: timeout,
-            session: session)
-        return try self.parseSubscription(text: subscriptionText, now: now)
+        let subscriptionText: String
+        do {
+            subscriptionText = try await self.fetchUsagePage(
+                workspaceID: workspaceID,
+                cookieHeader: requestCookieHeader,
+                timeout: timeout,
+                session: session)
+        } catch {
+            throw error
+        }
+        let snapshot = try self.parseSubscription(text: subscriptionText, now: now)
+        let zenBalanceTask = includeZenBalance ? Task {
+            try await self.fetchOptionalZenBalance(
+                workspaceID: workspaceID,
+                cookieHeader: requestCookieHeader,
+                timeout: min(timeout, self.optionalZenBalanceTimeout),
+                session: session)
+        } : nil
+        guard let zenBalanceTask else {
+            return snapshot
+        }
+        let zenBalance = try await self.completedOptionalZenBalance(from: zenBalanceTask)
+        return snapshot.withZenBalanceUSD(zenBalance)
+    }
+
+    static func allowsRedirect(from sourceURL: URL?, to destinationURL: URL?) -> Bool {
+        guard let sourceHost = sourceURL?.host?.lowercased(),
+              let destinationHost = destinationURL?.host?.lowercased(),
+              sourceHost == destinationHost,
+              destinationURL?.scheme?.lowercased() == "https"
+        else { return false }
+        return true
     }
 
     public static func dashboardURL(workspaceID raw: String?) -> URL {
@@ -156,7 +216,7 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         return ids[0]
     }
 
-    private static func normalizeWorkspaceID(_ raw: String?) -> String? {
+    static func normalizeWorkspaceID(_ raw: String?) -> String? {
         guard let raw else { return nil }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.hasPrefix("wrk_"), trimmed.count > 4 {
@@ -294,25 +354,31 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             return nil
         }
 
-        if let snapshot = self.parseUsageDictionary(dict, now: now) {
+        let renewsAt = self.dateValue(from: self.value(from: dict, keys: self.renewAtKeys))
+        if let snapshot = self.parseUsageDictionary(dict, now: now, inheritedRenewsAt: renewsAt) {
             return snapshot
         }
         for key in ["data", "result", "usage", "billing", "payload"] {
             if let nested = dict[key] as? [String: Any],
-               let snapshot = self.parseUsageDictionary(nested, now: now)
+               let snapshot = self.parseUsageDictionary(nested, now: now, inheritedRenewsAt: renewsAt)
             {
                 return snapshot
             }
         }
-        if let snapshot = self.parseUsageNested(dict, now: now, depth: 0) {
+        if let snapshot = self.parseUsageNested(dict, now: now, depth: 0, inheritedRenewsAt: renewsAt) {
             return snapshot
         }
-        return self.parseUsageFromCandidates(object: object, now: now)
+        return self.parseUsageFromCandidates(object: object, now: now, inheritedRenewsAt: renewsAt)
     }
 
-    private static func parseUsageDictionary(_ dict: [String: Any], now: Date) -> OpenCodeGoUsageSnapshot? {
+    private static func parseUsageDictionary(
+        _ dict: [String: Any],
+        now: Date,
+        inheritedRenewsAt: Date?) -> OpenCodeGoUsageSnapshot?
+    {
+        let renewsAt = self.dateValue(from: self.value(from: dict, keys: self.renewAtKeys)) ?? inheritedRenewsAt
         if let usage = dict["usage"] as? [String: Any],
-           let snapshot = self.parseUsageDictionary(usage, now: now)
+           let snapshot = self.parseUsageDictionary(usage, now: now, inheritedRenewsAt: renewsAt)
         {
             return snapshot
         }
@@ -327,11 +393,17 @@ public struct OpenCodeGoUsageFetcher: Sendable {
 
         guard let rolling, let weekly else { return nil }
 
-        return self.buildSnapshot(rolling: rolling, weekly: weekly, monthly: monthly, now: now)
+        return self.buildSnapshot(rolling: rolling, weekly: weekly, monthly: monthly, now: now, renewsAt: renewsAt)
     }
 
-    private static func parseUsageNested(_ dict: [String: Any], now: Date, depth: Int) -> OpenCodeGoUsageSnapshot? {
+    private static func parseUsageNested(
+        _ dict: [String: Any],
+        now: Date,
+        depth: Int,
+        inheritedRenewsAt: Date?) -> OpenCodeGoUsageSnapshot?
+    {
         if depth > 3 { return nil }
+        let renewsAt = self.dateValue(from: self.value(from: dict, keys: self.renewAtKeys)) ?? inheritedRenewsAt
         var rolling: [String: Any]?
         var weekly: [String: Any]?
         var monthly: [String: Any]?
@@ -348,15 +420,23 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             }
         }
 
-        if let rolling, let weekly,
-           let snapshot = self.buildSnapshot(rolling: rolling, weekly: weekly, monthly: monthly, now: now)
-        {
-            return snapshot
+        if let rolling, let weekly {
+            let snapshot = self.buildSnapshot(
+                rolling: rolling,
+                weekly: weekly,
+                monthly: monthly,
+                now: now,
+                renewsAt: renewsAt)
+            if let snapshot { return snapshot }
         }
 
         for value in dict.values {
             if let sub = value as? [String: Any],
-               let snapshot = self.parseUsageNested(sub, now: now, depth: depth + 1)
+               let snapshot = self.parseUsageNested(
+                   sub,
+                   now: now,
+                   depth: depth + 1,
+                   inheritedRenewsAt: renewsAt)
             {
                 return snapshot
             }
@@ -365,7 +445,11 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         return nil
     }
 
-    private static func parseUsageFromCandidates(object: Any, now: Date) -> OpenCodeGoUsageSnapshot? {
+    private static func parseUsageFromCandidates(
+        object: Any,
+        now: Date,
+        inheritedRenewsAt: Date? = nil) -> OpenCodeGoUsageSnapshot?
+    {
         let candidates = self.collectWindowCandidates(object: object, now: now)
         guard !candidates.isEmpty else { return nil }
 
@@ -401,6 +485,8 @@ public struct OpenCodeGoUsageFetcher: Sendable {
 
         guard let rolling, let weekly else { return nil }
 
+        let renewsAt = self.dateValue(from: self.value(from: object as? [String: Any] ?? [:], keys: self.renewAtKeys))
+            ?? inheritedRenewsAt
         return OpenCodeGoUsageSnapshot(
             hasMonthlyUsage: monthly != nil,
             rollingUsagePercent: rolling.percent,
@@ -409,6 +495,7 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             rollingResetInSec: rolling.resetInSec,
             weeklyResetInSec: weekly.resetInSec,
             monthlyResetInSec: monthly?.resetInSec ?? 0,
+            renewsAt: renewsAt,
             updatedAt: now)
     }
 
@@ -497,7 +584,8 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         rolling: [String: Any],
         weekly: [String: Any],
         monthly: [String: Any]?,
-        now: Date) -> OpenCodeGoUsageSnapshot?
+        now: Date,
+        renewsAt: Date? = nil) -> OpenCodeGoUsageSnapshot?
     {
         guard let rollingWindow = self.parseWindow(rolling, now: now),
               let weeklyWindow = self.parseWindow(weekly, now: now)
@@ -515,6 +603,7 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             rollingResetInSec: rollingWindow.resetInSec,
             weeklyResetInSec: weeklyWindow.resetInSec,
             monthlyResetInSec: monthlyWindow?.resetInSec ?? 0,
+            renewsAt: renewsAt,
             updatedAt: now)
     }
 
@@ -604,15 +693,14 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
 
-        let (data, response) = try await session.data(for: urlRequest)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw OpenCodeGoUsageError.networkError("Invalid response")
-        }
+        let httpResponse = try await session.response(for: urlRequest)
 
         guard httpResponse.statusCode == 200 else {
-            let bodyText = String(data: data, encoding: .utf8) ?? ""
-            let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type") ?? "unknown"
-            Self.log.error("OpenCode Go returned \(httpResponse.statusCode) (type=\(contentType) length=\(data.count))")
+            let bodyText = String(data: httpResponse.data, encoding: .utf8) ?? ""
+            let contentType = httpResponse.response.value(forHTTPHeaderField: "Content-Type") ?? "unknown"
+            let dataLength = httpResponse.data.count
+            Self.log.error(
+                "OpenCode Go returned \(httpResponse.statusCode) (type=\(contentType) length=\(dataLength))")
             if self.looksSignedOut(text: bodyText) {
                 throw OpenCodeGoUsageError.invalidCredentials
             }
@@ -625,13 +713,13 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             throw OpenCodeGoUsageError.apiError("HTTP \(httpResponse.statusCode)")
         }
 
-        guard let text = String(data: data, encoding: .utf8) else {
+        guard let text = String(data: httpResponse.data, encoding: .utf8) else {
             throw OpenCodeGoUsageError.parseFailed("Response was not UTF-8.")
         }
         return text
     }
 
-    private static func fetchPageText(
+    static func fetchPageText(
         url: URL,
         cookieHeader: String,
         timeout: TimeInterval,
@@ -646,12 +734,9 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw OpenCodeGoUsageError.networkError("Invalid response")
-        }
+        let httpResponse = try await session.response(for: request)
         guard httpResponse.statusCode == 200 else {
-            let bodyText = String(data: data, encoding: .utf8) ?? ""
+            let bodyText = String(data: httpResponse.data, encoding: .utf8) ?? ""
             if self.looksSignedOut(text: bodyText) {
                 throw OpenCodeGoUsageError.invalidCredentials
             }
@@ -663,7 +748,7 @@ public struct OpenCodeGoUsageFetcher: Sendable {
             }
             throw OpenCodeGoUsageError.apiError("HTTP \(httpResponse.statusCode)")
         }
-        guard let text = String(data: data, encoding: .utf8) else {
+        guard let text = String(data: httpResponse.data, encoding: .utf8) else {
             throw OpenCodeGoUsageError.parseFailed("Response was not UTF-8.")
         }
         return text
@@ -683,7 +768,7 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         return components?.url ?? self.serverURL
     }
 
-    private static func looksSignedOut(text: String) -> Bool {
+    static func looksSignedOut(text: String) -> Bool {
         let lower = text.lowercased()
         return lower.contains("login") ||
             lower.contains("sign in") ||
@@ -761,6 +846,15 @@ public struct OpenCodeGoUsageFetcher: Sendable {
         default:
             nil
         }
+    }
+
+    private static func value(from dict: [String: Any], keys: [String]) -> Any? {
+        for key in keys {
+            if let value = dict[key] {
+                return value
+            }
+        }
+        return nil
     }
 
     private static func dateValue(from value: Any?) -> Date? {

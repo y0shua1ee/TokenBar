@@ -1,10 +1,219 @@
 import Foundation
 import SwiftUI
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 struct MenuCardModelCodexProjectionTests {
+    @Test
+    func `codex weekly lane derives pace from its visible window`() throws {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let metadata = try #require(ProviderDefaults.metadata[.codex])
+        let identity = ProviderIdentitySnapshot(
+            providerID: .codex,
+            accountEmail: "user@example.com",
+            accountOrganization: nil,
+            loginMethod: "Pro")
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(
+                usedPercent: 2,
+                windowMinutes: 300,
+                resetsAt: now.addingTimeInterval(4 * 60 * 60),
+                resetDescription: nil),
+            secondary: RateWindow(
+                usedPercent: 4,
+                windowMinutes: 10080,
+                resetsAt: now.addingTimeInterval(6 * 24 * 60 * 60),
+                resetDescription: nil),
+            tertiary: nil,
+            updatedAt: now,
+            identity: identity)
+        let projection = CodexConsumerProjection.make(
+            surface: .liveCard,
+            context: CodexConsumerProjection.Context(
+                snapshot: snapshot,
+                rawUsageError: nil,
+                liveCredits: nil,
+                rawCreditsError: nil,
+                liveDashboard: nil,
+                rawDashboardError: nil,
+                dashboardAttachmentAuthorized: false,
+                dashboardRequiresLogin: false,
+                now: now))
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .codex,
+            metadata: metadata,
+            snapshot: snapshot,
+            codexProjection: projection,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: "user@example.com", plan: "Pro"),
+            isRefreshing: false,
+            lastError: nil,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        let weekly = try #require(model.metrics.first { $0.id == "secondary" })
+        #expect(weekly.detailLeftText == "10% in reserve")
+        #expect(weekly.detailRightText == "Lasts until reset")
+    }
+
+    @Test
+    func `codex plan only snapshot shows limits unavailable placeholder`() throws {
+        let now = Date()
+        let metadata = try #require(ProviderDefaults.metadata[.codex])
+        let identity = ProviderIdentitySnapshot(
+            providerID: .codex,
+            accountEmail: "user@example.com",
+            accountOrganization: nil,
+            loginMethod: "pro")
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            updatedAt: now,
+            identity: identity)
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .codex,
+            metadata: metadata,
+            snapshot: snapshot,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: UsageError.noRateLimitsFound.errorDescription,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.placeholder == "Limits not available")
+        #expect(model.metrics.isEmpty)
+        #expect(model.subtitleStyle == .info)
+        #expect(!model.subtitleText.contains("Found sessions"))
+        #expect(model.planText == "Pro 20x")
+    }
+
+    @Test
+    func `codex plan only snapshot keeps actionable refresh errors visible`() throws {
+        let now = Date()
+        let metadata = try #require(ProviderDefaults.metadata[.codex])
+        let identity = ProviderIdentitySnapshot(
+            providerID: .codex,
+            accountEmail: "user@example.com",
+            accountOrganization: nil,
+            loginMethod: "pro")
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            updatedAt: now,
+            identity: identity)
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .codex,
+            metadata: metadata,
+            snapshot: snapshot,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: "Codex connection failed: timed out.",
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.placeholder == nil)
+        #expect(model.subtitleStyle == .error)
+        #expect(model.subtitleText == "Codex connection failed: timed out.")
+        #expect(model.planText == "Pro 20x")
+    }
+
+    @Test
+    func `codex account fallback shows limits unavailable instead of no limits error`() throws {
+        let now = Date()
+        let metadata = try #require(ProviderDefaults.metadata[.codex])
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .codex,
+            metadata: metadata,
+            snapshot: nil,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: "user@example.com", plan: "pro"),
+            isRefreshing: false,
+            lastError: UsageError.noRateLimitsFound.errorDescription,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.placeholder == "Limits not available")
+        #expect(model.subtitleStyle == .info)
+        #expect(!model.subtitleText.contains("Found sessions"))
+        #expect(model.email == "user@example.com")
+        #expect(model.planText == "Pro 20x")
+    }
+
+    @Test
+    func `codex no account fallback keeps no limits error visible`() throws {
+        let now = Date()
+        let metadata = try #require(ProviderDefaults.metadata[.codex])
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .codex,
+            metadata: metadata,
+            snapshot: nil,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: UsageError.noRateLimitsFound.errorDescription,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: true,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.placeholder == nil)
+        #expect(model.subtitleStyle == .error)
+        #expect(model.subtitleText == UsageError.noRateLimitsFound.errorDescription)
+    }
+
     @Test
     func `builds metrics using used percent when enabled`() throws {
         let now = Date()

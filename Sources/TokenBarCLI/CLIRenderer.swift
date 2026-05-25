@@ -34,6 +34,12 @@ enum CLIRenderer {
             now: now,
             lines: &lines)
         self.appendTertiaryLines(snapshot: snapshot, labels: labels, context: context, now: now, lines: &lines)
+        self.appendDeepgramLines(snapshot: snapshot, useColor: context.useColor, lines: &lines)
+        self.appendLimitsUnavailableLine(
+            provider: provider,
+            snapshot: snapshot,
+            useColor: context.useColor,
+            lines: &lines)
         self.appendCreditsLine(provider: provider, credits: credits, useColor: context.useColor, lines: &lines)
         self.appendIdentityAndNotes(
             provider: provider,
@@ -121,6 +127,25 @@ enum CLIRenderer {
         }
     }
 
+    private static func appendDeepgramLines(
+        snapshot: UsageSnapshot,
+        useColor: Bool,
+        lines: inout [String])
+    {
+        guard let usage = snapshot.deepgramUsage else { return }
+        for line in usage.displayLines {
+            let parts = line.split(separator: ":", maxSplits: 1).map(String.init)
+            if parts.count == 2 {
+                lines.append(self.labelValueLine(
+                    parts[0].trimmingCharacters(in: .whitespacesAndNewlines),
+                    value: parts[1].trimmingCharacters(in: .whitespacesAndNewlines),
+                    useColor: useColor))
+            } else {
+                lines.append(self.labelValueLine("Usage", value: line, useColor: useColor))
+            }
+        }
+    }
+
     private struct RateWindowLabels {
         let primary: String
         let secondary: String
@@ -159,6 +184,16 @@ enum CLIRenderer {
             "Credits",
             value: UsageFormatter.creditsString(from: credits.remaining),
             useColor: useColor))
+    }
+
+    private static func appendLimitsUnavailableLine(
+        provider: UsageProvider,
+        snapshot: UsageSnapshot,
+        useColor: Bool,
+        lines: inout [String])
+    {
+        guard snapshot.rateLimitsUnavailable(for: provider) else { return }
+        lines.append(self.labelValueLine("Limits", value: "not available", useColor: useColor))
     }
 
     private static func appendIdentityAndNotes(

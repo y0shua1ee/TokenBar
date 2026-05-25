@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "providers": [
+    {
+      "id": "codex",
+      "enabled": true
+    },
+    {
+      "id": "claude",
+      "enabled": true
+    },
+    {
+      "id": "custom",
+      "enabled": true,
+      "customName": "Krill",
+      "baseURL": "https://api.cdn-krill-ai.com/coding/v1",
+      "apiKey": "nb_YOUR_KRILL_API_KEY_HERE",
+      "customModelFilter": "gpt-4.1"
+    }
+  ]
+}

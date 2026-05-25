@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLIProviderSelectionTests {
     @Test
@@ -105,8 +105,8 @@ struct CLIProviderSelectionTests {
     }
 
     @Test
-    func `provider selection defaults to codex when empty`() {
+    func `provider selection honors empty enabled set`() {
         let selection = TokenBarCLI.providerSelection(rawOverride: nil, enabled: [])
-        #expect(selection.asList == [.codex])
+        #expect(selection.asList == [])
     }
 }

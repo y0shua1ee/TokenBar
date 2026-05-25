@@ -670,13 +670,13 @@ public struct CursorStatusProbe: Sendable {
     public let baseURL: URL
     public var timeout: TimeInterval = 15.0
     private let browserDetection: BrowserDetection
-    private let urlSession: URLSession
+    private let urlSession: any ProviderHTTPTransport
 
     public init(
         baseURL: URL = URL(string: "https://cursor.com")!,
         timeout: TimeInterval = 15.0,
         browserDetection: BrowserDetection,
-        urlSession: URLSession = .shared)
+        urlSession: any ProviderHTTPTransport = ProviderHTTPClient.shared)
     {
         self.baseURL = baseURL
         self.timeout = timeout
@@ -690,7 +690,10 @@ public struct CursorStatusProbe: Sendable {
     }
 
     /// Fetch Cursor usage using browser cookies with fallback to stored session.
-    public func fetch(cookieHeaderOverride: String? = nil, logger: ((String) -> Void)? = nil)
+    public func fetch(
+        cookieHeaderOverride: String? = nil,
+        allowCachedSessions: Bool = true,
+        logger: ((String) -> Void)? = nil)
         async throws -> CursorStatusSnapshot
     {
         let log: (String) -> Void = { msg in logger?("[cursor] \(msg)") }
@@ -701,7 +704,8 @@ public struct CursorStatusProbe: Sendable {
             return try await self.fetchWithCookieHeader(override)
         }
 
-        if let cached = CookieHeaderCache.load(provider: .cursor),
+        if allowCachedSessions,
+           let cached = CookieHeaderCache.load(provider: .cursor),
            !cached.cookieHeader.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         {
             log("Using cached cookie header from \(cached.sourceLabel)")
@@ -758,24 +762,26 @@ public struct CursorStatusProbe: Sendable {
         }
 
         // Fall back to stored session cookies (from "Add Account" login flow)
-        let storedCookies = await CursorSessionStore.shared.getCookies()
-        if !storedCookies.isEmpty {
-            log("Using stored session cookies")
-            let cookieHeader = storedCookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
-            do {
-                return try await self.fetchWithCookieHeader(cookieHeader)
-            } catch let error as CursorStatusProbeError {
-                if case .notLoggedIn = error {
-                    // Clear only when auth is invalid; keep for transient failures.
-                    await CursorSessionStore.shared.clearCookies()
-                    log("Stored session invalid, cleared")
-                } else {
+        if allowCachedSessions {
+            let storedCookies = await CursorSessionStore.shared.getCookies()
+            if !storedCookies.isEmpty {
+                log("Using stored session cookies")
+                let cookieHeader = storedCookies.map { "\($0.name)=\($0.value)" }.joined(separator: "; ")
+                do {
+                    return try await self.fetchWithCookieHeader(cookieHeader)
+                } catch let error as CursorStatusProbeError {
+                    if case .notLoggedIn = error {
+                        // Clear only when auth is invalid; keep for transient failures.
+                        await CursorSessionStore.shared.clearCookies()
+                        log("Stored session invalid, cleared")
+                    } else {
+                        log("Stored session failed: \(error.localizedDescription)")
+                        firstRecoverableError = firstRecoverableError ?? error
+                    }
+                } catch {
                     log("Stored session failed: \(error.localizedDescription)")
-                    firstRecoverableError = firstRecoverableError ?? error
+                    firstRecoverableError = firstRecoverableError ?? .networkError(error.localizedDescription)
                 }
-            } catch {
-                log("Stored session failed: \(error.localizedDescription)")
-                firstRecoverableError = firstRecoverableError ?? .networkError(error.localizedDescription)
             }
         }
 
@@ -1154,7 +1160,7 @@ public struct CursorStatusProbe: Sendable {
         baseURL: URL = URL(string: "https://cursor.com")!,
         timeout: TimeInterval = 15.0,
         browserDetection: BrowserDetection,
-        urlSession: URLSession = .shared)
+        urlSession: any ProviderHTTPTransport = ProviderHTTPClient.shared)
     {
         _ = baseURL
         _ = timeout
@@ -1169,6 +1175,7 @@ public struct CursorStatusProbe: Sendable {
 
     public func fetch(
         cookieHeaderOverride _: String? = nil,
+        allowCachedSessions _: Bool = true,
         logger: ((String) -> Void)? = nil) async throws -> CursorStatusSnapshot
     {
         try await self.fetch(logger: logger)

@@ -18,9 +18,12 @@ public enum ProviderSourceMode: String, CaseIterable, Sendable, Codable {
 }
 
 public struct ProviderFetchContext: Sendable {
+    public typealias TokenAccountTokenUpdater = @Sendable (UsageProvider, UUID, String) async -> Void
+
     public let runtime: ProviderRuntime
     public let sourceMode: ProviderSourceMode
     public let includeCredits: Bool
+    public let includeOptionalUsage: Bool
     public let webTimeout: TimeInterval
     public let webDebugDumpHTML: Bool
     public let verbose: Bool
@@ -29,11 +32,15 @@ public struct ProviderFetchContext: Sendable {
     public let fetcher: UsageFetcher
     public let claudeFetcher: any ClaudeUsageFetching
     public let browserDetection: BrowserDetection
+    public let selectedTokenAccountID: UUID?
+    public let tokenAccountTokenUpdater: TokenAccountTokenUpdater?
+    public let costUsageHistoryDays: Int
 
     public init(
         runtime: ProviderRuntime,
         sourceMode: ProviderSourceMode,
         includeCredits: Bool,
+        includeOptionalUsage: Bool = true,
         webTimeout: TimeInterval,
         webDebugDumpHTML: Bool,
         verbose: Bool,
@@ -41,11 +48,15 @@ public struct ProviderFetchContext: Sendable {
         settings: ProviderSettingsSnapshot?,
         fetcher: UsageFetcher,
         claudeFetcher: any ClaudeUsageFetching,
-        browserDetection: BrowserDetection)
+        browserDetection: BrowserDetection,
+        selectedTokenAccountID: UUID? = nil,
+        tokenAccountTokenUpdater: TokenAccountTokenUpdater? = nil,
+        costUsageHistoryDays: Int = 30)
     {
         self.runtime = runtime
         self.sourceMode = sourceMode
         self.includeCredits = includeCredits
+        self.includeOptionalUsage = includeOptionalUsage
         self.webTimeout = webTimeout
         self.webDebugDumpHTML = webDebugDumpHTML
         self.verbose = verbose
@@ -54,6 +65,9 @@ public struct ProviderFetchContext: Sendable {
         self.fetcher = fetcher
         self.claudeFetcher = claudeFetcher
         self.browserDetection = browserDetection
+        self.selectedTokenAccountID = selectedTokenAccountID
+        self.tokenAccountTokenUpdater = tokenAccountTokenUpdater
+        self.costUsageHistoryDays = max(1, min(365, costUsageHistoryDays))
     }
 }
 

@@ -1,5 +1,5 @@
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 struct ProviderConfigEnvironmentTests {
     @Test
@@ -79,6 +79,136 @@ struct ProviderConfigEnvironmentTests {
         #expect(ProviderTokenResolver.doubaoToken(environment: env) == "db-token")
     }
 
+    func `applies API key override for moonshot`() {
+        let config = ProviderConfig(id: .moonshot, apiKey: "moon-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .moonshot,
+            config: config)
+
+        let key = MoonshotSettingsReader.apiKeyEnvironmentKeys.first
+        #expect(key != nil)
+        guard let key else { return }
+
+        #expect(env[key] == "moon-token")
+    }
+
+    @Test
+    func `applies API key override for elevenlabs`() {
+        let config = ProviderConfig(id: .elevenlabs, apiKey: "xi-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .elevenlabs,
+            config: config)
+
+        #expect(env[ElevenLabsSettingsReader.apiKeyEnvironmentKey] == "xi-token")
+        #expect(ProviderTokenResolver.elevenLabsToken(environment: env) == "xi-token")
+    }
+
+    @Test
+    func `applies API key override for groq`() {
+        let config = ProviderConfig(id: .groq, apiKey: "gsk-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .groq,
+            config: config)
+
+        #expect(env[GroqSettingsReader.apiKeyEnvironmentKey] == "gsk-token")
+        #expect(ProviderTokenResolver.groqToken(environment: env) == "gsk-token")
+    }
+
+    @Test
+    func `applies LLM Proxy config overrides`() {
+        let config = ProviderConfig(
+            id: .llmproxy,
+            apiKey: "proxy-token",
+            enterpriseHost: "https://proxy.example.com")
+        let env = ProviderConfigEnvironment.applyProviderConfigOverrides(
+            base: [:],
+            provider: .llmproxy,
+            config: config)
+
+        #expect(env[LLMProxySettingsReader.apiKeyEnvironmentKey] == "proxy-token")
+        #expect(env[LLMProxySettingsReader.baseURLEnvironmentKey] == "https://proxy.example.com")
+        #expect(ProviderTokenResolver.llmProxyToken(environment: env) == "proxy-token")
+    }
+
+    @Test
+    func `openai config override uses preferred admin key environment`() {
+        let config = ProviderConfig(id: .openai, apiKey: "config-openai-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [
+                OpenAIAPISettingsReader.adminAPIKeyEnvironmentKey: "env-admin-token",
+                OpenAIAPISettingsReader.apiKeyEnvironmentKey: "env-api-token",
+            ],
+            provider: .openai,
+            config: config)
+
+        #expect(env[OpenAIAPISettingsReader.adminAPIKeyEnvironmentKey] == "config-openai-token")
+        #expect(env[OpenAIAPISettingsReader.apiKeyEnvironmentKey] == "env-api-token")
+        #expect(ProviderTokenResolver.openAIAPIToken(environment: env) == "config-openai-token")
+    }
+
+    @Test
+    func `applies Azure OpenAI config overrides`() {
+        let config = ProviderConfig(
+            id: .azureopenai,
+            apiKey: "config-azure-token",
+            workspaceID: "chat-prod",
+            enterpriseHost: "https://example-resource.openai.azure.com")
+        let env = ProviderConfigEnvironment.applyProviderConfigOverrides(
+            base: [
+                AzureOpenAISettingsReader.apiKeyEnvironmentKey: "env-azure-token",
+                AzureOpenAISettingsReader.endpointEnvironmentKey: "https://env-resource.openai.azure.com",
+                AzureOpenAISettingsReader.deploymentNameEnvironmentKey: "env-deployment",
+            ],
+            provider: .azureopenai,
+            config: config)
+
+        #expect(env[AzureOpenAISettingsReader.apiKeyEnvironmentKey] == "config-azure-token")
+        #expect(env[AzureOpenAISettingsReader.endpointEnvironmentKey] == "https://example-resource.openai.azure.com")
+        #expect(env[AzureOpenAISettingsReader.deploymentNameEnvironmentKey] == "chat-prod")
+        #expect(ProviderTokenResolver.azureOpenAIToken(environment: env) == "config-azure-token")
+        #expect(AzureOpenAISettingsReader.deploymentName(environment: env) == "chat-prod")
+    }
+
+    @Test
+    func `bedrock config maps AWS credential fields`() {
+        let config = ProviderConfig(
+            id: .bedrock,
+            apiKey: "AKIATEST",
+            secretKey: "secret",
+            cookieHeader: "legacy-cookie-secret",
+            region: "us-west-2")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .bedrock,
+            config: config)
+
+        #expect(env[BedrockSettingsReader.accessKeyIDKey] == "AKIATEST")
+        #expect(env[BedrockSettingsReader.secretAccessKeyKey] == "secret")
+        #expect(env[BedrockSettingsReader.regionKeys[0]] == "us-west-2")
+        #expect(!env.values.contains("legacy-cookie-secret"))
+    }
+
+    @Test
+    func `bedrock config merges secret and region without replacing environment access key`() {
+        let config = ProviderConfig(
+            id: .bedrock,
+            apiKey: nil,
+            secretKey: "config-secret",
+            region: "eu-central-1")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [BedrockSettingsReader.accessKeyIDKey: "env-access"],
+            provider: .bedrock,
+            config: config)
+
+        #expect(env[BedrockSettingsReader.accessKeyIDKey] == "env-access")
+        #expect(env[BedrockSettingsReader.secretAccessKeyKey] == "config-secret")
+        #expect(env[BedrockSettingsReader.regionKeys[0]] == "eu-central-1")
+        #expect(BedrockSettingsReader.hasCredentials(environment: env))
+    }
+
     @Test
     func `ignores legacy API key override for deepseek`() {
         let config = ProviderConfig(id: .deepseek, apiKey: "ds-token")
@@ -144,6 +274,43 @@ struct ProviderConfigEnvironmentTests {
         #expect(
             ProviderTokenResolver.codebuffToken(environment: env, authFileURL: nil)
                 == "cb-config-token")
+    }
+
+    @Test
+    func `applies API key override for deepgram`() {
+        let config = ProviderConfig(id: .deepgram, apiKey: "dg-token")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [:],
+            provider: .deepgram,
+            config: config)
+
+        #expect(env[DeepgramSettingsReader.apiKeyEnvironmentKey] == "dg-token")
+        #expect(ProviderTokenResolver.deepgramResolution(
+            type: .apiKey,
+            environment: env)
+            == "dg-token")
+    }
+
+    @Test
+    func `applies Deepgram project ID override from provider config`() {
+        let config = ProviderConfig(id: .deepgram, workspaceID: "proj-123")
+        let env = ProviderConfigEnvironment.applyProviderConfigOverrides(
+            base: [:],
+            provider: .deepgram,
+            config: config)
+
+        #expect(env[DeepgramSettingsReader.projectIDEnvironmentKey] == "proj-123")
+    }
+
+    @Test
+    func `Deepgram project ID config overrides environment`() {
+        let config = ProviderConfig(id: .deepgram, workspaceID: "config-project")
+        let env = ProviderConfigEnvironment.applyProviderConfigOverrides(
+            base: [DeepgramSettingsReader.projectIDEnvironmentKey: "env-project"],
+            provider: .deepgram,
+            config: config)
+
+        #expect(env[DeepgramSettingsReader.projectIDEnvironmentKey] == "config-project")
     }
 
     @Test

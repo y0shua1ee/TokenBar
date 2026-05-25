@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 @MainActor
 struct ProvidersPaneCoverageTests {
@@ -12,6 +12,19 @@ struct ProvidersPaneCoverageTests {
         let store = Self.makeUsageStore(settings: settings)
 
         ProvidersPaneTestHarness.exercise(settings: settings, store: store)
+    }
+
+    @Test
+    func `claude token account descriptor shows organization field`() throws {
+        let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-claude-org-field")
+        let store = Self.makeUsageStore(settings: settings)
+        let pane = ProvidersPane(settings: settings, store: store)
+
+        let claudeDescriptor = try #require(pane._test_tokenAccountDescriptor(for: .claude))
+        #expect(claudeDescriptor.showsOrganizationField)
+
+        let copilotDescriptor = try #require(pane._test_tokenAccountDescriptor(for: .copilot))
+        #expect(!copilotDescriptor.showsOrganizationField)
     }
 
     @Test
@@ -42,6 +55,19 @@ struct ProvidersPaneCoverageTests {
             MenuBarMetricPreference.automatic.rawValue,
         ])
         #expect(picker?.subtitle == "Shows the DeepSeek balance in the menu bar.")
+    }
+
+    @Test
+    func `moonshot menu bar metric picker shows balance only copy`() {
+        let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-moonshot-picker")
+        let store = Self.makeUsageStore(settings: settings)
+        let pane = ProvidersPane(settings: settings, store: store)
+
+        let picker = pane._test_menuBarMetricPicker(for: .moonshot)
+        #expect(picker?.options.map(\.id) == [
+            MenuBarMetricPreference.automatic.rawValue,
+        ])
+        #expect(picker?.subtitle == "Shows the Moonshot / Kimi API balance in the menu bar.")
     }
 
     @Test
@@ -144,6 +170,29 @@ struct ProvidersPaneCoverageTests {
     }
 
     @Test
+    func `claude menu bar metric picker includes extra usage when spend limit is available`() {
+        let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-claude-extra-usage-picker")
+        let store = Self.makeUsageStore(settings: settings)
+        store._setSnapshotForTesting(
+            UsageSnapshot(
+                primary: nil,
+                secondary: nil,
+                providerCost: ProviderCostSnapshot(
+                    used: 67.03,
+                    limit: 1000,
+                    currencyCode: "USD",
+                    period: "Spend limit",
+                    updatedAt: Date()),
+                updatedAt: Date()),
+            provider: .claude)
+        let pane = ProvidersPane(settings: settings, store: store)
+
+        let picker = pane._test_menuBarMetricPicker(for: .claude)
+        let ids = picker?.options.map(\.id) ?? []
+        #expect(ids.contains(MenuBarMetricPreference.extraUsage.rawValue))
+    }
+
+    @Test
     func `zai menu bar metric picker omits tertiary lane when snapshot has no 5-hour metric`() {
         let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-zai-no-tertiary-picker")
         let store = Self.makeUsageStore(settings: settings)
@@ -195,6 +244,14 @@ struct ProvidersPaneCoverageTests {
 
         #expect(row?.label == "Balance")
         #expect(row?.value == "$4.61")
+    }
+
+    @Test
+    func `provider detail plan row formats moonshot as balance`() {
+        let row = ProviderDetailView<EmptyView>.planRow(provider: .moonshot, planText: "Balance: $49.58")
+
+        #expect(row?.label == "Balance")
+        #expect(row?.value == "$49.58")
     }
 
     @Test

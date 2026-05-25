@@ -8,6 +8,8 @@ public struct OpenCodeGoUsageSnapshot: Sendable {
     public let rollingResetInSec: Int
     public let weeklyResetInSec: Int
     public let monthlyResetInSec: Int
+    public let zenBalanceUSD: Double?
+    public let renewsAt: Date?
     public let updatedAt: Date
 
     public init(
@@ -18,6 +20,8 @@ public struct OpenCodeGoUsageSnapshot: Sendable {
         rollingResetInSec: Int,
         weeklyResetInSec: Int,
         monthlyResetInSec: Int,
+        zenBalanceUSD: Double? = nil,
+        renewsAt: Date? = nil,
         updatedAt: Date)
     {
         self.hasMonthlyUsage = hasMonthlyUsage
@@ -27,6 +31,8 @@ public struct OpenCodeGoUsageSnapshot: Sendable {
         self.rollingResetInSec = rollingResetInSec
         self.weeklyResetInSec = weeklyResetInSec
         self.monthlyResetInSec = monthlyResetInSec
+        self.zenBalanceUSD = zenBalanceUSD
+        self.renewsAt = renewsAt
         self.updatedAt = updatedAt
     }
 
@@ -56,11 +62,44 @@ public struct OpenCodeGoUsageSnapshot: Sendable {
             tertiary = nil
         }
 
+        var extraWindows: [NamedRateWindow]?
+        if let renewsAt = self.renewsAt {
+            let renewalWindow = RateWindow(
+                usedPercent: 0,
+                windowMinutes: nil,
+                resetsAt: renewsAt,
+                resetDescription: nil)
+            extraWindows = [NamedRateWindow(id: "renewal", title: "Renews", window: renewalWindow)]
+        }
+
         return UsageSnapshot(
             primary: primary,
             secondary: secondary,
             tertiary: tertiary,
+            extraRateWindows: extraWindows,
+            providerCost: self.zenBalanceUSD.map {
+                ProviderCostSnapshot(
+                    used: $0,
+                    limit: 0,
+                    currencyCode: "USD",
+                    period: "Zen balance",
+                    updatedAt: self.updatedAt)
+            },
             updatedAt: self.updatedAt,
             identity: nil)
+    }
+
+    public func withZenBalanceUSD(_ balance: Double?) -> OpenCodeGoUsageSnapshot {
+        OpenCodeGoUsageSnapshot(
+            hasMonthlyUsage: self.hasMonthlyUsage,
+            rollingUsagePercent: self.rollingUsagePercent,
+            weeklyUsagePercent: self.weeklyUsagePercent,
+            monthlyUsagePercent: self.monthlyUsagePercent,
+            rollingResetInSec: self.rollingResetInSec,
+            weeklyResetInSec: self.weeklyResetInSec,
+            monthlyResetInSec: self.monthlyResetInSec,
+            zenBalanceUSD: balance,
+            renewsAt: self.renewsAt,
+            updatedAt: self.updatedAt)
     }
 }

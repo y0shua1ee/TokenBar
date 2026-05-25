@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 struct ConfigValidationTests {
     @Test
@@ -57,5 +57,43 @@ struct ConfigValidationTests {
         config.setProviderConfig(ProviderConfig(id: .kilo, extrasEnabled: true))
         let issues = CodexBarConfigValidator.validate(config)
         #expect(!issues.contains(where: { $0.provider == .kilo && $0.field == "extrasEnabled" }))
+    }
+
+    @Test
+    func `allows deepgram project workspace ID`() {
+        var config = CodexBarConfig.makeDefault()
+        config.setProviderConfig(ProviderConfig(id: .deepgram, workspaceID: "project-123"))
+        let issues = CodexBarConfigValidator.validate(config)
+        #expect(!issues.contains(where: { $0.provider == .deepgram && $0.code == "workspace_unused" }))
+    }
+
+    @Test
+    func `allows Azure OpenAI endpoint and deployment fields`() {
+        var config = CodexBarConfig.makeDefault()
+        config.setProviderConfig(ProviderConfig(
+            id: .azureopenai,
+            workspaceID: "chat-prod",
+            enterpriseHost: "https://example-resource.openai.azure.com"))
+        let issues = CodexBarConfigValidator.validate(config)
+
+        #expect(!issues.contains(where: { $0.provider == .azureopenai && $0.code == "workspace_unused" }))
+        #expect(!issues.contains(where: { $0.provider == .azureopenai && $0.code == "enterprise_host_unused" }))
+    }
+
+    @Test
+    func `warns on unsupported workspace ID`() {
+        var config = CodexBarConfig.makeDefault()
+        config.setProviderConfig(ProviderConfig(id: .gemini, workspaceID: "workspace-123"))
+        let issues = CodexBarConfigValidator.validate(config)
+        #expect(issues.contains(where: { $0.provider == .gemini && $0.code == "workspace_unused" }))
+    }
+
+    @Test
+    func `config store default url honors environment override`() {
+        let url = CodexBarConfigStore.defaultURL(environment: [
+            CodexBarConfigStore.pathEnvironmentKey: "~/tmp/tokenbar-test-config.json",
+        ])
+
+        #expect(url.path.hasSuffix("/tmp/tokenbar-test-config.json"))
     }
 }

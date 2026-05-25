@@ -43,7 +43,7 @@ jobs:
       - name: Swift Test
         timeout-minutes: 60
         run: |
-          python3 Scripts/ci_swift_test_by_suite.py --group-size 1 --timeout 120
+          python3 Scripts/ci_swift_test_by_suite.py --group-size 12 --timeout 180
 
   build-linux-cli:
     timeout-minutes: 20

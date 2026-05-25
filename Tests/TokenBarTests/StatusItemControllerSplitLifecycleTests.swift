@@ -1,7 +1,7 @@
 import AppKit
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 @MainActor
 @Suite(.serialized)
@@ -95,5 +95,33 @@ struct StatusItemControllerSplitLifecycleTests {
         let mergedButton = try #require(controller.statusItem.button)
         #expect(mergedButton.image != nil)
         #expect(!self.containsHostingView(mergedButton))
+    }
+
+    @Test
+    func `visibility recovery recreates split provider status items`() throws {
+        let (_, controller) = try self.makeSplitController()
+        defer { controller.releaseStatusItemsForTesting() }
+
+        let oldCodexItem = try #require(controller.statusItems[.codex])
+        controller.recreateStatusItemsForVisibilityRecovery()
+
+        let newCodexItem = try #require(controller.statusItems[.codex])
+        #expect(newCodexItem !== oldCodexItem)
+    }
+
+    @Test
+    func `visibility recovery renders replacement merged status item`() throws {
+        let (settings, controller) = try self.makeSplitController()
+        defer { controller.releaseStatusItemsForTesting() }
+
+        settings.mergeIcons = true
+        controller.handleProviderConfigChange(reason: "test")
+        let renderedSignature = try #require(controller.lastAppliedMergedIconRenderSignature)
+
+        controller.lastAppliedMergedIconRenderSignature = renderedSignature
+        controller.recreateStatusItemsForVisibilityRecovery()
+
+        let mergedButton = try #require(controller.statusItem.button)
+        #expect(mergedButton.image != nil)
     }
 }

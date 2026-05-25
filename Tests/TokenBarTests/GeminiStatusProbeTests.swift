@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import TokenBarCore
+@testable import TokenBarCore
 
 struct GeminiStatusProbeTests {
     /// Sample /stats output from Gemini CLI (actual format with box-drawing chars)

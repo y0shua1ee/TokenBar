@@ -33,6 +33,8 @@ extension TokenBarCLI {
             print(Self.usageHelp(version: version))
         case "cost":
             print(Self.costHelp(version: version))
+        case "serve":
+            print(Self.serveHelp(version: version))
         case "config", "validate", "dump":
             print(Self.configHelp(version: version))
         case "cache", "clear":
@@ -48,21 +50,25 @@ extension TokenBarCLI {
         bundle: Bundle? = nil,
         executablePath: String? = CommandLine.arguments.first) -> String?
     {
+        if let version = self.currentVersion(bundleVersion: nil, executablePath: executablePath) {
+            return version
+        }
+        return self.currentVersion(
+            bundleVersion: bundle?.infoDictionary?["CFBundleShortVersionString"] as? String,
+            executablePath: nil)
+    }
+
+    static func currentVersion(bundleVersion: String?, executablePath: String?) -> String? {
         if let executablePath, !executablePath.isEmpty {
             let executableURL = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
-            if let appVersion = Self.containingAppVersion(for: executableURL) {
-                return appVersion
+            if let version = Self.containingAppVersion(for: executableURL) {
+                return version
             }
-            if let adjacentVersion = Self.adjacentVersionFileVersion(for: executableURL) {
-                return adjacentVersion
+            if let version = Self.adjacentVersionFileVersion(for: executableURL) {
+                return version
             }
         }
-
-        // Keep the default raw SwiftPM CLI help/version path lightweight. On macOS hosted
-        // runners, Bundle.main.infoDictionary can trigger framework/bundle metadata work
-        // before any command is executed; packaged-app helpers already resolve above by
-        // reading the containing .app Info.plist directly.
-        return bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
+        return Self.normalizedBundleVersion(bundleVersion)
     }
 
     static func containingAppVersion(for executableURL: URL) -> String? {
@@ -97,6 +103,14 @@ extension TokenBarCLI {
         if trimmed.hasPrefix("v"), trimmed.dropFirst().first?.isNumber == true {
             return String(trimmed.dropFirst())
         }
+        return trimmed
+    }
+
+    static func normalizedBundleVersion(_ raw: String?) -> String? {
+        guard let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty,
+              trimmed != "CodexBar"
+        else { return nil }
         return trimmed
     }
 

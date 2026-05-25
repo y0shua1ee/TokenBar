@@ -10,6 +10,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         opencode: OpenCodeProviderSettings? = nil,
         opencodego: OpenCodeProviderSettings? = nil,
         alibaba: AlibabaCodingPlanProviderSettings? = nil,
+        alibabaTokenPlan: AlibabaTokenPlanProviderSettings? = nil,
         factory: FactoryProviderSettings? = nil,
         minimax: MiniMaxProviderSettings? = nil,
         manus: ManusProviderSettings? = nil,
@@ -18,7 +19,9 @@ public struct ProviderSettingsSnapshot: Sendable {
         kilo: KiloProviderSettings? = nil,
         kimi: KimiProviderSettings? = nil,
         augment: AugmentProviderSettings? = nil,
+        moonshot: MoonshotProviderSettings? = nil,
         amp: AmpProviderSettings? = nil,
+        t3chat: T3ChatProviderSettings? = nil,
         ollama: OllamaProviderSettings? = nil,
         jetbrains: JetBrainsProviderSettings? = nil,
         windsurf: WindsurfProviderSettings? = nil,
@@ -37,6 +40,7 @@ public struct ProviderSettingsSnapshot: Sendable {
             opencode: opencode,
             opencodego: opencodego,
             alibaba: alibaba,
+            alibabaTokenPlan: alibabaTokenPlan,
             factory: factory,
             minimax: minimax,
             manus: manus,
@@ -45,7 +49,9 @@ public struct ProviderSettingsSnapshot: Sendable {
             kilo: kilo,
             kimi: kimi,
             augment: augment,
+            moonshot: moonshot,
             amp: amp,
+            t3chat: t3chat,
             ollama: ollama,
             jetbrains: jetbrains,
             windsurf: windsurf,
@@ -141,6 +147,16 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
+    public struct AlibabaTokenPlanProviderSettings: Sendable {
+        public let cookieSource: ProviderCookieSource
+        public let manualCookieHeader: String?
+
+        public init(cookieSource: ProviderCookieSource = .auto, manualCookieHeader: String? = nil) {
+            self.cookieSource = cookieSource
+            self.manualCookieHeader = manualCookieHeader
+        }
+    }
+
     public struct FactoryProviderSettings: Sendable {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
@@ -225,6 +241,14 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
+    public struct MoonshotProviderSettings: Sendable {
+        public let region: MoonshotRegion?
+
+        public init(region: MoonshotRegion? = nil) {
+            self.region = region
+        }
+    }
+
     public struct JetBrainsProviderSettings: Sendable {
         public let ideBasePath: String?
 
@@ -234,6 +258,16 @@ public struct ProviderSettingsSnapshot: Sendable {
     }
 
     public struct AmpProviderSettings: Sendable {
+        public let cookieSource: ProviderCookieSource
+        public let manualCookieHeader: String?
+
+        public init(cookieSource: ProviderCookieSource, manualCookieHeader: String?) {
+            self.cookieSource = cookieSource
+            self.manualCookieHeader = manualCookieHeader
+        }
+    }
+
+    public struct T3ChatProviderSettings: Sendable {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -346,6 +380,7 @@ public struct ProviderSettingsSnapshot: Sendable {
     public let opencode: OpenCodeProviderSettings?
     public let opencodego: OpenCodeProviderSettings?
     public let alibaba: AlibabaCodingPlanProviderSettings?
+    public let alibabaTokenPlan: AlibabaTokenPlanProviderSettings?
     public let factory: FactoryProviderSettings?
     public let minimax: MiniMaxProviderSettings?
     public let manus: ManusProviderSettings?
@@ -354,7 +389,9 @@ public struct ProviderSettingsSnapshot: Sendable {
     public let kilo: KiloProviderSettings?
     public let kimi: KimiProviderSettings?
     public let augment: AugmentProviderSettings?
+    public let moonshot: MoonshotProviderSettings?
     public let amp: AmpProviderSettings?
+    public let t3chat: T3ChatProviderSettings?
     public let commandcode: CommandCodeProviderSettings?
     public let ollama: OllamaProviderSettings?
     public let jetbrains: JetBrainsProviderSettings?
@@ -378,6 +415,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         opencode: OpenCodeProviderSettings?,
         opencodego: OpenCodeProviderSettings?,
         alibaba: AlibabaCodingPlanProviderSettings?,
+        alibabaTokenPlan: AlibabaTokenPlanProviderSettings? = nil,
         factory: FactoryProviderSettings?,
         minimax: MiniMaxProviderSettings?,
         manus: ManusProviderSettings?,
@@ -386,7 +424,9 @@ public struct ProviderSettingsSnapshot: Sendable {
         kilo: KiloProviderSettings?,
         kimi: KimiProviderSettings?,
         augment: AugmentProviderSettings?,
+        moonshot: MoonshotProviderSettings? = nil,
         amp: AmpProviderSettings?,
+        t3chat: T3ChatProviderSettings? = nil,
         commandcode: CommandCodeProviderSettings? = nil,
         ollama: OllamaProviderSettings?,
         jetbrains: JetBrainsProviderSettings? = nil,
@@ -405,6 +445,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         self.opencode = opencode
         self.opencodego = opencodego
         self.alibaba = alibaba
+        self.alibabaTokenPlan = alibabaTokenPlan
         self.factory = factory
         self.minimax = minimax
         self.manus = manus
@@ -413,7 +454,9 @@ public struct ProviderSettingsSnapshot: Sendable {
         self.kilo = kilo
         self.kimi = kimi
         self.augment = augment
+        self.moonshot = moonshot
         self.amp = amp
+        self.t3chat = t3chat
         self.commandcode = commandcode
         self.ollama = ollama
         self.jetbrains = jetbrains
@@ -433,6 +476,7 @@ public enum ProviderSettingsSnapshotContribution: Sendable {
     case opencode(ProviderSettingsSnapshot.OpenCodeProviderSettings)
     case opencodego(ProviderSettingsSnapshot.OpenCodeProviderSettings)
     case alibaba(ProviderSettingsSnapshot.AlibabaCodingPlanProviderSettings)
+    case alibabaTokenPlan(ProviderSettingsSnapshot.AlibabaTokenPlanProviderSettings)
     case factory(ProviderSettingsSnapshot.FactoryProviderSettings)
     case minimax(ProviderSettingsSnapshot.MiniMaxProviderSettings)
     case manus(ProviderSettingsSnapshot.ManusProviderSettings)
@@ -441,7 +485,9 @@ public enum ProviderSettingsSnapshotContribution: Sendable {
     case kilo(ProviderSettingsSnapshot.KiloProviderSettings)
     case kimi(ProviderSettingsSnapshot.KimiProviderSettings)
     case augment(ProviderSettingsSnapshot.AugmentProviderSettings)
+    case moonshot(ProviderSettingsSnapshot.MoonshotProviderSettings)
     case amp(ProviderSettingsSnapshot.AmpProviderSettings)
+    case t3chat(ProviderSettingsSnapshot.T3ChatProviderSettings)
     case commandcode(ProviderSettingsSnapshot.CommandCodeProviderSettings)
     case ollama(ProviderSettingsSnapshot.OllamaProviderSettings)
     case jetbrains(ProviderSettingsSnapshot.JetBrainsProviderSettings)
@@ -462,6 +508,7 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
     public var opencode: ProviderSettingsSnapshot.OpenCodeProviderSettings?
     public var opencodego: ProviderSettingsSnapshot.OpenCodeProviderSettings?
     public var alibaba: ProviderSettingsSnapshot.AlibabaCodingPlanProviderSettings?
+    public var alibabaTokenPlan: ProviderSettingsSnapshot.AlibabaTokenPlanProviderSettings?
     public var factory: ProviderSettingsSnapshot.FactoryProviderSettings?
     public var minimax: ProviderSettingsSnapshot.MiniMaxProviderSettings?
     public var manus: ProviderSettingsSnapshot.ManusProviderSettings?
@@ -470,7 +517,9 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
     public var kilo: ProviderSettingsSnapshot.KiloProviderSettings?
     public var kimi: ProviderSettingsSnapshot.KimiProviderSettings?
     public var augment: ProviderSettingsSnapshot.AugmentProviderSettings?
+    public var moonshot: ProviderSettingsSnapshot.MoonshotProviderSettings?
     public var amp: ProviderSettingsSnapshot.AmpProviderSettings?
+    public var t3chat: ProviderSettingsSnapshot.T3ChatProviderSettings?
     public var commandcode: ProviderSettingsSnapshot.CommandCodeProviderSettings?
     public var ollama: ProviderSettingsSnapshot.OllamaProviderSettings?
     public var jetbrains: ProviderSettingsSnapshot.JetBrainsProviderSettings?
@@ -495,6 +544,7 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
         case let .opencode(value): self.opencode = value
         case let .opencodego(value): self.opencodego = value
         case let .alibaba(value): self.alibaba = value
+        case let .alibabaTokenPlan(value): self.alibabaTokenPlan = value
         case let .factory(value): self.factory = value
         case let .minimax(value): self.minimax = value
         case let .manus(value): self.manus = value
@@ -503,7 +553,9 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
         case let .kilo(value): self.kilo = value
         case let .kimi(value): self.kimi = value
         case let .augment(value): self.augment = value
+        case let .moonshot(value): self.moonshot = value
         case let .amp(value): self.amp = value
+        case let .t3chat(value): self.t3chat = value
         case let .commandcode(value): self.commandcode = value
         case let .ollama(value): self.ollama = value
         case let .jetbrains(value): self.jetbrains = value
@@ -526,6 +578,7 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
             opencode: self.opencode,
             opencodego: self.opencodego,
             alibaba: self.alibaba,
+            alibabaTokenPlan: self.alibabaTokenPlan,
             factory: self.factory,
             minimax: self.minimax,
             manus: self.manus,
@@ -534,7 +587,9 @@ public struct ProviderSettingsSnapshotBuilder: Sendable {
             kilo: self.kilo,
             kimi: self.kimi,
             augment: self.augment,
+            moonshot: self.moonshot,
             amp: self.amp,
+            t3chat: self.t3chat,
             commandcode: self.commandcode,
             ollama: self.ollama,
             jetbrains: self.jetbrains,

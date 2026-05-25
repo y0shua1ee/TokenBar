@@ -1,7 +1,7 @@
 import Commander
 import Testing
-import TokenBarCore
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLIArgumentParsingTests {
     @Test

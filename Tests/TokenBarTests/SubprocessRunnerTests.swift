@@ -62,7 +62,7 @@ struct SubprocessRunnerTests {
                     do {
                         _ = try await SubprocessRunner.run(
                             binary: "/bin/sleep",
-                            arguments: ["5"],
+                            arguments: ["30"],
                             environment: ProcessInfo.processInfo.environment,
                             timeout: 2,
                             label: "concurrent-hung-\(i)")
@@ -80,10 +80,10 @@ struct SubprocessRunnerTests {
         }
 
         let elapsed = Date().timeIntervalSince(start)
-        // All 8 should time out in ~2s (parallel), not wait for the 5s sleep.
-        // Use a generous 4s bound for slow CI.
+        // Under release-load parallel tests the runner can be CPU-starved, but it should still finish far before
+        // the natural sleep exit and below a serial 8 * 2s timeout chain.
         #expect(
-            elapsed < 4,
+            elapsed < 15,
             "All \(count) concurrent timeouts should fire in ~2s, took \(elapsed)s")
     }
 
@@ -109,6 +109,34 @@ struct SubprocessRunnerTests {
                 Issue.record("Unexpected error at iteration \(i): \(error)")
             }
         }
+    }
+
+    @Test
+    func `cancellation terminates hung process promptly`() async throws {
+        let start = Date()
+        let task = Task {
+            try await SubprocessRunner.run(
+                binary: "/bin/sleep",
+                arguments: ["10"],
+                environment: ProcessInfo.processInfo.environment,
+                timeout: 30,
+                label: "cancelled-hung-process")
+        }
+
+        try await Task.sleep(for: .milliseconds(100))
+        task.cancel()
+
+        do {
+            _ = try await task.value
+            Issue.record("Expected CancellationError but subprocess completed")
+        } catch is CancellationError {
+            // Expected: cancellation should tear down the child process immediately.
+        } catch {
+            Issue.record("Expected CancellationError, got \(error)")
+        }
+
+        let elapsed = Date().timeIntervalSince(start)
+        #expect(elapsed < 5, "Cancelled subprocess should not wait for timeout or natural exit")
     }
 
     /// Verify that many concurrent SubprocessRunner calls complete without starving each other.

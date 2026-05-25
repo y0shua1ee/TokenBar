@@ -176,6 +176,7 @@ struct ClaudeOAuthTests {
         #expect(snap.providerCost?.currencyCode == "USD")
         #expect(snap.providerCost?.limit == 20.5)
         #expect(snap.providerCost?.used == 3.25)
+        #expect(snap.providerCost?.period == "Monthly cap")
     }
 
     @Test
@@ -195,6 +196,86 @@ struct ClaudeOAuthTests {
         #expect(snap.providerCost?.currencyCode == "USD")
         #expect(snap.providerCost?.limit == 20)
         #expect(snap.providerCost?.used == 5.2)
+        #expect(snap.providerCost?.period == "Monthly cap")
+    }
+
+    @Test
+    func `maps enterprise O auth spend limit without session windows`() throws {
+        let json = """
+        {
+          "extra_usage": {
+            "is_enabled": true,
+            "monthly_limit": 600,
+            "used_credits": 434.43,
+            "utilization": 72,
+            "currency": "USD"
+          }
+        }
+        """
+        let snap = try ClaudeUsageFetcher._mapOAuthUsageForTesting(
+            Data(json.utf8),
+            subscriptionType: "enterprise")
+        #expect(snap.loginMethod == "Claude Enterprise")
+        #expect(snap.primary.usedPercent == 72)
+        #expect(snap.primaryWindowKind == .spendLimit)
+        #expect(snap.primary.windowMinutes == nil)
+        #expect(snap.primary.resetDescription == "Spend limit: $434.43 / $600.00")
+        #expect(snap.secondary == nil)
+        #expect(snap.providerCost?.period == "Spend limit")
+        #expect(snap.providerCost?.limit == 600)
+        #expect(snap.providerCost?.used == 434.43)
+
+        let usage = ClaudeOAuthFetchStrategy._snapshotForTesting(from: snap)
+        #expect(usage.primary == nil)
+        #expect(usage.providerCost?.period == "Spend limit")
+        #expect(usage.providerCost?.used == 434.43)
+    }
+
+    @Test
+    func `maps O auth spend limit without plan metadata as major units`() throws {
+        let json = """
+        {
+          "extra_usage": {
+            "is_enabled": true,
+            "monthly_limit": 600,
+            "used_credits": 434.43,
+            "utilization": 72,
+            "currency": "USD"
+          }
+        }
+        """
+        let snap = try ClaudeUsageFetcher._mapOAuthUsageForTesting(Data(json.utf8))
+        #expect(snap.loginMethod == nil)
+        #expect(snap.primaryWindowKind == .spendLimit)
+        #expect(snap.primary.usedPercent == 72)
+        #expect(snap.primary.resetDescription == "Spend limit: $434.43 / $600.00")
+        #expect(snap.providerCost?.period == "Spend limit")
+        #expect(snap.providerCost?.limit == 600)
+        #expect(snap.providerCost?.used == 434.43)
+    }
+
+    @Test
+    func `maps large enterprise O auth spend limit as major units`() throws {
+        let json = """
+        {
+          "extra_usage": {
+            "is_enabled": true,
+            "monthly_limit": 10000,
+            "used_credits": 1234.56,
+            "utilization": 12.3456,
+            "currency": "USD"
+          }
+        }
+        """
+        let snap = try ClaudeUsageFetcher._mapOAuthUsageForTesting(
+            Data(json.utf8),
+            subscriptionType: "enterprise")
+        #expect(snap.primaryWindowKind == .spendLimit)
+        #expect(snap.primary.usedPercent == 12.3456)
+        #expect(snap.primary.resetDescription == "Spend limit: $1,234.56 / $10,000.00")
+        #expect(snap.providerCost?.period == "Spend limit")
+        #expect(snap.providerCost?.limit == 10000)
+        #expect(snap.providerCost?.used == 1234.56)
     }
 
     @Test

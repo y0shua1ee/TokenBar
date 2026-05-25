@@ -30,18 +30,24 @@ private func hasRecognizedOllamaSessionCookie(in header: String) -> Bool {
 }
 
 public enum OllamaUsageError: LocalizedError, Sendable {
+    case missingAPIKey
     case notLoggedIn
     case invalidCredentials
+    case apiUnauthorized
     case parseFailed(String)
     case networkError(String)
     case noSessionCookie
 
     public var errorDescription: String? {
         switch self {
+        case .missingAPIKey:
+            "Missing Ollama API key. Set apiKey in ~/.tokenbar/config.json or OLLAMA_API_KEY."
         case .notLoggedIn:
             "Not logged in to Ollama. Please log in via ollama.com/settings."
         case .invalidCredentials:
             "Ollama session cookie expired. Please log in again."
+        case .apiUnauthorized:
+            "Ollama API key is invalid or expired."
         case let .parseFailed(message):
             "Could not parse Ollama usage: \(message)"
         case let .networkError(message):
@@ -60,6 +66,7 @@ public enum OllamaCookieImporter {
     private static let cookieClient = BrowserCookieClient()
     private static let cookieDomains = ["ollama.com", "www.ollama.com"]
     static let defaultPreferredBrowsers: [Browser] = [.chrome]
+    static let defaultAllowFallbackBrowsers = true
 
     public struct SessionInfo: Sendable {
         public let cookies: [HTTPCookie]
@@ -369,7 +376,11 @@ public struct OllamaUsageFetcher: Sendable {
             return [CookieCandidate(cookieHeader: manualHeader, sourceLabel: "manual cookie header")]
         }
         #if os(macOS)
-        let sessions = try OllamaCookieImporter.importSessions(browserDetection: self.browserDetection, logger: logger)
+        let sessions = try OllamaCookieImporter.importSessions(
+            browserDetection: self.browserDetection,
+            preferredBrowsers: OllamaCookieImporter.defaultPreferredBrowsers,
+            allowFallbackBrowsers: OllamaCookieImporter.defaultAllowFallbackBrowsers,
+            logger: logger)
         return sessions.map { session in
             CookieCandidate(cookieHeader: session.cookieHeader, sourceLabel: session.sourceLabel)
         }
@@ -451,7 +462,11 @@ public struct OllamaUsageFetcher: Sendable {
             return manualHeader
         }
         #if os(macOS)
-        let session = try OllamaCookieImporter.importSession(browserDetection: self.browserDetection, logger: logger)
+        let session = try OllamaCookieImporter.importSession(
+            browserDetection: self.browserDetection,
+            preferredBrowsers: OllamaCookieImporter.defaultPreferredBrowsers,
+            allowFallbackBrowsers: OllamaCookieImporter.defaultAllowFallbackBrowsers,
+            logger: logger)
         logger?("[ollama] Using cookies from \(session.sourceLabel)")
         return session.cookieHeader
         #else
@@ -509,13 +524,10 @@ public struct OllamaUsageFetcher: Sendable {
         request.setValue(Self.settingsURL.absoluteString, forHTTPHeaderField: "referer")
 
         let session = self.makeURLSession(diagnostics)
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw OllamaUsageError.networkError("Invalid response")
-        }
+        let httpResponse = try await session.response(for: request)
         let responseInfo = ResponseInfo(
             statusCode: httpResponse.statusCode,
-            url: httpResponse.url?.absoluteString ?? "unknown")
+            url: httpResponse.response.url?.absoluteString ?? "unknown")
 
         guard httpResponse.statusCode == 200 else {
             if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
@@ -524,7 +536,7 @@ public struct OllamaUsageFetcher: Sendable {
             throw OllamaUsageError.networkError("HTTP \(httpResponse.statusCode)")
         }
 
-        let html = String(data: data, encoding: .utf8) ?? ""
+        let html = String(data: httpResponse.data, encoding: .utf8) ?? ""
         return (html, responseInfo)
     }
 
@@ -612,4 +624,118 @@ public struct OllamaUsageFetcher: Sendable {
         if host == "ollama.com" || host == "www.ollama.com" { return true }
         return host.hasSuffix(".ollama.com")
     }
+}
+
+public struct OllamaAPISettingsReader: Sendable {
+    public static let apiKeyEnvironmentKeys = [
+        "OLLAMA_API_KEY",
+        "OLLAMA_KEY",
+    ]
+
+    public static func apiKey(
+        environment: [String: String] = ProcessInfo.processInfo.environment) -> String?
+    {
+        for key in self.apiKeyEnvironmentKeys {
+            guard let value = self.cleaned(environment[key]), !value.isEmpty else { continue }
+            return value
+        }
+        return nil
+    }
+
+    private static func cleaned(_ raw: String?) -> String? {
+        guard var value = raw?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !value.isEmpty
+        else {
+            return nil
+        }
+        if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
+            (value.hasPrefix("'") && value.hasSuffix("'"))
+        {
+            value = String(value.dropFirst().dropLast())
+        }
+        return value.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+public struct OllamaAPIUsageSnapshot: Sendable {
+    public let modelCount: Int
+    public let updatedAt: Date
+
+    public init(modelCount: Int, updatedAt: Date) {
+        self.modelCount = modelCount
+        self.updatedAt = updatedAt
+    }
+
+    public func toUsageSnapshot() -> UsageSnapshot {
+        UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            providerCost: nil,
+            updatedAt: self.updatedAt,
+            identity: ProviderIdentitySnapshot(
+                providerID: .ollama,
+                accountEmail: nil,
+                accountOrganization: nil,
+                loginMethod: "API key"))
+    }
+}
+
+public enum OllamaAPIUsageFetcher {
+    public static let tagsURL = URL(string: "https://ollama.com/api/tags")!
+    private static let timeoutSeconds: TimeInterval = 20
+
+    public static func fetchUsage(
+        apiKey: String,
+        tagsURL: URL = Self.tagsURL,
+        transport: any ProviderHTTPTransport = ProviderHTTPClient.shared,
+        now: Date = Date()) async throws -> OllamaAPIUsageSnapshot
+    {
+        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw OllamaUsageError.missingAPIKey
+        }
+
+        var request = URLRequest(url: tagsURL)
+        request.httpMethod = "GET"
+        request.timeoutInterval = Self.timeoutSeconds
+        request.setValue("Bearer \(trimmed)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("TokenBar/1.0", forHTTPHeaderField: "User-Agent")
+
+        let response: ProviderHTTPResponse
+        do {
+            response = try await transport.response(for: request)
+        } catch {
+            throw OllamaUsageError.networkError(error.localizedDescription)
+        }
+
+        switch response.statusCode {
+        case 200:
+            return try Self.parseTags(data: response.data, now: now)
+        case 401, 403:
+            throw OllamaUsageError.apiUnauthorized
+        default:
+            throw OllamaUsageError.networkError("HTTP \(response.statusCode)")
+        }
+    }
+
+    static func _parseTagsForTesting(_ data: Data, now: Date = Date()) throws -> OllamaAPIUsageSnapshot {
+        try self.parseTags(data: data, now: now)
+    }
+
+    private static func parseTags(data: Data, now: Date) throws -> OllamaAPIUsageSnapshot {
+        do {
+            let response = try JSONDecoder().decode(TagsResponse.self, from: data)
+            return OllamaAPIUsageSnapshot(modelCount: response.models.count, updatedAt: now)
+        } catch {
+            throw OllamaUsageError.parseFailed(error.localizedDescription)
+        }
+    }
+
+    private struct TagsResponse: Decodable {
+        let models: [Model]
+    }
+
+    private struct Model: Decodable {}
 }

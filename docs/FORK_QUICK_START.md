@@ -57,11 +57,9 @@ cd /Users/areslee/Documents/TokenBar && open -n /Users/areslee/Documents/TokenBa
 
 ### Release
 ```bash
-# Sign and notarize (keep in foreground!)
-./Scripts/sign-and-notarize.sh
-
-# Create appcast
-./Scripts/make_appcast.sh <zip> <feed-url>
+# Edit .mac-release.env first: MAC_RELEASE_REPO, feed URL, download URL,
+# bundle id, and Sparkle public/signing key must point at your fork.
+./Scripts/release.sh
 
 # See full release process
 cat docs/RELEASING.md
@@ -215,7 +213,7 @@ swiftlint --strict
 
 ### To Upstream
 1. Check if feature benefits all users
-2. Create PR to `steipete/CodexBar`
+2. Create PR to `y0shua1ee/TokenBar`
 3. Reference this fork if relevant
 4. Be patient with review process
 
@@ -230,7 +228,7 @@ See `docs/FORK_ROADMAP.md` for contribution strategy.
 - Email: [your-email]@topoffunnel.com
 
 ### Upstream Issues
-- GitHub Issues: https://github.com/steipete/CodexBar/issues
+- GitHub Issues: https://github.com/y0shua1ee/TokenBar/issues
 - Twitter: [@steipete](https://twitter.com/steipete)
 
 ---

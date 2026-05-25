@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 @Suite(.serialized)
 @MainActor
@@ -72,6 +72,7 @@ struct CodexAccountPromotionServiceTests {
         #expect(imported.providerAccountID == "acct-alpha")
         #expect(imported.workspaceLabel == "Personal")
         #expect(imported.workspaceAccountID == "acct-alpha")
+        #expect(imported.authFingerprint == CodexAuthFingerprint.fingerprint(data: displacedLiveAuthData))
         #expect(try container.managedAuthData(for: imported) == displacedLiveAuthData)
         #expect(try container.liveAuthData() == container.managedAuthData(for: target))
     }
@@ -103,6 +104,7 @@ struct CodexAccountPromotionServiceTests {
         #expect(result.displacedLiveDisposition == .alreadyManaged(managedAccountID: existingManagedLive.id))
         #expect(accounts.count == 2)
         #expect(accounts.contains(where: { $0.id == existingManagedLive.id }))
+        #expect(refreshedManagedLive.authFingerprint == CodexAuthFingerprint.fingerprint(data: liveAuthData))
         #expect(try container.managedAuthData(for: refreshedManagedLive) == liveAuthData)
         #expect(try container.liveAuthData() == container.managedAuthData(for: target))
     }
@@ -129,6 +131,7 @@ struct CodexAccountPromotionServiceTests {
         #expect(result.displacedLiveDisposition == .alreadyManaged(managedAccountID: existingManagedLive.id))
         #expect(refreshedManagedLive.email == "alpha@example.com")
         #expect(refreshedManagedLive.providerAccountID == "acct-alpha")
+        #expect(refreshedManagedLive.authFingerprint == CodexAuthFingerprint.fingerprint(data: liveAuthData))
         #expect(try container.managedAuthData(for: refreshedManagedLive) == liveAuthData)
     }
 
@@ -455,6 +458,7 @@ struct CodexAccountPromotionServiceTests {
         let accounts = try container.loadAccounts().accounts
         let imported = try #require(accounts.first(where: { $0.id != target.id }))
         #expect(accounts.count == 2)
+        #expect(imported.authFingerprint == CodexAuthFingerprint.fingerprint(data: liveAuthData))
         #expect(try container.managedAuthData(for: imported) == liveAuthData)
         #expect(try container.liveAuthData() == liveAuthData)
         #expect(container.settings.codexActiveSource == .managedAccount(id: target.id))
@@ -519,6 +523,7 @@ struct CodexAccountPromotionServiceTests {
         #expect(result.displacedLiveDisposition == .alreadyManaged(managedAccountID: staleManaged.id))
         #expect(accounts.count == 2)
         #expect(repairedManaged.managedHomePath == staleHomeURL.path)
+        #expect(repairedManaged.authFingerprint == CodexAuthFingerprint.fingerprint(data: liveAuthData))
         #expect(try container.managedAuthData(for: repairedManaged) == liveAuthData)
         #expect(try container.managedHomeURLs().count == 2)
     }
@@ -642,9 +647,17 @@ struct CodexAccountPromotionServiceTests {
             authAccountID: "acct-beta")
         try container.persistAccounts([target])
         let liveAuthData = try container.writeLiveAPIKeyAuthFile()
+        let snapshotLoader =
+            StaticCodexAccountReconciliationSnapshotLoader(snapshot: CodexAccountReconciliationSnapshot(
+                storedAccounts: [target],
+                activeStoredAccount: nil,
+                liveSystemAccount: nil,
+                matchingStoredAccountForLiveSystemAccount: nil,
+                activeSource: .liveSystem,
+                hasUnreadableAddedAccountStore: false))
 
         await #expect(throws: CodexAccountPromotionError.liveAccountAPIKeyOnlyUnsupported) {
-            try await container.makeService().promoteManagedAccount(id: target.id)
+            try await container.makeService(snapshotLoader: snapshotLoader).promoteManagedAccount(id: target.id)
         }
 
         #expect(try container.liveAuthData() == liveAuthData)
@@ -662,12 +675,44 @@ struct CodexAccountPromotionServiceTests {
             persistedEmail: "beta@example.com",
             authAccountID: "acct-beta")
         try container.persistAccounts([target])
+        let snapshotLoader =
+            StaticCodexAccountReconciliationSnapshotLoader(snapshot: CodexAccountReconciliationSnapshot(
+                storedAccounts: [target],
+                activeStoredAccount: nil,
+                liveSystemAccount: nil,
+                matchingStoredAccountForLiveSystemAccount: nil,
+                activeSource: .liveSystem,
+                hasUnreadableAddedAccountStore: false))
         _ = try container.writeLiveOAuthAuthFile(email: "alpha@example.com", accountID: "acct-alpha")
         container.seedScopedRefreshState(
             email: "alpha@example.com",
             identity: .providerAccount(id: "acct-alpha"))
+        let refresher = ClosureCodexAccountScopedRefresher { _ in
+            let snapshot = UsageSnapshot(
+                primary: RateWindow(usedPercent: 12, windowMinutes: 300, resetsAt: nil, resetDescription: nil),
+                secondary: nil,
+                updatedAt: Date(),
+                identity: ProviderIdentitySnapshot(
+                    providerID: .codex,
+                    accountEmail: "beta@example.com",
+                    accountOrganization: nil,
+                    loginMethod: "Pro"))
+            let credits = CreditsSnapshot(remaining: 17, events: [], updatedAt: Date())
+            container.usageStore._setSnapshotForTesting(snapshot, provider: .codex)
+            container.usageStore.credits = credits
+            container.usageStore.lastCreditsSnapshot = credits
+            container.usageStore.lastCreditsSnapshotAccountKey = "beta@example.com"
+            container.usageStore.lastCreditsSource = .api
+            container.usageStore.lastCodexAccountScopedRefreshGuard = CodexAccountScopedRefreshGuard(
+                source: .liveSystem,
+                identity: .providerAccount(id: "acct-beta"),
+                accountKey: "beta@example.com")
+        }
 
-        let result = try await container.makeService().promoteManagedAccount(id: target.id)
+        let result = try await container.makeService(
+            snapshotLoader: snapshotLoader,
+            accountScopedRefresher: refresher)
+            .promoteManagedAccount(id: target.id)
 
         #expect(result.outcome == .promoted)
         #expect(container.usageStore.snapshots[.codex]?.accountEmail(for: .codex) == "beta@example.com")

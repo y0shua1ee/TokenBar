@@ -71,7 +71,7 @@ extension SettingsStore {
     }
 
     func menuBarMetricSupportsExtraUsage(for provider: UsageProvider) -> Bool {
-        provider == .cursor
+        provider == .cursor || provider == .claude
     }
 
     func menuBarMetricSupportsExtraUsage(for provider: UsageProvider, snapshot: UsageSnapshot?) -> Bool {
@@ -106,7 +106,7 @@ extension SettingsStore {
 
     static func isBalanceOnlyProvider(_ provider: UsageProvider) -> Bool {
         switch provider {
-        case .deepseek, .mistral, .kimik2:
+        case .deepseek, .mistral, .kimik2, .moonshot:
             true
         default:
             false

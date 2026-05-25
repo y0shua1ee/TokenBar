@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import TokenBarCore
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLISnapshotTests {
     @Test
@@ -118,6 +118,37 @@ struct CLISnapshotTests {
         #expect(output.contains("Plan: Pro 5x"))
         #expect(!output.contains("Plan: Pro Lite"))
         #expect(!output.contains("Plan: Prolite"))
+    }
+
+    @Test
+    func `renders Codex plan only limits as unavailable`() {
+        let identity = ProviderIdentitySnapshot(
+            providerID: .codex,
+            accountEmail: "user@example.com",
+            accountOrganization: nil,
+            loginMethod: "pro")
+        let snap = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            updatedAt: Date(timeIntervalSince1970: 0),
+            identity: identity)
+
+        let output = CLIRenderer.renderText(
+            provider: .codex,
+            snapshot: snap,
+            credits: nil,
+            context: RenderContext(
+                header: "Codex 1.2.3 (codex-cli)",
+                status: nil,
+                useColor: false,
+                resetStyle: .absolute))
+
+        #expect(output.contains("Limits: not available"))
+        #expect(output.contains("Account: user@example.com"))
+        #expect(output.contains("Plan: Pro 20x"))
+        #expect(!output.contains("Session:"))
+        #expect(!output.contains("Weekly:"))
     }
 
     @Test
