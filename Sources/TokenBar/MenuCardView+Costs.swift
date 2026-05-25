@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension UsageMenuCardView.Model {
     static func creditsLine(

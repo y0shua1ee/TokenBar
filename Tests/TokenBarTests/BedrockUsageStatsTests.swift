@@ -239,10 +239,10 @@ struct BedrockUsageStatsTests {
         }
 
         let snapshot = try await CostUsageFetcher(environment: [
-                BedrockSettingsReader.accessKeyIDKey: "AKIATEST",
-                BedrockSettingsReader.secretAccessKeyKey: "testSecret",
-                BedrockSettingsReader.apiURLKey: "https://bedrock.test",
-            ]).loadTokenSnapshot(
+            BedrockSettingsReader.accessKeyIDKey: "AKIATEST",
+            BedrockSettingsReader.secretAccessKeyKey: "testSecret",
+            BedrockSettingsReader.apiURLKey: "https://bedrock.test",
+        ]).loadTokenSnapshot(
             provider: .bedrock,
             now: Date(timeIntervalSince1970: 1_765_324_800))
 

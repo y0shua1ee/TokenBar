@@ -22,10 +22,10 @@ TokenBar's OpenAI API provider targets the API Platform organization dashboard, 
 Store a key in the shared app/CLI config:
 
 ```bash
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
+printf '%s' "$OPENAI_ADMIN_KEY" | tokenbar config set-api-key --provider openai --stdin
 ```
 
-Settings → Providers → OpenAI writes the same `~/.codexbar/config.json` field. `OPENAI_ADMIN_KEY` is preferred over
+Settings → Providers → OpenAI writes the same `~/.tokenbar/config.json` field. `OPENAI_ADMIN_KEY` is preferred over
 `OPENAI_API_KEY` because it unlocks organization costs and usage; a normal API key only supports the legacy balance
 fallback.
 

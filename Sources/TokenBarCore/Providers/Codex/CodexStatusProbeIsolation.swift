@@ -32,7 +32,7 @@ enum CodexStatusProbeIsolation {
             "-c",
             "history.persistence=\"none\"",
             "-c",
-            "experimental_thread_store={type=\"in_memory\",id=\"codexbar-status\"}",
+            "experimental_thread_store={type=\"in_memory\",id=\"tokenbar-status\"}",
             "-c",
             "sqlite_home=\"\(self.tomlEscaped(stateHome.path))\"",
         ]

@@ -1,8 +1,8 @@
-@testable import TokenBarCore
 import Foundation
 import SwiftUI
 import Testing
 @testable import TokenBar
+@testable import TokenBarCore
 
 struct MenuCardProviderRegressionTests {
     @Test

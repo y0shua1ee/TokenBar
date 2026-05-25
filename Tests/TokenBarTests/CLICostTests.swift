@@ -1,8 +1,8 @@
 import Commander
 import Foundation
 import Testing
-@testable import TokenBarCore
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLICostTests {
     @Test
@@ -31,7 +31,7 @@ struct CLICostTests {
             .replacingOccurrences(of: "\u{00A0}", with: " ")
             .replacingOccurrences(of: "$ ", with: "$")
 
-        #expect(output.contains("Claude Cost (API-rate estimate)"))
+        #expect(output.contains("Claude Cost (local)"))
         #expect(output.contains("Today: $1.25 · 1.2K tokens"))
         #expect(output.contains("Last 90 days: $9.99 · 9K tokens"))
         #expect(output.contains("cache read/write tokens"))

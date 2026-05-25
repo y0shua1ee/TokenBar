@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 import Testing
-@testable import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 struct SyntheticMenuCardTests {
     private static func makeModel(

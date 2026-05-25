@@ -1,8 +1,8 @@
-@testable import TokenBarCore
 import Foundation
 import Observation
 import Testing
 @testable import TokenBar
+@testable import TokenBarCore
 
 @Suite(.serialized)
 @MainActor

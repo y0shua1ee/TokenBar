@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension SettingsStore {
     var t3ChatCookieHeader: String {

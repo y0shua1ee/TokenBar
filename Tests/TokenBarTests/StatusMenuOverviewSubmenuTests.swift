@@ -1,7 +1,7 @@
 import AppKit
-@testable import TokenBarCore
 import Testing
 @testable import TokenBar
+@testable import TokenBarCore
 
 extension StatusMenuTests {
     @Test

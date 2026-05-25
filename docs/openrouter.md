@@ -34,7 +34,7 @@ You can configure both keys in TokenBar Settings → Providers → OpenRouter:
 ### CLI config
 
 ```bash
-printf '%s' "$OPENROUTER_API_KEY" | codexbar config set-api-key --provider openrouter --stdin
+printf '%s' "$OPENROUTER_API_KEY" | tokenbar config set-api-key --provider openrouter --stdin
 ```
 
 ## Data Source

@@ -1,7 +1,7 @@
-@testable import TokenBarCore
 import Commander
 import Testing
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLIConfigCommandTests {
     @Test

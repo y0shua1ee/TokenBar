@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import QuartzCore
+import TokenBarCore
 
 enum ProviderSwitcherSelection: Equatable {
     case overview

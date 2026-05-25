@@ -43,10 +43,10 @@ read_when:
 - `tokenAccounts` only for providers in `TokenAccountSupportCatalog`.
 
 ## CLI commands
-- `codexbar config validate`
+- `tokenbar config validate`
   - Prints JSON issues (or text summary).
   - Exit non-zero if any errors.
-- (Optional) `codexbar config dump`
+- (Optional) `tokenbar config dump`
   - Prints normalized config JSON.
 
 ## Step-by-step implementation guide
@@ -75,4 +75,4 @@ read_when:
 8. **Verification**
    - `swift test`, `swiftformat Sources Tests`, `swiftlint --strict`, `make check`.
    - `./Scripts/compile_and_run.sh`.
-   - CLI e2e: `codexbar --json-only ...`, `codexbar config validate`.
+   - CLI e2e: `tokenbar --json-only ...`, `tokenbar config validate`.

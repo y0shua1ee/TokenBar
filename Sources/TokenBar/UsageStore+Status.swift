@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 extension UsageStore {
     static func fetchStatus(

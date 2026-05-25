@@ -39,7 +39,7 @@ You can also configure the API key and optional project ID in CodexBar Settings 
 ### CLI config
 
 ```bash
-printf '%s' "$DEEPGRAM_API_KEY" | codexbar config set-api-key --provider deepgram --stdin
+printf '%s' "$DEEPGRAM_API_KEY" | tokenbar config set-api-key --provider deepgram --stdin
 ```
 
 ## Data Source
@@ -75,8 +75,8 @@ Deepgram does not currently provide a credit balance through this provider. The 
 ## CLI Usage
 
 ```bash
-codexbar --provider deepgram
-codexbar -p dg  # alias
+tokenbar --provider deepgram
+tokenbar -p dg  # alias
 ```
 
 ## Environment Variables

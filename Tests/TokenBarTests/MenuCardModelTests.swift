@@ -1,10 +1,10 @@
 import Foundation
 import SwiftUI
 import Testing
-@testable import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
-// swiftlint:disable type_body_length
+// swiftlint:disable file_length type_body_length
 
 struct OverviewMenuCardVisibilityTests {
     @Test

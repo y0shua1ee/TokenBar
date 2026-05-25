@@ -1,8 +1,8 @@
-@testable import TokenBarCore
 import Commander
 import Foundation
 import XCTest
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 final class CLIEntryTests: XCTestCase {
     func test_effectiveArgvDefaultsToUsage() {

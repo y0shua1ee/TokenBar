@@ -18,7 +18,7 @@ key for that legacy endpoint to pull your remaining balance and usage.
 
 ## Data sources + fallback order
 
-1) **API key** stored in `~/.codexbar/config.json` or supplied via `KIMI_K2_API_KEY` / `KIMI_API_KEY` / `KIMI_KEY`.
+1) **API key** stored in `~/.tokenbar/config.json` or supplied via `KIMI_K2_API_KEY` / `KIMI_API_KEY` / `KIMI_KEY`.
    CodexBar stores the key in config after you paste it in Preferences → Providers → Kimi K2 (unofficial).
 2) **Credit endpoint**
    - `GET https://kimi-k2.ai/api/user/credits`

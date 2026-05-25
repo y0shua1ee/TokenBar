@@ -60,7 +60,7 @@ struct AntigravityProviderImplementation: ProviderImplementation {
         let accountCount = context.settings.tokenAccounts(for: .antigravity).count
         let loginTitle = accountCount > 0 ? "Add Google Account" : "Login with Google"
         let subtitle = """
-        Stores each signed-in Google account in ~/.tokenbar/antigravity/oauth_creds.json for quick Antigravity switching. \
+        Stores Google accounts in ~/.tokenbar/antigravity/oauth_creds.json for quick Antigravity switching. \
         Uses Antigravity.app OAuth when available, \
         or ANTIGRAVITY_OAUTH_CLIENT_ID and ANTIGRAVITY_OAUTH_CLIENT_SECRET as an override.
         """

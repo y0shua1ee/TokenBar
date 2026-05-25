@@ -8,11 +8,11 @@ read_when:
 
 # AWS Bedrock provider
 
-CodexBar reads AWS Cost Explorer for Bedrock spend and can compare the current month against an optional budget.
+TokenBar reads AWS Cost Explorer for Bedrock spend and can compare the current month against an optional budget.
 
 ## Setup
 
-Provide AWS credentials through the environment inherited by CodexBar or the CLI:
+Provide AWS credentials through the environment inherited by TokenBar or the CLI:
 
 ```bash
 export AWS_ACCESS_KEY_ID="..."
@@ -46,22 +46,22 @@ The AWS identity must have permission to call Cost Explorer APIs, including `ce:
 ## CLI
 
 ```bash
-codexbar --provider bedrock --source api
-codexbar --provider bedrock --format json --pretty
+tokenbar --provider bedrock --source api
+tokenbar --provider bedrock --format json --pretty
 ```
 
 ## Troubleshooting
 
 ### "No AWS Bedrock cost data available"
 
-- Confirm the credentials are visible to CodexBar.
+- Confirm the credentials are visible to TokenBar.
 - Confirm the AWS account has Cost Explorer enabled.
 - Confirm the IAM principal can call `ce:GetCostAndUsage`.
 - If using temporary credentials, include `AWS_SESSION_TOKEN`.
 
 ### Wrong region
 
-Set `AWS_REGION` or `AWS_DEFAULT_REGION`. Bedrock usage is regional, but Cost Explorer itself is account-level; CodexBar still needs a signing region for the request.
+Set `AWS_REGION` or `AWS_DEFAULT_REGION`. Bedrock usage is regional, but Cost Explorer itself is account-level; TokenBar still needs a signing region for the request.
 
 ## Key files
 

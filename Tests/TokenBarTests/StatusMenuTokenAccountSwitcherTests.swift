@@ -1,8 +1,8 @@
 import AppKit
 import Foundation
-@testable import TokenBarCore
 import XCTest
 @testable import TokenBar
+@testable import TokenBarCore
 
 @MainActor
 final class StatusMenuTokenAccountSwitcherTests: XCTestCase {

@@ -1,5 +1,5 @@
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 struct InlineUsageDashboardModel: Equatable {
     struct KPI: Equatable {

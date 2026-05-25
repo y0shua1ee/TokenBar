@@ -1,7 +1,7 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
 @testable import TokenBar
+@testable import TokenBarCore
 
 struct AzureOpenAIUsageFetcherTests {
     private func makeContext(environment: [String: String]) -> ProviderFetchContext {

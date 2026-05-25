@@ -1,6 +1,6 @@
+import Foundation
 import TokenBarCore
 import TokenBarMacroSupport
-import Foundation
 
 @ProviderImplementationRegistration
 struct AzureOpenAIProviderImplementation: ProviderImplementation {

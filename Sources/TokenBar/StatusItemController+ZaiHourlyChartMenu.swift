@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import SwiftUI
+import TokenBarCore
 
 extension StatusItemController {
     static let zaiHourlyUsageChartID = "zaiHourlyUsageChart"

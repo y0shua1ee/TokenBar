@@ -188,7 +188,11 @@ struct CostHistoryChartMenuView: View {
             }
 
             if let total = self.totalCostUSD {
-                Text("Est. total (\(Self.windowLabel(days: self.historyDays))): \(UsageFormatter.currencyString(total, currencyCode: self.currencyCode))")
+                let formattedTotal = UsageFormatter.currencyString(
+                    total,
+                    currencyCode: self.currencyCode)
+                Text(
+                    "Est. total (\(Self.windowLabel(days: self.historyDays))): \(formattedTotal)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

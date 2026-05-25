@@ -1,8 +1,8 @@
 import AppKit
-import TokenBarCore
-import TokenBarMacroSupport
 import Foundation
 import SwiftUI
+import TokenBarCore
+import TokenBarMacroSupport
 
 @ProviderImplementationRegistration
 struct AlibabaTokenPlanProviderImplementation: ProviderImplementation {

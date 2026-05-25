@@ -258,10 +258,10 @@ jobs:
           test -n "$GH_TOKEN"
           for attempt in {1..6}; do
             if gh workflow run update-formula.yml \
-              --repo steipete/homebrew-tap \
+              --repo y0shua1ee/homebrew-tokenbar \
               -f formula=tokenbar \
               -f tag="${{ steps.release.outputs.tag }}" \
-              -f repository=steipete/TokenBar \
+              -f repository=y0shua1ee/TokenBar \
               -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
               -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
               -f cask=tokenbar \
@@ -285,14 +285,14 @@ jobs:
           for _ in {1..20}; do
             run_id="$(
               gh run list \
-                --repo steipete/homebrew-tap \
+                --repo y0shua1ee/homebrew-tokenbar \
                 --workflow update-formula.yml \
                 --json databaseId,displayTitle \
                 --jq '.[] | select(.displayTitle | contains("${{ steps.release.outputs.request_id }}")) | .databaseId' 2>/tmp/tokenbar-tap-run-list.err \
                 | head -n1 || true
             )"
             if [[ -n "$run_id" ]]; then
-              gh run watch "$run_id" --repo steipete/homebrew-tap --exit-status
+              gh run watch "$run_id" --repo y0shua1ee/homebrew-tokenbar --exit-status
               exit 0
             fi
             cat /tmp/tokenbar-tap-run-list.err >&2 || true

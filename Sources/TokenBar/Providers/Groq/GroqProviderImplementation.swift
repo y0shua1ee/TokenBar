@@ -1,6 +1,6 @@
+import Foundation
 import TokenBarCore
 import TokenBarMacroSupport
-import Foundation
 
 @ProviderImplementationRegistration
 struct GroqProviderImplementation: ProviderImplementation {
@@ -28,7 +28,7 @@ struct GroqProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "groq-api-key",
                 title: "API key",
-                subtitle: "Stored in ~/.codexbar/config.json. Metrics require Groq Enterprise Prometheus access.",
+                subtitle: "Stored in ~/.tokenbar/config.json. Metrics require Groq Enterprise Prometheus access.",
                 kind: .secure,
                 placeholder: "gsk_...",
                 binding: context.stringBinding(\.groqAPIKey),

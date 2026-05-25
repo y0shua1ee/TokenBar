@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 struct KiloScopeSnapshot: Identifiable, Equatable {
     let id: String // KiloUsageScope.scopeIdentifier

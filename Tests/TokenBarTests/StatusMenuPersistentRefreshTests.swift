@@ -1,7 +1,7 @@
 import AppKit
 import Testing
-@testable import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 private final class RefreshShortcutRecorder: StatusItemMenuPersistentActionDelegate {
     var refreshCount = 0

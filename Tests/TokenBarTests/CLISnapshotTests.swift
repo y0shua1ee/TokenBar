@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-@testable import TokenBarCore
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLISnapshotTests {
     @Test

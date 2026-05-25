@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-@testable import TokenBarCore
 @testable import TokenBar
+@testable import TokenBarCore
 
 // swiftlint:disable:next type_body_length
 struct UsageStorePlanUtilizationTests {

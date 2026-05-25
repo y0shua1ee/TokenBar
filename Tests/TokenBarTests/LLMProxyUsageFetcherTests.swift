@@ -1,6 +1,6 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
+@testable import TokenBarCore
 
 struct LLMProxyUsageFetcherTests {
     @Test

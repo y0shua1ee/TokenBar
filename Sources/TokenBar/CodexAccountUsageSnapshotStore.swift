@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 protocol CodexAccountUsageSnapshotStoring: Sendable {
     func load(for accounts: [CodexVisibleAccount]) -> [CodexAccountUsageSnapshot]

@@ -1,7 +1,7 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
 @testable import TokenBarCLI
+@testable import TokenBarCore
 
 struct CLIProviderSelectionTests {
     @Test
@@ -38,9 +38,9 @@ struct CLIProviderSelectionTests {
         #expect(root.contains("--log-level"))
         #expect(usage.contains("--verbose"))
         #expect(root.contains("--verbose"))
-        #expect(usage.contains("codexbar usage --provider gemini"))
-        #expect(usage.contains("codexbar usage --format json --provider all --pretty"))
-        #expect(root.contains("codexbar --provider gemini"))
+        #expect(usage.contains("tokenbar usage --provider gemini"))
+        #expect(usage.contains("tokenbar usage --format json --provider all --pretty"))
+        #expect(root.contains("tokenbar --provider gemini"))
     }
 
     @Test
