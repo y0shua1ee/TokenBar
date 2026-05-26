@@ -149,6 +149,24 @@ struct UsageStoreManualTokenRefreshTests {
     }
 
     @Test
+    func `forced refresh still runs token-cost pass during active refresh`() async {
+        let store = Self.makeStore()
+        let gate = TokenRefreshGate()
+        store.isRefreshing = true
+        store._test_tokenUsageRefreshOverride = { provider, force in
+            await gate.start(provider: provider, force: force)
+            await gate.finish()
+        }
+
+        await store.refresh(forceTokenUsage: true)
+
+        #expect(await gate.calls.map(\.provider) == [.codex])
+        #expect(await gate.calls.map(\.force) == [true])
+        #expect(await gate.hasFinished())
+        #expect(store.isRefreshing)
+    }
+
+    @Test
     func `regular refresh schedules token-cost refresh without waiting`() async {
         let store = Self.makeStore()
         let gate = TokenRefreshGate()

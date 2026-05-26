@@ -361,6 +361,9 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             if shouldRefresh {
                 await ProviderInteractionContext.$current.withValue(.userInitiated) {
                     await self.store.refresh()
+                    if ProviderDescriptorRegistry.descriptor(for: provider).tokenCost.supportsTokenCost {
+                        await self.store.forceRefreshTokenUsage(for: provider)
+                    }
                 }
                 self.loginLogger.info("Triggered refresh after login", metadata: ["provider": provider.rawValue])
             }

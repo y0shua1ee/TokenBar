@@ -525,7 +525,12 @@ final class UsageStore {
     }
 
     func refresh(forceTokenUsage: Bool = false) async {
-        guard !self.isRefreshing else { return }
+        guard !self.isRefreshing else {
+            if forceTokenUsage {
+                await self.refreshTokenUsageSequenceNow(force: true)
+            }
+            return
+        }
         self.prepareRefreshState()
         let refreshPhase: ProviderRefreshPhase = self.hasCompletedInitialRefresh ? .regular : .startup
         let displayEnabledProviders = self.enabledProvidersForDisplay()
@@ -671,6 +676,16 @@ final class UsageStore {
         }
 
         await self.refreshTokenUsageSequence(force: force)
+    }
+
+    func forceRefreshTokenUsage(for provider: UsageProvider) async {
+        if let existing = self.tokenRefreshSequenceTask {
+            existing.cancel()
+            await existing.value
+            self.tokenRefreshSequenceTask = nil
+        }
+
+        await self.refreshTokenUsage(provider, force: true)
     }
 
     private func refreshTokenUsageSequence(force: Bool) async {
@@ -1516,6 +1531,9 @@ extension UsageStore {
         }
         self.lastTokenFetchAt[provider] = now
         self.lastTokenFetchScope[provider] = costScopeSignature
+        if force {
+            self.tokenErrors[provider] = nil
+        }
         self.tokenRefreshInFlight.insert(provider)
         defer { self.tokenRefreshInFlight.remove(provider) }
 
