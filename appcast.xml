@@ -3,6 +3,39 @@
     <channel>
         <title>TokenBar</title>
         <item>
+            <title>0.29.1</title>
+            <pubDate>Tue, 26 May 2026 03:10:47 +0100</pubDate>
+            <link>https://raw.githubusercontent.com/steipete/CodexBar/main/appcast.xml</link>
+            <sparkle:version>69</sparkle:version>
+            <sparkle:shortVersionString>0.29.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>CodexBar 0.29.1</h2>
+<h3>Added</h3>
+<ul>
+<li>Integrations: list the Noctalia/Quickshell Codex usage plugin in the Linux CLI integrations (#1115). Thanks @rayoplateado!</li>
+<li>Display: add optional workday markers for weekly progress bars (#1102). Thanks @Yuxin-Qiao!</li>
+<li>Localization: add Traditional Chinese (<code>zh-Hant</code>) app strings. Thanks @ilyaliao!</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Claude: classify Claude CLI 2.1 subscription-only <code>/usage</code> output separately and fall back to direct CLI usage when the PTY panel fails to load (#1121, fixes #1116). Thanks @Yuxin-Qiao!</li>
+<li>Provider switcher: keep multi-row account/provider controls compact so large menus stay within bounds (#1113). Thanks @Yuxin-Qiao!</li>
+<li>Grok: label usage bars from the actual reset window instead of the remaining reset distance (#1148). Thanks @kiankyars!</li>
+<li>Config: keep legacy credentials when migrated config changes fail to save so retry can recover them (#1146). Thanks @RajvardhanPatil07!</li>
+<li>Codex: avoid overcounting forked sessions when parent logs are missing while still counting incremental usage (#1143). Thanks @jskoiz!</li>
+<li>Groq: show a distinct Groq provider icon instead of reusing the Grok glyph (#1112). Thanks @kiankyars!</li>
+<li>Claude: normalize OAuth extra-usage spend limits from minor units so Enterprise spend displays as currency instead of 100x too high (#1114, fixes #1111). Thanks @Yuxin-Qiao!</li>
+<li>Menu bar: preserve status item identity during display-change recovery so menu bar managers do not treat CodexBar as a new hidden item (#1122, fixes #1109). Thanks @lederniermagicien!</li>
+<li>OpenAI: retry transient Admin API usage failures once before surfacing an access error (#1117).</li>
+<li>OpenCode Go: read local usage history before falling back to browser-cookie dashboard fetches (#1021). Thanks @sopenlaz0!</li>
+<li>Menu bar: show extra-usage spend as currency text for Claude and Cursor when that metric is selected (#1107). Thanks @Yuxin-Qiao!</li>
+<li>Codex: run regular credits and OpenAI dashboard refreshes in the background while coalescing overlapping refresh work (#1078). Thanks @ptstory!</li>
+</ul>
+<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/steipete/CodexBar/releases/download/v0.29.1/CodexBar-macos-universal-0.29.1.zip" length="43785852" type="application/octet-stream" sparkle:edSignature="7XsDO0MzlsSEiecOZ92TpWvqEhIESbKgPrhtfv7a0A21ppIpw+yq1IBkRXb0f97RoM52kdNSNXuTgVc4BNpKAw=="/>
+        </item>
+        <item>
             <title>0.29.0</title>
             <pubDate>Fri, 22 May 2026 18:31:14 +0100</pubDate>
             <link>https://raw.githubusercontent.com/y0shua1ee/TokenBar/main/appcast.xml</link>

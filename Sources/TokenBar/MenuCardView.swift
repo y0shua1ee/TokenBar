@@ -11,8 +11,8 @@ struct UsageMenuCardView: View {
 
             var labelSuffix: String {
                 switch self {
-                case .left: "left"
-                case .used: "used"
+                case .left: L("usage_percent_suffix_left")
+                case .used: L("usage_percent_suffix_used")
                 }
             }
 
@@ -190,7 +190,7 @@ struct UsageMenuCardView: View {
                     }
                     if let tokenUsage = self.model.tokenUsage {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("cost_header_estimated")
+                            Text(L("cost_header_estimated"))
                                 .font(.body)
                                 .fontWeight(.medium)
                             Text(tokenUsage.sessionLine)
@@ -584,7 +584,7 @@ struct UsageMenuCardCostSectionView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let tokenUsage = self.model.tokenUsage {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("cost_header_estimated")
+                            Text(L("cost_header_estimated"))
                                 .font(.body)
                                 .fontWeight(.medium)
                             Text(tokenUsage.sessionLine)
@@ -667,6 +667,7 @@ extension UsageMenuCardView.Model {
         let hidePersonalInfo: Bool
         let weeklyPace: UsagePace?
         let quotaWarningThresholds: [QuotaWarningWindow: [Int]]
+        let workDaysPerWeek: Int?
         let now: Date
 
         init(
@@ -692,6 +693,7 @@ extension UsageMenuCardView.Model {
             hidePersonalInfo: Bool,
             weeklyPace: UsagePace? = nil,
             quotaWarningThresholds: [QuotaWarningWindow: [Int]] = [:],
+            workDaysPerWeek: Int? = nil,
             now: Date)
         {
             self.provider = provider
@@ -716,6 +718,7 @@ extension UsageMenuCardView.Model {
             self.hidePersonalInfo = hidePersonalInfo
             self.weeklyPace = weeklyPace
             self.quotaWarningThresholds = quotaWarningThresholds
+            self.workDaysPerWeek = workDaysPerWeek
             self.now = now
         }
     }
@@ -825,9 +828,9 @@ extension UsageMenuCardView.Model {
         case .available:
             break
         case .noLimitConfigured:
-            notes.append("No limit set for the API key")
+            notes.append(L("No limit set for the API key"))
         case .unavailable:
-            notes.append("API key limit unavailable right now")
+            notes.append(L("API key limit unavailable right now"))
         }
         return notes
     }
@@ -835,10 +838,10 @@ extension UsageMenuCardView.Model {
     private static func openRouterSpendNotes(_ usage: OpenRouterUsageSnapshot) -> [String] {
         var parts: [String] = []
         if let daily = usage.keyUsageDaily {
-            parts.append("Today: \(Self.openRouterCurrencyString(daily))")
+            parts.append("\(L("Today")): \(Self.openRouterCurrencyString(daily))")
         }
         if let weekly = usage.keyUsageWeekly {
-            parts.append("This week: \(Self.openRouterCurrencyString(weekly))")
+            parts.append("\(L("This week")): \(Self.openRouterCurrencyString(weekly))")
         }
         guard !parts.isEmpty else { return [] }
         return [parts.joined(separator: " · ")]
@@ -942,7 +945,7 @@ extension UsageMenuCardView.Model {
         }
 
         if isRefreshing, snapshot == nil {
-            return ("Refreshing...", .loading)
+            return ("\(L("Refreshing"))…", .loading)
         }
 
         if let updated = snapshot?.updatedAt {
@@ -1124,11 +1127,14 @@ extension UsageMenuCardView.Model {
         snapshot: UsageSnapshot) -> (primary: String, secondary: String, tertiary: String, showsTertiary: Bool)
     {
         if input.provider == .factory, snapshot.tertiary != nil {
-            return ("5-hour", "Weekly", "Monthly", true)
+            return ("5-hour", L("Weekly"), "Monthly", true)
         }
+        let primaryLabel = input.provider == .grok
+            ? GrokProviderDescriptor.primaryLabel(window: snapshot.primary) ?? input.metadata.sessionLabel
+            : input.metadata.sessionLabel
         return (
-            input.metadata.sessionLabel,
-            input.metadata.weeklyLabel,
+            L(primaryLabel),
+            L(input.metadata.weeklyLabel),
             input.metadata.opusLabel ?? "Sonnet",
             input.metadata.supportsOpus)
     }
@@ -1252,7 +1258,7 @@ extension UsageMenuCardView.Model {
         }
         return Metric(
             id: "primary",
-            title: title ?? input.metadata.sessionLabel,
+            title: title ?? L(input.metadata.sessionLabel),
             percent: Self.clamped(
                 primaryStatusText == nil
                     ? (input.usageBarsShowUsed ? primary.usedPercent : primary.remainingPercent)
@@ -1363,7 +1369,7 @@ extension UsageMenuCardView.Model {
         }
         return Metric(
             id: "secondary",
-            title: title ?? input.metadata.weeklyLabel,
+            title: title ?? L(input.metadata.weeklyLabel),
             percent: Self.clamped(input.usageBarsShowUsed ? weekly.usedPercent : weekly.remainingPercent),
             percentStyle: percentStyle,
             resetText: weeklyResetText,
@@ -1372,9 +1378,7 @@ extension UsageMenuCardView.Model {
             detailRightText: paceDetail?.rightLabel,
             pacePercent: paceDetail?.pacePercent,
             paceOnTop: paceDetail?.paceOnTop ?? true,
-            warningMarkerPercents: Self.warningMarkerPercents(
-                thresholds: input.quotaWarningThresholds[.weekly],
-                showUsed: input.usageBarsShowUsed))
+            warningMarkerPercents: Self.weeklyMarkerPercents(input: input, windowMinutes: weekly.windowMinutes))
     }
 
     private static func codexRateMetrics(
@@ -1390,7 +1394,7 @@ extension UsageMenuCardView.Model {
             let paceDetail: PaceDetail?
             switch lane {
             case .session:
-                title = input.metadata.sessionLabel
+                title = L(input.metadata.sessionLabel)
                 id = "primary"
                 paceDetail = Self.sessionPaceDetail(
                     provider: input.provider,
@@ -1398,7 +1402,7 @@ extension UsageMenuCardView.Model {
                     now: input.now,
                     showUsed: input.usageBarsShowUsed)
             case .weekly:
-                title = input.metadata.weeklyLabel
+                title = L(input.metadata.weeklyLabel)
                 id = "secondary"
                 paceDetail = Self.weeklyPaceDetail(
                     window: window,
@@ -1420,9 +1424,10 @@ extension UsageMenuCardView.Model {
                 detailRightText: paceDetail?.rightLabel,
                 pacePercent: paceDetail?.pacePercent,
                 paceOnTop: paceDetail?.paceOnTop ?? true,
-                warningMarkerPercents: Self.warningMarkerPercents(
-                    thresholds: input.quotaWarningThresholds[lane.quotaWarningWindow],
-                    showUsed: input.usageBarsShowUsed))
+                warningMarkerPercents: Self.codexLaneMarkerPercents(
+                    input: input,
+                    lane: lane,
+                    windowMinutes: window.windowMinutes))
         }
     }
 
@@ -1431,13 +1436,13 @@ extension UsageMenuCardView.Model {
         return [
             Self.antigravityMetric(
                 id: "primary",
-                title: input.metadata.sessionLabel,
+                title: L(input.metadata.sessionLabel),
                 window: snapshot.primary,
                 input: input,
                 percentStyle: percentStyle),
             Self.antigravityMetric(
                 id: "secondary",
-                title: input.metadata.weeklyLabel,
+                title: L(input.metadata.weeklyLabel),
                 window: snapshot.secondary,
                 input: input,
                 percentStyle: percentStyle),

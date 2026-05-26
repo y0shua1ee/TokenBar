@@ -14,7 +14,7 @@ extension UsageMenuCardView.Model {
         if let error, !error.isEmpty {
             return error.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-        return metadata.creditsHint
+        return L(metadata.creditsHint)
     }
 
     static func tokenUsageSection(
@@ -52,9 +52,13 @@ extension UsageMenuCardView.Model {
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let sessionLine: String = {
-            let label = provider == .bedrock
-                ? Self.bedrockLatestBillingDayLabel(from: snapshot)
-                : (provider == .openrouter ? "Latest day" : "Today")
+            let label = if provider == .bedrock {
+                Self.bedrockLatestBillingDayLabel(from: snapshot)
+            } else if provider == .openrouter {
+                "Latest day"
+            } else {
+                L("Today")
+            }
             var parts = ["\(label): \(sessionCost)"]
             if let sessionTokens {
                 parts.append("\(sessionTokens) tokens")
@@ -76,7 +80,7 @@ extension UsageMenuCardView.Model {
         let windowLabel = Self.costHistoryWindowLabel(days: snapshot.historyDays)
         let monthLine: String = {
             let label = if provider == .deepseek {
-                "This month"
+                L("This month")
             } else if provider == .openrouter {
                 snapshot.historyDays == 1 ? "Latest completed day" : "Last \(snapshot.historyDays) completed days"
             } else {
@@ -106,27 +110,27 @@ extension UsageMenuCardView.Model {
     static func tokenUsageHint(provider: UsageProvider) -> String? {
         switch provider {
         case .codex:
-            "Estimated from local Codex logs for the selected account."
+            L("Estimated from local Codex logs for the selected account.")
         case .claude:
             UsageFormatter.costEstimateHint(provider: provider)
         case .vertexai:
-            UsageFormatter.costEstimateHint
+            L("cost_estimate_hint")
         case .bedrock:
-            "Reported by AWS Cost Explorer; daily billing data can lag."
+            L("AWS Cost Explorer billing can lag.")
         default:
             nil
         }
     }
 
     static func costHistoryWindowLabel(days: Int) -> String {
-        days == 1 ? "Today" : "Last \(days) days"
+        days == 1 ? L("Today") : String(format: L("Last %d days"), days)
     }
 
     private static func bedrockLatestBillingDayLabel(from snapshot: CostUsageTokenSnapshot) -> String {
         guard let entry = bedrockLatestBillingDay(from: snapshot.daily),
               let displayDate = bedrockDisplayDate(from: entry.date)
-        else { return "Latest billing day" }
-        return "Latest billing day (\(displayDate))"
+        else { return L("Latest billing day") }
+        return String(format: L("Latest billing day (%@)"), displayDate)
     }
 
     private static func bedrockLatestBillingDay(from entries: [CostUsageDailyReport.Entry])
@@ -173,7 +177,7 @@ extension UsageMenuCardView.Model {
         guard let cost else { return nil }
         guard provider != .synthetic else { return nil }
 
-        let periodLabel = cost.period ?? "This month"
+        let periodLabel = Self.localizedPeriodLabel(cost.period ?? "This month")
 
         if provider == .deepseek {
             guard cost.used > 0 else { return nil }
@@ -205,7 +209,7 @@ extension UsageMenuCardView.Model {
 
         if provider == .openai || provider == .claude, cost.limit <= 0 {
             let spend = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            let apiPeriodLabel = cost.period ?? "Last 30 days"
+            let apiPeriodLabel = Self.localizedPeriodLabel(cost.period ?? "Last 30 days")
             return ProviderCostSection(
                 title: "API spend",
                 percentUsed: nil,
@@ -240,6 +244,20 @@ extension UsageMenuCardView.Model {
             percentUsed: percentUsed,
             spendLine: "\(periodLabel): \(used) / \(limit)",
             percentLine: String(format: "%.0f%% used", min(100, max(0, percentUsed))))
+    }
+
+    private static func localizedPeriodLabel(_ label: String) -> String {
+        let trimmed = label.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch trimmed.lowercased() {
+        case "last 30 days":
+            return L("Last 30 days")
+        case "this month":
+            return L("This month")
+        case "today":
+            return L("Today")
+        default:
+            return L(trimmed)
+        }
     }
 
     static func clamped(_ value: Double) -> Double {

@@ -214,6 +214,7 @@ CLI install:
 ## Linux desktop integration?
 - [tokenbar-waybar](https://github.com/Marouan-chak/tokenbar-waybar) — Waybar custom module + GTK4 popover for Hyprland / Sway / other Wayland compositors, built on top of the bundled Linux CLI.
 - [Codexbar GNOME](https://extensions.gnome.org/extension/9841/tokenbar/) — GNOME Shell extension that brings TokenBar usage into the desktop panel.
+- [noctalia-codex-usage](https://github.com/rayoplateado/noctalia-codex-usage) — Noctalia/Quickshell plugin that shows Codex 5-hour and weekly usage limits, built on top of the bundled Linux CLI.
 
 
 ## Credits
