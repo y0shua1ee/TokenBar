@@ -661,4 +661,16 @@
 "minimax_service_lyrics_generation" = "Lyrics generation";
 "minimax_service_coding_plan_vlm" = "Coding plan VLM";
 "minimax_service_coding_plan_search" = "Coding plan search";
+"Pace: %@" = "Pace: %@";
+"Pace: %@ · %@" = "Pace: %@ · %@";
+"On pace" = "On pace";
+"%d%% in deficit" = "%d%% in deficit";
+"%d%% in reserve" = "%d%% in reserve";
+"Lasts until reset" = "Lasts until reset";
+"Projected empty now" = "Projected empty now";
+"Projected empty in %@" = "Projected empty in %@";
+"Runs out now" = "Runs out now";
+"Runs out in %@" = "Runs out in %@";
+"≈ %d%% run-out risk" = "≈ %d%% run-out risk";
+"%@ · %@" = "%@ · %@";
 "Active quota" = "Active quota";
