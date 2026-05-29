@@ -1,6 +1,6 @@
-import TokenBarCore
 import Commander
 import Foundation
+import TokenBarCore
 
 struct DiagnoseOptions: CommanderParsable {
     @Flag(names: [.short("v"), .long("verbose")], help: "Enable verbose logging")

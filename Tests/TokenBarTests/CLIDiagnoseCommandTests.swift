@@ -1,5 +1,5 @@
-import TokenBarCore
 import Testing
+import TokenBarCore
 @testable import TokenBarCLI
 
 struct CLIDiagnoseCommandTests {

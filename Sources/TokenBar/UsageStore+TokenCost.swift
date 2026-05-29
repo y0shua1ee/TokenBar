@@ -30,7 +30,6 @@ extension UsageStore {
         return (homePath, "codex:managed:\(homePath)")
     }
 
-
     func tokenSnapshot(
         fromProviderSnapshot snapshot: UsageSnapshot?,
         provider: UsageProvider)

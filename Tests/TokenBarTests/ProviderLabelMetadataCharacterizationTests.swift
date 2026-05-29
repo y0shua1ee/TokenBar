@@ -1,5 +1,5 @@
-import TokenBarCore
 import Testing
+import TokenBarCore
 
 struct ProviderLabelMetadataCharacterizationTests {
     // MARK: - Label non-empty constraints

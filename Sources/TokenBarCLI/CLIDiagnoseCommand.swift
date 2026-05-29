@@ -1,6 +1,6 @@
-import TokenBarCore
 import Commander
 import Foundation
+import TokenBarCore
 
 extension TokenBarCLI {
     static func runDiagnose(_ values: ParsedValues) async {

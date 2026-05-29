@@ -1,5 +1,5 @@
-import TokenBarCore
 import Foundation
+import TokenBarCore
 
 enum CodexBarLocalizationOverride {
     @TaskLocal static var appLanguage: String?
