@@ -51,7 +51,7 @@ The profile's region is read automatically (`aws configure get region`); leave t
 Relevant environment variables:
 
 ```bash
-export CODEXBAR_BEDROCK_AUTH_MODE="profile"   # set automatically by Settings; "keys" or "profile"
+export TOKENBAR_BEDROCK_AUTH_MODE="profile"   # set automatically by Settings; "keys" or "profile"
 export AWS_PROFILE="work"
 export AWS_CLI_PATH="/opt/homebrew/bin/aws"   # optional override
 ```

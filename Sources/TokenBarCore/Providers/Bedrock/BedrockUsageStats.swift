@@ -206,9 +206,7 @@ enum BedrockUsageFetcher {
         environment: [String: String]) async throws -> Data
     {
         let ceRegion = "us-east-1"
-        let baseURL: URL = if let override = environment[BedrockSettingsReader.apiURLKey],
-                              let url = URL(string: BedrockSettingsReader.cleaned(override) ?? "")
-        {
+        let baseURL: URL = if let url = BedrockSettingsReader.apiURLOverride(environment: environment) {
             url
         } else {
             URL(string: "https://ce.\(ceRegion).amazonaws.com")!

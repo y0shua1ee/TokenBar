@@ -145,15 +145,13 @@ public enum ProviderConfigEnvironment {
 
         // Only project an explicit auth-mode selection. When the config does not
         // specify one, leave the base environment untouched so an env-driven setup
-        // (AWS_PROFILE or CODEXBAR_BEDROCK_AUTH_MODE from the launch environment) is
+        // (AWS_PROFILE or TOKENBAR_BEDROCK_AUTH_MODE from the launch environment) is
         // still inferred by BedrockSettingsReader instead of being forced to `keys`.
         let configMode = config.sanitizedAWSAuthMode.flatMap(BedrockAuthMode.init(rawValue:))
         if let configMode {
             env[BedrockSettingsReader.authModeKey] = configMode.rawValue
         }
-        let baseMode = BedrockSettingsReader
-            .cleaned(base[BedrockSettingsReader.authModeKey])
-            .flatMap { BedrockAuthMode(rawValue: $0.lowercased()) }
+        let baseMode = BedrockSettingsReader.explicitAuthMode(environment: base)
 
         let mergedAccessKey = config.sanitizedAPIKey ?? BedrockSettingsReader.accessKeyID(environment: base)
         let mergedSecretKey = config.sanitizedSecretKey ?? BedrockSettingsReader.secretAccessKey(environment: base)
