@@ -1055,3 +1055,4 @@
 "TokenBar will ask macOS Keychain for your Synthetic API key so it can fetch usage. Click OK to continue." = "TokenBar kommer att be macOS Nyckelring om din Synthetic-API-nyckel så att användning kan hämtas. Klicka på OK för att fortsätta.";
 "TokenBar could not update managed account storage." = "TokenBar kunde inte uppdatera hanterad kontolagring.";
 "TokenBar will ask macOS Keychain for your Augment cookie header so it can fetch usage. Click OK to continue." = "TokenBar kommer att be macOS Nyckelring om din Augment-cookie-header så att användning kan hämtas. Klicka på OK för att fortsätta.";
+"Active quota" = "Aktiv kvot";

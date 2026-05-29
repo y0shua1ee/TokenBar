@@ -650,3 +650,4 @@
 "minimax_service_lyrics_generation" = "歌词生成";
 "minimax_service_coding_plan_vlm" = "视觉编码计划";
 "minimax_service_coding_plan_search" = "搜索编码计划";
+"Active quota" = "当前配额";

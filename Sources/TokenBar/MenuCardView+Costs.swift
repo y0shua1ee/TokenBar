@@ -238,7 +238,11 @@ extension UsageMenuCardView.Model {
         let limit: String
         let title: String
 
-        if cost.currencyCode == "Quota" {
+        if provider == .krill {
+            title = L("Active quota")
+            used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
+            limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
+        } else if cost.currencyCode == "Quota" {
             title = L("Quota usage")
             used = String(format: "%.0f", cost.used)
             limit = String(format: "%.0f", cost.limit)

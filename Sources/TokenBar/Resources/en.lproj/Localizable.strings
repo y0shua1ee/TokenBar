@@ -654,3 +654,4 @@
 "minimax_service_lyrics_generation" = "Lyrics generation";
 "minimax_service_coding_plan_vlm" = "Coding plan VLM";
 "minimax_service_coding_plan_search" = "Coding plan search";
+"Active quota" = "Active quota";
