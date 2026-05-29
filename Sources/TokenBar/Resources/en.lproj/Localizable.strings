@@ -423,6 +423,13 @@
 "quota_warning_session_capitalized" = "Session";
 "quota_warning_weekly" = "weekly";
 "quota_warning_weekly_capitalized" = "Weekly";
+"quota_warning_notification_title" = "%1$@ %2$@ quota low";
+"quota_warning_notification_body" = "%1$@ left. Reached your %2$d%% %3$@ warning threshold.";
+"quota_warning_notification_body_with_account" = "Account %1$@. %2$@ left. Reached your %3$d%% %4$@ warning threshold.";
+"session_depleted_notification_title" = "%@ session depleted";
+"session_depleted_notification_body" = "0% left. We'll let you know when it becomes available again.";
+"session_restored_notification_title" = "%@ session restored";
+"session_restored_notification_body" = "The session quota is available again.";
 "quota_warning_warn_at" = "Warn at";
 "quota_warning_global_threshold_subtitle" = "Remaining percentages for session and weekly windows unless a provider overrides them.";
 "quota_warning_sound" = "Play notification sound";

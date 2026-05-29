@@ -419,6 +419,13 @@
 "quota_warning_session_capitalized" = "Sesión";
 "quota_warning_weekly" = "semanal";
 "quota_warning_weekly_capitalized" = "Semanal";
+"quota_warning_notification_title" = "%1$@: cuota baja (%2$@)";
+"quota_warning_notification_body" = "%1$@ restante. Has alcanzado el umbral de aviso del %2$d%% (%3$@).";
+"quota_warning_notification_body_with_account" = "Cuenta %1$@. %2$@ restante. Has alcanzado el umbral de aviso del %3$d%% (%4$@).";
+"session_depleted_notification_title" = "Sesión de %@ agotada";
+"session_depleted_notification_body" = "0% restante. Te avisaremos cuando vuelva a estar disponible.";
+"session_restored_notification_title" = "Sesión de %@ restaurada";
+"session_restored_notification_body" = "La cuota de sesión vuelve a estar disponible.";
 "quota_warning_warn_at" = "Avisar al";
 "quota_warning_global_threshold_subtitle" = "Porcentajes restantes para las ventanas de sesión y semanal, salvo que un proveedor los anule.";
 "quota_warning_sound" = "Reproducir sonido de notificación";

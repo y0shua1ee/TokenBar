@@ -426,6 +426,13 @@
 "quota_warning_session_capitalized" = "会话";
 "quota_warning_weekly" = "每周";
 "quota_warning_weekly_capitalized" = "每周";
+"quota_warning_notification_title" = "%1$@ %2$@配额偏低";
+"quota_warning_notification_body" = "剩余 %1$@。已达到 %2$d%% %3$@预警阈值。";
+"quota_warning_notification_body_with_account" = "账号 %1$@。剩余 %2$@。已达到 %3$d%% %4$@预警阈值。";
+"session_depleted_notification_title" = "%@ 会话已耗尽";
+"session_depleted_notification_body" = "剩余 0%。恢复可用时会再次通知。";
+"session_restored_notification_title" = "%@ 会话已恢复";
+"session_restored_notification_body" = "会话配额已恢复可用。";
 "quota_warning_warn_at" = "预警阈值";
 "quota_warning_global_threshold_subtitle" = "会话和每周窗口的剩余百分比，除非提供商单独覆盖。";
 "quota_warning_sound" = "播放通知声音";

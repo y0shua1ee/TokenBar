@@ -419,6 +419,13 @@
 "quota_warning_session_capitalized" = "Sessió";
 "quota_warning_weekly" = "setmanal";
 "quota_warning_weekly_capitalized" = "Setmanal";
+"quota_warning_notification_title" = "%1$@: quota baixa (%2$@)";
+"quota_warning_notification_body" = "%1$@ restant. Has arribat al llindar d'avís del %2$d%% (%3$@).";
+"quota_warning_notification_body_with_account" = "Compte %1$@. %2$@ restant. Has arribat al llindar d'avís del %3$d%% (%4$@).";
+"session_depleted_notification_title" = "Sessió de %@ esgotada";
+"session_depleted_notification_body" = "0% restant. T'avisarem quan torni a estar disponible.";
+"session_restored_notification_title" = "Sessió de %@ restaurada";
+"session_restored_notification_body" = "La quota de sessió torna a estar disponible.";
 "quota_warning_warn_at" = "Avisa al";
 "quota_warning_global_threshold_subtitle" = "Percentatges restants per a les finestres de sessió i setmanal, llevat que un proveïdor els substitueixi.";
 "quota_warning_sound" = "Reprodueix el so de notificació";
