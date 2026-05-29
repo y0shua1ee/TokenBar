@@ -455,6 +455,7 @@
 "remove" = "移除";
 "managed_login_already_running" = "托管 Codex 登录已在运行。请等待完成后再添加或重新认证其他账户。";
 "managed_login_failed" = "托管 Codex 登录未完成。请先在终端确认 `codex --version` 可以运行。如果 macOS 阻止了 `codex` 或将它移到废纸篓，请移除旧的重复安装，运行 `npm install -g --include=optional @openai/codex@latest`，然后重试。";
+"codex_login_output" = "codex login 输出：";
 "managed_login_missing_email" = "Codex 登录已完成，但无法获取账户邮箱。请在确认账户已完全登录后重试。";
 "workspace_selection_cancelled" = "TokenBar 发现多个工作区，但未选择任何工作区。";
 "unsafe_managed_home" = "TokenBar 拒绝修改意外的托管主目录路径：%@";
