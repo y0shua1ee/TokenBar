@@ -2,6 +2,13 @@ import Foundation
 import TokenBarCore
 
 extension UsageMenuCardView.Model {
+    static func tokenUsageSnapshot(input: Input) -> CostUsageTokenSnapshot? {
+        if usesProviderCostHistoryAsPrimaryDashboard(input.provider), input.snapshot != nil {
+            return primaryCostHistorySnapshot(input: input)
+        }
+        return input.tokenSnapshot
+    }
+
     static func creditsLine(
         metadata: ProviderMetadata,
         credits: CreditsSnapshot?,
@@ -23,22 +30,26 @@ extension UsageMenuCardView.Model {
         snapshot: CostUsageTokenSnapshot?,
         error: String?) -> TokenUsageSection?
     {
-        guard provider == .codex || provider == .claude || provider == .vertexai || provider == .krill
-            || provider == .deepseek || provider == .openrouter || provider == .bedrock
-        else { return nil }
+        guard ProviderDescriptorRegistry.descriptor(for: provider).tokenCost.supportsTokenCost else {
+            return nil
+        }
         guard enabled else { return nil }
 
         let trimmedError = error?.trimmingCharacters(in: .whitespacesAndNewlines)
         let err = (trimmedError?.isEmpty ?? true) ? nil : trimmedError
         guard let snapshot else {
             guard let err else { return nil }
-            let sessionLabel = provider == .openrouter ? "Latest day" : "Today"
+            let sessionLabel = if provider == .openrouter {
+                "Latest day"
+            } else {
+                L("Today")
+            }
             let monthLabel = if provider == .deepseek {
-                "This month"
+                L("This month")
             } else if provider == .openrouter {
                 "Last 30 completed days"
             } else {
-                "Last 30 days"
+                L("Last 30 days")
             }
             return TokenUsageSection(
                 sessionLine: "\(sessionLabel): —",
@@ -52,8 +63,8 @@ extension UsageMenuCardView.Model {
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.costCurrencyCode) } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let sessionLine: String = {
-            let label = if provider == .bedrock {
-                Self.bedrockLatestBillingDayLabel(from: snapshot)
+            let label = if provider == .bedrock || provider == .mistral {
+                Self.latestBillingDayLabel(from: snapshot)
             } else if provider == .openrouter {
                 "Latest day"
             } else {
@@ -77,7 +88,7 @@ extension UsageMenuCardView.Model {
         let fallbackTokens = snapshot.daily.compactMap(\.totalTokens).reduce(0, +)
         let monthTokensValue = snapshot.last30DaysTokens ?? (fallbackTokens > 0 ? fallbackTokens : nil)
         let monthTokens = monthTokensValue.map { UsageFormatter.tokenCountString($0) }
-        let windowLabel = Self.costHistoryWindowLabel(days: snapshot.historyDays)
+        let windowLabel = snapshot.historyLabel ?? Self.costHistoryWindowLabel(days: snapshot.historyDays)
         let monthLine: String = {
             let label = if provider == .deepseek {
                 L("This month")
@@ -117,6 +128,10 @@ extension UsageMenuCardView.Model {
             L("cost_estimate_hint")
         case .bedrock:
             L("AWS Cost Explorer billing can lag.")
+        case .openai:
+            L("Reported by OpenAI Admin API organization usage.")
+        case .mistral:
+            L("Reported by Mistral billing usage.")
         default:
             nil
         }
@@ -126,7 +141,7 @@ extension UsageMenuCardView.Model {
         days == 1 ? L("Today") : String(format: L("Last %d days"), days)
     }
 
-    private static func bedrockLatestBillingDayLabel(from snapshot: CostUsageTokenSnapshot) -> String {
+    private static func latestBillingDayLabel(from snapshot: CostUsageTokenSnapshot) -> String {
         guard let entry = bedrockLatestBillingDay(from: snapshot.daily),
               let displayDate = bedrockDisplayDate(from: entry.date)
         else { return L("Latest billing day") }
@@ -192,18 +207,18 @@ extension UsageMenuCardView.Model {
         if provider == .factory, cost.period == "Extra usage balance" {
             let balance = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
             return ProviderCostSection(
-                title: "Extra usage",
+                title: L("Extra usage"),
                 percentUsed: nil,
-                spendLine: "Balance: \(balance)",
+                spendLine: "\(L("Balance")): \(balance)",
                 percentLine: nil)
         }
 
         if provider == .opencodego, cost.period == "Zen balance" {
             let balance = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
             return ProviderCostSection(
-                title: "Zen balance",
+                title: L("Zen balance"),
                 percentUsed: nil,
-                spendLine: "Balance: \(balance)",
+                spendLine: "\(L("Balance")): \(balance)",
                 percentLine: nil)
         }
 
@@ -211,7 +226,7 @@ extension UsageMenuCardView.Model {
             let spend = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
             let apiPeriodLabel = Self.localizedPeriodLabel(cost.period ?? "Last 30 days")
             return ProviderCostSection(
-                title: "API spend",
+                title: L("API spend"),
                 percentUsed: nil,
                 spendLine: "\(apiPeriodLabel): \(spend)",
                 percentLine: nil)
@@ -223,16 +238,12 @@ extension UsageMenuCardView.Model {
         let limit: String
         let title: String
 
-        if provider == .krill {
-            title = "Active quota"
-            used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
-            limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
-        } else if cost.currencyCode == "Quota" {
-            title = "Quota usage"
+        if cost.currencyCode == "Quota" {
+            title = L("Quota usage")
             used = String(format: "%.0f", cost.used)
             limit = String(format: "%.0f", cost.limit)
         } else {
-            title = "Extra usage"
+            title = L("Extra usage")
             used = UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
             limit = UsageFormatter.currencyString(cost.limit, currencyCode: cost.currencyCode)
         }
@@ -243,7 +254,7 @@ extension UsageMenuCardView.Model {
             title: title,
             percentUsed: percentUsed,
             spendLine: "\(periodLabel): \(used) / \(limit)",
-            percentLine: String(format: "%.0f%% used", min(100, max(0, percentUsed))))
+            percentLine: String(format: L("%.0f%% used"), min(100, max(0, percentUsed))))
     }
 
     private static func localizedPeriodLabel(_ label: String) -> String {

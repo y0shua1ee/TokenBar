@@ -39,6 +39,8 @@ extension TokenBarCLI {
             print(Self.configHelp(version: version))
         case "cache", "clear":
             print(Self.cacheHelp(version: version))
+        case "diagnose":
+            print(Self.diagnoseHelp(version: version))
         default:
             print(Self.rootHelp(version: version))
         }

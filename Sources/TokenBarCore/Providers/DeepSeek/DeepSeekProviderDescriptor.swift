@@ -58,7 +58,9 @@ struct DeepSeekAPIFetchStrategy: ProviderFetchStrategy {
         guard let apiKey = Self.resolveToken(environment: context.env) else {
             throw DeepSeekUsageError.missingCredentials
         }
-        let (usage, dashboard) = try await Self.fetchUsageAndDashboard(apiKey: apiKey)
+        let (usage, dashboard) = try await Self.fetchUsageAndDashboard(
+            apiKey: apiKey,
+            includeOptionalUsage: context.includeOptionalUsage)
         return self.makeResult(
             usage: usage.toUsageSnapshot(dashboard: dashboard),
             sourceLabel: "api")
@@ -77,7 +79,9 @@ struct DeepSeekAPIFetchStrategy: ProviderFetchStrategy {
         case dashboard(DeepSeekDashboardUsageSnapshot?)
     }
 
-    private static func fetchUsageAndDashboard(apiKey: String) async throws
+    private static func fetchUsageAndDashboard(
+        apiKey: String,
+        includeOptionalUsage: Bool) async throws
         -> (DeepSeekUsageSnapshot, DeepSeekDashboardUsageSnapshot?)
     {
         var usage: DeepSeekUsageSnapshot?
@@ -85,7 +89,9 @@ struct DeepSeekAPIFetchStrategy: ProviderFetchStrategy {
 
         try await withThrowingTaskGroup(of: FetchPart.self) { group in
             group.addTask {
-                let usage = try await DeepSeekUsageFetcher.fetchUsage(apiKey: apiKey)
+                let usage = try await DeepSeekUsageFetcher.fetchUsage(
+                    apiKey: apiKey,
+                    includeOptionalUsage: includeOptionalUsage)
                 return .usage(usage)
             }
             group.addTask {

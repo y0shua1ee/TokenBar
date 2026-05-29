@@ -169,6 +169,28 @@ extension TokenBarCLI {
         """
     }
 
+    static func diagnoseHelp(version: String) -> String {
+        """
+        TokenBar \(version)
+
+        Usage:
+          tokenbar diagnose --provider <name|all> --format json
+                           [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
+                           [-v|--verbose]
+                           [--pretty]
+
+        Description:
+          Run provider diagnostic fetches and print a safe JSON export for issue reporting.
+          The export is redacted and omits raw API tokens, cookies, auth headers, emails,
+          account IDs, org IDs, raw responses, and billing-history records.
+
+        Examples:
+          tokenbar diagnose --provider minimax --format json --pretty
+          tokenbar diagnose --provider claude --format json --pretty
+          tokenbar diagnose --provider all --format json
+        """
+    }
+
     static func rootHelp(version: String) -> String {
         """
         TokenBar \(version)
@@ -199,6 +221,7 @@ extension TokenBarCLI {
           tokenbar config disable --provider <name>
           tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
           tokenbar cache clear <--cookies|--cost|--all> [--provider <name>]
+          tokenbar diagnose --provider <name|all> --format json [--pretty]
 
         Global flags:
           -h, --help      Show help
@@ -219,6 +242,8 @@ extension TokenBarCLI {
           tokenbar config enable --provider grok
           tokenbar config set-api-key --provider elevenlabs --stdin
           tokenbar cache clear --cookies
+          tokenbar diagnose --provider minimax --format json --pretty
+          tokenbar diagnose --provider all --format json
         """
     }
 }

@@ -12,11 +12,13 @@ struct CostHistoryChartMenuView: View {
         let date: Date
         let costUSD: Double
         let totalTokens: Int?
+        let requestCount: Int?
 
-        init(date: Date, costUSD: Double, totalTokens: Int?) {
+        init(date: Date, costUSD: Double, totalTokens: Int?, requestCount: Int?) {
             self.date = date
             self.costUSD = costUSD
             self.totalTokens = totalTokens
+            self.requestCount = requestCount
             self.id = "\(Int(date.timeIntervalSince1970))-\(costUSD)"
         }
     }
@@ -44,6 +46,7 @@ struct CostHistoryChartMenuView: View {
     private let totalCostUSD: Double?
     private let currencyCode: String
     private let historyDays: Int
+    private let windowLabel: String?
     private let width: CGFloat
     private let loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)?
     @State private var selectedDateKey: String?
@@ -56,6 +59,7 @@ struct CostHistoryChartMenuView: View {
         totalCostUSD: Double?,
         currencyCode: String = "USD",
         historyDays: Int = 30,
+        windowLabel: String? = nil,
         width: CGFloat,
         loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)? = nil)
     {
@@ -64,6 +68,7 @@ struct CostHistoryChartMenuView: View {
         self.totalCostUSD = totalCostUSD
         self.currencyCode = currencyCode
         self.historyDays = max(1, min(365, historyDays))
+        self.windowLabel = windowLabel
         self.width = width
         self.loadModelBreakdowns = loadModelBreakdowns
     }
@@ -83,16 +88,16 @@ struct CostHistoryChartMenuView: View {
                 Chart {
                     ForEach(model.points) { point in
                         BarMark(
-                            x: .value("Day", point.date, unit: .day),
-                            y: .value("Cost", point.costUSD))
+                            x: .value(L("Day"), point.date, unit: .day),
+                            y: .value(L("Cost"), point.costUSD))
                             .foregroundStyle(model.barColor)
                     }
                     if let peak = Self.peakPoint(model: model) {
                         let capStart = max(peak.costUSD - Self.capHeight(maxValue: model.maxCostUSD), 0)
                         BarMark(
-                            x: .value("Day", peak.date, unit: .day),
-                            yStart: .value("Cap start", capStart),
-                            yEnd: .value("Cap end", peak.costUSD))
+                            x: .value(L("Day"), peak.date, unit: .day),
+                            yStart: .value(L("Cap start"), capStart),
+                            yEnd: .value(L("Cap end"), peak.costUSD))
                             .foregroundStyle(Color(nsColor: .systemYellow))
                     }
                 }
@@ -108,8 +113,11 @@ struct CostHistoryChartMenuView: View {
                 }
                 .chartLegend(.hidden)
                 .frame(height: 130)
-                .accessibilityLabel("Cost history chart")
-                .accessibilityValue(model.points.isEmpty ? "No data" : "\(model.points.count) days of cost data")
+                .accessibilityLabel(L("Cost history chart"))
+                .accessibilityValue(
+                    model.points.isEmpty
+                        ? L("No data")
+                        : String(format: L("%d days of cost data"), model.points.count))
                 .chartOverlay { proxy in
                     GeometryReader { geo in
                         ZStack(alignment: .topLeading) {
@@ -193,7 +201,7 @@ struct CostHistoryChartMenuView: View {
                     currencyCode: self.currencyCode)
                 Text(String(
                     format: L("Est. total (%@): %@"),
-                    Self.windowLabel(days: self.historyDays),
+                    self.windowLabel ?? Self.windowLabel(days: self.historyDays),
                     formattedTotal))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -276,7 +284,11 @@ struct CostHistoryChartMenuView: View {
         for entry in sorted {
             guard let costUSD = entry.costUSD, costUSD >= 0 else { continue }
             guard let date = self.dateFromDayKey(entry.date) else { continue }
-            let point = Point(date: date, costUSD: costUSD, totalTokens: entry.totalTokens)
+            let point = Point(
+                date: date,
+                costUSD: costUSD,
+                totalTokens: entry.totalTokens,
+                requestCount: entry.requestCount)
             points.append(point)
             pointsByKey[entry.date] = point
             entriesByKey[entry.date] = entry
@@ -496,12 +508,15 @@ struct CostHistoryChartMenuView: View {
         }
 
         let dayLabel = date.formatted(.dateTime.month(.abbreviated).day())
-        let cost = UsageFormatter.currencyString(point.costUSD, currencyCode: self.currencyCode)
-        let primary = if let tokens = point.totalTokens {
-            String(format: L("%@: %@ · %@ tokens"), dayLabel, cost, UsageFormatter.tokenCountString(tokens))
-        } else {
-            "\(dayLabel): \(cost)"
+        let cost = self.costString(point.costUSD)
+        var parts = [cost]
+        if let tokens = point.totalTokens {
+            parts.append("\(UsageFormatter.tokenCountString(tokens)) tokens")
         }
+        if let requests = point.requestCount {
+            parts.append("\(UsageFormatter.tokenCountString(requests)) requests")
+        }
+        let primary = "\(dayLabel): \(parts.joined(separator: " · "))"
         return DetailContent(primary: primary, rows: self.breakdownRows(key: key, model: model))
     }
 
@@ -568,14 +583,14 @@ struct CostHistoryChartMenuView: View {
     private func modelBreakdownModeSubtitle(_ item: CostUsageDailyReport.ModelBreakdown) -> String? {
         var parts: [String] = []
         if let standardCost = item.standardCostUSD {
-            var standardPart = "Std \(UsageFormatter.currencyString(standardCost, currencyCode: self.currencyCode))"
+            var standardPart = "Std \(self.costString(standardCost))"
             if let standardTokens = item.standardTokens {
                 standardPart += " · \(UsageFormatter.tokenCountString(standardTokens))"
             }
             parts.append(standardPart)
         }
         if let priorityCost = item.priorityCostUSD {
-            var priorityPart = "Fast \(UsageFormatter.currencyString(priorityCost, currencyCode: self.currencyCode))"
+            var priorityPart = "Fast \(self.costString(priorityCost))"
             if let priorityTokens = item.priorityTokens {
                 priorityPart += " · \(UsageFormatter.tokenCountString(priorityTokens))"
             }
@@ -583,6 +598,10 @@ struct CostHistoryChartMenuView: View {
         }
         guard !parts.isEmpty else { return nil }
         return parts.joined(separator: " / ")
+    }
+
+    private func costString(_ value: Double) -> String {
+        UsageFormatter.currencyString(value, currencyCode: self.currencyCode)
     }
 
     private static func breakdownAccentOpacity(for index: Int) -> Double {

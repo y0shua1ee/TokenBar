@@ -89,13 +89,16 @@ extension TokenBarCLI {
         let sourceLabel = provider == .krill ? "api" : "local"
         let header = Self.costHeaderLine("\(name) Cost (\(sourceLabel))", useColor: useColor)
 
-        let todayCost = snapshot.sessionCostUSD.map { UsageFormatter.usdString($0) } ?? "—"
+        let todayCost = snapshot.sessionCostUSD
+            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.currencyCode) } ?? "—"
         let todayTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let todayLine = todayTokens.map { "Today: \(todayCost) · \($0) tokens" } ?? "Today: \(todayCost)"
 
-        let monthCost = snapshot.last30DaysCostUSD.map { UsageFormatter.usdString($0) } ?? "—"
+        let monthCost = snapshot.last30DaysCostUSD
+            .map { UsageFormatter.currencyString($0, currencyCode: snapshot.currencyCode) } ?? "—"
         let monthTokens = snapshot.last30DaysTokens.map { UsageFormatter.tokenCountString($0) }
-        let historyLabel = snapshot.historyDays == 1 ? "Today" : "Last \(snapshot.historyDays) days"
+        let historyLabel = snapshot.historyLabel
+            ?? (snapshot.historyDays == 1 ? "Today" : "Last \(snapshot.historyDays) days")
         let monthLine = monthTokens.map {
             "\(historyLabel): \(monthCost) · \($0) tokens"
         } ?? "\(historyLabel): \(monthCost)"
@@ -140,6 +143,7 @@ extension TokenBarCLI {
             provider: provider.rawValue,
             source: provider == .krill ? "krill-api" : "local",
             updatedAt: snapshot?.updatedAt ?? (error == nil ? nil : Date()),
+            currencyCode: snapshot?.currencyCode,
             sessionTokens: snapshot?.sessionTokens,
             sessionCostUSD: snapshot?.sessionCostUSD,
             historyDays: snapshot?.historyDays,
@@ -264,6 +268,7 @@ struct CostPayload: Encodable {
     let provider: String
     let source: String
     let updatedAt: Date?
+    let currencyCode: String?
     let sessionTokens: Int?
     let sessionCostUSD: Double?
     let historyDays: Int?
@@ -272,6 +277,34 @@ struct CostPayload: Encodable {
     let daily: [CostDailyEntryPayload]
     let totals: CostTotalsPayload?
     let error: ProviderErrorPayload?
+
+    init(
+        provider: String,
+        source: String,
+        updatedAt: Date?,
+        currencyCode: String? = nil,
+        sessionTokens: Int?,
+        sessionCostUSD: Double?,
+        historyDays: Int?,
+        last30DaysTokens: Int?,
+        last30DaysCostUSD: Double?,
+        daily: [CostDailyEntryPayload],
+        totals: CostTotalsPayload?,
+        error: ProviderErrorPayload?)
+    {
+        self.provider = provider
+        self.source = source
+        self.updatedAt = updatedAt
+        self.currencyCode = currencyCode
+        self.sessionTokens = sessionTokens
+        self.sessionCostUSD = sessionCostUSD
+        self.historyDays = historyDays
+        self.last30DaysTokens = last30DaysTokens
+        self.last30DaysCostUSD = last30DaysCostUSD
+        self.daily = daily
+        self.totals = totals
+        self.error = error
+    }
 }
 
 struct CostDailyEntryPayload: Encodable {

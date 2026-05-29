@@ -16,6 +16,31 @@ private func appLanguageDefaults() -> UserDefaults {
     return UserDefaults(suiteName: "TokenBar") ?? .standard
 }
 
+private func isRunningTestsProcess() -> Bool {
+    let env = ProcessInfo.processInfo.environment
+    if env["XCTestConfigurationFilePath"] != nil { return true }
+    if env["TESTING_LIBRARY_VERSION"] != nil { return true }
+    if env["SWIFT_TESTING"] != nil { return true }
+    return NSClassFromString("XCTestCase") != nil
+}
+
+private let standardAppLanguageAtProcessStart = UserDefaults.standard.string(forKey: "appLanguage")
+
+private func resolvedAppLanguage() -> String {
+    if let override = CodexBarLocalizationOverride.appLanguage {
+        return override
+    }
+    if isRunningTestsProcess() {
+        let current = UserDefaults.standard.string(forKey: "appLanguage")
+        return current == standardAppLanguageAtProcessStart ? "en" : current ?? ""
+    }
+    return appLanguageDefaults().string(forKey: "appLanguage") ?? ""
+}
+
+func codexBarLocalizationSignature() -> String {
+    resolvedAppLanguage()
+}
+
 func codexBarLocalizationResourceBundle(
     mainBundle: Bundle = .main,
     bundleName: String = "TokenBar_TokenBar") -> Bundle
@@ -41,7 +66,7 @@ func codexBarLocalizationResourceBundle(
 
 private func localizedBundle() -> Bundle {
     let resourceBundle = codexBarLocalizationResourceBundle()
-    let language = CodexBarLocalizationOverride.appLanguage ?? appLanguageDefaults().string(forKey: "appLanguage") ?? ""
+    let language = resolvedAppLanguage()
     if !language.isEmpty {
         if let bundle = lprojBundle(named: language, in: resourceBundle) {
             return bundle
@@ -85,7 +110,7 @@ func L(_ key: String, _ arguments: CVarArg...) -> String {
 }
 
 func codexBarLocalizedLocale() -> Locale {
-    let language = appLanguageDefaults().string(forKey: "appLanguage") ?? ""
+    let language = resolvedAppLanguage()
     guard !language.isEmpty else { return .current }
     switch language.lowercased() {
     case "zh-hans":

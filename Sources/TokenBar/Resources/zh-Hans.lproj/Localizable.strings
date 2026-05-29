@@ -628,3 +628,14 @@
 "off_peak" = "非高峰";
 "off_peak_peak_in" = "非高峰 · %@ 后进入高峰";
 "peak_ends_in" = "高峰 · %@ 后结束";
+
+// MiniMax service usage
+"minimax_usage_amount_format" = "用量：%@ / %@";
+"minimax_used_percent_format" = "已使用 %@";
+"minimax_service_text_generation" = "文本生成";
+"minimax_service_text_to_speech" = "文本转语音";
+"minimax_service_music_generation" = "音乐生成";
+"minimax_service_image_generation" = "图像生成";
+"minimax_service_lyrics_generation" = "歌词生成";
+"minimax_service_coding_plan_vlm" = "视觉编码计划";
+"minimax_service_coding_plan_search" = "搜索编码计划";

@@ -1,10 +1,58 @@
 # Changelog
 
-## 0.29.2 — 2026-05-26
+## 0.31.0 — 2026-05-28
+
+### Changed
+- Docs: update the Homebrew install command to use the official `codexbar` cask now that it supports Intel Macs (#1189). Thanks @SSakutaro!
+- Tests: document and audit that routine validation must not trigger macOS Keychain prompts.
+- Localization: localize popup panels and provider settings UI across supported languages (#1181). Thanks @jack24254029!
+- Localization: complete Brazilian Portuguese coverage so pt-BR no longer falls back to English for new UI strings (#1188). Thanks @ManuzimFerreira!
+
+### Added
+- AWS Bedrock: support resolving usage and cost-history credentials from a named AWS profile via the AWS CLI (#1190). Thanks @oleksandr-soldatov!
+- Codex: show Codex Spark model-specific usage as an optional extra quota lane (#1195, fixes #1177). Thanks @LeoLin990405!
+- Localization: add Swedish as a selectable app language (#1186). Thanks @yeager!
 
 ### Fixed
-- Krill: refresh the Cost section immediately after login and clear stale JWT errors.
+- Cost history: make token-cost JSONL scans cancellation-aware so quitting, forced refreshes, and account switches can stop stale scans sooner.
+- Codex: show Spark 5-hour and weekly usage as separate quota lanes in Codex breakdowns (#1201).
+- Codex: show captured `codex login` output when managed Add Account fails so users can recover from account-selection or OAuth failures (#1199). Thanks @chapati23!
+- Claude: hide the obsolete Design quota lane now that Claude Design shares the main Claude usage limit (#1197).
+- Menu bar: coalesce visible-menu rebuilds and reduce hover highlight work so the dropdown stays responsive on macOS 26.5 (#1196).
+
+## 0.30.1 — 2026-05-28
+
+### Changed
+- CLI: make `codexbar diagnose` use a generic safe provider diagnostic export for all providers, with MiniMax details attached only as provider-specific metadata.
+
+### Fixed
+- Settings: add trailing breathing room to provider-sidebar controls (#1183). Thanks @Yuxin-Qiao!
+- Claude: treat OAuth usage HTTP 429s as rate limits, preserve cached credentials, and back off background retries while still allowing manual refresh (#1179). Thanks @LeoLin990405!
+- Menu bar: stop repeated display-change status-item recreation from corrupting Control Center or confusing menu bar managers (#1176, fixes #1175). Thanks @diazdesandi!
+
+## 0.30.0 — 2026-05-27
+
+### Added
+- MiniMax: add a redacted diagnostic CLI export for safe issue reports (#1128). Thanks @Yuxin-Qiao!
+- Antigravity: show the complete per-model quota breakdown alongside the existing summary lanes (#1139). Thanks @guhyun9454!
+- Widget: show tertiary usage rows for providers that expose a third quota lane (#1160). Thanks @LeoLin990405!
+- DeepSeek: show optional web-session usage and cost summaries alongside the balance card (#1166). Thanks @Yuxin-Qiao!
+- OpenAI: scope Admin API usage to the configured project and keep token accounts from inheriting stale project filters (#1168). Thanks @mstallone!
+
+### Fixed
+- App shutdown: detach status items, close tracked menus, and cancel menu tasks before quit so Dock autohide stays responsive on macOS 26.5 (#1174). Thanks @jskoiz!
+- Widgets: package the macOS widget as a real Xcode app-extension target so WidgetKit descriptors load on macOS 26.5 (#1095). Thanks @jamesjlopez!
+- Menu: render quota-warning markers as subtle inset ticks instead of full-height bars (#1149).
+- Codex: show sign-in guidance when the Codex CLI is logged out instead of reporting a temporary usage outage (#1171, fixes #1170). Thanks @jskoiz!
+- Menu bar: clear stale hidden macOS status-item visibility defaults once before creating CodexBar items (#1169).
+- StepFun: refresh expired Oasis tokens and persist recovered manual sessions. Thanks @LeoLin990405!
 - Release: prevent manual CLI artifact builds from publishing or clobbering release assets (#1154). Thanks @jskoiz!
+- Cost history: route OpenAI and Mistral API spend through the shared cost-history cards, including OpenAI request counts (#1163). Thanks @LeoLin990405!
+- Menu: keep provider switcher Cmd-number and arrow shortcuts working while the open menu is tracking events (#1157, fixes #1156 and #1144). Thanks @anirudhvee!
+- Codex: prevent fork token replay from overcounting corrected cumulative session totals (#1164). Thanks @xx205!
+- Alibaba Token Plan: update usage refreshes to the Bailian subscription-summary endpoint (#1142). Thanks @YanxinXue!
+- Ollama: show pace projections for documented 5-hour session and 7-day weekly usage windows (#1136). Thanks @bdamokos!
+- Localization: polish Simplified Chinese wording and add notification strings (#1165). Thanks @fanfanci!
 - Localization: improve Traditional Chinese wording and localize notification copy (#1158). Thanks @jack24254029!
 - Localization: improve Simplified Chinese visible menu, dashboard, and usage labels (#1145). Thanks @Yuxin-Qiao!
 

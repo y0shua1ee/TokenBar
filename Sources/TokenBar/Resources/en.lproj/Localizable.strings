@@ -632,3 +632,14 @@
 "language_catalan" = "Català";
 "macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on.";
 "not_found" = "Not found";
+
+// MiniMax service usage
+"minimax_usage_amount_format" = "Usage: %@ / %@";
+"minimax_used_percent_format" = "Used %@";
+"minimax_service_text_generation" = "Text Generation";
+"minimax_service_text_to_speech" = "Text to Speech";
+"minimax_service_music_generation" = "Music Generation";
+"minimax_service_image_generation" = "Image Generation";
+"minimax_service_lyrics_generation" = "Lyrics generation";
+"minimax_service_coding_plan_vlm" = "Coding plan VLM";
+"minimax_service_coding_plan_search" = "Coding plan search";

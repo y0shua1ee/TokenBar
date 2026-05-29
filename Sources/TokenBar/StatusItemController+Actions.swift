@@ -185,9 +185,10 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
         }
         guard self.settings.hasUnreadableManagedCodexAccountStore == false else {
             self.presentLoginAlert(
-                title: "Managed Codex accounts unavailable",
-                message: "TokenBar could not read managed account storage. " +
-                    "Recover the store before adding another account.")
+                title: L("Managed Codex accounts unavailable"),
+                message: L(
+                    "TokenBar could not read managed account storage. " +
+                        "Recover the store before adding another account."))
             return
         }
 
@@ -384,28 +385,16 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
     }
 
     private func presentManagedCodexAccountError(_ error: Error) {
-        let info: LoginAlertInfo
-        if let error = error as? ManagedCodexAccountCoordinatorError,
-           error == .authenticationInProgress
+        let info = if let error = error as? ManagedCodexAccountCoordinatorError,
+                      error == .authenticationInProgress
         {
-            info = LoginAlertInfo(
-                title: "Codex account login already running",
-                message: "Wait for the current managed Codex login to finish before adding another account.")
+            LoginAlertInfo(
+                title: L("Codex account login already running"),
+                message: L("Wait for the current managed Codex login to finish before adding another account."))
         } else if let error = error as? ManagedCodexAccountServiceError {
-            let message = switch error {
-            case .loginFailed:
-                L("managed_login_failed")
-            case .missingEmail:
-                "Codex login completed, but no account email was available. " +
-                    "Try again after confirming the account is fully signed in."
-            case .workspaceSelectionCancelled:
-                "TokenBar found multiple workspaces, but no workspace was selected."
-            case let .unsafeManagedHome(path):
-                "TokenBar refused to modify an unexpected managed home path: \(path)"
-            }
-            info = LoginAlertInfo(title: "Could not add Codex account", message: message)
+            LoginAlertInfo(title: L("Could not add Codex account"), message: error.userFacingMessage)
         } else {
-            info = LoginAlertInfo(title: "Could not add Codex account", message: error.localizedDescription)
+            LoginAlertInfo(title: L("Could not add Codex account"), message: error.localizedDescription)
         }
 
         self.presentLoginAlert(title: info.title, message: info.message)
@@ -417,18 +406,18 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             return
         case .missingBinary:
             self.presentLoginAlert(
-                title: "Claude CLI not found",
-                message: "Install the Claude CLI (npm i -g @anthropic-ai/claude-code) and try again.")
+                title: L("Claude CLI not found"),
+                message: L("Install the Claude CLI (npm i -g @anthropic-ai/claude-code) and try again."))
         case let .launchFailed(message):
-            self.presentLoginAlert(title: "Could not start claude /login", message: message)
+            self.presentLoginAlert(title: L("Could not start claude /login"), message: message)
         case .timedOut:
             self.presentLoginAlert(
-                title: "Claude login timed out",
+                title: L("Claude login timed out"),
                 message: self.trimmedLoginOutput(result.output))
         case let .failed(status):
-            let statusLine = "claude /login exited with status \(status)."
+            let statusLine = String(format: L("claude /login exited with status %d."), status)
             let message = self.trimmedLoginOutput(result.output.isEmpty ? statusLine : result.output)
-            self.presentLoginAlert(title: "Claude login failed", message: message)
+            self.presentLoginAlert(title: L("Claude login failed"), message: message)
         }
     }
 
@@ -496,10 +485,10 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             nil
         case .missingBinary:
             LoginAlertInfo(
-                title: "Gemini CLI not found",
-                message: "Install the Gemini CLI (npm i -g @google/gemini-cli) and try again.")
+                title: L("Gemini CLI not found"),
+                message: L("Install the Gemini CLI (npm i -g @google/gemini-cli) and try again."))
         case let .launchFailed(message):
-            LoginAlertInfo(title: "Could not open Terminal for Gemini", message: message)
+            LoginAlertInfo(title: L("Could not open Terminal for Gemini"), message: message)
         }
     }
 
@@ -509,21 +498,21 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             nil
         case .timedOut:
             LoginAlertInfo(
-                title: "Antigravity login timed out",
-                message: "The browser login did not complete in time. Try Antigravity login again.")
+                title: L("Antigravity login timed out"),
+                message: L("The browser login did not complete in time. Try Antigravity login again."))
         case let .launchFailed(message):
             LoginAlertInfo(
-                title: "Could not open browser for Antigravity",
-                message: "Open this URL manually to continue login:\n\n\(message)")
+                title: L("Could not open browser for Antigravity"),
+                message: String(format: L("Open this URL manually to continue login:\n\n%@"), message))
         case let .failed(message):
-            LoginAlertInfo(title: "Antigravity login failed", message: message)
+            LoginAlertInfo(title: L("Antigravity login failed"), message: message)
         }
     }
 
     func presentLoginAlert(title: String, message: String) {
         let alert = NSAlert()
-        alert.messageText = title
-        alert.informativeText = message
+        alert.messageText = L(title)
+        alert.informativeText = L(message)
         alert.alertStyle = .warning
         alert.runModal()
     }
@@ -531,7 +520,7 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
     private func trimmedLoginOutput(_ text: String) -> String {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let limit = 600
-        if trimmed.isEmpty { return "No output captured." }
+        if trimmed.isEmpty { return L("No output captured.") }
         if trimmed.count <= limit { return trimmed }
         let idx = trimmed.index(trimmed.startIndex, offsetBy: limit)
         return "\(trimmed[..<idx])…"
@@ -551,7 +540,7 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
             // User closed the window; no alert needed
             return
         case let .failed(message):
-            self.presentLoginAlert(title: "Cursor login failed", message: message)
+            self.presentLoginAlert(title: L("Cursor login failed"), message: message)
         }
     }
 

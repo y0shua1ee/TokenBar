@@ -8,7 +8,9 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
     public let last30DaysCostUSD: Double?
     public let last30DaysRequests: Int?
     public let costCurrencyCode: String
+    public let currencyCode: String
     public let historyDays: Int
+    public let historyLabel: String?
     public let daily: [CostUsageDailyReport.Entry]
     public let updatedAt: Date
 
@@ -19,8 +21,10 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
         last30DaysTokens: Int?,
         last30DaysCostUSD: Double?,
         last30DaysRequests: Int? = nil,
-        costCurrencyCode: String = "USD",
+        costCurrencyCode: String? = nil,
+        currencyCode: String = "USD",
         historyDays: Int = 30,
+        historyLabel: String? = nil,
         daily: [CostUsageDailyReport.Entry],
         updatedAt: Date)
     {
@@ -30,8 +34,16 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
         self.last30DaysTokens = last30DaysTokens
         self.last30DaysCostUSD = last30DaysCostUSD
         self.last30DaysRequests = last30DaysRequests
-        self.costCurrencyCode = costCurrencyCode
+        let resolvedCurrencyCode = currencyCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? "USD"
+            : currencyCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        self.currencyCode = resolvedCurrencyCode
+        let rawCostCurrencyCode = costCurrencyCode ?? resolvedCurrencyCode
+        self.costCurrencyCode = rawCostCurrencyCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? resolvedCurrencyCode
+            : rawCostCurrencyCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         self.historyDays = historyDays
+        self.historyLabel = historyLabel
         self.daily = daily
         self.updatedAt = updatedAt
     }
@@ -42,6 +54,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         public let modelName: String
         public let costUSD: Double?
         public let totalTokens: Int?
+        public let requestCount: Int?
         public let standardCostUSD: Double?
         public let priorityCostUSD: Double?
         public let standardTokens: Int?
@@ -52,6 +65,8 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             case costUSD
             case cost
             case totalTokens
+            case requestCount
+            case requests
             case standardCostUSD
             case priorityCostUSD
             case standardTokens
@@ -65,6 +80,9 @@ public struct CostUsageDailyReport: Sendable, Decodable {
                 try container.decodeIfPresent(Double.self, forKey: .costUSD)
                 ?? container.decodeIfPresent(Double.self, forKey: .cost)
             self.totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens)
+            self.requestCount =
+                try container.decodeIfPresent(Int.self, forKey: .requestCount)
+                ?? container.decodeIfPresent(Int.self, forKey: .requests)
             self.standardCostUSD = try container.decodeIfPresent(Double.self, forKey: .standardCostUSD)
             self.priorityCostUSD = try container.decodeIfPresent(Double.self, forKey: .priorityCostUSD)
             self.standardTokens = try container.decodeIfPresent(Int.self, forKey: .standardTokens)
@@ -75,6 +93,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             modelName: String,
             costUSD: Double?,
             totalTokens: Int? = nil,
+            requestCount: Int? = nil,
             standardCostUSD: Double? = nil,
             priorityCostUSD: Double? = nil,
             standardTokens: Int? = nil,
@@ -83,6 +102,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             self.modelName = modelName
             self.costUSD = costUSD
             self.totalTokens = totalTokens
+            self.requestCount = requestCount
             self.standardCostUSD = standardCostUSD
             self.priorityCostUSD = priorityCostUSD
             self.standardTokens = standardTokens
@@ -97,6 +117,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         public let cacheCreationTokens: Int?
         public let outputTokens: Int?
         public let totalTokens: Int?
+        public let requestCount: Int?
         public let costUSD: Double?
         public let modelsUsed: [String]?
         public let modelBreakdowns: [ModelBreakdown]?
@@ -110,6 +131,8 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             case cacheCreationInputTokens
             case outputTokens
             case totalTokens
+            case requestCount
+            case requests
             case costUSD
             case totalCost
             case modelsUsed
@@ -129,6 +152,9 @@ public struct CostUsageDailyReport: Sendable, Decodable {
                 ?? container.decodeIfPresent(Int.self, forKey: .cacheCreationInputTokens)
             self.outputTokens = try container.decodeIfPresent(Int.self, forKey: .outputTokens)
             self.totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens)
+            self.requestCount =
+                try container.decodeIfPresent(Int.self, forKey: .requestCount)
+                ?? container.decodeIfPresent(Int.self, forKey: .requests)
             self.costUSD =
                 try container.decodeIfPresent(Double.self, forKey: .costUSD)
                 ?? container.decodeIfPresent(Double.self, forKey: .totalCost)
@@ -143,6 +169,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             cacheReadTokens: Int? = nil,
             cacheCreationTokens: Int? = nil,
             totalTokens: Int?,
+            requestCount: Int? = nil,
             costUSD: Double?,
             modelsUsed: [String]?,
             modelBreakdowns: [ModelBreakdown]?)
@@ -153,6 +180,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             self.cacheReadTokens = cacheReadTokens
             self.cacheCreationTokens = cacheCreationTokens
             self.totalTokens = totalTokens
+            self.requestCount = requestCount
             self.costUSD = costUSD
             self.modelsUsed = modelsUsed
             self.modelBreakdowns = modelBreakdowns

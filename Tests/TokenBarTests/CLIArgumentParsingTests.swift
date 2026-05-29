@@ -64,4 +64,24 @@ struct CLIArgumentParsingTests {
         #expect(!parsed.flags.contains("jsonOutput"))
         #expect(TokenBarCLI._decodeFormatForTesting(from: parsed) == .json)
     }
+
+    @Test
+    func `diagnose accepts json output flag but discards provider logs`() throws {
+        let signature = TokenBarCLI._diagnoseSignatureForTesting()
+        let parser = CommandParser(signature: signature)
+        let parsed = try parser.parse(arguments: [
+            "--provider", "minimax",
+            "--format", "json",
+            "--json-output",
+        ])
+
+        #expect(parsed.flags.contains("jsonOutput"))
+        let config = TokenBarCLI.loggingConfiguration(path: ["diagnose"], values: parsed)
+        switch config.destination {
+        case .discard:
+            break
+        case .stderr, .oslog:
+            Issue.record("diagnose should not emit provider logs beside the safe JSON export")
+        }
+    }
 }

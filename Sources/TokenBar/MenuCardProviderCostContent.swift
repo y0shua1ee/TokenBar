@@ -14,7 +14,7 @@ struct ProviderCostContent: View {
                 UsageProgressBar(
                     percent: percentUsed,
                     tint: self.progressColor,
-                    accessibilityLabel: "Extra usage spent")
+                    accessibilityLabel: L("Extra usage spent"))
             }
             HStack(alignment: .firstTextBaseline) {
                 Text(self.section.spendLine)

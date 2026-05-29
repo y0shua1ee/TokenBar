@@ -30,6 +30,31 @@ extension UsageStore {
         return (homePath, "codex:managed:\(homePath)")
     }
 
+
+    func tokenSnapshot(
+        fromProviderSnapshot snapshot: UsageSnapshot?,
+        provider: UsageProvider)
+        -> CostUsageTokenSnapshot?
+    {
+        switch provider {
+        case .openai:
+            snapshot?.openAIAPIUsage?.toCostUsageTokenSnapshot()
+        case .mistral:
+            snapshot?.mistralUsage?.toCostUsageTokenSnapshot(historyDays: self.settings.costUsageHistoryDays)
+        default:
+            nil
+        }
+    }
+
+    nonisolated static func tokenCostRequiresProviderSnapshot(_ provider: UsageProvider) -> Bool {
+        switch provider {
+        case .mistral, .openai:
+            true
+        default:
+            false
+        }
+    }
+
     func loadCostModelBreakdowns(
         provider: UsageProvider,
         dayKey: String) async -> [CostUsageDailyReport.ModelBreakdown]?
@@ -80,6 +105,7 @@ extension UsageStore {
             last30DaysCostUSD: snapshot.last30DaysCostUSD,
             last30DaysRequests: snapshot.last30DaysRequests,
             costCurrencyCode: snapshot.costCurrencyCode,
+            currencyCode: snapshot.currencyCode,
             daily: daily,
             updatedAt: snapshot.updatedAt)
         self.persistWidgetSnapshot(reason: "cost-model-breakdowns")

@@ -329,8 +329,8 @@ struct UsageFormatterTests {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
 
-        let enURL = root.appendingPathComponent("Sources/CodexBar/Resources/en.lproj/Localizable.strings")
-        let zhURL = root.appendingPathComponent("Sources/CodexBar/Resources/zh-Hans.lproj/Localizable.strings")
+        let enURL = root.appendingPathComponent("Sources/TokenBar/Resources/en.lproj/Localizable.strings")
+        let zhURL = root.appendingPathComponent("Sources/TokenBar/Resources/zh-Hans.lproj/Localizable.strings")
 
         let en = try Self.readStringsTable(at: enURL)
         let zh = try Self.readStringsTable(at: zhURL)

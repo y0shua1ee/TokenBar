@@ -146,8 +146,11 @@ struct PlanUtilizationHistoryChartMenuView: View {
                     }
                     .chartLegend(.hidden)
                     .frame(height: Layout.chartHeight)
-                    .accessibilityLabel("Plan utilization chart")
-                    .accessibilityValue(model.points.isEmpty ? "No data" : "\(model.points.count) utilization samples")
+                    .accessibilityLabel(L("Plan utilization chart"))
+                    .accessibilityValue(
+                        model.points.isEmpty
+                            ? L("No data")
+                            : String(format: L("%d utilization samples"), model.points.count))
                     .chartOverlay { proxy in
                         GeometryReader { geo in
                             MouseLocationReader { location in
@@ -707,7 +710,7 @@ struct PlanUtilizationHistoryChartMenuView: View {
     #endif
 
     private func xValue(for index: Int) -> PlottableValue<Double> {
-        .value("Series", Double(index))
+        .value(L("Series"), Double(index))
     }
 
     @ViewBuilder
@@ -729,14 +732,14 @@ struct PlanUtilizationHistoryChartMenuView: View {
         ForEach(model.points) { point in
             BarMark(
                 x: self.xValue(for: point.index),
-                yStart: .value("Capacity Start", 0),
-                yEnd: .value("Capacity End", 100),
+                yStart: .value(L("Capacity Start"), 0),
+                yEnd: .value(L("Capacity End"), 100),
                 width: .fixed(Layout.barWidth))
                 .foregroundStyle(model.trackColor)
             BarMark(
                 x: self.xValue(for: point.index),
-                yStart: .value("Utilization Start", 0),
-                yEnd: .value("Utilization End", point.usedPercent),
+                yStart: .value(L("Utilization Start"), 0),
+                yEnd: .value(L("Utilization End"), point.usedPercent),
                 width: .fixed(Layout.barWidth))
                 .foregroundStyle(model.barColor)
         }

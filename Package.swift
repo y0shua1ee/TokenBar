@@ -17,6 +17,23 @@ let package = Package(
     platforms: [
         .macOS(.v14),
     ],
+    products: {
+        var products: [Product] = [
+            .library(name: "TokenBarCore", targets: ["TokenBarCore"]),
+            .executable(name: "TokenBarCLI", targets: ["TokenBarCLI"]),
+        ]
+
+        #if os(macOS)
+        products.append(contentsOf: [
+            .executable(name: "TokenBar", targets: ["TokenBar"]),
+            .executable(name: "TokenBarClaudeWatchdog", targets: ["TokenBarClaudeWatchdog"]),
+            .executable(name: "TokenBarWidget", targets: ["TokenBarWidget"]),
+            .executable(name: "TokenBarClaudeWebProbe", targets: ["TokenBarClaudeWebProbe"]),
+        ])
+        #endif
+
+        return products
+    }(),
     dependencies: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.1"),
         .package(url: "https://github.com/steipete/Commander", from: "0.2.1"),
