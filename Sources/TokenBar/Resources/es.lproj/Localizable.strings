@@ -674,6 +674,8 @@
 "Usage history (today)" = "Historial de uso (hoy)";
 "Usage history (%d days)" = "Historial de uso (%d días)";
 "%d percent remaining" = "%d%% restante";
+"usage_percent_suffix_left" = "restante";
+"usage_percent_suffix_used" = "usado";
 "Unknown" = "Desconocido";
 "stale data" = "datos obsoletos";
 "No credits history data available." = "No hay datos de historial de créditos disponibles.";
@@ -717,6 +719,14 @@
 "%@ tokens" = "%@ tokens";
 "Latest billing day" = "Último día de facturación";
 "Latest billing day (%@)" = "Último día de facturación (%@)";
+"%@ left" = "%@ restante";
+"Resets %@" = "Se restablece %@";
+"Resets in %@" = "Se restablece en %@";
+"Resets now" = "Se restablece ahora";
+"Updated %@" = "Actualizado %@";
+"Updated %@h ago" = "Actualizado hace %@ h";
+"Updated %@m ago" = "Actualizado hace %@ min";
+"Updated just now" = "Actualizado ahora mismo";
 "This week" = "Esta semana";
 "This month" = "Este mes";
 "Week" = "Semana";

@@ -674,6 +674,8 @@
 "Usage history (today)" = "Historial d'ús (avui)";
 "Usage history (%d days)" = "Historial d'ús (%d dies)";
 "%d percent remaining" = "%d%% restant";
+"usage_percent_suffix_left" = "restant";
+"usage_percent_suffix_used" = "usat";
 "Unknown" = "Desconegut";
 "stale data" = "dades obsoletes";
 "No credits history data available." = "No hi ha dades d'historial de crèdits disponibles.";
@@ -717,6 +719,14 @@
 "%@ tokens" = "%@ tokens";
 "Latest billing day" = "Últim dia de facturació";
 "Latest billing day (%@)" = "Últim dia de facturació (%@)";
+"%@ left" = "%@ restant";
+"Resets %@" = "Es restableix %@";
+"Resets in %@" = "Es restableix en %@";
+"Resets now" = "Es restableix ara";
+"Updated %@" = "Actualitzat %@";
+"Updated %@h ago" = "Actualitzat fa %@ h";
+"Updated %@m ago" = "Actualitzat fa %@ min";
+"Updated just now" = "Actualitzat ara mateix";
 "This week" = "Aquesta setmana";
 "This month" = "Aquest mes";
 "Week" = "Setmana";

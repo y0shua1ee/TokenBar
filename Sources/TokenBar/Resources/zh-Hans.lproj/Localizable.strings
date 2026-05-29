@@ -612,6 +612,16 @@
 "refresh_15min" = "15 分钟";
 "refresh_30min" = "30 分钟";
 "not_found" = "未找到";
+"%@ left" = "剩余 %@";
+"Resets %@" = "于 %@ 重置";
+"Resets in %@" = "%@ 后重置";
+"Resets now" = "现在重置";
+"Updated %@" = "更新于 %@";
+"Updated %@h ago" = "%@ 小时前更新";
+"Updated %@m ago" = "%@ 分钟前更新";
+"Updated just now" = "刚刚更新";
+"usage_percent_suffix_left" = "剩余";
+"usage_percent_suffix_used" = "已使用";
 "TokenBar can't show its menu bar icon" = "TokenBar 无法显示菜单栏图标";
 "Dismiss" = "关闭";
 "Open Menu Bar Settings" = "打开菜单栏设置";
