@@ -1,6 +1,6 @@
 import AppKit
-import TokenBarCore
 import QuartzCore
+import TokenBarCore
 
 extension StatusItemController {
     private static let defaultDeferredMenuInteractionRefreshDelay: Duration = .milliseconds(250)
