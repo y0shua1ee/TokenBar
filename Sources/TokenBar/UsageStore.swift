@@ -1569,7 +1569,8 @@ extension UsageStore {
             .debug("cost usage start provider=\(providerText) force=\(force)")
 
         do {
-            let fetchEnvironment = provider == .bedrock
+            let usesProviderConfigEnvironment = provider == .bedrock || provider == .openrouter
+            let fetchEnvironment = usesProviderConfigEnvironment
                 ? ProviderRegistry.makeEnvironment(
                     base: self.environmentBase,
                     provider: provider,

@@ -190,8 +190,83 @@ struct UsageStoreManualTokenRefreshTests {
         }
     }
 
+    @Test
+    func `open router token-cost refresh uses configured management key`() async throws {
+        let registered = URLProtocol.registerClass(OpenRouterStubURLProtocol.self)
+        defer {
+            if registered {
+                URLProtocol.unregisterClass(OpenRouterStubURLProtocol.self)
+            }
+            OpenRouterStubURLProtocol.handler = nil
+        }
+
+        OpenRouterStubURLProtocol.handler = { request in
+            guard let url = request.url else { throw URLError(.badURL) }
+            #expect(url.path == "/api/v1/activity")
+            #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer mgmt-test-key")
+            let body = #"""
+            {
+              "data": [
+                {
+                  "completion_tokens": 125,
+                  "date": "2026-05-31T00:00:00.000Z",
+                  "model": "openai/gpt-4.1",
+                  "prompt_tokens": 50,
+                  "reasoning_tokens": 25,
+                  "requests": 5,
+                  "usage": 0.015
+                }
+              ]
+            }
+            """#
+            return Self.makeJSONResponse(url: url, body: body)
+        }
+
+        let store = Self.makeOpenRouterStore()
+        await store.forceRefreshTokenUsage(for: .openrouter)
+
+        let snapshot = try #require(store.tokenSnapshot(for: .openrouter))
+        #expect(snapshot.daily.count == 1)
+        #expect(snapshot.daily[0].date == "2026-05-31")
+        #expect(snapshot.daily[0].modelsUsed == ["openai/gpt-4.1"])
+        let breakdown = try #require(snapshot.daily[0].modelBreakdowns?.first)
+        #expect(breakdown.modelName == "openai/gpt-4.1")
+        #expect(breakdown.totalTokens == 200)
+        #expect(breakdown.costUSD == 0.015)
+        #expect(snapshot.daily[0].totalTokens == 200)
+        #expect(snapshot.daily[0].costUSD == 0.015)
+        #expect(snapshot.last30DaysRequests == 5)
+        #expect(store.tokenError(for: .openrouter) == nil)
+    }
+
+    private static func makeJSONResponse(url: URL, body: String) -> (HTTPURLResponse, Data) {
+        let response = HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "HTTP/1.1",
+            headerFields: ["Content-Type": "application/json"])!
+        return (response, Data(body.utf8))
+    }
+
     private static func makeStore() -> UsageStore {
-        let suite = "UsageStoreManualTokenRefreshTests-\(UUID().uuidString)"
+        self.makeTokenRefreshStore(enabledProvider: .codex, suitePrefix: "UsageStoreManualTokenRefreshTests")
+    }
+
+    private static func makeOpenRouterStore() -> UsageStore {
+        let store = Self.makeTokenRefreshStore(
+            enabledProvider: .openrouter,
+            suitePrefix: "UsageStoreManualTokenRefreshOpenRouterTests",
+            environmentBase: ["OPENROUTER_API_URL": "https://openrouter.test/api/v1"])
+        store.settings.openRouterManagementAPIKey = "mgmt-test-key"
+        return store
+    }
+
+    private static func makeTokenRefreshStore(
+        enabledProvider: UsageProvider,
+        suitePrefix: String,
+        environmentBase: [String: String] = [:]) -> UsageStore
+    {
+        let suite = "\(suitePrefix)-\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         let settings = SettingsStore(
@@ -209,7 +284,7 @@ struct UsageStoreManualTokenRefreshTests {
         let registry = ProviderRegistry.shared
         for provider in UsageProvider.allCases {
             guard let metadata = registry.metadata[provider] else { continue }
-            settings.setProviderEnabled(provider: provider, metadata: metadata, enabled: provider == .codex)
+            settings.setProviderEnabled(provider: provider, metadata: metadata, enabled: provider == enabledProvider)
         }
 
         return UsageStore(
@@ -217,6 +292,6 @@ struct UsageStoreManualTokenRefreshTests {
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: settings,
             startupBehavior: .testing,
-            environmentBase: [:])
+            environmentBase: environmentBase)
     }
 }
