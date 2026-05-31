@@ -31,8 +31,17 @@ if [[ $(printf "%s\n" "$key_lines" | wc -l) -ne 1 ]]; then
   exit 1
 fi
 
-echo "$APP_STORE_CONNECT_API_KEY_P8" | sed 's/\\n/\n/g' > /tmp/tokenbar-api-key.p8
-trap 'rm -f /tmp/tokenbar-api-key.p8 /tmp/${APP_NAME}Notarize.zip' EXIT
+NOTARIZATION_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/tokenbar-notarize.XXXXXX")
+chmod 700 "$NOTARIZATION_TEMP_DIR"
+API_KEY_PATH="$NOTARIZATION_TEMP_DIR/tokenbar-api-key.p8"
+NOTARIZATION_ZIP="$NOTARIZATION_TEMP_DIR/${APP_NAME}Notarize.zip"
+trap 'rm -rf "$NOTARIZATION_TEMP_DIR"' EXIT
+
+(
+  umask 077
+  printf '%s' "$APP_STORE_CONNECT_API_KEY_P8" | sed 's/\\n/\n/g' > "$API_KEY_PATH"
+)
+chmod 600 "$API_KEY_PATH"
 
 ARCH_LIST=( ${ARCHES_VALUE} )
 for ARCH in "${ARCH_LIST[@]}"; do
@@ -66,11 +75,11 @@ codesign --force --timestamp --options runtime --sign "$APP_IDENTITY" \
   "$APP_BUNDLE"
 
 DITTO_BIN=${DITTO_BIN:-/usr/bin/ditto}
-"$DITTO_BIN" --norsrc -c -k --keepParent "$APP_BUNDLE" "/tmp/${APP_NAME}Notarize.zip"
+"$DITTO_BIN" --norsrc -c -k --keepParent "$APP_BUNDLE" "$NOTARIZATION_ZIP"
 
 echo "Submitting for notarization"
-xcrun notarytool submit "/tmp/${APP_NAME}Notarize.zip" \
-  --key /tmp/tokenbar-api-key.p8 \
+xcrun notarytool submit "$NOTARIZATION_ZIP" \
+  --key "$API_KEY_PATH" \
   --key-id "$APP_STORE_CONNECT_KEY_ID" \
   --issuer "$APP_STORE_CONNECT_ISSUER_ID" \
   --wait

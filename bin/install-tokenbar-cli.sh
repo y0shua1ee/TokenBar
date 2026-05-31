@@ -1,32 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP="/Applications/TokenBar.app"
-HELPER="$APP/Contents/Helpers/TokenBarCLI"
-TARGETS=("/usr/local/bin/tokenbar" "/opt/homebrew/bin/tokenbar")
-
+HELPER="/Applications/TokenBar.app/Contents/Helpers/TokenBarCLI"
+if [[ ! -x "$HELPER" ]]; then
+  HELPER="$(cd "$(dirname "$0")/.." && pwd)/.build/release/TokenBarCLI"
+fi
 if [[ ! -x "$HELPER" ]]; then
   echo "TokenBarCLI helper not found at $HELPER. Please reinstall TokenBar." >&2
   exit 1
 fi
 
-install_script=$(mktemp)
-cat > "$install_script" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-HELPER="__HELPER__"
-TARGETS=("/usr/local/bin/tokenbar" "/opt/homebrew/bin/tokenbar")
+osascript - "$HELPER" <<'APPLESCRIPT'
+on run argv
+  set helperPath to item 1 of argv
+  set installCommand to "set -euo pipefail" & linefeed & ¬
+    "HELPER=" & quoted form of helperPath & linefeed & ¬
+    "TARGETS=(\"/usr/local/bin/tokenbar\" \"/opt/homebrew/bin/tokenbar\")" & linefeed & ¬
+    "for t in \"${TARGETS[@]}\"; do" & linefeed & ¬
+    "  mkdir -p \"$(dirname \"$t\")\"" & linefeed & ¬
+    "  ln -sf \"$HELPER\" \"$t\"" & linefeed & ¬
+    "  echo \"Linked $t -> $HELPER\"" & linefeed & ¬
+    "done"
 
-for t in "${TARGETS[@]}"; do
-  mkdir -p "$(dirname "$t")"
-  ln -sf "$HELPER" "$t"
-  echo "Linked $t -> $HELPER"
-done
-EOF
-
-perl -pi -e "s#__HELPER__#$HELPER#g" "$install_script"
-
-osascript -e "do shell script \"bash '$install_script'\" with administrator privileges"
-rm -f "$install_script"
+  do shell script "bash -c " & quoted form of installCommand with administrator privileges
+end run
+APPLESCRIPT
 
 echo "TokenBar CLI installed. Try: tokenbar usage"

@@ -937,3 +937,6 @@
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\n或貼上 kimi-auth token 值";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\n或只貼上 session_id 值";
 "Active quota" = "目前配額";
+"Clear" = "清除";
+"No matching providers" = "沒有相符的提供者";
+"Search providers" = "搜尋提供者";
