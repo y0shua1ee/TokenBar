@@ -76,10 +76,10 @@ extension StatusItemController {
         if self.isHostedSubviewMenu(menu) {
             self.hydrateHostedSubviewMenuIfNeeded(menu)
             self.refreshHostedSubviewHeights(in: menu)
-            if Self.menuRefreshEnabled, self.isOpenAIWebSubviewMenu(menu) {
+            if self.isMenuRefreshEnabled, self.isOpenAIWebSubviewMenu(menu) {
                 self.store.requestOpenAIDashboardRefreshIfStale(reason: "submenu open")
             }
-            if Self.menuRefreshEnabled {
+            if self.isMenuRefreshEnabled {
                 // Intentionally skip open-menu tracking when refresh is disabled (tests).
                 // If refresh is re-enabled while this menu stays open, it will not be backfilled until next open.
                 self.openMenus[ObjectIdentifier(menu)] = menu
@@ -107,13 +107,16 @@ extension StatusItemController {
             }
         }
 
-        let didRefresh = self.menuNeedsRefresh(menu)
-        if didRefresh {
+        if self.isMenuRefreshEnabled, (provider ?? self.lastMenuProvider) == .codex {
+            self.store.requestOpenAIDashboardRefreshIfStale(reason: "parent menu open")
+        }
+
+        if self.menuNeedsRefresh(menu) {
             self.populateMenu(menu, provider: provider)
             self.markMenuFresh(menu)
             // Heights are already set during populateMenu, no need to remeasure
         }
-        if Self.menuRefreshEnabled {
+        if self.isMenuRefreshEnabled {
             // Intentionally skip open-menu tracking when refresh is disabled (tests).
             // If refresh is re-enabled while this menu stays open, it will not be backfilled until next open.
             self.openMenus[ObjectIdentifier(menu)] = menu
@@ -127,7 +130,7 @@ extension StatusItemController {
         let wasHostedSubviewMenu = self.isHostedSubviewMenu(menu)
         self.forgetClosedMenu(menu)
         if wasHostedSubviewMenu {
-            self.refreshOpenMenusIfNeeded()
+            self.refreshOpenMenusAfterHostedSubviewClose()
         }
     }
 
@@ -153,7 +156,10 @@ extension StatusItemController {
         if !isPersistentMenu {
             self.menuProviders.removeValue(forKey: key)
             self.menuVersions.removeValue(forKey: key)
+        } else if self.menuNeedsRefresh(menu) {
+            self.rebuildClosedMenuIfNeeded(menu)
         }
+        self.parentMenuRebuildsDeferredDuringTracking.remove(key)
     }
 
     func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
@@ -892,6 +898,7 @@ extension StatusItemController {
         textField.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(textField)
+        // macos-smell:disable MACOS005
         NSLayoutConstraint.activate([
             textField.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 18),
             textField.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
@@ -1069,16 +1076,6 @@ extension StatusItemController {
         return .provider(self.resolvedMenuProvider(enabledProviders: enabledProviders) ?? .codex)
     }
 
-    func menuNeedsRefresh(_ menu: NSMenu) -> Bool {
-        let key = ObjectIdentifier(menu)
-        return self.menuVersions[key] != self.menuContentVersion
-    }
-
-    func markMenuFresh(_ menu: NSMenu) {
-        let key = ObjectIdentifier(menu)
-        self.menuVersions[key] = self.menuContentVersion
-    }
-
     func menuProvider(for menu: NSMenu) -> UsageProvider? {
         if self.shouldMergeIcons {
             return self.resolvedMenuProvider()
@@ -1090,25 +1087,6 @@ extension StatusItemController {
             return nil
         }
         return self.store.enabledProvidersForDisplay().first ?? .codex
-    }
-
-    func hasOpenHostedSubviewMenu() -> Bool {
-        self.openMenus.values.contains { self.isHostedSubviewMenu($0) }
-    }
-
-    func refreshOpenMenuIfStillVisible(_ menu: NSMenu, provider: UsageProvider?) {
-        self.scheduleOpenMenuRebuildIfStillVisible(menu, provider: provider)
-    }
-
-    func rebuildOpenMenuIfStillVisible(_ menu: NSMenu, provider: UsageProvider?) {
-        guard self.openMenus[ObjectIdentifier(menu)] != nil else { return }
-        guard self.isHostedSubviewMenu(menu) || !self.hasOpenHostedSubviewMenu() else { return }
-        self.populateMenu(menu, provider: provider)
-        self.markMenuFresh(menu)
-        self.applyIcon(phase: nil)
-        #if DEBUG
-        self._test_openMenuRebuildObserver?(menu)
-        #endif
     }
 
     private func scheduleOpenMenuRefresh(for menu: NSMenu) {
@@ -1123,7 +1101,7 @@ extension StatusItemController {
             guard let self, let menu else { return }
             try? await Task.sleep(for: Self.menuOpenRefreshDelay)
             guard !Task.isCancelled else { return }
-            guard Self.menuRefreshEnabled else { return }
+            guard self.isMenuRefreshEnabled else { return }
             #if DEBUG
             self.onDelayedMenuRefreshAttemptForTesting?()
             #endif

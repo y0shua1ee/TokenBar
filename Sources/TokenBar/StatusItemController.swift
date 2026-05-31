@@ -31,10 +31,20 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     static let quotaWarningFlashDuration: TimeInterval = 60
     private nonisolated static let statusItemAccessibilityTitle = "TokenBar"
     private nonisolated static let statusItemAccessibilityIdentifierPrefix = "TokenBar.StatusItem"
+    private nonisolated static let mergedLegacyDefaultItemIndex = 0
 
-    private enum StatusItemIdentity {
+    enum StatusItemIdentity {
         case merged
         case provider(UsageProvider)
+
+        var autosaveName: String {
+            switch self {
+            case .merged:
+                "codexbar-merged"
+            case let .provider(provider):
+                "codexbar-\(provider.rawValue)"
+            }
+        }
 
         var accessibilityIdentifier: String {
             switch self {
@@ -55,6 +65,20 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         self.menuRefreshEnabled = self.defaultMenuRefreshEnabled
     }
     #endif
+
+    #if DEBUG
+    var menuRefreshEnabledOverrideForTesting: Bool?
+    #endif
+
+    var isMenuRefreshEnabled: Bool {
+        #if DEBUG
+        if let menuRefreshEnabledOverrideForTesting {
+            return menuRefreshEnabledOverrideForTesting
+        }
+        #endif
+        return Self.menuRefreshEnabled
+    }
+
     typealias Factory =
         @MainActor (
             UsageStore,
@@ -103,6 +127,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var menuProviders: [ObjectIdentifier: UsageProvider] = [:]
     var menuContentVersion: Int = 0
     var menuVersions: [ObjectIdentifier: Int] = [:]
+    var lastMenuAdjunctReadinessSignature = ""
     var mergedMenu: NSMenu?
     var providerMenus: [UsageProvider: NSMenu] = [:]
     var fallbackMenu: NSMenu?
@@ -112,12 +137,15 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var openMenuRebuildTokens: [ObjectIdentifier: Int] = [:]
     var openMenuRebuildTokenCounter = 0
     var openMenuRebuildsClosingHostedSubviewMenus: Set<ObjectIdentifier> = []
+    var parentMenuRebuildsDeferredDuringTracking: Set<ObjectIdentifier> = []
     var highlightedMenuItems: [ObjectIdentifier: NSMenuItem] = [:]
     var providerSwitcherShortcutEventMonitor: ProviderSwitcherShortcutEventMonitor?
     var providerSwitcherShortcutMenuID: ObjectIdentifier?
     var hasPreparedForAppShutdown = false
+    var openMenuInvalidationRetryTask: Task<Void, Never>?
     #if DEBUG
     var onDelayedMenuRefreshAttemptForTesting: (() -> Void)?
+    var onOpenMenuInvalidationRetryForTesting: (() -> Void)?
     var isReleasedForTesting = false
     var _test_openMenuRefreshYieldOverride: (@MainActor () async -> Void)?
     var _test_openMenuRebuildObserver: (@MainActor (NSMenu) -> Void)?
@@ -198,8 +226,19 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         set { self.settings.selectedMenuProvider = newValue }
     }
 
-    private static func makeStatusItem(statusBar: NSStatusBar, identity: StatusItemIdentity) -> NSStatusItem {
+    private static func makeStatusItem(
+        statusBar: NSStatusBar,
+        identity: StatusItemIdentity,
+        defaults: UserDefaults,
+        legacyDefaultItemIndex: Int?)
+        -> NSStatusItem
+    {
+        MenuBarStatusItemPlacementPreflight.prepare(
+            defaults: defaults,
+            autosaveName: identity.autosaveName,
+            legacyDefaultItemIndex: legacyDefaultItemIndex)
         let item = statusBar.statusItem(withLength: NSStatusItem.variableLength)
+        item.autosaveName = identity.autosaveName
         if let button = item.button {
             // Ensure the icon is rendered at 1:1 without resampling (crisper edges for template images).
             button.imageScaling = .scaleNone
@@ -319,7 +358,11 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         let repairedStatusItemVisibilityKeys = MenuBarStatusItemDefaultsRepair
             .repairHiddenVisibilityDefaultsIfNeeded(defaults: settings.userDefaults)
         self.statusBar = statusBar
-        self.statusItem = Self.makeStatusItem(statusBar: statusBar, identity: .merged)
+        self.statusItem = Self.makeStatusItem(
+            statusBar: statusBar,
+            identity: .merged,
+            defaults: settings.userDefaults,
+            legacyDefaultItemIndex: Self.mergedLegacyDefaultItemIndex)
         self.lastKnownScreenCount = NSScreen.screens.count
         // Status items for individual providers are now created lazily in updateVisibility()
         super.init()
@@ -328,6 +371,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
                 "Repaired hidden macOS status-item visibility defaults",
                 metadata: ["keys": repairedStatusItemVisibilityKeys.joined(separator: ",")])
         }
+        self.lastMenuAdjunctReadinessSignature = self.menuAdjunctReadinessSignature()
         self.wireBindings()
         self.updateVisibility()
         self.updateIcons()
@@ -399,7 +443,9 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 self.observeStoreChanges()
-                self.invalidateMenus()
+                self.invalidateMenus(
+                    refreshOpenMenus: self.didMenuAdjunctReadinessChange(),
+                    deferOpenParentMenuRebuild: true)
             }
         }
     }
@@ -564,33 +610,6 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         }
     }
 
-    func invalidateMenus(refreshOpenMenus: Bool = false) {
-        #if DEBUG
-        guard !self.isReleasedForTesting else { return }
-        #endif
-        self.menuContentVersion &+= 1
-        guard Self.menuRefreshEnabled else { return }
-        if !self.openMenus.isEmpty {
-            guard refreshOpenMenus else { return }
-            self.refreshOpenMenusAllowingParentRebuild()
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                // AppKit can ignore menu mutations while tracking; retry on the next run loop.
-                await Task.yield()
-                self.refreshOpenMenusAllowingParentRebuild()
-            }
-            return
-        }
-        self.refreshOpenMenusIfNeeded()
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            // AppKit can ignore menu mutations while tracking; retry on the next run loop.
-            await Task.yield()
-            guard self.openMenus.isEmpty else { return }
-            self.refreshOpenMenusIfNeeded()
-        }
-    }
-
     private func shouldRefreshOpenMenusForProviderSwitcher() -> Bool {
         var shouldRefresh = false
         let revision = self.settings.configRevision
@@ -684,7 +703,11 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         if let existing = self.statusItems[provider] {
             return existing
         }
-        let item = Self.makeStatusItem(statusBar: self.statusBar, identity: .provider(provider))
+        let item = Self.makeStatusItem(
+            statusBar: self.statusBar,
+            identity: .provider(provider),
+            defaults: self.settings.userDefaults,
+            legacyDefaultItemIndex: self.legacyDefaultItemIndex(forNewProvider: provider))
         self.statusItems[provider] = item
         return item
     }
@@ -695,7 +718,11 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         #endif
         self.statusItem.menu = nil
         self.statusBar.removeStatusItem(self.statusItem)
-        self.statusItem = Self.makeStatusItem(statusBar: self.statusBar, identity: .merged)
+        self.statusItem = Self.makeStatusItem(
+            statusBar: self.statusBar,
+            identity: .merged,
+            defaults: self.settings.userDefaults,
+            legacyDefaultItemIndex: Self.mergedLegacyDefaultItemIndex)
         for provider in Array(self.statusItems.keys) {
             self.removeProviderStatusItem(for: provider)
         }
@@ -827,6 +854,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
             self.openMenuRebuildTasks.removeValue(forKey: menuID)?.cancel()
             self.openMenuRebuildTokens.removeValue(forKey: menuID)
             self.openMenuRebuildsClosingHostedSubviewMenus.remove(menuID)
+            self.parentMenuRebuildsDeferredDuringTracking.remove(menuID)
             self.highlightedMenuItems.removeValue(forKey: menuID)
         }
 
@@ -872,6 +900,12 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
 }
 
 extension StatusItemController {
+    private func legacyDefaultItemIndex(forNewProvider provider: UsageProvider) -> Int? {
+        let visibleProviders = self.settings.orderedProviders().filter { self.isVisible($0) }
+        guard let providerOffset = visibleProviders.firstIndex(of: provider) else { return nil }
+        return Self.mergedLegacyDefaultItemIndex + 1 + providerOffset
+    }
+
     func refreshExistingStatusItemsForVisibilityRecovery() {
         #if DEBUG
         guard !self.isReleasedForTesting else { return }

@@ -26,6 +26,7 @@ extension UsageStore {
         let expectedGuard: CodexAccountScopedRefreshGuard?
         let refreshTaskToken: UUID
         let allowCodexUsageBackfill: Bool
+        let force: Bool
     }
 
     private struct OpenAIDashboardCookieImportRequest {
@@ -62,13 +63,30 @@ extension UsageStore {
         else { return }
         let now = Date()
         let refreshInterval = self.openAIWebRefreshIntervalSeconds()
-        let lastUpdatedAt = self.openAIDashboard?.updatedAt ?? self.lastOpenAIDashboardSnapshot?.updatedAt
-        if let lastUpdatedAt, now.timeIntervalSince(lastUpdatedAt) < refreshInterval { return }
+        let dashboard = self.openAIDashboard ?? self.lastOpenAIDashboardSnapshot
+        let lastUpdatedAt = dashboard?.updatedAt
+        let needsMenuHistoryRefresh = dashboard?.dailyBreakdown.isEmpty == true &&
+            dashboard?.usageBreakdown.isEmpty == true
+        if needsMenuHistoryRefresh,
+           Self.shouldSkipOpenAIWebEmptyHistoryRetry(.init(
+               force: false,
+               accountDidChange: self.openAIWebAccountDidChange,
+               lastError: self.lastOpenAIDashboardError,
+               lastSnapshotAt: lastUpdatedAt,
+               lastAttemptAt: self.lastOpenAIDashboardAttemptAt,
+               now: now,
+               refreshInterval: refreshInterval))
+        {
+            return
+        }
+        if let lastUpdatedAt, now.timeIntervalSince(lastUpdatedAt) < refreshInterval, !needsMenuHistoryRefresh {
+            return
+        }
         let stamp = now.formatted(date: .abbreviated, time: .shortened)
         self.logOpenAIWeb("[\(stamp)] OpenAI web refresh request: \(reason)")
         let forceRefresh = Self.forceOpenAIWebRefreshForStaleRequest(
-            batterySaverEnabled: self.settings.openAIWebBatterySaverEnabled)
-        self.openAIWebLogger.debug(
+            batterySaverEnabled: self.settings.openAIWebBatterySaverEnabled) || needsMenuHistoryRefresh
+        self.openAIWebLogger.info(
             "OpenAI web stale refresh gate",
             metadata: [
                 "reason": reason,
@@ -402,7 +420,8 @@ extension UsageStore {
             allowCurrentSnapshotFallback: allowCurrentSnapshotFallback,
             expectedGuard: expectedGuard,
             refreshTaskToken: taskToken,
-            allowCodexUsageBackfill: allowCodexUsageBackfill)
+            allowCodexUsageBackfill: allowCodexUsageBackfill,
+            force: force)
         let task = Task { [weak self] in
             guard let self else { return }
             await self.performOpenAIDashboardRefreshIfNeeded(context)
@@ -509,6 +528,7 @@ extension UsageStore {
             var dash = try await self.loadLatestOpenAIDashboard(
                 accountEmail: effectiveEmail,
                 logger: log,
+                allowNavigationTimeoutRetry: context.force,
                 timeout: Self.openAIWebDashboardFetchTimeout(didImportCookies: didImportCookiesForRefresh))
             guard self.shouldContinueOpenAIDashboardRefresh(token: context.refreshTaskToken) else { return }
 
@@ -524,6 +544,7 @@ extension UsageStore {
                 dash = try await self.loadLatestOpenAIDashboard(
                     accountEmail: effectiveEmail,
                     logger: log,
+                    allowNavigationTimeoutRetry: context.force,
                     timeout: Self.openAIWebRetryDashboardFetchTimeout(afterCookieImport: true))
                 guard self.shouldContinueOpenAIDashboardRefresh(token: context.refreshTaskToken) else { return }
             }
@@ -573,6 +594,17 @@ extension UsageStore {
         latestCookieImportStatus: inout String?,
         logger: @escaping (String) -> Void) async
     {
+        if !context.force {
+            OpenAIDashboardFetcher.evictAllCachedWebViews()
+            logger("OpenAI web refresh timed out; skipping immediate background retry.")
+            await self.applyOpenAIDashboardFailure(
+                message: "OpenAI web dashboard refresh timed out. CodexBar will retry after the refresh cooldown.",
+                expectedGuard: context.expectedGuard,
+                refreshTaskToken: context.refreshTaskToken,
+                routingTargetEmail: context.targetEmail)
+            return
+        }
+
         let targetEmail = self.currentCodexOpenAIWebTargetEmail(
             allowCurrentSnapshotFallback: context.allowCurrentSnapshotFallback,
             allowLastKnownLiveFallback: context.expectedGuard?.identity != .unresolved)
@@ -599,6 +631,7 @@ extension UsageStore {
             let dash = try await self.loadLatestOpenAIDashboard(
                 accountEmail: effectiveEmail,
                 logger: logger,
+                allowNavigationTimeoutRetry: context.force,
                 timeout: Self.openAIWebRetryDashboardFetchTimeout(afterCookieImport: true))
             guard self.shouldContinueOpenAIDashboardRefresh(token: context.refreshTaskToken) else { return }
             await self.applyOpenAIDashboard(
@@ -650,6 +683,7 @@ extension UsageStore {
             let dash = try await self.loadLatestOpenAIDashboard(
                 accountEmail: effectiveEmail,
                 logger: logger,
+                allowNavigationTimeoutRetry: context.force,
                 timeout: Self.openAIWebRetryDashboardFetchTimeout(afterCookieImport: true))
             guard self.shouldContinueOpenAIDashboardRefresh(token: context.refreshTaskToken) else { return }
             await self.applyOpenAIDashboard(
@@ -713,6 +747,7 @@ extension UsageStore {
             let dash = try await self.loadLatestOpenAIDashboard(
                 accountEmail: effectiveEmail,
                 logger: logger,
+                allowNavigationTimeoutRetry: context.force,
                 timeout: Self.openAIWebRetryDashboardFetchTimeout(afterCookieImport: true))
             guard self.shouldContinueOpenAIDashboardRefresh(token: context.refreshTaskToken) else { return }
             await self.applyOpenAIDashboard(
@@ -914,6 +949,9 @@ extension UsageStore {
     }
 
     func invalidateOpenAIDashboardRefreshTask() {
+        self.openAIDashboardBackgroundRefreshTask?.cancel()
+        self.openAIDashboardBackgroundRefreshTask = nil
+        self.openAIDashboardBackgroundRefreshTaskKey = nil
         self.openAIDashboardRefreshTask?.cancel()
         self.openAIDashboardRefreshTask = nil
         self.openAIDashboardRefreshTaskKey = nil
@@ -927,15 +965,17 @@ extension UsageStore {
     private func loadLatestOpenAIDashboard(
         accountEmail: String?,
         logger: @escaping (String) -> Void,
+        allowNavigationTimeoutRetry: Bool,
         timeout: TimeInterval) async throws -> OpenAIDashboardSnapshot
     {
         if let override = self._test_openAIDashboardLoaderOverride {
-            return try await override(accountEmail, logger, timeout)
+            return try await override(accountEmail, logger, allowNavigationTimeoutRetry, timeout)
         }
         return try await OpenAIDashboardFetcher().loadLatestDashboard(
             accountEmail: accountEmail,
             logger: logger,
             debugDumpHTML: timeout != Self.openAIWebPrimaryFetchTimeout,
+            allowNavigationTimeoutRetry: allowNavigationTimeoutRetry,
             timeout: timeout)
     }
 
@@ -1305,6 +1345,15 @@ extension UsageStore {
             return true
         }
         return false
+    }
+
+    nonisolated static func shouldSkipOpenAIWebEmptyHistoryRetry(_ context: OpenAIWebRefreshGateContext) -> Bool {
+        if context.force || context.accountDidChange { return false }
+        guard let lastAttemptAt = context.lastAttemptAt,
+              context.now.timeIntervalSince(lastAttemptAt) < context.refreshInterval
+        else { return false }
+        guard let lastSnapshotAt = context.lastSnapshotAt else { return true }
+        return lastAttemptAt >= lastSnapshotAt
     }
 
     func syncOpenAIWebState() {

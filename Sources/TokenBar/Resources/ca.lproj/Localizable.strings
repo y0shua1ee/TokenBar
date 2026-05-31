@@ -931,3 +931,6 @@
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\no enganxa el valor del token kimi-auth";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\no enganxa només el valor de session_id";
 "Active quota" = "Quota activa";
+"Clear" = "Esborra";
+"No matching providers" = "No hi ha proveïdors coincidents";
+"Search providers" = "Cerca proveïdors";
