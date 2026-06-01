@@ -112,6 +112,36 @@ final class CLIEntryTests: XCTestCase {
             "4.5.6")
     }
 
+    func test_cliVersionPrefersAdjacentVersionOverContainingAppBundle() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tokenbar-cli-version-app-adjacent-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
+        let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
+        let helpersURL = contentsURL.appendingPathComponent("Helpers", isDirectory: true)
+        try FileManager.default.createDirectory(at: helpersURL, withIntermediateDirectories: true)
+
+        let infoURL = contentsURL.appendingPathComponent("Info.plist")
+        let plist: [String: Any] = ["CFBundleShortVersionString": "8.8.8"]
+        let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+        try data.write(to: infoURL)
+
+        let helperURL = helpersURL.appendingPathComponent("TokenBarCLI")
+        try Data().write(to: helperURL)
+        try "5.6.7\n".write(
+            to: helpersURL.appendingPathComponent("VERSION"),
+            atomically: false,
+            encoding: .utf8)
+
+        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: nil, executablePath: helperURL.path), "5.6.7")
+    }
+
+    func test_cliVersionFallsBackToBundleVersion() {
+        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: "7.8.9", executablePath: nil), "7.8.9")
+        XCTAssertNil(TokenBarCLI.currentVersion(bundleVersion: "TokenBar", executablePath: nil))
+    }
+
     private func expectAdjacentVersionFile(raw: String, expected: String) throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("tokenbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)

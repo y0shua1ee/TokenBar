@@ -19,14 +19,18 @@ extension TokenBarCLI {
 
     static func printVersion() -> Never {
         self.trace("printVersion:start")
-        print("TokenBar")
+        if let version = currentVersion() {
+            print("TokenBar \(version)")
+        } else {
+            print("TokenBar")
+        }
         self.trace("printVersion:exit")
         self.platformExit(0)
     }
 
     static func printHelp(for command: String?) -> Never {
         self.trace("printHelp:start command=\(command ?? "root")")
-        let version = "unknown"
+        let version = self.currentVersion() ?? "unknown"
         Self.trace("printHelp:version=\(version)")
         switch command {
         case "usage":
@@ -63,10 +67,10 @@ extension TokenBarCLI {
     static func currentVersion(bundleVersion: String?, executablePath: String?) -> String? {
         if let executablePath, !executablePath.isEmpty {
             let executableURL = URL(fileURLWithPath: executablePath).resolvingSymlinksInPath()
-            if let version = Self.containingAppVersion(for: executableURL) {
+            if let version = Self.adjacentVersionFileVersion(for: executableURL) {
                 return version
             }
-            if let version = Self.adjacentVersionFileVersion(for: executableURL) {
+            if let version = Self.containingAppVersion(for: executableURL) {
                 return version
             }
         }
@@ -111,7 +115,7 @@ extension TokenBarCLI {
     static func normalizedBundleVersion(_ raw: String?) -> String? {
         guard let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines),
               !trimmed.isEmpty,
-              trimmed != "CodexBar"
+              trimmed != "TokenBar"
         else { return nil }
         return trimmed
     }
