@@ -70,6 +70,30 @@ public struct CostUsageFetcher: Sendable {
             scannerOptions: self.scannerOptionsOverride())
     }
 
+    @available(*, deprecated, message: "Codex token-cost scans are uncapped; this limit is ignored.")
+    public func loadTokenSnapshot(
+        provider: UsageProvider,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        now: Date = Date(),
+        forceRefresh: Bool = false,
+        allowVertexClaudeFallback: Bool = false,
+        codexHomePath: String? = nil,
+        historyDays: Int = 30,
+        refreshPricingInBackground: Bool = true,
+        automaticCodexScanByteLimit _: Int64?) async throws -> CostUsageTokenSnapshot
+    {
+        try await Self.loadTokenSnapshot(
+            provider: provider,
+            environment: environment,
+            now: now,
+            forceRefresh: forceRefresh,
+            allowVertexClaudeFallback: allowVertexClaudeFallback,
+            codexHomePath: codexHomePath,
+            historyDays: historyDays,
+            refreshPricingInBackground: refreshPricingInBackground,
+            scannerOptions: self.scannerOptionsOverride())
+    }
+
     private func scannerOptionsOverride() -> CostUsageScanner.Options? {
         self.scannerOptions
     }

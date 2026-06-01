@@ -15,6 +15,7 @@ struct OpenAIWebRefreshPolicyContext {
     let accessEnabled: Bool
     let batterySaverEnabled: Bool
     let force: Bool
+    let refreshPhase: ProviderRefreshPhase
 }
 
 // MARK: - OpenAI web lifecycle
@@ -49,6 +50,19 @@ extension UsageStore {
 
     static func openAIWebRetryDashboardFetchTimeout(afterCookieImport: Bool) -> TimeInterval {
         afterCookieImport ? self.openAIWebPostImportFetchTimeout : self.openAIWebRetryFetchTimeout
+    }
+
+    nonisolated static func refreshPhase(
+        hasCompletedInitialRefresh: Bool) -> ProviderRefreshPhase
+    {
+        hasCompletedInitialRefresh ? .regular : .startup
+    }
+
+    nonisolated static func openAIWebRefreshPhase(
+        providerRefreshPhase: ProviderRefreshPhase,
+        startupConnectivityRetryAttempt: Int?) -> ProviderRefreshPhase
+    {
+        startupConnectivityRetryAttempt == nil ? providerRefreshPhase : .startup
     }
 
     private func openAIWebRefreshIntervalSeconds() -> TimeInterval {
@@ -1324,6 +1338,7 @@ extension UsageStore {
 extension UsageStore {
     nonisolated static func shouldRunOpenAIWebRefresh(_ context: OpenAIWebRefreshPolicyContext) -> Bool {
         guard context.accessEnabled else { return false }
+        guard context.force || context.refreshPhase != .startup else { return false }
         return context.force || !context.batterySaverEnabled
     }
 

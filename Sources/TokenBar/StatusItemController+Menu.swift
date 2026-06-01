@@ -88,7 +88,7 @@ extension StatusItemController {
             self.hydrateHostedSubviewMenuIfNeeded(menu)
             self.refreshHostedSubviewHeights(in: menu)
             if self.isMenuRefreshEnabled, self.isOpenAIWebSubviewMenu(menu) {
-                self.store.requestOpenAIDashboardRefreshIfStale(reason: "submenu open")
+                self.deferOpenAIDashboardRefreshUntilMenuCloses(reason: "submenu open")
             }
             if self.isMenuRefreshEnabled {
                 // Intentionally skip open-menu tracking when refresh is disabled (tests).
@@ -119,7 +119,7 @@ extension StatusItemController {
         }
 
         if self.isMenuRefreshEnabled, (provider ?? self.lastMenuProvider) == .codex {
-            self.store.requestOpenAIDashboardRefreshIfStale(reason: "parent menu open")
+            self.deferOpenAIDashboardRefreshUntilMenuCloses(reason: "parent menu open")
         }
 
         if self.menuNeedsRefresh(menu) {
@@ -172,6 +172,7 @@ extension StatusItemController {
             self.rebuildClosedMenuIfNeeded(menu)
         }
         self.parentMenuRebuildsDeferredDuringTracking.remove(key)
+        self.scheduleDeferredMenuInteractionRefreshIfNeeded()
     }
 
     func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {

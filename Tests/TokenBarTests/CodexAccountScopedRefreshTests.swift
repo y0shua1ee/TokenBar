@@ -606,6 +606,7 @@ struct CodexAccountScopedRefreshTests {
         settings.refreshFrequency = .manual
         settings.openAIWebAccessEnabled = true
         settings.codexCookieSource = .auto
+        settings.statusChecksEnabled = false
         settings._test_liveSystemCodexAccount = self.liveAccount(email: "alpha@example.com")
 
         let store = self.makeUsageStore(settings: settings)
@@ -614,6 +615,9 @@ struct CodexAccountScopedRefreshTests {
             snapshot: self.codexSnapshot(email: "alpha@example.com", usedPercent: 18))
         store._test_codexCreditsLoaderOverride = { self.credits(remaining: 55) }
         defer { store._test_codexCreditsLoaderOverride = nil }
+
+        await store.refresh()
+
         let dashboardBlocker = BlockingOpenAIDashboardLoader()
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
             try await dashboardBlocker.awaitResult()

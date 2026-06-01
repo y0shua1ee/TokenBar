@@ -8,7 +8,8 @@ struct OpenAIWebRefreshGateTests {
         let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
             accessEnabled: true,
             batterySaverEnabled: true,
-            force: false))
+            force: false,
+            refreshPhase: .regular))
 
         #expect(shouldRun == false)
     }
@@ -18,7 +19,8 @@ struct OpenAIWebRefreshGateTests {
         let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
             accessEnabled: true,
             batterySaverEnabled: false,
-            force: false))
+            force: false,
+            refreshPhase: .regular))
 
         #expect(shouldRun == true)
     }
@@ -28,7 +30,48 @@ struct OpenAIWebRefreshGateTests {
         let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
             accessEnabled: true,
             batterySaverEnabled: true,
-            force: true))
+            force: true,
+            refreshPhase: .regular))
+
+        #expect(shouldRun == true)
+    }
+
+    @Test
+    func `Startup skips automatic OpenAI web refreshes`() {
+        let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
+            accessEnabled: true,
+            batterySaverEnabled: false,
+            force: false,
+            refreshPhase: .startup))
+
+        #expect(shouldRun == false)
+    }
+
+    @Test
+    func `Startup connectivity retry remains startup only for OpenAI web refresh gate`() {
+        let providerPhase = UsageStore.refreshPhase(
+            hasCompletedInitialRefresh: true)
+        let openAIWebPhase = UsageStore.openAIWebRefreshPhase(
+            providerRefreshPhase: providerPhase,
+            startupConnectivityRetryAttempt: 1)
+        let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
+            accessEnabled: true,
+            batterySaverEnabled: false,
+            force: false,
+            refreshPhase: openAIWebPhase))
+
+        #expect(providerPhase == .regular)
+        #expect(openAIWebPhase == .startup)
+        #expect(shouldRun == false)
+    }
+
+    @Test
+    func `Manual startup refresh still forces OpenAI web refreshes`() {
+        let shouldRun = UsageStore.shouldRunOpenAIWebRefresh(.init(
+            accessEnabled: true,
+            batterySaverEnabled: true,
+            force: true,
+            refreshPhase: .startup))
 
         #expect(shouldRun == true)
     }

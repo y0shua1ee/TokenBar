@@ -16,8 +16,10 @@ extension StatusMenuTests {
 
         let store = self.makeCodexStore(settings: settings, dashboardAuthorized: false)
         var providerRefreshCount = 0
+        var refreshInteractions: [ProviderInteraction] = []
         store._test_providerRefreshOverride = { provider in
             guard provider == .codex else { return }
+            refreshInteractions.append(ProviderInteractionContext.current)
             providerRefreshCount += 1
         }
         defer { store._test_providerRefreshOverride = nil }
@@ -50,6 +52,7 @@ extension StatusMenuTests {
         }
 
         #expect(providerRefreshCount == 1)
+        #expect(refreshInteractions == [.background])
         #expect(!controller.deferredMenuInteractionRefreshPending)
     }
 
@@ -295,7 +298,7 @@ extension StatusMenuTests {
     }
 
     @Test
-    func `codex parent menu open requests stale OpenAI web refresh with battery saver enabled`() async {
+    func `codex parent menu open defers stale OpenAI web refresh until tracking ends`() async {
         self.disableMenuCardsForTesting()
         let settings = self.makeSettings()
         settings.statusChecksEnabled = false
@@ -316,6 +319,65 @@ extension StatusMenuTests {
         }
         defer { store._test_codexCreditsLoaderOverride = nil }
         let blocker = BlockingManagedOpenAIDashboardLoader()
+        var refreshInteractions: [ProviderInteraction] = []
+        store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
+            refreshInteractions.append(ProviderInteractionContext.current)
+            return try await blocker.awaitResult()
+        }
+        defer { store._test_openAIDashboardLoaderOverride = nil }
+
+        let controller = StatusItemController(
+            store: store,
+            settings: settings,
+            account: UsageFetcher().loadAccountInfo(),
+            updater: DisabledUpdaterController(),
+            preferencesSelection: PreferencesSelection(),
+            statusBar: self.makeStatusBarForTesting())
+        defer { controller.releaseStatusItemsForTesting() }
+
+        controller.menuRefreshEnabledOverrideForTesting = true
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
+
+        let menu = controller.makeMenu()
+        controller.menuWillOpen(menu)
+
+        for _ in 0..<20 {
+            await Task.yield()
+        }
+        #expect(await blocker.startedCount() == 0)
+        #expect(controller.deferredOpenAIDashboardRefreshReason != nil)
+
+        controller.menuDidClose(menu)
+        await blocker.waitUntilStarted(count: 1)
+        #expect(await blocker.startedCount() == 1)
+        #expect(refreshInteractions == [.background])
+
+        await blocker.resumeNext(with: .success(self.makeOpenAIDashboard(
+            dailyBreakdown: [],
+            updatedAt: Date())))
+    }
+
+    @Test
+    func `programmatic parent menu close schedules deferred OpenAI web refresh`() async {
+        self.disableMenuCardsForTesting()
+        let settings = self.makeSettings()
+        settings.statusChecksEnabled = false
+        settings.refreshFrequency = .manual
+        settings.mergeIcons = false
+        settings.openAIWebAccessEnabled = true
+        settings.openAIWebBatterySaverEnabled = true
+        settings.codexCookieSource = .auto
+        self.enableOnlyCodex(settings)
+
+        let store = self.makeCodexStore(settings: settings, dashboardAuthorized: false)
+        store.openAIDashboard = nil
+        store.lastOpenAIDashboardSnapshot = nil
+        store._test_codexCreditsLoaderOverride = {
+            CreditsSnapshot(remaining: 0, events: [], updatedAt: Date())
+        }
+        defer { store._test_codexCreditsLoaderOverride = nil }
+        let blocker = BlockingManagedOpenAIDashboardLoader()
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
             try await blocker.awaitResult()
         }
@@ -331,10 +393,14 @@ extension StatusMenuTests {
         defer { controller.releaseStatusItemsForTesting() }
 
         controller.menuRefreshEnabledOverrideForTesting = true
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
 
         let menu = controller.makeMenu()
         controller.menuWillOpen(menu)
+        #expect(controller.deferredOpenAIDashboardRefreshReason != nil)
 
+        controller.forgetClosedMenu(menu)
         await blocker.waitUntilStarted(count: 1)
         #expect(await blocker.startedCount() == 1)
 
@@ -344,7 +410,174 @@ extension StatusMenuTests {
     }
 
     @Test
-    func `codex parent menu open refreshes recent dashboard cache with no chart history`() async {
+    func `deferred OpenAI web refresh retries after active store refresh completes`() async {
+        self.disableMenuCardsForTesting()
+        let settings = self.makeSettings()
+        settings.statusChecksEnabled = false
+        settings.refreshFrequency = .manual
+        settings.mergeIcons = false
+        settings.openAIWebAccessEnabled = true
+        settings.openAIWebBatterySaverEnabled = true
+        settings.codexCookieSource = .auto
+        self.enableOnlyCodex(settings)
+
+        let store = self.makeCodexStore(settings: settings, dashboardAuthorized: false)
+        store.openAIDashboard = nil
+        store.lastOpenAIDashboardSnapshot = nil
+        store.isRefreshing = true
+        let blocker = BlockingManagedOpenAIDashboardLoader()
+        store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
+            try await blocker.awaitResult()
+        }
+        defer { store._test_openAIDashboardLoaderOverride = nil }
+
+        let controller = StatusItemController(
+            store: store,
+            settings: settings,
+            account: UsageFetcher().loadAccountInfo(),
+            updater: DisabledUpdaterController(),
+            preferencesSelection: PreferencesSelection(),
+            statusBar: self.makeStatusBarForTesting())
+        defer { controller.releaseStatusItemsForTesting() }
+
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
+
+        controller.deferOpenAIDashboardRefreshUntilMenuCloses(reason: "parent menu open")
+        controller.scheduleDeferredMenuInteractionRefreshIfNeeded()
+
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(await blocker.startedCount() == 0)
+        #expect(controller.deferredOpenAIDashboardRefreshReason != nil)
+
+        store.isRefreshing = false
+        await blocker.waitUntilStarted(count: 1)
+        #expect(await blocker.startedCount() == 1)
+
+        await blocker.resumeNext(with: .success(self.makeOpenAIDashboard(
+            dailyBreakdown: [],
+            updatedAt: Date())))
+    }
+
+    @Test
+    func `deferred OpenAI web refresh waits for deferred store refresh`() async {
+        self.disableMenuCardsForTesting()
+        let settings = self.makeSettings()
+        settings.statusChecksEnabled = false
+        settings.refreshFrequency = .manual
+        settings.mergeIcons = false
+        settings.openAIWebAccessEnabled = true
+        settings.openAIWebBatterySaverEnabled = true
+        settings.codexCookieSource = .auto
+        self.enableOnlyCodex(settings)
+
+        let store = self.makeCodexStore(settings: settings, dashboardAuthorized: false)
+        store.openAIDashboard = nil
+        store.lastOpenAIDashboardSnapshot = nil
+        let providerBlocker = BlockingStatusMenuProviderRefresh()
+        store._test_providerRefreshOverride = { provider in
+            guard provider == .codex else { return }
+            await providerBlocker.awaitRelease()
+        }
+        defer { store._test_providerRefreshOverride = nil }
+        let dashboardBlocker = BlockingManagedOpenAIDashboardLoader()
+        store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
+            try await dashboardBlocker.awaitResult()
+        }
+        defer { store._test_openAIDashboardLoaderOverride = nil }
+
+        let controller = StatusItemController(
+            store: store,
+            settings: settings,
+            account: UsageFetcher().loadAccountInfo(),
+            updater: DisabledUpdaterController(),
+            preferencesSelection: PreferencesSelection(),
+            statusBar: self.makeStatusBarForTesting())
+        defer { controller.releaseStatusItemsForTesting() }
+
+        controller.menuRefreshEnabledOverrideForTesting = true
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
+
+        let menu = controller.makeMenu()
+        controller.menuWillOpen(menu)
+        controller.menuDidClose(menu)
+
+        await providerBlocker.waitUntilStarted()
+        #expect(await dashboardBlocker.startedCount() == 0)
+
+        await providerBlocker.resumeNext()
+        await dashboardBlocker.waitUntilStarted(count: 1)
+        #expect(await dashboardBlocker.startedCount() == 1)
+
+        await dashboardBlocker.resumeNext(with: .success(self.makeOpenAIDashboard(
+            dailyBreakdown: [],
+            updatedAt: Date())))
+    }
+
+    @Test
+    func `reopened menu keeps dashboard refresh deferred after store refresh`() async {
+        self.disableMenuCardsForTesting()
+        let settings = self.makeSettings()
+        settings.statusChecksEnabled = false
+        settings.refreshFrequency = .manual
+        settings.mergeIcons = false
+        settings.openAIWebAccessEnabled = true
+        settings.openAIWebBatterySaverEnabled = true
+        settings.codexCookieSource = .auto
+        self.enableOnlyCodex(settings)
+
+        let store = self.makeCodexStore(settings: settings, dashboardAuthorized: false)
+        store.openAIDashboard = nil
+        store.lastOpenAIDashboardSnapshot = nil
+        let providerBlocker = BlockingStatusMenuProviderRefresh()
+        store._test_providerRefreshOverride = { provider in
+            guard provider == .codex else { return }
+            await providerBlocker.awaitRelease()
+        }
+        defer { store._test_providerRefreshOverride = nil }
+        let dashboardBlocker = BlockingManagedOpenAIDashboardLoader()
+        store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
+            try await dashboardBlocker.awaitResult()
+        }
+        defer { store._test_openAIDashboardLoaderOverride = nil }
+
+        let controller = StatusItemController(
+            store: store,
+            settings: settings,
+            account: UsageFetcher().loadAccountInfo(),
+            updater: DisabledUpdaterController(),
+            preferencesSelection: PreferencesSelection(),
+            statusBar: self.makeStatusBarForTesting())
+        defer { controller.releaseStatusItemsForTesting() }
+
+        controller.menuRefreshEnabledOverrideForTesting = true
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
+
+        let menu = controller.makeMenu()
+        controller.menuWillOpen(menu)
+        controller.menuDidClose(menu)
+        await providerBlocker.waitUntilStarted()
+
+        let reopenedMenu = controller.makeMenu()
+        controller.menuWillOpen(reopenedMenu)
+        await providerBlocker.resumeNext()
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(await dashboardBlocker.startedCount() == 0)
+        #expect(controller.deferredOpenAIDashboardRefreshReason != nil)
+
+        controller.menuDidClose(reopenedMenu)
+        await dashboardBlocker.waitUntilStarted(count: 1)
+        #expect(await dashboardBlocker.startedCount() == 1)
+
+        await dashboardBlocker.resumeNext(with: .success(self.makeOpenAIDashboard(
+            dailyBreakdown: [],
+            updatedAt: Date())))
+    }
+
+    @Test
+    func `codex parent menu close refreshes recent dashboard cache with no chart history`() async {
         self.disableMenuCardsForTesting()
         let settings = self.makeSettings()
         settings.statusChecksEnabled = false
@@ -376,10 +609,18 @@ extension StatusMenuTests {
         defer { controller.releaseStatusItemsForTesting() }
 
         controller.menuRefreshEnabledOverrideForTesting = true
+        StatusItemController.setDeferredMenuInteractionRefreshDelayForTesting(.zero)
+        defer { StatusItemController.resetDeferredMenuInteractionRefreshDelayForTesting() }
 
         let menu = controller.makeMenu()
         controller.menuWillOpen(menu)
 
+        for _ in 0..<20 {
+            await Task.yield()
+        }
+        #expect(await blocker.startedCount() == 0)
+
+        controller.menuDidClose(menu)
         await blocker.waitUntilStarted(count: 1)
         #expect(await blocker.startedCount() == 1)
 
@@ -428,6 +669,7 @@ extension StatusMenuTests {
 
         let menu = controller.makeMenu()
         controller.menuWillOpen(menu)
+        controller.menuDidClose(menu)
 
         try? await Task.sleep(for: .milliseconds(150))
         #expect(await blocker.startedCount() == 0)
@@ -845,5 +1087,39 @@ extension StatusMenuTests {
                 accountEmail: "codex@example.com",
                 accountOrganization: nil,
                 loginMethod: "Plus Plan"))
+    }
+}
+
+private actor BlockingStatusMenuProviderRefresh {
+    private var continuations: [CheckedContinuation<Void, Never>] = []
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+    private var started = 0
+
+    func awaitRelease() async {
+        self.started += 1
+        self.resumeStartWaiters()
+        await withCheckedContinuation { continuation in
+            self.continuations.append(continuation)
+        }
+    }
+
+    func waitUntilStarted() async {
+        if self.started > 0 { return }
+        await withCheckedContinuation { continuation in
+            self.startWaiters.append(continuation)
+        }
+    }
+
+    func resumeNext() {
+        guard !self.continuations.isEmpty else { return }
+        self.continuations.removeFirst().resume()
+    }
+
+    private func resumeStartWaiters() {
+        let waiters = self.startWaiters
+        self.startWaiters = []
+        for waiter in waiters {
+            waiter.resume()
+        }
     }
 }

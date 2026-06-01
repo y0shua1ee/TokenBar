@@ -167,6 +167,7 @@ final class UsageStore {
     @ObservationIgnored private var timerTask: Task<Void, Never>?
     @ObservationIgnored private var tokenTimerTask: Task<Void, Never>?
     @ObservationIgnored private var tokenRefreshSequenceTask: Task<Void, Never>?
+    @ObservationIgnored var memoryPressureReliefTask: Task<Void, Never>?
     @ObservationIgnored var startupConnectivityRetryTask: Task<Void, Never>?
     @ObservationIgnored var startupConnectivityRetryNeeded = false
     @ObservationIgnored var startupConnectivityRetryRefreshActive = false
@@ -490,7 +491,10 @@ final class UsageStore {
             return
         }
         self.prepareRefreshState()
-        let refreshPhase: ProviderRefreshPhase = self.hasCompletedInitialRefresh ? .regular : .startup
+        let refreshPhase = Self.refreshPhase(hasCompletedInitialRefresh: self.hasCompletedInitialRefresh)
+        let openAIWebRefreshPhase = Self.openAIWebRefreshPhase(
+            providerRefreshPhase: refreshPhase,
+            startupConnectivityRetryAttempt: startupConnectivityRetryAttempt)
         let allowsStartupConnectivityRetry = refreshPhase == .startup || startupConnectivityRetryAttempt != nil
         self.startupConnectivityRetryRefreshActive = allowsStartupConnectivityRetry
         self.startupConnectivityRetryNeeded = false
@@ -545,7 +549,8 @@ final class UsageStore {
                     self.settings.openAIWebAccessEnabled &&
                     self.settings.codexCookieSource.isEnabled,
                 batterySaverEnabled: self.settings.openAIWebBatterySaverEnabled,
-                force: forceTokenUsage)
+                force: forceTokenUsage,
+                refreshPhase: openAIWebRefreshPhase)
             let shouldRefreshOpenAIWeb = Self.shouldRunOpenAIWebRefresh(refreshPolicy)
             self.openAIWebLogger.debug(
                 "OpenAI web refresh gate",
@@ -555,7 +560,7 @@ final class UsageStore {
                     "batterySaverEnabled": refreshPolicy.batterySaverEnabled ? "1" : "0",
                     "force": refreshPolicy.force ? "1" : "0",
                     "interaction": ProviderInteractionContext.current == .userInitiated ? "user" : "background",
-                    "phase": refreshPhase == .startup ? "startup" : "regular",
+                    "phase": openAIWebRefreshPhase == .startup ? "startup" : "regular",
                 ])
             if shouldRefreshOpenAIWeb {
                 let codexDashboardGuard = self.currentCodexOpenAIWebRefreshGuard()
@@ -578,6 +583,9 @@ final class UsageStore {
 
         if allowsStartupConnectivityRetry {
             self.completeStartupConnectivityRetryPass(currentAttempt: startupConnectivityRetryAttempt ?? 0)
+        }
+        if refreshPhase == .startup {
+            self.scheduleMemoryPressureRelief()
         }
     }
 
@@ -669,12 +677,14 @@ final class UsageStore {
             if Task.isCancelled { break }
             await self.refreshTokenUsage(provider, force: force)
         }
+        self.scheduleMemoryPressureRelief()
     }
 
     deinit {
         self.timerTask?.cancel()
         self.tokenTimerTask?.cancel()
         self.tokenRefreshSequenceTask?.cancel()
+        self.memoryPressureReliefTask?.cancel()
         self.startupConnectivityRetryTask?.cancel()
         self.storageRefreshTask?.cancel()
         self.codexPlanHistoryBackfillTask?.cancel()
@@ -1430,35 +1440,6 @@ extension UsageStore {
         await self.runBackgroundSnapshot {
             await PathBuilder.debugSnapshotAsync(purposes: [.rpc, .tty, .nodeTooling])
         }
-    }
-
-    func clearCostUsageCache() async -> String? {
-        let errorMessage: String? = await Task.detached(priority: .utility) {
-            let fm = FileManager.default
-            let cacheDirs = [
-                Self.costUsageCacheDirectory(fileManager: fm),
-            ]
-
-            for cacheDir in cacheDirs {
-                do {
-                    try fm.removeItem(at: cacheDir)
-                } catch let error as NSError {
-                    if error.domain == NSCocoaErrorDomain, error.code == NSFileNoSuchFileError { continue }
-                    return error.localizedDescription
-                }
-            }
-            return nil
-        }.value
-
-        guard errorMessage == nil else { return errorMessage }
-
-        self.tokenSnapshots.removeAll()
-        self.tokenErrors.removeAll()
-        self.lastTokenFetchAt.removeAll()
-        self.lastTokenFetchScope.removeAll()
-        self.tokenFailureGates[.codex]?.reset()
-        self.tokenFailureGates[.claude]?.reset()
-        return nil
     }
 
     private func refreshTokenUsage(_ provider: UsageProvider, force: Bool) async {
