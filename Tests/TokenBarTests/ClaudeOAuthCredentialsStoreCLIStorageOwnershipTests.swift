@@ -175,7 +175,7 @@ struct ClaudeOAuthCredentialsStoreCLIStorageOwnershipTests {
                                         environment: [:],
                                         allowKeychainPrompt: false,
                                         respectKeychainPromptCooldown: true)
-                                    Issue.record("Expected direct CodexBar refresh failure")
+                                    Issue.record("Expected direct TokenBar refresh failure")
                                 } catch let error as ClaudeOAuthCredentialsError {
                                     guard case let .refreshFailed(message) = error else {
                                         Issue.record("Expected .refreshFailed, got \(error)")
