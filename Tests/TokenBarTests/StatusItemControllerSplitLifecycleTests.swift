@@ -124,16 +124,16 @@ struct StatusItemControllerSplitLifecycleTests {
     }
 
     @Test
-    func `status item placement preflight writes low position on fresh install`() throws {
+    func `status item placement preflight leaves fresh install placement unset`() throws {
         let suite = "StatusItemControllerSplitLifecycleTests-placement-missing-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
-
         let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
-        #expect(defaults.double(forKey: key) == 0)
+
+        #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+        #expect(defaults.object(forKey: key) == nil)
     }
 
     @Test
@@ -155,7 +155,7 @@ struct StatusItemControllerSplitLifecycleTests {
     }
 
     @Test
-    func `status item placement preflight repairs missing new key when legacy item placement is suspicious`() throws {
+    func `status item placement preflight clears suspicious matching legacy placement`() throws {
         let suite = "StatusItemControllerSplitLifecycleTests-placement-legacy-high-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
@@ -166,10 +166,11 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
             autosaveName: "codexbar-merged",
-            legacyDefaultItemIndex: 0))
+            legacyDefaultItemIndex: 0,
+            maximumPreferredPosition: 3000))
 
-        #expect(defaults.double(forKey: key) == 0)
-        #expect(defaults.double(forKey: "NSStatusItem Preferred Position Item-0") == 11298)
+        #expect(defaults.object(forKey: key) == nil)
+        #expect(defaults.object(forKey: "NSStatusItem Preferred Position Item-0") == nil)
     }
 
     @Test
@@ -193,7 +194,7 @@ struct StatusItemControllerSplitLifecycleTests {
     }
 
     @Test
-    func `status item placement preflight repairs provider new key when mixed legacy placements exist`() throws {
+    func `status item placement preflight clears provider matching suspicious legacy placement`() throws {
         let suite = "StatusItemControllerSplitLifecycleTests-placement-provider-mixed-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
@@ -205,15 +206,16 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
             autosaveName: "codexbar-codex",
-            legacyDefaultItemIndex: 1))
+            legacyDefaultItemIndex: 1,
+            maximumPreferredPosition: 3000))
 
-        #expect(defaults.double(forKey: key) == 0)
+        #expect(defaults.object(forKey: key) == nil)
         #expect(defaults.double(forKey: "NSStatusItem Preferred Position Item-0") == 42)
-        #expect(defaults.double(forKey: "NSStatusItem Preferred Position Item-1") == 11298)
+        #expect(defaults.object(forKey: "NSStatusItem Preferred Position Item-1") == nil)
     }
 
     @Test
-    func `status item placement preflight repairs provider new key when only merged legacy placement exists`() throws {
+    func `status item placement preflight leaves provider key unset when only merged legacy placement exists`() throws {
         let suite = "StatusItemControllerSplitLifecycleTests-placement-provider-single-legacy-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
@@ -221,12 +223,12 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
         let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-codex")
 
-        #expect(MenuBarStatusItemPlacementPreflight.prepare(
+        #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
             autosaveName: "codexbar-codex",
             legacyDefaultItemIndex: 1))
 
-        #expect(defaults.double(forKey: key) == 0)
+        #expect(defaults.object(forKey: key) == nil)
         #expect(defaults.double(forKey: "NSStatusItem Preferred Position Item-0") == 42)
     }
 
@@ -251,7 +253,7 @@ struct StatusItemControllerSplitLifecycleTests {
     }
 
     @Test
-    func `status item placement preflight replaces suspicious high position`() throws {
+    func `status item placement preflight clears suspicious high position`() throws {
         let suite = "StatusItemControllerSplitLifecycleTests-placement-high-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
@@ -259,9 +261,40 @@ struct StatusItemControllerSplitLifecycleTests {
         let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
         defaults.set(11298, forKey: key)
 
+        #expect(MenuBarStatusItemPlacementPreflight.prepare(
+            defaults: defaults,
+            autosaveName: "codexbar-merged",
+            maximumPreferredPosition: 3000))
+
+        #expect(defaults.object(forKey: key) == nil)
+    }
+
+    @Test
+    func `status item placement preflight clears old forced zero position`() throws {
+        let suite = "StatusItemControllerSplitLifecycleTests-placement-zero-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        defaults.set(0, forKey: key)
+
         #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
 
-        #expect(defaults.double(forKey: key) == 0)
+        #expect(defaults.object(forKey: key) == nil)
+    }
+
+    @Test
+    func `status item placement preflight clears malformed position`() throws {
+        let suite = "StatusItemControllerSplitLifecycleTests-placement-malformed-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        defaults.set("not-a-position", forKey: key)
+
+        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+
+        #expect(defaults.object(forKey: key) == nil)
     }
 
     @Test
@@ -276,6 +309,23 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
 
         #expect(defaults.double(forKey: key) == 42)
+    }
+
+    @Test
+    func `status item placement preflight preserves large display position`() throws {
+        let suite = "StatusItemControllerSplitLifecycleTests-placement-preserve-large-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        defaults.set(2500, forKey: key)
+
+        #expect(!MenuBarStatusItemPlacementPreflight.prepare(
+            defaults: defaults,
+            autosaveName: "codexbar-merged",
+            maximumPreferredPosition: 2560))
+
+        #expect(defaults.double(forKey: key) == 2500)
     }
 
     @Test

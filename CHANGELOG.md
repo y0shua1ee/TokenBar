@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.32.4 — 2026-06-02
+
+### Fixed
+- Menu bar: avoid queuing redundant provider refreshes when opening a fresh merged-menu dropdown, while still retrying missing or stale provider data after menu tracking ends (#1235, #1277). Thanks @hhh2210!
+
+## 0.32.3 — 2026-06-02
+
+### Fixed
+- Menu bar: stop forcing a private preferred-position value for fresh status items; suspicious stored positions are now cleared so AppKit can place TokenBar normally on macOS 26 / 5K displays (#1267). Thanks @AdrianSimionov, @kirocop, and @Yuxin-Qiao!
+- Menu bar: cache provider brand icons so merged-icon status updates no longer repeatedly parse SVG assets on the main thread during hover/open animations (#1235, #1274). Thanks @andradebruno, @xingpz2008, and @Yuxin-Qiao!
+- Copilot: treat GitHub Copilot Business token-billing zero-entitlement quotas as unavailable instead of showing misleading 0% used usage (#1258, #1270). Thanks @devYRPauli!
+- Menu bar: prepare closed menus after refresh and only reuse stale dropdown content for data-refresh invalidations so merged menu opens stay responsive without bypassing privacy or structure changes (#1261). Thanks @ProspectOre!
+- OpenAI Web: stop reloading away from login and Cloudflare blocking states so the dashboard WebView does not loop on route corrections (#1259). Thanks @ProspectOre!
+
 ## 0.32.2 — 2026-06-01
 
 ### Added

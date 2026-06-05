@@ -2,14 +2,39 @@ import AppKit
 import TokenBarCore
 
 extension StatusItemController {
+    private static let defaultClosedMenuPreparationDelay: Duration = .milliseconds(350)
+
+    #if DEBUG
+    private static var closedMenuPreparationDelayForTesting: Duration = defaultClosedMenuPreparationDelay
+    static func setClosedMenuPreparationDelayForTesting(_ delay: Duration) {
+        self.closedMenuPreparationDelayForTesting = delay
+    }
+
+    static func resetClosedMenuPreparationDelayForTesting() {
+        self.closedMenuPreparationDelayForTesting = self.defaultClosedMenuPreparationDelay
+    }
+    #endif
+
+    private static var closedMenuPreparationDelay: Duration {
+        #if DEBUG
+        closedMenuPreparationDelayForTesting
+        #else
+        defaultClosedMenuPreparationDelay
+        #endif
+    }
+
     func invalidateMenus(
         refreshOpenMenus: Bool = false,
-        deferOpenParentMenuRebuild: Bool = false)
+        deferOpenParentMenuRebuild: Bool = false,
+        allowStaleContentDuringDataRefresh: Bool = false)
     {
         #if DEBUG
         guard !self.isReleasedForTesting else { return }
         #endif
         self.menuContentVersion &+= 1
+        if !allowStaleContentDuringDataRefresh {
+            self.latestRequiredMenuRebuildVersion = self.menuContentVersion
+        }
         guard self.isMenuRefreshEnabled else { return }
         if !self.openMenus.isEmpty {
             guard refreshOpenMenus else { return }
@@ -19,6 +44,70 @@ extension StatusItemController {
                 deferParentRebuildDuringTracking: deferOpenParentMenuRebuild)
             return
         }
+        self.prepareAttachedClosedMenusIfNeeded()
+    }
+
+    func prepareAttachedClosedMenusIfNeeded() {
+        guard self.isMenuRefreshEnabled else { return }
+        guard self.openMenus.isEmpty else { return }
+        guard !self.isMenuDataRefreshInFlight else { return }
+        for menu in self.attachedMenusForClosedPreparation() {
+            self.rebuildClosedMenuIfNeeded(menu)
+        }
+    }
+
+    var isMenuDataRefreshInFlight: Bool {
+        self.store.isRefreshing ||
+            UsageProvider.allCases.contains { self.store.isTokenRefreshInFlight(for: $0) }
+    }
+
+    func refreshMenuForOpenIfNeeded(_ menu: NSMenu, provider: UsageProvider?) {
+        guard self.menuNeedsRefresh(menu) else { return }
+        if self.canPreserveStaleMenuContentDuringRefresh(menu) {
+            #if DEBUG
+            self.menuLogger.debug(
+                "menu open kept existing content during refresh",
+                metadata: [
+                    "items": "\(menu.items.count)",
+                    "provider": provider?.rawValue ?? "nil",
+                    "storeRefreshing": self.store.isRefreshing ? "1" : "0",
+                ])
+            #endif
+            self.deferMenuInteractionRefreshIfNeeded()
+            return
+        }
+        self.populateMenu(menu, provider: provider)
+        self.markMenuFresh(menu)
+    }
+
+    private func canPreserveStaleMenuContentDuringRefresh(_ menu: NSMenu) -> Bool {
+        guard self.isMenuDataRefreshInFlight, !menu.items.isEmpty else { return false }
+        let key = ObjectIdentifier(menu)
+        guard let menuVersion = self.menuVersions[key] else { return false }
+        return menuVersion >= self.latestRequiredMenuRebuildVersion
+    }
+
+    private func attachedMenusForClosedPreparation() -> [NSMenu] {
+        var menus: [NSMenu] = []
+        var seen = Set<ObjectIdentifier>()
+
+        func append(_ menu: NSMenu?) {
+            guard let menu else { return }
+            let key = ObjectIdentifier(menu)
+            guard seen.insert(key).inserted else { return }
+            menus.append(menu)
+        }
+
+        append(self.statusItem.menu)
+        append(self.mergedMenu)
+        append(self.fallbackMenu)
+        for item in self.statusItems.values {
+            append(item.menu)
+        }
+        for menu in self.providerMenus.values {
+            append(menu)
+        }
+        return menus
     }
 
     func renderedMenuWidth(for menu: NSMenu) -> CGFloat {
@@ -28,16 +117,62 @@ extension StatusItemController {
 
     func rebuildClosedMenuIfNeeded(_ menu: NSMenu) {
         guard !self.hasPreparedForAppShutdown else { return }
+        guard !self.isMenuDataRefreshInFlight else { return }
+        let key = ObjectIdentifier(menu)
         let provider = self.menuProvider(for: menu)
-        Task { @MainActor [weak self, weak menu] in
+        self.closedMenuRebuildTokenCounter &+= 1
+        let rebuildToken = self.closedMenuRebuildTokenCounter
+        self.closedMenuRebuildTokens[key] = rebuildToken
+        self.closedMenuRebuildTasks[key]?.cancel()
+        self.closedMenuRebuildTasks[key] = Task { @MainActor [weak self, weak menu] in
+            let delay = Self.closedMenuPreparationDelay
+            if delay > .zero {
+                try? await Task.sleep(for: delay)
+            }
+            guard !Task.isCancelled else { return }
             await Task.yield()
-            guard let self, let menu else { return }
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            defer {
+                if self.closedMenuRebuildTokens[key] == rebuildToken {
+                    self.closedMenuRebuildTasks.removeValue(forKey: key)
+                    self.closedMenuRebuildTokens.removeValue(forKey: key)
+                }
+            }
+            guard let menu else { return }
+            guard self.closedMenuRebuildTokens[key] == rebuildToken else { return }
             guard !self.hasPreparedForAppShutdown else { return }
+            guard !self.isMenuDataRefreshInFlight else { return }
             guard self.openMenus[ObjectIdentifier(menu)] == nil else { return }
             guard self.menuNeedsRefresh(menu) else { return }
             self.populateMenu(menu, provider: provider)
             self.markMenuFresh(menu)
+            #if DEBUG
+            if self.lastLoggedClosedMenuRebuildVersion != self.menuContentVersion {
+                self.lastLoggedClosedMenuRebuildVersion = self.menuContentVersion
+                self.menuLogger.debug(
+                    "closed menu rebuild completed",
+                    metadata: [
+                        "items": "\(menu.items.count)",
+                        "provider": provider?.rawValue ?? "nil",
+                    ])
+            }
+            #endif
         }
+    }
+
+    func cancelClosedMenuRebuild(_ menu: NSMenu) {
+        let key = ObjectIdentifier(menu)
+        self.closedMenuRebuildTasks.removeValue(forKey: key)?.cancel()
+        self.closedMenuRebuildTokens.removeValue(forKey: key)
+    }
+
+    func cancelAllClosedMenuRebuilds() {
+        for task in self.closedMenuRebuildTasks.values {
+            task.cancel()
+        }
+        self.closedMenuRebuildTasks.removeAll(keepingCapacity: false)
+        self.closedMenuRebuildTokens.removeAll(keepingCapacity: false)
     }
 
     func menuNeedsRefresh(_ menu: NSMenu) -> Bool {
