@@ -2,7 +2,7 @@
 set -euo pipefail
 CONF=${1:-release}
 ALLOW_LLDB=${TOKENBAR_ALLOW_LLDB:-0}
-SIGNING_MODE=${TOKENBAR_SIGNING:-}
+SIGNING_MODE=${TOKENBAR_SIGNING:-adhoc}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 LOWER_CONF=$(printf "%s" "$CONF" | tr '[:upper:]' '[:lower:]')
