@@ -297,19 +297,26 @@ public struct CostUsageFetcher: Sendable {
         now: Date,
         historyDays: Int = 30) -> CostUsageTokenSnapshot
     {
-        // Pick the most recent day; break ties by cost/tokens to keep a stable "session" row.
-        let currentDay = daily.data.max { lhs, rhs in
-            let lDate = CostUsageDateParser.parse(lhs.date) ?? .distantPast
-            let rDate = CostUsageDateParser.parse(rhs.date) ?? .distantPast
-            if lDate != rDate { return lDate < rDate }
-            let lCost = lhs.costUSD ?? -1
-            let rCost = rhs.costUSD ?? -1
-            if lCost != rCost { return lCost < rCost }
-            let lTokens = lhs.totalTokens ?? -1
-            let rTokens = rhs.totalTokens ?? -1
-            if lTokens != rTokens { return lTokens < rTokens }
-            return lhs.date < rhs.date
-        }
+        let todayFormatter = DateFormatter()
+        todayFormatter.locale = Locale(identifier: "en_US_POSIX")
+        todayFormatter.timeZone = TimeZone.current
+        todayFormatter.dateFormat = "yyyy-MM-dd"
+        let todayString = todayFormatter.string(from: now)
+
+        // Pick today's entry directly; fall back to most recent day with data.
+        let currentDay = daily.data.first(where: { $0.date == todayString })
+            ?? daily.data.max { lhs, rhs in
+                let lDate = CostUsageDateParser.parse(lhs.date) ?? .distantPast
+                let rDate = CostUsageDateParser.parse(rhs.date) ?? .distantPast
+                if lDate != rDate { return lDate < rDate }
+                let lCost = lhs.costUSD ?? -1
+                let rCost = rhs.costUSD ?? -1
+                if lCost != rCost { return lCost < rCost }
+                let lTokens = lhs.totalTokens ?? -1
+                let rTokens = rhs.totalTokens ?? -1
+                if lTokens != rTokens { return lTokens < rTokens }
+                return lhs.date < rhs.date
+            }
         // Prefer summary totals when present; fall back to summing daily entries.
         let totalFromSummary = daily.summary?.totalCostUSD
         let totalFromEntries = daily.data.compactMap(\.costUSD).reduce(0, +)
