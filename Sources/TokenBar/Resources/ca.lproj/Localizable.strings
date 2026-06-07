@@ -399,6 +399,10 @@
 "language_chinese_simplified" = "简体中文";
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_swedish" = "Suec";
+"language_dutch" = "Nederlands";
+"language_french" = "Francès";
+"language_ukrainian" = "Ucraïnès";
 "start_at_login_title" = "Obrir en iniciar la sessió";
 "start_at_login_subtitle" = "Obre el TokenBar automàticament en iniciar el Mac.";
 "show_cost_summary" = "Mostra el resum de cost";
@@ -419,13 +423,6 @@
 "quota_warning_session_capitalized" = "Sessió";
 "quota_warning_weekly" = "setmanal";
 "quota_warning_weekly_capitalized" = "Setmanal";
-"quota_warning_notification_title" = "%1$@: quota baixa (%2$@)";
-"quota_warning_notification_body" = "%1$@ restant. Has arribat al llindar d'avís del %2$d%% (%3$@).";
-"quota_warning_notification_body_with_account" = "Compte %1$@. %2$@ restant. Has arribat al llindar d'avís del %3$d%% (%4$@).";
-"session_depleted_notification_title" = "Sessió de %@ esgotada";
-"session_depleted_notification_body" = "0% restant. T'avisarem quan torni a estar disponible.";
-"session_restored_notification_title" = "Sessió de %@ restaurada";
-"session_restored_notification_body" = "La quota de sessió torna a estar disponible.";
 "quota_warning_warn_at" = "Avisa al";
 "quota_warning_global_threshold_subtitle" = "Percentatges restants per a les finestres de sessió i setmanal, llevat que un proveïdor els substitueixi.";
 "quota_warning_sound" = "Reprodueix el so de notificació";
@@ -681,8 +678,6 @@
 "Usage history (today)" = "Historial d'ús (avui)";
 "Usage history (%d days)" = "Historial d'ús (%d dies)";
 "%d percent remaining" = "%d%% restant";
-"usage_percent_suffix_left" = "restant";
-"usage_percent_suffix_used" = "usat";
 "Unknown" = "Desconegut";
 "stale data" = "dades obsoletes";
 "No credits history data available." = "No hi ha dades d'historial de crèdits disponibles.";
@@ -726,14 +721,6 @@
 "%@ tokens" = "%@ tokens";
 "Latest billing day" = "Últim dia de facturació";
 "Latest billing day (%@)" = "Últim dia de facturació (%@)";
-"%@ left" = "%@ restant";
-"Resets %@" = "Es restableix %@";
-"Resets in %@" = "Es restableix en %@";
-"Resets now" = "Es restableix ara";
-"Updated %@" = "Actualitzat %@";
-"Updated %@h ago" = "Actualitzat fa %@ h";
-"Updated %@m ago" = "Actualitzat fa %@ min";
-"Updated just now" = "Actualitzat ara mateix";
 "This week" = "Aquesta setmana";
 "This month" = "Aquest mes";
 "Week" = "Setmana";
@@ -930,7 +917,8 @@
 "Cookie: …\n\nor paste the __Secure-next-auth.session-token value" = "Cookie: …\n\no enganxa el valor de __Secure-next-auth.session-token";
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\no enganxa el valor del token kimi-auth";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\no enganxa només el valor de session_id";
-"Active quota" = "Quota activa";
 "Clear" = "Esborra";
 "No matching providers" = "No hi ha proveïdors coincidents";
 "Search providers" = "Cerca proveïdors";
+
+"language_vietnamese" = "Vietnamita";

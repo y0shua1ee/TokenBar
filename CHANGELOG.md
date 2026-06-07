@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.32.5 — Unreleased
+
+### Added
+- Localization: add French as a selectable app language (#1241). Thanks @Yuxin-Qiao!
+- Localization: add Ukrainian as a selectable app language (#1250). Thanks @Yuxin-Qiao!
+- Localization: add Dutch as a selectable app language (#1252). Thanks @Yuxin-Qiao!
+- Localization: add Vietnamese as a selectable app language (#1247). Thanks @Yuxin-Qiao!
+
+### Fixed
+- Claude: remove transient ClaudeProbe session artifacts after CLI usage polls so background refreshes no longer fill Claude Code project history with CodexBar `/usage` sessions (#1301). Thanks @LPFchan and @matthewod11-stack!
+- Menu bar: keep z.ai overview rows with detail submenus in Overview so hovering quota details no longer recurses into a nested provider menu (#1279, fixes #1246). Thanks @RajvardhanPatil07!
+- Codex: backfill visible-account reset timestamps and missing 5-hour/weekly window metadata from same-workspace plan history so segmented multi-account JSON keeps machine-readable reset data (#1283). Thanks @callmepopo!
+- Antigravity: detect CLI local language-server processes and allow empty CSRF tokens only for explicit CLI matches so Antigravity CLI quota usage renders without weakening IDE CSRF detection (#1341). Thanks @oyaah!
+- Menu bar: skip closed attached-menu rebuilds during stale background data-refresh ticks so closed dropdowns are not pre-warmed while the user is not interacting (#1291). Thanks @Nicolas0315!
+- Cursor: show deficit and run-out pace details for 30-day Total, Auto, and API billing-cycle usage rows (#1336). Thanks @dhruv-anand-aintech!
+- Codex: time out stalled managed `codex login` processes so account switches no longer stay stuck in progress after OAuth completes (#1330). Thanks @dhruv-anand-aintech!
+- Codex Spark: show the same deficit and run-out pace details as the core Codex quota lanes for 5-hour and weekly model limits (#1335). Thanks @dhruv-anand-aintech!
+- Antigravity: make the automatic menu-bar summary choose the most constrained family quota so an exhausted Gemini lane is no longer hidden by a full Claude lane (#1334). Thanks @dhruv-anand-aintech!
+- Performance: memoize models.dev cost catalog load outcomes so large Codex history scans no longer re-read and decode the same cache file per row (#1322, refs #1311). Thanks @turbothad!
+- Menu bar: compute Claude pace/reserve from the selected menu-bar metric window so Primary (Session) no longer pairs the session percentage with the weekly reserve (#1302). Thanks @outfoxer!
+- Menu bar: defer merged-menu close rebuilds and cache repeated menu-card height measurements so dismissing or rapidly switching the merged dropdown avoids rebuilding SwiftUI-backed cards on the main thread (#1274, #1286, #1314). Thanks @hhh2210!
+- Menu bar: observe a compact icon-state signature so merged status icons no longer redraw for provider snapshot changes that cannot affect the visible icon (#1297). Thanks @hhh2210!
+- Menu bar: keep provider-switcher quota bars from replacing Auto Layout constraints when the visible ratio is unchanged, making tab switches responsive with many providers enabled (#1303, #1315). Thanks @juanjoseluisgarcia!
+- Kiro: retry login-shell PATH capture when CLI discovery races a slow cold shell startup, so `kiro-cli` is no longer stuck as missing for the whole app session (#1316). Thanks @bt-justtrack!
+
 ## 0.32.4 — 2026-06-02
 
 ### Fixed

@@ -16,12 +16,16 @@ private func appLanguageDefaults() -> UserDefaults {
     return UserDefaults(suiteName: "TokenBar") ?? .standard
 }
 
-private func isRunningTestsProcess() -> Bool {
+private let isRunningTestsProcessAtStartup: Bool = {
     let env = ProcessInfo.processInfo.environment
     if env["XCTestConfigurationFilePath"] != nil { return true }
     if env["TESTING_LIBRARY_VERSION"] != nil { return true }
     if env["SWIFT_TESTING"] != nil { return true }
     return NSClassFromString("XCTestCase") != nil
+}()
+
+private func isRunningTestsProcess() -> Bool {
+    isRunningTestsProcessAtStartup
 }
 
 private let standardAppLanguageAtProcessStart = UserDefaults.standard.string(forKey: "appLanguage")

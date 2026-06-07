@@ -30,9 +30,14 @@ public struct RateWindow: Codable, Equatable, Sendable {
     public func backfillingResetTime(from cached: RateWindow?, now: Date = .init()) -> RateWindow {
         if self.resetsAt != nil { return self }
         guard let cachedReset = cached?.resetsAt, cachedReset > now else { return self }
+        let windowMinutes = if let windowMinutes = self.windowMinutes, windowMinutes > 0 {
+            windowMinutes
+        } else {
+            cached?.windowMinutes
+        }
         return RateWindow(
             usedPercent: self.usedPercent,
-            windowMinutes: self.windowMinutes ?? cached?.windowMinutes,
+            windowMinutes: windowMinutes,
             resetsAt: cachedReset,
             resetDescription: self.resetDescription ?? cached?.resetDescription,
             nextRegenPercent: self.nextRegenPercent)
@@ -95,6 +100,8 @@ public struct UsageSnapshot: Codable, Sendable {
     public let mistralUsage: MistralUsageSnapshot?
     public let deepgramUsage: DeepgramUsageSnapshot?
     public let cursorRequests: CursorRequestUsage?
+    public let subscriptionExpiresAt: Date?
+    public let subscriptionRenewsAt: Date?
     public let updatedAt: Date
     public let identity: ProviderIdentitySnapshot?
 
@@ -110,6 +117,8 @@ public struct UsageSnapshot: Codable, Sendable {
         case claudeAdminAPIUsage
         case mistralUsage
         case deepgramUsage
+        case subscriptionExpiresAt
+        case subscriptionRenewsAt
         case updatedAt
         case identity
         case accountEmail
@@ -133,6 +142,8 @@ public struct UsageSnapshot: Codable, Sendable {
         mistralUsage: MistralUsageSnapshot? = nil,
         deepgramUsage: DeepgramUsageSnapshot? = nil,
         cursorRequests: CursorRequestUsage? = nil,
+        subscriptionExpiresAt: Date? = nil,
+        subscriptionRenewsAt: Date? = nil,
         updatedAt: Date,
         identity: ProviderIdentitySnapshot? = nil)
     {
@@ -151,6 +162,8 @@ public struct UsageSnapshot: Codable, Sendable {
         self.mistralUsage = mistralUsage
         self.deepgramUsage = deepgramUsage
         self.cursorRequests = cursorRequests
+        self.subscriptionExpiresAt = subscriptionExpiresAt
+        self.subscriptionRenewsAt = subscriptionRenewsAt
         self.updatedAt = updatedAt
         self.identity = identity
     }
@@ -174,6 +187,8 @@ public struct UsageSnapshot: Codable, Sendable {
         self.mistralUsage = try container.decodeIfPresent(MistralUsageSnapshot.self, forKey: .mistralUsage)
         self.deepgramUsage = try container.decodeIfPresent(DeepgramUsageSnapshot.self, forKey: .deepgramUsage)
         self.cursorRequests = nil // Not persisted, fetched fresh each time
+        self.subscriptionExpiresAt = try container.decodeIfPresent(Date.self, forKey: .subscriptionExpiresAt)
+        self.subscriptionRenewsAt = try container.decodeIfPresent(Date.self, forKey: .subscriptionRenewsAt)
         self.updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         if let identity = try container.decodeIfPresent(ProviderIdentitySnapshot.self, forKey: .identity) {
             self.identity = identity
@@ -207,6 +222,8 @@ public struct UsageSnapshot: Codable, Sendable {
         try container.encodeIfPresent(self.claudeAdminAPIUsage, forKey: .claudeAdminAPIUsage)
         try container.encodeIfPresent(self.mistralUsage, forKey: .mistralUsage)
         try container.encodeIfPresent(self.deepgramUsage, forKey: .deepgramUsage)
+        try container.encodeIfPresent(self.subscriptionExpiresAt, forKey: .subscriptionExpiresAt)
+        try container.encodeIfPresent(self.subscriptionRenewsAt, forKey: .subscriptionRenewsAt)
         try container.encode(self.updatedAt, forKey: .updatedAt)
         try container.encodeIfPresent(self.identity, forKey: .identity)
         try container.encodeIfPresent(self.identity?.accountEmail, forKey: .accountEmail)
@@ -310,6 +327,8 @@ public struct UsageSnapshot: Codable, Sendable {
             mistralUsage: self.mistralUsage,
             deepgramUsage: self.deepgramUsage,
             cursorRequests: self.cursorRequests,
+            subscriptionExpiresAt: self.subscriptionExpiresAt,
+            subscriptionRenewsAt: self.subscriptionRenewsAt,
             updatedAt: self.updatedAt,
             identity: identity)
     }
@@ -335,6 +354,7 @@ public struct UsageSnapshot: Codable, Sendable {
             secondary: secondary,
             tertiary: tertiary,
             extraRateWindows: self.extraRateWindows,
+            kiroUsage: self.kiroUsage,
             providerCost: self.providerCost,
             zaiUsage: self.zaiUsage,
             minimaxUsage: self.minimaxUsage,
@@ -345,6 +365,8 @@ public struct UsageSnapshot: Codable, Sendable {
             mistralUsage: self.mistralUsage,
             deepgramUsage: self.deepgramUsage,
             cursorRequests: self.cursorRequests,
+            subscriptionExpiresAt: self.subscriptionExpiresAt,
+            subscriptionRenewsAt: self.subscriptionRenewsAt,
             updatedAt: self.updatedAt,
             identity: self.identity)
     }

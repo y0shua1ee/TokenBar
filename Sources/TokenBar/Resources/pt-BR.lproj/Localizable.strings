@@ -1,4 +1,5 @@
-// Merged TokenBar localization strings.
+/* Brazilian Portuguese localization for TokenBar */
+
 " providers" = " provedores";
 "(System)" = "(Sistema)";
 "30d" = "30d";
@@ -190,8 +191,6 @@
 "OK" = "OK";
 "Obscure email addresses in the menu bar and menu UI." = "Oculta endereços de e-mail na barra de menus e na UI do menu.";
 "Off" = "Desligado";
-"Off-peak" = "Fora do pico";
-"Off-peak · peak in \\(self.formatDuration(minutes: minutes))" = "Fora do pico · pico em \\(self.formatDuration(minutes: minutes))";
 "Offline" = "Offline";
 "On" = "Ligado";
 "Online" = "Online";
@@ -228,7 +227,6 @@
 "Paste sessionKey or OAuth token…" = "Cole sessionKey ou token OAuth…";
 "Paste the Cookie header from a request to admin.mistral.ai. " = "Cole o cabeçalho Cookie de uma requisição para admin.mistral.ai. ";
 "Paste token…" = "Cole o token…";
-"Peak · ends in \\(self.formatDuration(minutes: remaining))" = "Pico · termina em \\(self.formatDuration(minutes: remaining))";
 "Personal" = "Pessoal";
 "Picker" = "Seletor";
 "Picker subtitle" = "Subtítulo do seletor";
@@ -275,11 +273,9 @@
 "Show credits + extra usage" = "Mostrar créditos + uso extra";
 "Show details" = "Mostrar detalhes";
 "Show most-used provider" = "Mostrar provedor mais usado";
-"Show peak hours indicator" = "Mostrar indicador de horário de pico";
 "Show provider icons in the switcher (otherwise show a weekly progress line)." = "Mostra ícones dos provedores no alternador (caso contrário, mostra uma linha de progresso semanal).";
 "Show reset time as clock" = "Mostrar renovação como horário";
 "Show usage as used" = "Mostrar uso como consumido";
-"Show whether Claude is in peak usage hours." = "Mostra se o Claude está em horário de pico.";
 "Sign in via button below" = "Entre pelo botão abaixo";
 "Skip teardown between probes (debug-only)." = "Não encerra entre verificações (somente depuração).";
 "Stack token accounts in the menu (otherwise show an account switcher bar)." = "Empilha contas de token no menu (caso contrário, mostra uma barra de alternância de contas).";
@@ -382,16 +378,15 @@
 "metric_secondary" = "Secundário (%@)";
 "metric_tertiary" = "Terciário (%@)";
 "multiple_workspaces_found" = "O TokenBar encontrou vários workspaces para %@. Escolha o workspace para adicionar.";
-"off_peak" = "Fora do pico";
-"off_peak_peak_in" = "Fora do pico · pico em %@";
 "ory_session_…=…; csrftoken=…" = "ory_session_…=…; csrftoken=…";
 "overview_choose_providers" = "Escolha até %@ provedores";
-"peak_ends_in" = "Pico termina em %@";
 "remove_account_message" = "Remover %@ do TokenBar? O diretório Codex gerenciado será apagado.";
 "version_format" = "Versão %@";
 "vertex_ai_login_instructions" = "Para acompanhar o uso do Vertex AI, autentique-se no Google Cloud.\n\n1. Abra o Terminal\n2. Execute: gcloud auth application-default login\n3. Siga os prompts no navegador para entrar\n4. Defina seu projeto: gcloud config set project PROJECT_ID\n\nAbrir o Terminal agora?";
 "workspaceID is set but only opencode, opencodego, and deepgram support workspaceID." = "workspaceID está definido, mas somente opencode, opencodego e deepgram oferecem suporte a workspaceID.";
 "© 2026 Peter Steinberger. MIT License." = "© 2026 Peter Steinberger. Licença MIT.";
+
+/* General Pane */
 "section_system" = "Sistema";
 "section_usage" = "Uso";
 "section_automation" = "Automação";
@@ -399,9 +394,15 @@
 "language_subtitle" = "Altera o idioma de exibição. Requer reiniciar o app para ter efeito completo.";
 "language_system" = "Sistema";
 "language_english" = "Inglês";
+"language_spanish" = "Espanhol";
+"language_catalan" = "Catalão";
 "language_chinese_simplified" = "Chinês simplificado";
 "language_chinese_traditional" = "Chinês tradicional";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_swedish" = "Sueco";
+"language_dutch" = "Nederlands";
+"language_french" = "Francês";
+"language_ukrainian" = "Ucraniano";
 "start_at_login_title" = "Iniciar ao fazer login";
 "start_at_login_subtitle" = "Abre o TokenBar automaticamente ao iniciar o Mac.";
 "show_cost_summary" = "Mostrar resumo de custos";
@@ -443,12 +444,16 @@
 "quota_warning_lower" = "Limite inferior";
 "apply" = "Aplicar";
 "quit_app" = "Encerrar TokenBar";
+
+/* Tab titles */
 "tab_general" = "Geral";
 "tab_providers" = "Provedores";
 "tab_display" = "Exibição";
 "tab_advanced" = "Avançado";
 "tab_about" = "Sobre";
 "tab_debug" = "Depuração";
+
+/* Providers Pane */
 "select_a_provider" = "Selecione um provedor";
 "cancel" = "Cancelar";
 "last_fetch_failed" = "última busca falhou";
@@ -472,6 +477,8 @@
 "menu_bar_metric_subtitle_kimik2" = "Mostra os créditos da chave de API do Kimi K2 na barra de menus.";
 "automatic" = "Automático";
 "primary_api_key_limit" = "Primário (limite da chave de API)";
+
+/* Display Pane */
 "section_menu_bar" = "Barra de menus";
 "merge_icons_title" = "Mesclar Ícones";
 "merge_icons_subtitle" = "Usa um único ícone na barra de menus com alternador de provedores.";
@@ -508,6 +515,8 @@
 "overview_no_providers_hint" = "Nenhum provedor ativado disponível para Visão geral.";
 "overview_rows_follow_order" = "As linhas da Visão geral sempre seguem a ordem dos provedores.";
 "overview_no_providers_selected" = "Nenhum provedor selecionado";
+
+/* Advanced Pane */
 "section_keyboard_shortcut" = "Atalho de teclado";
 "open_menu_shortcut_title" = "Abrir menu";
 "open_menu_shortcut_subtitle" = "Aciona o menu da barra de menus de qualquer lugar.";
@@ -529,6 +538,8 @@
 "keychain_access_caption" = "Desativa todas as leituras e gravações do Keychain. A importação de cookies do navegador fica indisponível; cole cabeçalhos Cookie manualmente em Provedores.";
 "disable_keychain_access_title" = "Desativar acesso ao Keychain";
 "disable_keychain_access_subtitle" = "Impede qualquer acesso ao Keychain quando ativado.";
+
+/* About Pane */
 "about_tagline" = "Que seus tokens nunca acabem — mantenha os limites dos agentes à vista.";
 "link_github" = "GitHub";
 "link_website" = "Site";
@@ -539,6 +550,8 @@
 "check_for_updates" = "Buscar atualizações…";
 "updates_unavailable" = "Atualizações indisponíveis nesta build.";
 "copyright" = "© 2026 Peter Steinberger. Licença MIT.";
+
+/* Debug Pane */
 "section_logging" = "Logs";
 "enable_file_logging" = "Ativar logs em arquivo";
 "enable_file_logging_subtitle" = "Grava logs em %@ para depuração.";
@@ -595,30 +608,43 @@
 "cleared" = "Limpo.";
 "no_fetch_attempts" = "Ainda sem tentativas de busca.";
 "macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "O macOS Tahoe pode bloquear apps da barra de menus em Ajustes do Sistema → Barra de Menus → Permitir na Barra de Menus. O TokenBar está em execução, mas o macOS pode estar ocultando seu ícone. Abra os ajustes da Barra de Menus e ative o TokenBar.";
+
+/* Metric preferences */
 "metric_pref_automatic" = "Automático";
 "metric_pref_primary" = "Primário";
 "metric_pref_secondary" = "Secundário";
 "metric_pref_tertiary" = "Terciário";
 "metric_pref_extra_usage" = "Uso extra";
 "metric_pref_average" = "Média";
+
+/* Display modes */
 "display_mode_percent" = "Porcentagem";
 "display_mode_pace" = "Ritmo";
 "display_mode_both" = "Ambos";
 "display_mode_percent_desc" = "Mostra a porcentagem restante/usada (ex.: 45%)";
 "display_mode_pace_desc" = "Mostra o indicador de ritmo (ex.: +5%)";
 "display_mode_both_desc" = "Mostra porcentagem e ritmo (ex.: 45% · +5%)";
+
+/* Provider status */
 "status_operational" = "Operacional";
 "status_partial_outage" = "Falha parcial";
 "status_major_outage" = "Falha geral";
 "status_critical_issue" = "Problema crítico";
 "status_maintenance" = "Manutenção";
 "status_unknown" = "Status desconhecido";
+
+/* Refresh frequency */
 "refresh_manual" = "Manual";
 "refresh_1min" = "1 min";
 "refresh_2min" = "2 min";
 "refresh_5min" = "5 min";
 "refresh_15min" = "15 min";
 "refresh_30min" = "30 min";
+
+/* Additional keys */
+"not_found" = "Não encontrado";
+
+/* Cost estimation */
 "cost_header_estimated" = "Custo (estimado)";
 "cost_estimate_hint" = "Estimado a partir de logs locais · pode diferir da sua fatura";
 "No JetBrains IDE with AI Assistant detected. Install a JetBrains IDE and enable AI Assistant." = "Nenhuma IDE JetBrains com AI Assistant detectada. Instale uma IDE JetBrains e ative o AI Assistant.";
@@ -1034,7 +1060,8 @@
 "Cookie: …\n\nor paste the __Secure-next-auth.session-token value" = "Cookie: …\n\nou cole o valor de __Secure-next-auth.session-token";
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\nou cole o valor do token kimi-auth";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\nou cole apenas o valor de session_id";
-"Active quota" = "Cota ativa";
 "Clear" = "Limpar";
 "No matching providers" = "Nenhum provedor correspondente";
 "Search providers" = "Buscar provedores";
+
+"language_vietnamese" = "Vietnamita";

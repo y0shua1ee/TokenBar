@@ -71,6 +71,36 @@ struct UsageStoreCoverageTests {
     }
 
     @Test
+    func `account info caches codex auth parsing until config revision changes`() throws {
+        let settings = Self.makeSettingsStore(suite: "UsageStoreCoverageTests-account-info-cache")
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "usage-store-account-info-\(UUID().uuidString)",
+            isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: home) }
+
+        try Self.writeCodexAuthFile(homeURL: home, email: "first@example.com", plan: "plus")
+        let env = ["CODEX_HOME": home.path]
+        settings._test_codexReconciliationEnvironment = env
+        defer { settings._test_codexReconciliationEnvironment = nil }
+        let store = UsageStore(
+            fetcher: UsageFetcher(environment: env),
+            browserDetection: BrowserDetection(cacheTTL: 0),
+            settings: settings,
+            startupBehavior: .testing,
+            environmentBase: env)
+
+        let first = store.accountInfo(for: .codex)
+        try Self.writeCodexAuthFile(homeURL: home, email: "second@example.com", plan: "pro")
+        let cached = store.accountInfo(for: .codex)
+        settings.configRevision &+= 1
+        let refreshed = store.accountInfo(for: .codex)
+
+        #expect(first.email == "first@example.com")
+        #expect(cached.email == "first@example.com")
+        #expect(refreshed.email == "second@example.com")
+    }
+
+    @Test
     func `source label uses configured kilo source`() {
         let settings = Self.makeSettingsStore(suite: "UsageStoreCoverageTests-kilo-source")
         settings.kiloUsageDataSource = .api
@@ -593,6 +623,38 @@ struct UsageStoreCoverageTests {
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: settings,
             environmentBase: [:])
+    }
+
+    private static func writeCodexAuthFile(homeURL: URL, email: String, plan: String) throws {
+        try FileManager.default.createDirectory(at: homeURL, withIntermediateDirectories: true)
+        let auth = try [
+            "tokens": [
+                "accessToken": "access-token",
+                "refreshToken": "refresh-token",
+                "idToken": Self.fakeCodexJWT(email: email, plan: plan),
+            ],
+        ]
+        let data = try JSONSerialization.data(withJSONObject: auth)
+        try data.write(to: homeURL.appendingPathComponent("auth.json"), options: .atomic)
+    }
+
+    private static func fakeCodexJWT(email: String, plan: String) throws -> String {
+        let header = try JSONSerialization.data(withJSONObject: ["alg": "none"])
+        let payload = try JSONSerialization.data(withJSONObject: [
+            "email": email,
+            "chatgpt_plan_type": plan,
+            "https://api.openai.com/auth": [
+                "chatgpt_plan_type": plan,
+            ],
+        ])
+        return "\(Self.base64URL(header)).\(Self.base64URL(payload))."
+    }
+
+    private static func base64URL(_ data: Data) -> String {
+        data.base64EncodedString()
+            .replacingOccurrences(of: "=", with: "")
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
     }
 
     private static func enableOnly(_ enabledProvider: UsageProvider, settings: SettingsStore) throws {

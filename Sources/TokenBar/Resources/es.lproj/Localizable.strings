@@ -399,6 +399,10 @@
 "language_chinese_simplified" = "简体中文";
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_swedish" = "Sueco";
+"language_dutch" = "Nederlands";
+"language_french" = "Francés";
+"language_ukrainian" = "Ucraniano";
 "start_at_login_title" = "Abrir al iniciar sesión";
 "start_at_login_subtitle" = "Abre TokenBar automáticamente al iniciar tu Mac.";
 "show_cost_summary" = "Mostrar resumen de coste";
@@ -419,13 +423,6 @@
 "quota_warning_session_capitalized" = "Sesión";
 "quota_warning_weekly" = "semanal";
 "quota_warning_weekly_capitalized" = "Semanal";
-"quota_warning_notification_title" = "%1$@: cuota baja (%2$@)";
-"quota_warning_notification_body" = "%1$@ restante. Has alcanzado el umbral de aviso del %2$d%% (%3$@).";
-"quota_warning_notification_body_with_account" = "Cuenta %1$@. %2$@ restante. Has alcanzado el umbral de aviso del %3$d%% (%4$@).";
-"session_depleted_notification_title" = "Sesión de %@ agotada";
-"session_depleted_notification_body" = "0% restante. Te avisaremos cuando vuelva a estar disponible.";
-"session_restored_notification_title" = "Sesión de %@ restaurada";
-"session_restored_notification_body" = "La cuota de sesión vuelve a estar disponible.";
 "quota_warning_warn_at" = "Avisar al";
 "quota_warning_global_threshold_subtitle" = "Porcentajes restantes para las ventanas de sesión y semanal, salvo que un proveedor los anule.";
 "quota_warning_sound" = "Reproducir sonido de notificación";
@@ -681,8 +678,6 @@
 "Usage history (today)" = "Historial de uso (hoy)";
 "Usage history (%d days)" = "Historial de uso (%d días)";
 "%d percent remaining" = "%d%% restante";
-"usage_percent_suffix_left" = "restante";
-"usage_percent_suffix_used" = "usado";
 "Unknown" = "Desconocido";
 "stale data" = "datos obsoletos";
 "No credits history data available." = "No hay datos de historial de créditos disponibles.";
@@ -726,14 +721,6 @@
 "%@ tokens" = "%@ tokens";
 "Latest billing day" = "Último día de facturación";
 "Latest billing day (%@)" = "Último día de facturación (%@)";
-"%@ left" = "%@ restante";
-"Resets %@" = "Se restablece %@";
-"Resets in %@" = "Se restablece en %@";
-"Resets now" = "Se restablece ahora";
-"Updated %@" = "Actualizado %@";
-"Updated %@h ago" = "Actualizado hace %@ h";
-"Updated %@m ago" = "Actualizado hace %@ min";
-"Updated just now" = "Actualizado ahora mismo";
 "This week" = "Esta semana";
 "This month" = "Este mes";
 "Week" = "Semana";
@@ -930,7 +917,8 @@
 "Cookie: …\n\nor paste the __Secure-next-auth.session-token value" = "Cookie: …\n\no pega el valor de __Secure-next-auth.session-token";
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\no pega el valor del token kimi-auth";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\no pega solo el valor de session_id";
-"Active quota" = "Cuota activa";
 "Clear" = "Borrar";
 "No matching providers" = "No hay proveedores coincidentes";
 "Search providers" = "Buscar proveedores";
+
+"language_vietnamese" = "Vietnamita";

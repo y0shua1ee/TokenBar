@@ -406,6 +406,10 @@
 "language_chinese_simplified" = "简体中文";
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_swedish" = "瑞典語";
+"language_dutch" = "Nederlands";
+"language_french" = "法語";
+"language_ukrainian" = "烏克蘭語";
 "start_at_login_title" = "登入時啟動";
 "start_at_login_subtitle" = "登入 Mac 時自動開啟 TokenBar。";
 "show_cost_summary" = "顯示費用摘要";
@@ -623,8 +627,6 @@
 "refresh_15min" = "15 分鐘";
 "refresh_30min" = "30 分鐘";
 "not_found" = "找不到";
-"usage_percent_suffix_left" = "剩餘";
-"usage_percent_suffix_used" = "已使用";
 "TokenBar can't show its menu bar icon" = "TokenBar 無法顯示選單列圖示";
 "Dismiss" = "關閉";
 "Open Menu Bar Settings" = "開啟選單列設定";
@@ -724,14 +726,6 @@
 "%@ tokens" = "%@ token";
 "Latest billing day" = "最新帳單日";
 "Latest billing day (%@)" = "最新帳單日（%@）";
-"%@ left" = "剩餘 %@";
-"Resets %@" = "於 %@ 重置";
-"Resets in %@" = "%@ 後重置";
-"Resets now" = "現在重置";
-"Updated %@" = "更新於 %@";
-"Updated %@h ago" = "%@ 小時前更新";
-"Updated %@m ago" = "%@ 分鐘前更新";
-"Updated just now" = "剛剛更新";
 "This week" = "本週";
 "Week" = "週";
 "Month" = "月";
@@ -936,7 +930,8 @@
 "Cookie: …\n\nor paste the __Secure-next-auth.session-token value" = "Cookie: …\n\n或貼上 __Secure-next-auth.session-token 值";
 "Cookie: …\n\nor paste the kimi-auth token value" = "Cookie: …\n\n或貼上 kimi-auth token 值";
 "session_id=...\n\nor paste just the session_id value" = "session_id=...\n\n或只貼上 session_id 值";
-"Active quota" = "目前配額";
 "Clear" = "清除";
 "No matching providers" = "沒有相符的提供者";
 "Search providers" = "搜尋提供者";
+
+"language_vietnamese" = "越南語";
