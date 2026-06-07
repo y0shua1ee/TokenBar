@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.32.5 — Unreleased
+## 0.32.5 — 2026-06-07
 
 ### Added
 - Localization: add French as a selectable app language (#1241). Thanks @Yuxin-Qiao!
