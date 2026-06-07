@@ -285,7 +285,7 @@ public struct DeepSeekUsageFetcher: Sendable {
         now: Date = Date(),
         calendar: Calendar? = nil) async throws -> DeepSeekUsageSummary
     {
-        let calendar = calendar ?? self.apiCalendar
+        let calendar = calendar ?? Calendar.current
         let period = try self.usagePeriod(now: now, calendar: calendar)
 
         let amountData = try await self.fetchAmount(apiKey: apiKey, month: period.month, year: period.year)
