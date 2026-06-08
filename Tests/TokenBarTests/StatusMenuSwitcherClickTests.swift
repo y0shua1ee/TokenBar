@@ -269,6 +269,8 @@ struct StatusMenuSwitcherClickTests {
         #expect(settings.mergedMenuLastSelectedWasOverview == false)
         #expect(settings.selectedMenuProvider == .claude)
 
+        // Yield an extra runloop spin for headless CI timing
+        await Task.yield()
         #expect(try menu.performKeyEquivalent(with: Self.arrowKeyEvent(keyCode: 123)) == true)
         await Task.yield()
         #expect(settings.mergedMenuLastSelectedWasOverview == false)
