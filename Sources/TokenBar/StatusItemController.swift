@@ -1,7 +1,6 @@
 import AppKit
 import Observation
 import QuartzCore
-import SwiftUI
 import TokenBarCore
 
 // MARK: - Status item controller (AppKit-hosted icons, SwiftUI popovers)
@@ -40,9 +39,9 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         var autosaveName: String {
             switch self {
             case .merged:
-                "codexbar-merged"
+                "tokenbar-merged"
             case let .provider(provider):
-                "codexbar-\(provider.rawValue)"
+                "tokenbar-\(provider.rawValue)"
             }
         }
 
@@ -118,8 +117,12 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var menuContentVersion: Int = 0
     var latestRequiredMenuRebuildVersion: Int = 0
     var menuVersions: [ObjectIdentifier: Int] = [:]
+    var menuReadinessSignatures: [ObjectIdentifier: String] = [:]
     var menuCardHeightCache: [MenuCardHeightCacheKey: CGFloat] = [:]
+    var measuredStandardMenuWidthCache: [String: CGFloat] = [:]
     var lastMenuAdjunctReadinessSignature = ""
+    var lastMenuAdjunctReadinessBaselineVersion = 0
+    var rootOpenHandledMenuObservationSignature: String?
     var mergedMenu: NSMenu?
     var providerMenus: [UsageProvider: NSMenu] = [:]
     var fallbackMenu: NSMenu?
@@ -140,7 +143,21 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var highlightedMenuItems: [ObjectIdentifier: NSMenuItem] = [:]
     var providerSwitcherShortcutEventMonitor: ProviderSwitcherShortcutEventMonitor?
     var providerSwitcherShortcutMenuID: ObjectIdentifier?
+    var providerSwitcherPointerInteractionMenuID: ObjectIdentifier?
+    var pendingProviderSwitcherPointerRebuild: PendingProviderSwitcherRebuild?
     var hasPreparedForAppShutdown = false
+    var scheduleQuitTermination: (@escaping @MainActor () -> Void) -> Void = { operation in
+        DispatchQueue.main.async {
+            Task { @MainActor in
+                operation()
+            }
+        }
+    }
+
+    var terminateApplicationForQuit: @MainActor () -> Void = {
+        NSApp.terminate(nil)
+    }
+
     var openMenuInvalidationRetryTask: Task<Void, Never>?
     #if DEBUG
     var onDelayedMenuRefreshAttemptForTesting: (() -> Void)?
@@ -207,12 +224,19 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     var lastSwitcherProviders: [UsageProvider] = []
     /// Tracks which switcher tab state was used for the current merged-menu switcher instance.
     var lastMergedSwitcherSelection: ProviderSwitcherSelection?
+    /// Tracks which provider/overview content is currently attached below the merged-menu switcher.
+    var lastMergedMenuContentSelection: ProviderSwitcherSelection?
     /// Tracks the visible Codex account switcher contents for merged-menu smart updates.
     var lastCodexAccountMenuDisplay: CodexAccountMenuDisplay?
     /// Tracks the visible token account switcher contents for merged-menu smart updates.
     var lastTokenAccountMenuDisplay: TokenAccountMenuDisplay?
+    /// Keeps detached merged-menu tab content reusable while the same menu remains open.
+    var mergedSwitcherContentCaches: [ObjectIdentifier: [ProviderSwitcherSelection: CachedMergedSwitcherMenuContent]]
+        = [:]
+    var preservesMergedSwitcherContentCachesDuringInvalidation = false
     /// Monotonic token used to ignore stale deferred provider-switcher menu rebuilds.
     var providerSwitcherUpdateToken = 0
+    var providerSelectionUIRefreshTask: Task<Void, Never>?
     var lastAppliedMergedIconRenderSignature: String?
     var lastAppliedProviderIconRenderSignatures: [UsageProvider: String] = [:]
     var lastObservedStoreIconWorkSignature: String?
@@ -374,6 +398,7 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
                 metadata: ["keys": repairedStatusItemVisibilityKeys.joined(separator: ",")])
         }
         self.lastMenuAdjunctReadinessSignature = self.menuAdjunctReadinessSignature()
+        self.lastMenuAdjunctReadinessBaselineVersion = self.menuContentVersion
         self.wireBindings()
         self.updateVisibility()
         self.updateIcons()
@@ -444,13 +469,25 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.observeStoreChanges()
-                self.invalidateMenus(
-                    refreshOpenMenus: self.didMenuAdjunctReadinessChange(),
-                    deferOpenParentMenuRebuild: true,
-                    allowStaleContentDuringDataRefresh: true)
+                self.handleObservedStoreMenuChange()
             }
         }
+    }
+
+    func handleObservedStoreMenuChange() {
+        self.observeStoreChanges()
+        let rootOpenHandledReadiness = self.consumeRootOpenHandledMenuObservationIfNeeded()
+        // `refreshOpenMenus` is only consulted when a menu is currently open.
+        // Computing the readiness signature serializes every enabled provider's
+        // token snapshot and 30-day daily breakdown, which is wasted main-thread
+        // work on the common path where no menu is open (background refresh ticks).
+        let refreshOpenMenus = self.openMenus.isEmpty
+            ? false
+            : rootOpenHandledReadiness || self.didMenuAdjunctReadinessChange()
+        self.invalidateMenus(
+            refreshOpenMenus: refreshOpenMenus,
+            deferOpenParentMenuRebuild: true,
+            allowStaleContentDuringDataRefresh: true)
     }
 
     private func observeStoreIconChanges() {

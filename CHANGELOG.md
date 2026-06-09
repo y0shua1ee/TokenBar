@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.32.6 — 2026-06-10
+
+### Fixed
+- Menu bar: keep merged-menu provider switching responsive by reusing switcher content and preserving menu item identity across refreshes.
+- Menu bar: keep transient provider-tab selection out of general menu observation so switching tabs no longer clears menu caches and rebuilds the dropdown on the main thread.
+- Menu bar: cache hosted menu widths and defer avoidable open-menu work so hovering and opening the merged dropdown stays responsive with many providers enabled.
+- DeepSeek: fix Today cost rows when local date lookup or UTC day boundaries would otherwise show zero usage.
+- Release: default TokenBar packaging to adhoc signing for local fork releases.
+- Tests: stabilize headless CI timing for menu keyboard navigation.
+
 ## 0.32.5 — 2026-06-07
 
 ### Added
