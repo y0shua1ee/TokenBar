@@ -1,5 +1,70 @@
 # Changelog
 
+## 0.33.1 — 2026-06-12
+
+### Added
+- Localization: add native Korean language support across the app and language picker (#1460). Thanks @soohanpark!
+- Devin: add daily and weekly quota tracking from the signed-in Chrome session or a manual Bearer token (#1264, fixes #800). Thanks @coygeek!
+- Menu bar: add an optional reset-time display for the selected quota metric, with percent fallback when reset metadata is unavailable (#1223, fixes #1185). Thanks @Yuxin-Qiao!
+- Cursor: include application data, extensions, settings, and caches in optional local storage tracking (fixes #1403). Thanks @dhruv-anand-aintech!
+- Menu bar: move the highlighted Overview provider with trackpad or mouse-wheel scrolling while preserving native submenu and keyboard behavior (#1436). Thanks @joshuavial!
+
+### Fixed
+- Settings: slightly increase the window height so standard panes fit without clipping their final controls or helper text.
+- Menu bar: show immediate in-place feedback for manual refreshes, keep tracked-menu geometry stable, and coalesce repeated clicks until the active refresh succeeds or fails (#1458). Thanks @hhh2210!
+- Grok: recover web billing from status-7 credential failures by combining current browser sessions with non-expired CLI auth, accept raw protobuf responses, and render current zero-use periods (#1452). Thanks @bcharleson!
+- Antigravity: detect current hyphenated IDE language-server processes inside Antigravity app bundles so local quota refreshes no longer report the IDE as unavailable (#1405). Thanks @lfmundim!
+- Menu bar: avoid republishing unchanged provider storage footprints so background scans no longer trigger unnecessary menu observation work (#1416). Thanks @soohanpark!
+- Cursor: show capped team Extra usage when no individual cap exists, and honor percent used/remaining menu bar display settings instead of always showing currency spend (#1426). Thanks @lpc-eol!
+- Claude: explain that an unauthorized Web session requires signing in at claude.ai or refreshing imported cookies (#1287). Thanks @LeoLin990405!
+- CLI server: reload provider config for every usage and cost request, invalidate config-dependent cache entries, and prune expired config variants without restarting `tokenbar serve`. Thanks @enieuwy!
+- Menu bar: reserve quota-bar space consistently across Overview and provider switcher segments so selection no longer changes segment height (#1445). Thanks @Zihao-Qi!
+- Cost usage: accept normal models.dev catalog churn while retaining prior model prices as fallbacks, so newly priced models appear without requiring a manual cache reset (#1438). Thanks @tom-rigelblu!
+- Menu bar: detect Tahoe Control Center proxy windows parked in the blocked offscreen slot during startup recovery, so hidden icons show the existing guidance without weakening menu-bar-manager safeguards (#1440).
+- AWS Bedrock: treat Cost Explorer's temporary data-unavailable response as zero usage instead of an HTTP 400 error (#1324). Thanks @enesteve0!
+- Provider switcher: inset quota bars inside fixed-height segments so icons, labels, and selected pills remain vertically centered.
+- Doubao: show an unavailable quota state when Ark omits trustworthy request-limit data instead of reporting 100% left.
+- Menu bar: anchor merged provider dropdowns to the status item's trailing edge without marking preserved in-flight refresh content fresh, preventing horizontal drift while keeping deferred updates visible (#1288). Thanks @Yuxin-Qiao!
+- Antigravity: fall back to the CLI usage server when the desktop app is closed, keep helper sessions owned and bounded without hidden sign-in flows, and show model rows with missing usage as unavailable instead of exhausted (#1313). Thanks @enieuwy!
+- Cost usage: replace repeated Foundation metadata/root checks with one portable file-stat pass so expired Codex history refreshes stay responsive on very large session archives (#1392). Thanks @TheAngryPit and @ProspectOre!
+- Cursor: show the Safari Full Disk Access recovery hint before the long browser login list so permission guidance remains visible when menu errors truncate (#1419, fixes #1417). Thanks @hhh2210!
+- Cursor: present legacy request-based plans as one Requests quota with the raw used/limit count instead of unrelated token-based Auto/API bars (#1420, fixes #1418). Thanks @hhh2210!
+- Cost usage: memoize Codex priority-turn trace metadata incrementally so warm refreshes scan only appended rows instead of rescanning large trace databases (#1404). Thanks @ProspectOre!
+- Security: reject insecure or malformed MiniMax and Alibaba endpoint overrides while preserving valid custom HTTPS deployments (#1269). Thanks @Hinotoi-agent!
+- Security: reject insecure or malformed OpenRouter, Codebuff, Groq, and ElevenLabs endpoint overrides before sending provider credentials (#1256). Thanks @Hinotoi-agent!
+
+## 0.33.0 — 2026-06-11
+
+### Added
+- Settings: choose Terminal.app or iTerm for Open Terminal actions, including Vertex AI login commands (#1225, fixes #1147). Thanks @Yuxin-Qiao!
+- Localization: add Japanese as a selectable app language (#1385). Thanks @naoterumaker!
+
+### Fixed
+- Menu bar: keep large dynamic Cost totals inside the fixed-width hosted row so switching providers no longer widens the menu or misaligns submenu arrows.
+- Cost history: keep all per-day model breakdown rows available in a bounded scrolling detail area instead of hiding models after the first four (#1370). Thanks @MoollaMore!
+- Cost usage: run local session-corpus scans and cache decoding on a dedicated serial queue instead of the Swift cooperative thread pool, so multi-minute scans of large archives no longer starve the app's async work or freeze menus (#1387, #1392). Thanks @ProspectOre!
+- Copilot: keep explicitly unlimited chat quotas visible instead of dropping their zero-entitlement payload as unavailable (#1320). Thanks @soumikbhatta!
+- Security: block credentialed provider redirects that leave the original HTTPS origin while preserving same-origin redirects (#1237). Thanks @Hinotoi-agent!
+- Codex: keep local token and cost history visible when remote quota data is unavailable (#1390). Thanks @vaibhavarora14!
+- Doubao: confirm zero-remaining HTTP 200 request limits before falling back, preserving genuine exhaustion and avoiding false 100% usage (#1383). Thanks @LeoLin990405 and @foobra!
+- Menu bar: defer pasteboard writes and copy feedback outside the `NSMenu` tracking callback so in-menu copy buttons no longer beachball on macOS 26 (#1388). Thanks @LeoLin990405!
+- Menu bar: defer merged status-icon redraws until the tracked menu closes while preserving animation lifecycle and quota-warning timing, reducing WindowServer churn during long menu sessions (#1409, fixes #1399). Thanks @kiranmagic7!
+- Provider status: decode status feeds on the concurrent executor and reuse ISO8601 formatters, removing a measured main-thread stall during refreshes (#1406). Thanks @ProspectOre!
+- Menu bar: keep one stable width across merged provider tabs and resize every hosted card row to AppKit's final menu width so provider switching no longer leaves a widened menu with inset submenu arrows (#1410).
+- Menu bar: keep Codex `auth.json` reads, JWT parsing, and fingerprint hashing off the menu-build path by rendering a cached account snapshot and revalidating it asynchronously (#1401). Thanks @ProspectOre!
+- Menu bar: defer Overview-row provider transitions out of AppKit's click callback so opening provider detail no longer performs a full synchronous menu rebuild (#1325).
+- Menu bar: open cached menus immediately after data-only invalidations, then refresh missing or stale provider data asynchronously without queuing redundant work on close (#1398). Thanks @joshuavial!
+- Menu bar: recycle SwiftUI card hosting views across data refreshes and provider switches, and reconcile matching menu rows in place instead of removing and reinserting every row, cutting open-click, switch, and idle rebuild cost (#1394). Thanks @bcssewl!
+- Menu bar: gate the provider-switcher shortcut monitor's event-queue peek behind session event counters so hover-driven menu tracking no longer calls `NSApp.nextEvent` on every run-loop pass (#1397). Thanks @bcssewl!
+- Development: disable Keychain access for unbundled executables to avoid repeated password prompts while preserving packaged app behavior (#1271). Thanks @Yuxin-Qiao!
+- Antigravity: exclude model quotas without a remaining fraction from family summaries so they no longer mask tracked usage in the automatic menu-bar metric (#1369). Thanks @Martin-Hausleitner!
+- Claude: add bundled Fable 5 pricing, account for native 1-hour cache-write usage, and refresh Sonnet 4.6 full-context rates (#1368). Thanks @MoollaMore!
+- Claude: show a direct claude.ai re-login action when a configured web session expires or becomes invalid (#1377). Thanks @LeoLin990405!
+- Menu: reuse unchanged hosted chart submenus and precompute utilization history models to reduce expand and hover stalls (#1379). Thanks @hhh2210!
+- Menu bar: defer data-refresh rebuilds until the tracked menu closes, avoiding multi-second WindowServer stalls with slower providers such as Grok (#1376). Thanks @jangisaac-dev!
+- OpenAI Web: evict cached dashboard WebViews after their idle timeout even when no later cache activity occurs, releasing hidden WebKit helper processes (#1386). Thanks @naoterumaker!
+- Xiaomi MiMo: import automatic session cookies from Safari, Chrome variants, Firefox, and Edge instead of limiting discovery to Chrome (#1304). Thanks @Yuxin-Qiao!
+
 ## 0.32.6 — 2026-06-10
 
 ### Fixed
@@ -10,7 +75,7 @@
 - Release: default TokenBar packaging to adhoc signing for local fork releases.
 - Tests: stabilize headless CI timing for menu keyboard navigation.
 
-## 0.32.5 — 2026-06-07
+## 0.32.5 — 2026-06-09
 
 ### Added
 - Localization: add French as a selectable app language (#1241). Thanks @Yuxin-Qiao!
@@ -19,7 +84,12 @@
 - Localization: add Vietnamese as a selectable app language (#1247). Thanks @Yuxin-Qiao!
 
 ### Fixed
-- Claude: remove transient ClaudeProbe session artifacts after CLI usage polls so background refreshes no longer fill Claude Code project history with CodexBar `/usage` sessions (#1301). Thanks @LPFchan and @matthewod11-stack!
+- Menu bar: keep provider switching inside AppKit's menu-tracking transaction and defer structural dropdown rebuilds until mouse-up completes, preventing intermittent hangs when moving between providers and Overview.
+- Localization: cache resolved localized bundles so repeated menu/status text lookups no longer hit disk on the main thread (#1355, fixes #1347). Thanks @Yuxin-Qiao!
+- Menu bar: size hosted chart submenus directly instead of spinning up throwaway SwiftUI hosting controllers during menu layout (#1352). Thanks @Yuxin-Qiao!
+- Menu bar: avoid recomputing expensive readiness signatures on closed-menu store ticks while preserving root-open refresh correctness for deferred observations (#1351). Thanks @Yuxin-Qiao!
+- Menu bar: defer Quit from the status menu until AppKit menu tracking unwinds so shutdown does not wedge Dock autohide state (#1354, fixes #1353). Thanks @jskoiz!
+- Claude: remove transient ClaudeProbe session artifacts after CLI usage polls so background refreshes no longer fill Claude Code project history with TokenBar `/usage` sessions (#1301). Thanks @LPFchan and @matthewod11-stack!
 - Menu bar: keep z.ai overview rows with detail submenus in Overview so hovering quota details no longer recurses into a nested provider menu (#1279, fixes #1246). Thanks @RajvardhanPatil07!
 - Codex: backfill visible-account reset timestamps and missing 5-hour/weekly window metadata from same-workspace plan history so segmented multi-account JSON keeps machine-readable reset data (#1283). Thanks @callmepopo!
 - Antigravity: detect CLI local language-server processes and allow empty CSRF tokens only for explicit CLI matches so Antigravity CLI quota usage renders without weakening IDE CSRF detection (#1341). Thanks @oyaah!
@@ -31,6 +101,7 @@
 - Performance: memoize models.dev cost catalog load outcomes so large Codex history scans no longer re-read and decode the same cache file per row (#1322, refs #1311). Thanks @turbothad!
 - Menu bar: compute Claude pace/reserve from the selected menu-bar metric window so Primary (Session) no longer pairs the session percentage with the weekly reserve (#1302). Thanks @outfoxer!
 - Menu bar: defer merged-menu close rebuilds and cache repeated menu-card height measurements so dismissing or rapidly switching the merged dropdown avoids rebuilding SwiftUI-backed cards on the main thread (#1274, #1286, #1314). Thanks @hhh2210!
+- Menu bar: keep merged provider tab selection from invalidating broad settings observers so switching providers no longer triggers background refresh and status-icon work.
 - Menu bar: observe a compact icon-state signature so merged status icons no longer redraw for provider snapshot changes that cannot affect the visible icon (#1297). Thanks @hhh2210!
 - Menu bar: keep provider-switcher quota bars from replacing Auto Layout constraints when the visible ratio is unchanged, making tab switches responsive with many providers enabled (#1303, #1315). Thanks @juanjoseluisgarcia!
 - Kiro: retry login-shell PATH capture when CLI discovery races a slow cold shell startup, so `kiro-cli` is no longer stuck as missing for the whole app session (#1316). Thanks @bt-justtrack!
@@ -87,7 +158,7 @@
 ## 0.31.0 — 2026-05-28
 
 ### Changed
-- Docs: update the Homebrew install command to use the official `codexbar` cask now that it supports Intel Macs (#1189). Thanks @SSakutaro!
+- Docs: update the Homebrew install command to use the official `tokenbar` cask now that it supports Intel Macs (#1189). Thanks @SSakutaro!
 - Tests: document and audit that routine validation must not trigger macOS Keychain prompts.
 - Localization: localize popup panels and provider settings UI across supported languages (#1181). Thanks @jack24254029!
 - Localization: complete Brazilian Portuguese coverage so pt-BR no longer falls back to English for new UI strings (#1188). Thanks @ManuzimFerreira!
@@ -98,7 +169,7 @@
 - Localization: add Swedish as a selectable app language (#1186). Thanks @yeager!
 
 ### Fixed
-- CLI: bound `codexbar serve` requests with a configurable timeout and coalesce concurrent cache misses so hung `/usage` callers no longer stampede provider refreshes (#1208). Thanks @enieuwy!
+- CLI: bound `tokenbar serve` requests with a configurable timeout and coalesce concurrent cache misses so hung `/usage` callers no longer stampede provider refreshes (#1208). Thanks @enieuwy!
 - Claude: add Opus 4.8 to the built-in pricing fallback so stale models.dev caches still show token cost (#1214, fixes #1210). Thanks @devYRPauli!
 - Codex: preserve authorized web dashboard credits-only snapshots instead of treating missing usage windows as a failed refresh (#1206, fixes #1204). Thanks @soumikbhatta!
 - Cost history: make token-cost JSONL scans cancellation-aware so quitting, forced refreshes, and account switches can stop stale scans sooner.
@@ -110,7 +181,7 @@
 ## 0.30.1 — 2026-05-28
 
 ### Changed
-- CLI: make `codexbar diagnose` use a generic safe provider diagnostic export for all providers, with MiniMax details attached only as provider-specific metadata.
+- CLI: make `tokenbar diagnose` use a generic safe provider diagnostic export for all providers, with MiniMax details attached only as provider-specific metadata.
 
 ### Fixed
 - Settings: add trailing breathing room to provider-sidebar controls (#1183). Thanks @Yuxin-Qiao!
@@ -974,7 +1045,7 @@
 - Claude trust prompts (“Do you trust the files in this folder?”) are now auto-accepted during probes to prevent stuck refreshes. Thanks @tobihagemann!
 
 ## 0.8.0 — 2025-12-17
-- TokenBar is now available via Homebrew: `brew install --cask y0shua1ee/tokenbar/tokenbar` (updates via `brew upgrade --cask y0shua1ee/tokenbar/tokenbar`).
+- TokenBar is now available via Homebrew: `brew install --cask steipete/tap/tokenbar` (updates via `brew upgrade --cask steipete/tap/tokenbar`).
 - Added session quota notifications for the sliding 5-hour window (Codex + Claude): notifies when it hits 0% and when it’s available again, based only on observed refresh data (including startup when already depleted). Thanks @GKannanDev!
 
 ## 0.7.3 — 2025-12-17

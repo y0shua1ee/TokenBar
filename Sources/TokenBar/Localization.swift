@@ -221,7 +221,7 @@ func codexBarLocalizedBundleForTesting() -> Bundle {
     localizedBundle()
 }
 
-func resetTokenBarLocalizationCacheForTesting() {
+func resetCodexBarLocalizationCacheForTesting() {
     LocalizationBundleCache.reset()
 }
 #endif

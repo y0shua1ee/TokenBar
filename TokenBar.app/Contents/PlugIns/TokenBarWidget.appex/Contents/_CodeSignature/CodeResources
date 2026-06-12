@@ -3,9 +3,55 @@
 <plist version="1.0">
 <dict>
 	<key>files</key>
-	<dict/>
+	<dict>
+		<key>Resources/Metadata.appintents/extract.actionsdata</key>
+		<data>
+		GgLtX3kidqQC/fEda3sbsFrOa/Y=
+		</data>
+		<key>Resources/Metadata.appintents/version.json</key>
+		<data>
+		G5Vxw54ZSeF5mPcAaaw0ur+OTIo=
+		</data>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Info.plist</key>
+		<data>
+		NxN8K0o5UfYg0dRoypeHY3qJp5M=
+		</data>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		gtyjHWwZ8glpGc7yfO0ng/CvDwQ=
+		</data>
+	</dict>
 	<key>files2</key>
-	<dict/>
+	<dict>
+		<key>Resources/Metadata.appintents/extract.actionsdata</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Rm/vzZ68drgvBoB5NvjLg3V0C/VW6OJgy/LpB5irNbY=
+			</data>
+		</dict>
+		<key>Resources/Metadata.appintents/version.json</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			DyBEWmf9cZ/07LprZKKT17fKe+SkPH6n8D4uW1OigNQ=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Xis9tGpEmmlvhUo/OduNsjfqFYsh9LikG0ysaLWlAlg=
+			</data>
+		</dict>
+		<key>Resources/swift-crypto_Crypto.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QvuKMN2Ne6CQDhvxf+ZO2MEs/bipx5Gra04ezrDymcA=
+			</data>
+		</dict>
+	</dict>
 	<key>rules</key>
 	<dict>
 		<key>^Resources/</key>

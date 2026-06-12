@@ -16,12 +16,20 @@ struct LocalizationLanguageCatalogTests {
         "language_dutch",
         "language_ukrainian",
         "language_vietnamese",
+        "language_japanese",
+        "language_korean",
     ]
 
     @Test
     func `app language catalog includes Ukrainian`() {
         #expect(AppLanguage.allCases.contains(.ukrainian))
         #expect(AppLanguage.ukrainian.rawValue == "uk")
+    }
+
+    @Test
+    func `app language catalog includes Korean`() {
+        #expect(AppLanguage.allCases.contains(.korean))
+        #expect(AppLanguage.korean.rawValue == "ko")
     }
 
     @Test
@@ -67,5 +75,59 @@ struct LocalizationLanguageCatalogTests {
         for key in requiredKeys {
             #expect(contents.contains(key), "Missing localization key: \(key)")
         }
+    }
+
+    @Test
+    func `korean localization bundle includes representative native labels`() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let koURL = root.appendingPathComponent("Sources/TokenBar/Resources/ko.lproj/Localizable.strings")
+        let catalog = try #require(NSDictionary(contentsOf: koURL) as? [String: String])
+
+        #expect(catalog["language_korean"] == "한국어")
+        #expect(catalog["tab_general"] == "일반")
+        #expect(catalog["quota_warning_session"] == "세션")
+        #expect(catalog["quota_warning_warn_at"] == "경고 기준")
+        #expect(catalog["quit_app"] == "TokenBar 종료")
+    }
+
+    @Test
+    func `japanese usage chart accessibility text preserves argument meanings`() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let jaURL = root.appendingPathComponent("Sources/TokenBar/Resources/ja.lproj/Localizable.strings")
+        let catalog = try #require(NSDictionary(contentsOf: jaURL) as? [String: String])
+        let format = try #require(catalog["%d days of usage data across %d services"])
+
+        let rendered = String(
+            format: format,
+            locale: Locale(identifier: "ja_JP"),
+            arguments: [7, 3])
+
+        #expect(rendered.contains("7日間"))
+        #expect(rendered.contains("3サービス"))
+    }
+
+    @Test
+    func `korean usage chart accessibility text preserves argument meanings`() throws {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let koURL = root.appendingPathComponent("Sources/TokenBar/Resources/ko.lproj/Localizable.strings")
+        let catalog = try #require(NSDictionary(contentsOf: koURL) as? [String: String])
+        let format = try #require(catalog["%d days of usage data across %d services"])
+
+        let rendered = String(
+            format: format,
+            locale: Locale(identifier: "ko_KR"),
+            arguments: [7, 3])
+
+        #expect(rendered.contains("7일간"))
+        #expect(rendered.contains("3개 서비스"))
     }
 }

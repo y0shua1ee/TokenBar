@@ -410,6 +410,8 @@
 "language_dutch" = "Nederlands";
 "language_french" = "法語";
 "language_ukrainian" = "烏克蘭語";
+"language_japanese" = "日語";
+"language_korean" = "韓語";
 "start_at_login_title" = "登入時啟動";
 "start_at_login_subtitle" = "登入 Mac 時自動開啟 TokenBar。";
 "show_cost_summary" = "顯示費用摘要";
@@ -611,9 +613,11 @@
 "display_mode_percent" = "百分比";
 "display_mode_pace" = "進度";
 "display_mode_both" = "兩者";
+"display_mode_reset_time" = "重置時間";
 "display_mode_percent_desc" = "顯示剩餘/已使用百分比（例如 45%）";
 "display_mode_pace_desc" = "顯示進度指示器（例如 +5%）";
 "display_mode_both_desc" = "同時顯示百分比和進度（例如 45% · +5%）";
+"display_mode_reset_time_desc" = "顯示所選指標的重置時間（例如 ↻ 3:56 PM）";
 "status_operational" = "運作正常";
 "status_partial_outage" = "部分服務中斷";
 "status_major_outage" = "重大服務中斷";
@@ -778,7 +782,7 @@
 "Antigravity login failed" = "Antigravity 登入失敗";
 "Antigravity login timed out" = "Antigravity 登入逾時";
 "Auth source" = "認證來源";
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "自動匯入 Xiaomi MiMo 的 Chrome 瀏覽器 Cookie。";
+"Automatic imports browser cookies from Xiaomi MiMo." = "自動匯入 Xiaomi MiMo 的瀏覽器 Cookie。";
 "Automatic imports Windsurf session data from Chromium browser localStorage." = "自動從 Chromium 瀏覽器 localStorage 匯入 Windsurf 工作階段資料。";
 "Automatic imports browser cookies from Bailian." = "自動匯入 Bailian 的瀏覽器 Cookie。";
 "Automatically imports browser cookies." = "自動匯入瀏覽器 Cookie。";
@@ -878,6 +882,7 @@
 "Personal account" = "個人帳號";
 "Project ID" = "專案 ID";
 "Re-auth" = "重新認證";
+"Re-login at claude.ai" = "重新登入 claude.ai";
 "Re-authenticating…" = "正在重新認證…";
 "Refresh Session" = "重新整理工作階段";
 "Refresh organizations" = "重新整理組織";
@@ -935,3 +940,8 @@
 "Search providers" = "搜尋提供者";
 
 "language_vietnamese" = "越南語";
+
+"Request quota: %@ / %@" = "請求額度：%@ / %@";
+
+/* TokenBar fork additions */
+"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "自動匯入 Xiaomi MiMo 的 Chrome 瀏覽器 Cookie。";

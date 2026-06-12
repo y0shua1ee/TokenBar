@@ -40,6 +40,9 @@ struct TokenBarApp: App {
 
         KeychainAccessGate.isDisabled = UserDefaults.standard.bool(forKey: "debugDisableKeychainAccess")
         KeychainPromptCoordinator.install()
+        if MainThreadHangWatchdog.isEnabledForCurrentProcess {
+            MainThreadHangWatchdog.shared.start()
+        }
 
         let preferencesSelection = PreferencesSelection()
         let settings = SettingsStore()

@@ -141,7 +141,7 @@ struct ClaudeProbeWorkingDirectoryTests {
 
     private static func makeTemporaryDirectory() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-claude-probe-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-claude-probe-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

@@ -1,6 +1,37 @@
 import AppKit
+import Observation
 import SwiftUI
 import TokenBarCore
+
+struct MenuCardLiveSubtitle {
+    let text: String
+    let style: UsageMenuCardView.Model.SubtitleStyle
+}
+
+/// Narrow observable bridge for updating an already-hosted card subtitle without rebuilding
+/// the tracked NSMenu.
+@MainActor
+@Observable
+final class MenuCardRefreshMonitor {
+    typealias SubtitleResolver = @MainActor (UsageProvider) -> MenuCardLiveSubtitle?
+
+    private let resolveSubtitle: SubtitleResolver
+    var isManualRefreshInFlight = false
+
+    init(resolveSubtitle: @escaping SubtitleResolver) {
+        self.resolveSubtitle = resolveSubtitle
+    }
+
+    func subtitle(
+        for provider: UsageProvider,
+        fallback: MenuCardLiveSubtitle) -> MenuCardLiveSubtitle
+    {
+        if self.isManualRefreshInFlight {
+            return MenuCardLiveSubtitle(text: "\(L("Refreshing"))…", style: .loading)
+        }
+        return self.resolveSubtitle(provider) ?? fallback
+    }
+}
 
 enum UsageMenuCardLayout {
     static let horizontalPadding: CGFloat = 20
@@ -109,6 +140,7 @@ struct UsageMenuCardView: View {
         let email: String
         let subtitleText: String
         let subtitleStyle: SubtitleStyle
+        var usesLiveSubtitle: Bool = false
         let planText: String?
         let metrics: [Metric]
         let usageNotes: [String]
@@ -143,7 +175,7 @@ struct UsageMenuCardView: View {
                 Divider()
             }
 
-            if self.model.metrics.isEmpty {
+            if !self.model.usesStackedDetailLayout {
                 if let dashboard = self.model.inlineUsageDashboard {
                     InlineUsageDashboardContent(model: dashboard)
                 } else if !self.model.usageNotes.isEmpty {
@@ -172,6 +204,10 @@ struct UsageMenuCardView: View {
                                 InlineUsageDashboardContent(model: dashboard)
                             } else if !self.model.usageNotes.isEmpty {
                                 UsageNotesContent(notes: self.model.usageNotes)
+                            } else if let placeholder = self.model.placeholder {
+                                Text(placeholder)
+                                    .foregroundStyle(MenuHighlightStyle.secondary(self.isHighlighted))
+                                    .font(.subheadline)
                             }
                         }
                     }
@@ -244,15 +280,14 @@ struct UsageMenuCardView: View {
     }
 
     private var hasDetails: Bool {
-        self.model.hasUsageContent ||
-            self.model.tokenUsage != nil ||
-            self.model.providerCost != nil
+        self.model.hasUsageContent || self.model.usesStackedDetailLayout
     }
 }
 
 private struct UsageMenuCardHeaderView: View {
     let model: UsageMenuCardView.Model
     @Environment(\.menuItemHighlighted) private var isHighlighted
+    @Environment(\.menuCardRefreshMonitor) private var refreshMonitor
 
     var body: some View {
         VStack(alignment: .leading, spacing: UsageMenuCardLayout.headerLineSpacing) {
@@ -265,19 +300,46 @@ private struct UsageMenuCardHeaderView: View {
                     .foregroundStyle(MenuHighlightStyle.secondary(self.isHighlighted))
                     .lineLimit(1).truncationMode(.middle)
             }
-            let subtitleAlignment: VerticalAlignment = self.model.subtitleStyle == .error ? .top : .firstTextBaseline
+            let liveSubtitle = self.liveSubtitle
+            // Keep the geometry AppKit measured for this hosted row. A new error stays one line
+            // until the next rebuild; a recovered error keeps its reserved height until then.
+            let usesErrorLayout = self.model.subtitleStyle == .error
+            let subtitleAlignment: VerticalAlignment = usesErrorLayout ? .top : .firstTextBaseline
             HStack(alignment: subtitleAlignment, spacing: UsageMenuCardLayout.headerColumnSpacing) {
-                Text(self.model.subtitleText)
-                    .font(.footnote)
-                    .foregroundStyle(self.subtitleColor)
-                    .lineLimit(self.model.subtitleStyle == .error ? 4 : 1)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .layoutPriority(1)
-                    .padding(.bottom, self.model.subtitleStyle == .error ? 4 : 0)
+                if usesErrorLayout {
+                    Text(self.model.subtitleText)
+                        .font(.footnote)
+                        .lineLimit(4)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 4)
+                        .hidden()
+                        .overlay(alignment: .topLeading) {
+                            Text(liveSubtitle.text)
+                                .font(.footnote)
+                                .foregroundStyle(self.subtitleColor(for: liveSubtitle.style))
+                                .lineLimit(4)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .clipped()
+                        .layoutPriority(1)
+                } else {
+                    Text(liveSubtitle.text)
+                        .font(.footnote)
+                        .foregroundStyle(self.subtitleColor(for: liveSubtitle.style))
+                        .lineLimit(1)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .layoutPriority(1)
+                }
                 Spacer()
-                if self.model.subtitleStyle == .error, !self.model.subtitleText.isEmpty {
-                    CopyIconButton(copyText: self.model.subtitleText, isHighlighted: self.isHighlighted)
+                if usesErrorLayout {
+                    let showsCopyButton = liveSubtitle.style == .error && !liveSubtitle.text.isEmpty
+                    CopyIconButton(copyText: liveSubtitle.text, isHighlighted: self.isHighlighted)
+                        .opacity(showsCopyButton ? 1 : 0)
+                        .allowsHitTesting(showsCopyButton)
+                        .accessibilityHidden(!showsCopyButton)
                 }
                 if let plan = self.model.planText {
                     Text(plan)
@@ -289,8 +351,14 @@ private struct UsageMenuCardHeaderView: View {
         }
     }
 
-    private var subtitleColor: Color {
-        switch self.model.subtitleStyle {
+    private var liveSubtitle: MenuCardLiveSubtitle {
+        let fallback = MenuCardLiveSubtitle(text: self.model.subtitleText, style: self.model.subtitleStyle)
+        guard self.model.usesLiveSubtitle else { return fallback }
+        return self.refreshMonitor?.subtitle(for: self.model.provider, fallback: fallback) ?? fallback
+    }
+
+    private func subtitleColor(for style: UsageMenuCardView.Model.SubtitleStyle) -> Color {
+        switch style {
         case .info: MenuHighlightStyle.secondary(self.isHighlighted)
         case .loading: MenuHighlightStyle.secondary(self.isHighlighted)
         case .error: MenuHighlightStyle.error(self.isHighlighted)
@@ -322,17 +390,7 @@ private struct CopyIconButton: View {
 
     var body: some View {
         Button {
-            self.copyToPasteboard()
-            withAnimation(.easeOut(duration: 0.12)) {
-                self.didCopy = true
-            }
-            self.resetTask?.cancel()
-            self.resetTask = Task { @MainActor in
-                try? await Task.sleep(for: .seconds(0.9))
-                withAnimation(.easeOut(duration: 0.2)) {
-                    self.didCopy = false
-                }
-            }
+            self.handleCopy()
         } label: {
             Image(systemName: self.didCopy ? "checkmark" : "doc.on.doc")
                 .font(.caption2.weight(.semibold))
@@ -343,10 +401,16 @@ private struct CopyIconButton: View {
         .accessibilityLabel(self.didCopy ? L("Copied") : L("Copy error"))
     }
 
-    private func copyToPasteboard() {
-        let pb = NSPasteboard.general
-        pb.clearContents()
-        pb.setString(self.copyText, forType: .string)
+    private func handleCopy() {
+        let text = self.copyText
+        self.resetTask?.cancel()
+        MenuPasteboardCopy.perform(text, completion: {
+            self.didCopy = true
+            self.resetTask = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.9))
+                self.didCopy = false
+            }
+        })
     }
 }
 
@@ -694,6 +758,7 @@ extension UsageMenuCardView.Model {
         let weeklyPace: UsagePace?
         let quotaWarningThresholds: [QuotaWarningWindow: [Int]]
         let workDaysPerWeek: Int?
+        let usesLiveSubtitle: Bool
         let now: Date
 
         init(
@@ -720,6 +785,7 @@ extension UsageMenuCardView.Model {
             weeklyPace: UsagePace? = nil,
             quotaWarningThresholds: [QuotaWarningWindow: [Int]] = [:],
             workDaysPerWeek: Int? = nil,
+            usesLiveSubtitle: Bool = false,
             now: Date)
         {
             self.provider = provider
@@ -745,6 +811,7 @@ extension UsageMenuCardView.Model {
             self.weeklyPace = weeklyPace
             self.quotaWarningThresholds = quotaWarningThresholds
             self.workDaysPerWeek = workDaysPerWeek
+            self.usesLiveSubtitle = usesLiveSubtitle
             self.now = now
         }
     }
@@ -799,6 +866,7 @@ extension UsageMenuCardView.Model {
             email: redacted.email,
             subtitleText: redacted.subtitleText,
             subtitleStyle: subtitle.style,
+            usesLiveSubtitle: input.usesLiveSubtitle,
             planText: planText,
             metrics: metrics,
             usageNotes: usageNotes,
@@ -1019,7 +1087,7 @@ extension UsageMenuCardView.Model {
             return (lastError.trimmingCharacters(in: .whitespacesAndNewlines), .error)
         }
 
-        if isRefreshing, snapshot == nil {
+        if isRefreshing {
             return ("\(L("Refreshing"))…", .loading)
         }
 
@@ -1189,9 +1257,16 @@ extension UsageMenuCardView.Model {
         if input.provider == .factory, snapshot.tertiary != nil {
             return ("5-hour", L("Weekly"), L("Monthly"), true)
         }
-        let primaryLabel = input.provider == .grok
-            ? GrokProviderDescriptor.primaryLabel(window: snapshot.primary) ?? input.metadata.sessionLabel
-            : input.metadata.sessionLabel
+        // Legacy request-based Cursor plans track a request quota, not the token-based "Total" pool —
+        // relabel the primary bar so it reads as a request count instead of a dollar percentage.
+        let primaryLabel = if input.provider == .cursor, snapshot.cursorRequests != nil {
+            "Requests"
+        } else if input.provider == .grok {
+            GrokProviderDescriptor.primaryLabel(window: snapshot.primary) ?? input.metadata
+                .sessionLabel
+        } else {
+            input.metadata.sessionLabel
+        }
         return (
             L(primaryLabel),
             L(input.metadata.weeklyLabel),
@@ -1305,6 +1380,14 @@ extension UsageMenuCardView.Model {
             primaryDetailRight = paceDetail.rightLabel
             primaryPacePercent = paceDetail.pacePercent
             primaryPaceOnTop = paceDetail.paceOnTop
+        }
+        // Legacy request-based Cursor plans: surface the raw used/limit quota on its own line,
+        // since the percentage bar and pace detail alone never spell out the request cap.
+        if input.provider == .cursor, let requests = input.snapshot?.cursorRequests {
+            primaryDetailText = String(
+                format: L("Request quota: %@ / %@"),
+                "\(requests.used)",
+                "\(requests.limit)")
         }
         if input.provider == .synthetic,
            let regen = Self.syntheticRollingRegenDetail(

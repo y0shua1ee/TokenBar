@@ -1,4 +1,4 @@
-/* English localization for CodexBar (base/fallback) */
+/* English localization for TokenBar (base/fallback) */
 
 " providers" = "nhà cung cấp";
 "(System)" = "(Hệ thống)";
@@ -37,7 +37,7 @@
 "Automatic imports browser cookies or stored sessions." = "Tự động nhập cookie trình duyệt hoặc các phiên được lưu trữ.";
 "Automatic imports browser cookies." = "Tự động nhập cookie trình duyệt.";
 "Automatically imports browser session cookie." = "Tự động nhập cookie phiên trình duyệt.";
-"Automatically opens CodexBar when you start your Mac." = "Tự động mở CodexBar khi bạn khởi động máy Mac.";
+"Automatically opens TokenBar when you start your Mac." = "Tự động mở TokenBar khi bạn khởi động máy Mac.";
 "Automation" = "Tự động hóa";
 "Average (\\(label1) + \\(label2))" = "Trung bình (\\(label1) + \\(label2))";
 "Average (\\(metadata.sessionLabel) + \\(metadata.weeklyLabel))" = "Trung bình (\\(metadata.sessionLabel) + \\(metadata.weeklyLabel))";
@@ -63,7 +63,7 @@
 "Choose up to \\(Self.maxOverviewProviders) providers" = "Chọn tối đa nhà cung cấp \\(Self.maxOverviewProviders";
 "Choose up to \\(count) providers" = "Chọn tối đa \\(count) nhà cung cấp";
 "Choose what to show in the menu bar (Pace shows usage vs. expected)." = "Chọn nội dung sẽ hiển thị trong thanh menu (Tốc độ hiển thị Mức sử dụng so với dự kiến).";
-"Choose which Codex account CodexBar should follow." = "Chọn tài khoản Codex mà CodexBar sẽ tuân theo.";
+"Choose which Codex account TokenBar should follow." = "Chọn tài khoản Codex mà TokenBar sẽ tuân theo.";
 "Choose which window drives the menu bar percent." = "Chọn cửa sổ nào điều khiển phần trăm thanh menu.";
 "Chrome" = "Chrome";
 "Claude CLI not found" = "Claude CLI không tìm thấy";
@@ -78,9 +78,9 @@
 "Codex binary" = "Codex nhị phân";
 "Codex login failed" = "Đăng nhập Codex không thành công";
 "Codex login timed out" = "Đăng nhập Codex đã hết thời gian chờ";
-"CodexBar Lifecycle Keepalive" = "CodexBar Lifecycle Keepalive";
-"CodexBar can't show its menu bar icon" = "CodexBar không thể hiển thị biểu tượng thanh menu";
-"CodexBar could not read managed account storage. " = "CodexBar không thể đọc bộ nhớ tài khoản được quản lý.";
+"TokenBar Lifecycle Keepalive" = "TokenBar Lifecycle Keepalive";
+"TokenBar can't show its menu bar icon" = "TokenBar không thể hiển thị biểu tượng thanh menu";
+"TokenBar could not read managed account storage. " = "TokenBar không thể đọc bộ nhớ tài khoản được quản lý.";
 "Configure…" = "Định cấu hình…";
 "Connected" = "Đã kết nối";
 "Controls how much detail is logged." = "Kiểm soát lượng chi tiết được ghi lại.";
@@ -140,7 +140,7 @@
 "Hide details" = "Ẩn chi tiết";
 "Hide personal information" = "Ẩn thông tin cá nhân";
 "Historical tracking" = "Theo dõi lịch sử";
-"How often CodexBar polls providers in the background." = "Tần suất CodexBar thăm dò ý kiến ​​các nhà cung cấp trong nền.";
+"How often TokenBar polls providers in the background." = "Tần suất TokenBar thăm dò ý kiến ​​các nhà cung cấp trong nền.";
 "Inactive" = "Không hoạt động";
 "Install CLI" = "Cài đặt CLI";
 "Install the Claude CLI (npm i -g @anthropic-ai/claude-code) and try again." = "Cài đặt Claude CLI (npm i -g @anthropic-ai/claude-code) và thử lại.";
@@ -198,7 +198,7 @@
 "Open" = "Mở";
 "Open API Keys" = "Mở API Phím";
 "Open Amp Settings" = "Mở Amp Cài đặt";
-"Open Antigravity to sign in, then refresh CodexBar." = "Mở Chống trọng lực để đăng nhập, sau đó làm mới CodexBar .";
+"Open Antigravity to sign in, then refresh TokenBar." = "Mở Chống trọng lực để đăng nhập, sau đó làm mới TokenBar .";
 "Open Browser" = "Mở trình duyệt";
 "Open Coding Plan" = "Mở kế hoạch mã hóa";
 "Open Console" = "Mở bảng điều khiển";
@@ -242,7 +242,7 @@
 "Progress bars fill as you consume quota (instead of showing remaining)." = "Thanh tiến trình sẽ lấp đầy khi bạn sử dụng Hạn mức (thay vì hiển thị phần còn lại).";
 "Provider" = "Nhà cung cấp";
 "Providers" = "Nhà cung cấp";
-"Quit CodexBar" = "Thoát CodexBar";
+"Quit TokenBar" = "Thoát TokenBar";
 "Random (default)" = "Ngẫu nhiên (mặc định)";
 "Reads local usage logs. Shows today + last 30 days cost in the menu." = "Đọc nhật ký Mức sử dụng cục bộ. Hiển thị hôm nay + cửa sổ lịch sử đã chọn trong menu.";
 "Refresh" = "Làm mới";
@@ -250,8 +250,8 @@
 "Remote" = "Từ xa";
 "Remove" = "Xóa";
 "Remove Codex account?" = "Xóa tài khoản Codex?";
-"Remove \\(account.email) from CodexBar? Its managed Codex home will be deleted." = "Xóa \\(account.email) khỏi CodexBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
-"Remove \\(email) from CodexBar? Its managed Codex home will be deleted." = "Xóa \\(email) khỏi CodexBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
+"Remove \\(account.email) from TokenBar? Its managed Codex home will be deleted." = "Xóa \\(account.email) khỏi TokenBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
+"Remove \\(email) from TokenBar? Its managed Codex home will be deleted." = "Xóa \\(email) khỏi TokenBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
 "Remove selected account" = "Xóa tài khoản đã chọn";
 "Replace critter bars with provider branding icons and a percentage." = "Thay thế các thanh sinh vật bằng Nhà cung cấp biểu tượng nhãn hiệu và tỷ lệ phần trăm.";
 "Replay selected animation" = "Phát lại hoạt ảnh đã chọn";
@@ -291,18 +291,18 @@
 "Store multiple Ollama Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie Ollama.";
 "Store multiple OpenCode Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Lưu trữ nhiều tiêu đề Cookie OpenCode Go.";
-"Stored in the CodexBar config file." = "Được lưu trữ trong tệp cấu hình CodexBar.";
-"Stored in ~/.codexbar/config.json. " = "Được lưu trữ trong ~/.codexbar/config.json.";
-"Stored in ~/.codexbar/config.json. Generate one at kimi-k2.ai." = "Được lưu trữ trong ~/.codexbar/config.json. Tạo một cái tại kimi-k2.ai.";
-"Stored in ~/.codexbar/config.json. Paste the key from the Synthetic dashboard." = "Được lưu trữ trong ~/.codexbar/config.json. Dán khóa từ bảng điều khiển Tổng hợp.";
-"Stored in ~/.codexbar/config.json. Paste your Coding Plan API key from Model Studio." = "Được lưu trữ trong ~/.codexbar/config.json. Dán khóa Kế hoạch mã hóa API của bạn từ Model Studio.";
-"Stored in ~/.codexbar/config.json. Paste your MiniMax API key." = "Được lưu trữ trong ~/.codexbar/config.json. Dán khóa MiniMax API của bạn.";
-"Stored in ~/.codexbar/config.json. You can also provide KILO_API_KEY or " = "Được lưu trữ trong ~/.codexbar/config.json. Bạn cũng có thể cung cấp lịch sử KILO_API_KEY hoặc";
+"Stored in the TokenBar config file." = "Được lưu trữ trong tệp cấu hình TokenBar.";
+"Stored in ~/.tokenbar/config.json. " = "Được lưu trữ trong ~/.tokenbar/config.json.";
+"Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai." = "Được lưu trữ trong ~/.tokenbar/config.json. Tạo một cái tại kimi-k2.ai.";
+"Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard." = "Được lưu trữ trong ~/.tokenbar/config.json. Dán khóa từ bảng điều khiển Tổng hợp.";
+"Stored in ~/.tokenbar/config.json. Paste your Coding Plan API key from Model Studio." = "Được lưu trữ trong ~/.tokenbar/config.json. Dán khóa Kế hoạch mã hóa API của bạn từ Model Studio.";
+"Stored in ~/.tokenbar/config.json. Paste your MiniMax API key." = "Được lưu trữ trong ~/.tokenbar/config.json. Dán khóa MiniMax API của bạn.";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or " = "Được lưu trữ trong ~/.tokenbar/config.json. Bạn cũng có thể cung cấp lịch sử KILO_API_KEY hoặc";
 "Stores local Codex usage history (8 weeks) to personalize Pace predictions." = "Stores Codex cục bộ Mức sử dụng (8 tuần) để cá nhân hóa dự đoán Pace.";
 "Subscription Utilization" = "Gói đăng ký Mức sử dụng";
 "Surprise me" = "Làm tôi ngạc nhiên";
 "Switcher shows icons" = "Trình chuyển đổi hiển thị các biểu tượng";
-"Symlink CodexBarCLI to /usr/local/bin and /opt/homebrew/bin as codexbar." = "Symlink CodexBarCLI tới /usr/local/bin và /opt/homebrew/bin dưới dạng codexbar.";
+"Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar." = "Symlink TokenBarCLI tới /usr/local/bin và /opt/homebrew/bin dưới dạng tokenbar.";
 "System" = "Hệ thống";
 "Temporarily shows the loading animation after the next refresh." = "Tạm thời hiển thị hoạt ảnh đang tải sau lần làm mới tiếp theo.";
 "Tertiary (\\(label))" = "Cấp ba (\\(label))";
@@ -366,8 +366,8 @@
 "cursor_on_demand" = "Theo yêu cầu: %@";
 "cursor_on_demand_with_limit" = "Theo yêu cầu: %1$@ / %2$@";
 "extra_usage_format" = "Mức sử dụng bổ sung : %1$@ / %2$@";
-"jetbrains_detected_generate" = "Đã phát hiện: %@ . Sử dụng trợ lý AI một lần để tạo dữ liệu Hạn mức, sau đó làm mới CodexBar .";
-"jetbrains_detected_select" = "Đã phát hiện: %@ . Chọn IDE ưa thích của bạn trong Cài đặt , sau đó làm mới CodexBar .";
+"jetbrains_detected_generate" = "Đã phát hiện: %@ . Sử dụng trợ lý AI một lần để tạo dữ liệu Hạn mức, sau đó làm mới TokenBar .";
+"jetbrains_detected_select" = "Đã phát hiện: %@ . Chọn IDE ưa thích của bạn trong Cài đặt , sau đó làm mới TokenBar .";
 "last_fetch_failed_with_provider" = "Tìm nạp %@ lần cuối không thành công:";
 "last_spend" = "Chi tiêu lần cuối: %@";
 "mcp_model_usage" = "%1$@ : %2$@";
@@ -377,10 +377,10 @@
 "metric_primary" = "Sơ cấp ( %@ )";
 "metric_secondary" = "Trung học ( %@ )";
 "metric_tertiary" = "Cấp ba ( %@ )";
-"multiple_workspaces_found" = "CodexBar đã tìm thấy nhiều không gian làm việc cho %@ . Vui lòng chọn không gian làm việc để thêm.";
+"multiple_workspaces_found" = "TokenBar đã tìm thấy nhiều không gian làm việc cho %@ . Vui lòng chọn không gian làm việc để thêm.";
 "ory_session_…=…; csrftoken=…" = "ory_session_…=…; csrftoken=…";
 "overview_choose_providers" = "Chọn tối đa %@ nhà cung cấp";
-"remove_account_message" = "Xóa %@ khỏi CodexBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
+"remove_account_message" = "Xóa %@ khỏi TokenBar ? Trang chủ Codex được quản lý của nó sẽ bị xóa.";
 "version_format" = "Phiên bản %@";
 "vertex_ai_login_instructions" = "Để theo dõi Vertex AI Mức sử dụng , hãy xác thực bằng Google Cloud.\n\n1. Mở Terminal\n2. Chạy: gcloud auth application-default login\n3. Làm theo lời nhắc của trình duyệt để đăng nhập\n4. Đặt dự án của bạn: gcloud config set project PROJECT_ID\n\nMở Thiết bị đầu cuối bây giờ?";
 "workspaceID is set but only opencode, opencodego, and deepgram support workspaceID." = "ID không gian làm việc được đặt nhưng chỉ có mã mở, opencodego và deepgram hỗ trợ ID không gian làm việc.";
@@ -403,14 +403,16 @@
 "language_french" = "Tiếng Pháp";
 "language_dutch" = "Tiếng Hà Lan";
 "language_ukrainian" = "Tiếng Ukraina";
+"language_japanese" = "Tiếng Nhật";
+"language_korean" = "Tiếng Hàn";
 "start_at_login_title" = "Bắt đầu khi đăng nhập";
-"start_at_login_subtitle" = "Tự động mở CodexBar khi bạn khởi động máy Mac.";
+"start_at_login_subtitle" = "Tự động mở TokenBar khi bạn khởi động máy Mac.";
 "show_cost_summary" = "Hiển thị tóm tắt chi phí";
 "show_cost_summary_subtitle" = "Đọc nhật ký Mức sử dụng cục bộ. Hiển thị hôm nay + cửa sổ lịch sử đã chọn trong menu.";
 "cost_history_days_title" = "Cửa sổ lịch sử: %d ngày";
 "cost_auto_refresh_info" = "Tự động làm mới: hàng giờ · Thời gian chờ: 10 phút";
 "refresh_cadence_title" = "Nhịp làm mới";
-"refresh_cadence_subtitle" = "Tần suất CodexBar thăm dò ý kiến ​​các nhà cung cấp trong nền.";
+"refresh_cadence_subtitle" = "Tần suất TokenBar thăm dò ý kiến ​​các nhà cung cấp trong nền.";
 "manual_refresh_hint" = "Tính năng tự động làm mới bị tắt; sử dụng lệnh Làm mới của menu.";
 "check_provider_status_title" = "Kiểm tra Nhà cung cấp trạng thái";
 "check_provider_status_subtitle" = "Thăm dò ý kiến ​​OpenAI / Claude các trang trạng thái và Google Không gian làm việc dành cho Gemini /AntiGravity, phát hiện các sự cố trong biểu tượng và menu.";
@@ -443,7 +445,7 @@
 "quota_warning_upper" = "Thượng";
 "quota_warning_lower" = "Hạ";
 "apply" = "Áp dụng";
-"quit_app" = "Thoát CodexBar";
+"quit_app" = "Thoát TokenBar";
 
 /* Tab titles */
 "tab_general" = "Chung";
@@ -467,8 +469,8 @@
 "managed_login_missing_email" = "Đăng nhập Codex đã hoàn tất nhưng không có email tài khoản. Hãy thử lại sau khi xác nhận tài khoản đã đăng nhập đầy đủ.";
 "login_success_notification_title" = "%@ đăng nhập thành công";
 "login_success_notification_body" = "Bạn có thể quay lại ứng dụng; xác thực xong.";
-"workspace_selection_cancelled" = "CodexBar đã tìm thấy nhiều không gian làm việc nhưng không có không gian làm việc nào được chọn.";
-"unsafe_managed_home" = "CodexBar từ chối sửa đổi đường dẫn chính được quản lý không mong muốn: %@";
+"workspace_selection_cancelled" = "TokenBar đã tìm thấy nhiều không gian làm việc nhưng không có không gian làm việc nào được chọn.";
+"unsafe_managed_home" = "TokenBar từ chối sửa đổi đường dẫn chính được quản lý không mong muốn: %@";
 "menu_bar_metric_title" = "thanh menu chỉ số";
 "menu_bar_metric_subtitle" = "Chọn cửa sổ nào thúc đẩy phần trăm thanh menu.";
 "menu_bar_metric_subtitle_deepseek" = "Hiển thị số dư DeepSeek trong thanh menu .";
@@ -521,8 +523,8 @@
 "open_menu_shortcut_title" = "Mở menu";
 "open_menu_shortcut_subtitle" = "Kích hoạt menu thanh menu từ mọi nơi.";
 "install_cli" = "Cài đặt CLI";
-"install_cli_subtitle" = "Liên kết tượng trưng CodexBarCLI tới /usr/local/bin và /opt/homebrew/bin dưới dạng codexbar.";
-"cli_not_found" = "Không tìm thấy CodexBarCLI trong gói ứng dụng.";
+"install_cli_subtitle" = "Liên kết tượng trưng TokenBarCLI tới /usr/local/bin và /opt/homebrew/bin dưới dạng tokenbar.";
+"cli_not_found" = "Không tìm thấy TokenBarCLI trong gói ứng dụng.";
 "no_writable_bin_dirs" = "Không tìm thấy thư mục bin có thể ghi.";
 "show_debug_settings_title" = "Hiển thị gỡ lỗi Cài đặt";
 "show_debug_settings_subtitle" = "Hiển thị các công cụ khắc phục sự cố trong tab Gỡ lỗi.";
@@ -607,7 +609,7 @@
 "login_shell_path" = "Shell đăng nhập PATH (chụp khởi động)";
 "cleared" = "Đã xóa.";
 "no_fetch_attempts" = "Chưa có lần tìm nạp nào.";
-"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. CodexBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn CodexBar on." = "macOS Tahoe có thể chặn thanh menu ứng dụng trong Hệ thống Cài đặt → thanh menu → Cho phép trong thanh menu . CodexBar đang chạy nhưng macOS có thể đang ẩn biểu tượng của nó. Mở thanh menu Cài đặt và bật CodexBar.";
+"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe có thể chặn thanh menu ứng dụng trong Hệ thống Cài đặt → thanh menu → Cho phép trong thanh menu . TokenBar đang chạy nhưng macOS có thể đang ẩn biểu tượng của nó. Mở thanh menu Cài đặt và bật TokenBar.";
 
 /* Metric preferences */
 "metric_pref_automatic" = "Tự động";
@@ -621,9 +623,11 @@
 "display_mode_percent" = "Phần trăm";
 "display_mode_pace" = "Tốc độ";
 "display_mode_both" = "Cả hai";
+"display_mode_reset_time" = "Thời gian đặt lại";
 "display_mode_percent_desc" = "Hiển thị phần trăm còn lại/đã sử dụng (ví dụ: 45%)";
 "display_mode_pace_desc" = "Hiển thị chỉ báo tốc độ (ví dụ: +5%)";
 "display_mode_both_desc" = "Hiển thị cả phần trăm và tốc độ (ví dụ: 45% · +5%)";
+"display_mode_reset_time_desc" = "Hiển thị thời gian đặt lại của chỉ số đã chọn (ví dụ: ↻ 15:56)";
 
 /* Provider status */
 "status_operational" = "Hoạt động";
@@ -649,7 +653,7 @@
 "cost_estimate_hint" = "Ước tính từ nhật ký cục bộ · có thể khác với hóa đơn của bạn";
 "No JetBrains IDE with AI Assistant detected. Install a JetBrains IDE and enable AI Assistant." = "Không phát hiện thấy IDE JetBrains nào có Trợ lý AI. Cài đặt JetBrains IDE và bật Trợ lý AI.";
 "OpenRouter API token not configured. Set OPENROUTER_API_KEY environment variable or configure in Settings." = "OpenRouter API token chưa được định cấu hình. Đặt biến môi trường OPENROUTER_API_KEY hoặc định cấu hình trong Cài đặt .";
-"z.ai API token not found. Set apiKey in ~/.codexbar/config.json or Z_AI_API_KEY." = "không tìm thấy z.ai API token. Đặt apiKey trong ~/.codexbar/config.json hoặc Z_AI_API_KEY.";
+"z.ai API token not found. Set apiKey in ~/.tokenbar/config.json or Z_AI_API_KEY." = "không tìm thấy z.ai API token. Đặt apiKey trong ~/.tokenbar/config.json hoặc Z_AI_API_KEY.";
 "Missing DeepSeek API key." = "Thiếu khóa DeepSeek API.";
 "%@ is unavailable in the current environment." = "%@ không khả dụng trong môi trường hiện tại.";
 "All Systems Operational" = "Tất cả hệ thống đều hoạt động";
@@ -670,7 +674,7 @@
 "No local data found" = "Không tìm thấy dữ liệu cục bộ";
 "Credits unavailable; keep Codex running to refresh." = "Không có tín dụng; giữ Codex chạy để làm mới.";
 "No available fetch strategy for minimax." = "Không có chiến lược tìm nạp nào cho minimax.";
-"No Cursor session found. Please log in to cursor.com in Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX, or Edge Canary. If you use Safari, grant CodexBar Full Disk Access in System Settings ▸ Privacy & Security. You can also sign in to Cursor from the CodexBar menu (Add / switch account)." = "Không tìm thấy phiên Con trỏ. Vui lòng đăng nhập vào con trỏ.com bằng Safari , Chrome , Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chrome, Helium, Vivaldi, Yandex Browser, Firefox , Zen, Colibri, Sidekick, Opera, Opera GX hoặc Edge Canary. Nếu bạn sử dụng Safari , hãy cấp cho CodexBar Quyền truy cập toàn bộ đĩa trong Hệ thống Cài đặt ▸ Quyền riêng tư & Bảo mật. Bạn cũng có thể đăng nhập vào Cursor từ menu CodexBar (Thêm/chuyển đổi tài khoản).";
+"No Cursor session found. Please log in to cursor.com in Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX, or Edge Canary. If you use Safari, grant TokenBar Full Disk Access in System Settings ▸ Privacy & Security. You can also sign in to Cursor from the TokenBar menu (Add / switch account)." = "Không tìm thấy phiên Con trỏ. Vui lòng đăng nhập vào con trỏ.com bằng Safari , Chrome , Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chrome, Helium, Vivaldi, Yandex Browser, Firefox , Zen, Colibri, Sidekick, Opera, Opera GX hoặc Edge Canary. Nếu bạn sử dụng Safari , hãy cấp cho TokenBar Quyền truy cập toàn bộ đĩa trong Hệ thống Cài đặt ▸ Quyền riêng tư & Bảo mật. Bạn cũng có thể đăng nhập vào Cursor từ menu TokenBar (Thêm/chuyển đổi tài khoản).";
 "No OpenCode session cookies found in browsers." = "Không tìm thấy cookie phiên OpenCode trong trình duyệt.";
 "No available fetch strategy for %@." = "Không có chiến lược tìm nạp nào cho %@ .";
 "Today" = "Hôm nay";
@@ -684,7 +688,7 @@
 "Usage Dashboard" = "Mức sử dụng Trang tổng quan";
 "Status Page" = "Trang trạng thái";
 "Settings..." = "Cài đặt ...";
-"About CodexBar" = "Giới thiệu về CodexBar";
+"About TokenBar" = "Giới thiệu về TokenBar";
 "Quit" = "Thoát";
 "Last %d day" = "Ngày %d cuối cùng";
 "Last %d days" = "%d ngày cuối cùng";
@@ -908,7 +912,7 @@
 "Antigravity login failed" = "Đăng nhập chống trọng lực không thành công";
 "Antigravity login timed out" = "Đã hết thời gian đăng nhập chống trọng lực";
 "Auth source" = "Nguồn xác thực";
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Tự động nhập cookie trình duyệt Chrome từ Xiaomi MiMo.";
+"Automatic imports browser cookies from Xiaomi MiMo." = "Tự động nhập cookie trình duyệt từ Xiaomi MiMo.";
 "Automatic imports Windsurf session data from Chromium browser localStorage." = "Tự động nhập dữ liệu phiên Windsurf từ localStorage của trình duyệt Chrome.";
 "Automatic imports browser cookies from Bailian." = "Tự động nhập cookie trình duyệt từ Bailian.";
 "Automatically imports browser cookies." = "Tự động nhập cookie trình duyệt.";
@@ -925,32 +929,32 @@
 "Capacity Start" = "Dung lượng Start";
 "Changelog" = "Changelog";
 "Choose the Moonshot/Kimi API host for international or China mainland accounts." = "Chọn máy chủ Moonshot/Kimi API cho các tài khoản quốc tế hoặc Trung Quốc đại lục.";
-"CodexBar can't replace a system account that is signed in with an API key only setup." = "CodexBar không thể thay thế tài khoản hệ thống được đăng nhập bằng thiết lập chỉ khóa API.";
-"CodexBar could not find saved auth for that account. Re-authenticate it and try again." = "CodexBar không thể tìm thấy xác thực đã lưu cho tài khoản đó. Xác thực lại nó và thử lại.";
-"CodexBar could not read managed account storage. Recover the store before adding another account." = "CodexBar không thể đọc bộ nhớ tài khoản được quản lý. Khôi phục cửa hàng trước khi thêm tài khoản khác.";
-"CodexBar could not read saved auth for that account. Re-authenticate it and try again." = "CodexBar không thể đọc xác thực đã lưu cho tài khoản đó. Xác thực lại nó và thử lại.";
-"CodexBar could not read the current system account on this Mac." = "CodexBar không thể đọc tài khoản hệ thống hiện tại trên máy Mac này.";
-"CodexBar could not replace the live Codex auth on this Mac." = "CodexBar không thể thay thế xác thực Codex trực tiếp trên máy Mac này.";
-"CodexBar could not safely preserve the current system account before switching." = "CodexBar không thể bảo toàn tài khoản hệ thống hiện tại một cách an toàn trước khi chuyển đổi.";
-"CodexBar could not save the current system account before switching." = "CodexBar không thể lưu tài khoản hệ thống hiện tại trước khi chuyển đổi.";
-"CodexBar could not update managed account storage." = "CodexBar không thể cập nhật bộ nhớ tài khoản được quản lý.";
-"CodexBar found another managed account that already uses the current system account. Resolve the duplicate account before switching." = "CodexBar đã tìm thấy một tài khoản được quản lý khác đã sử dụng tài khoản hệ thống hiện tại. Giải quyết tài khoản trùng lặp trước khi chuyển đổi.";
-"CodexBar will ask macOS Keychain for “%@” so it can decrypt browser cookies and authenticate your account. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho “ %@ ” để nó có thể giải mã cookie của trình duyệt và xác thực tài khoản của bạn. Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for the Claude Code OAuth token so it can fetch your Claude usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cung cấp Claude Mã OAuth token để nó có thể tìm nạp Claude Mức sử dụng của bạn. Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Amp cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Amp của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Augment cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Augment của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Claude cookie header so it can fetch Claude web usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain về tiêu đề cookie Claude của bạn để nó có thể tìm nạp Claude web Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Cursor cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Con trỏ của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Factory cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Factory của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your GitHub Copilot token so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho GitHub Copilot token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Kimi K2 API key so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cung cấp khóa Kimi K2 API của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Kimi auth token so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho Kimi auth token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your MiniMax API token so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cung cấp MiniMax API token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your MiniMax cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie MiniMax của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your OpenAI cookie header so it can fetch Codex dashboard extras. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie OpenAI của bạn để nó có thể tìm nạp các tính năng bổ sung của trang tổng quan Codex. Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your OpenCode cookie header so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie OpenCode của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your Synthetic API key so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cung cấp khóa Tổng hợp API của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
-"CodexBar will ask macOS Keychain for your z.ai API token so it can fetch usage. Click OK to continue." = "CodexBar sẽ yêu cầu macOS Keychain cung cấp z.ai API token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar can't replace a system account that is signed in with an API key only setup." = "TokenBar không thể thay thế tài khoản hệ thống được đăng nhập bằng thiết lập chỉ khóa API.";
+"TokenBar could not find saved auth for that account. Re-authenticate it and try again." = "TokenBar không thể tìm thấy xác thực đã lưu cho tài khoản đó. Xác thực lại nó và thử lại.";
+"TokenBar could not read managed account storage. Recover the store before adding another account." = "TokenBar không thể đọc bộ nhớ tài khoản được quản lý. Khôi phục cửa hàng trước khi thêm tài khoản khác.";
+"TokenBar could not read saved auth for that account. Re-authenticate it and try again." = "TokenBar không thể đọc xác thực đã lưu cho tài khoản đó. Xác thực lại nó và thử lại.";
+"TokenBar could not read the current system account on this Mac." = "TokenBar không thể đọc tài khoản hệ thống hiện tại trên máy Mac này.";
+"TokenBar could not replace the live Codex auth on this Mac." = "TokenBar không thể thay thế xác thực Codex trực tiếp trên máy Mac này.";
+"TokenBar could not safely preserve the current system account before switching." = "TokenBar không thể bảo toàn tài khoản hệ thống hiện tại một cách an toàn trước khi chuyển đổi.";
+"TokenBar could not save the current system account before switching." = "TokenBar không thể lưu tài khoản hệ thống hiện tại trước khi chuyển đổi.";
+"TokenBar could not update managed account storage." = "TokenBar không thể cập nhật bộ nhớ tài khoản được quản lý.";
+"TokenBar found another managed account that already uses the current system account. Resolve the duplicate account before switching." = "TokenBar đã tìm thấy một tài khoản được quản lý khác đã sử dụng tài khoản hệ thống hiện tại. Giải quyết tài khoản trùng lặp trước khi chuyển đổi.";
+"TokenBar will ask macOS Keychain for “%@” so it can decrypt browser cookies and authenticate your account. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho “ %@ ” để nó có thể giải mã cookie của trình duyệt và xác thực tài khoản của bạn. Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for the Claude Code OAuth token so it can fetch your Claude usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cung cấp Claude Mã OAuth token để nó có thể tìm nạp Claude Mức sử dụng của bạn. Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Amp cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Amp của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Augment cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Augment của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Claude cookie header so it can fetch Claude web usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain về tiêu đề cookie Claude của bạn để nó có thể tìm nạp Claude web Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Cursor cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Con trỏ của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Factory cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie Factory của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your GitHub Copilot token so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho GitHub Copilot token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Kimi K2 API key so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cung cấp khóa Kimi K2 API của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Kimi auth token so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho Kimi auth token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your MiniMax API token so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cung cấp MiniMax API token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your MiniMax cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie MiniMax của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your OpenAI cookie header so it can fetch Codex dashboard extras. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie OpenAI của bạn để nó có thể tìm nạp các tính năng bổ sung của trang tổng quan Codex. Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your OpenCode cookie header so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cho tiêu đề cookie OpenCode của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your Synthetic API key so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cung cấp khóa Tổng hợp API của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
+"TokenBar will ask macOS Keychain for your z.ai API token so it can fetch usage. Click OK to continue." = "TokenBar sẽ yêu cầu macOS Keychain cung cấp z.ai API token của bạn để nó có thể tìm nạp Mức sử dụng . Nhấn OK để tiếp tục.";
 "Could not open Cursor login in your browser." = "Không thể mở đăng nhập Con trỏ trong trình duyệt của bạn.";
 "Could not open browser for Antigravity" = "Không thể mở trình duyệt cho AntiGravity";
 "Credits used" = "Tín dụng đã sử dụng";
@@ -1008,6 +1012,7 @@
 "Personal account" = "Tài khoản cá nhân";
 "Project ID" = "ID dự án";
 "Re-auth" = "Xác thực lại";
+"Re-login at claude.ai" = "Đăng nhập lại vào claude.ai";
 "Re-authenticating…" = "Xác thực lại…";
 "Refresh Session" = "Làm mới phiên";
 "Refresh organizations" = "Làm mới tổ chức";
@@ -1019,27 +1024,27 @@
 "Service" = "Dịch vụ";
 "Show or hide Kiro credits, percent, or both next to the menu bar icon." = "Hiển thị hoặc ẩn tín dụng Kiro, phần trăm hoặc cả hai bên cạnh biểu tượng thanh menu.";
 "Show usage for organizations you belong to. Personal account is always shown." = "Hiển thị Mức sử dụng cho các tổ chức mà bạn là thành viên. Tài khoản cá nhân luôn được hiển thị.";
-"Sign in to cursor.com in your browser, then refresh Cursor in CodexBar." = "Đăng nhập vào con trỏ.com trong trình duyệt của bạn, sau đó làm mới Con trỏ trong CodexBar .";
+"Sign in to cursor.com in your browser, then refresh Cursor in TokenBar." = "Đăng nhập vào con trỏ.com trong trình duyệt của bạn, sau đó làm mới Con trỏ trong TokenBar .";
 "Simulated error text" = "Văn bản lỗi mô phỏng";
 "StepFun platform account (phone number or email)." = "Tài khoản nền tảng StepFun (số điện thoại hoặc email).";
-"Stored in ~/.codexbar/config.json." = "Được lưu trữ trong ~/.codexbar/config.json.";
-"Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Được lưu trữ trong ~/.codexbar/config.json. AZURE_OPENAI_API_KEY cũng được hỗ trợ.";
-"Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Được lưu trữ trong ~/.codexbar/config.json. Đối với Kimi API chính thức, hãy sử dụng Moonshot / Kimi API .";
-"Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa API của bạn từ bảng điều khiển Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận chìa khóa của bạn từ Ollama Cài đặt .";
-"Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận chìa khóa của bạn từ console.deepgram.com.";
-"Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa của bạn từ Elevenlabs.io/app/ Cài đặt /api-keys.";
-"Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Được lưu trữ trong ~/.codexbar/config.json. Nhận khóa của bạn từ openrouter.ai/ Cài đặt /keys và đặt giới hạn chi tiêu cho khóa ở đó để cho phép theo dõi API khóa Hạn mức.";
-"Stored in ~/.codexbar/config.json. In Warp, open Settings > Platform > API Keys, then create one." = "Được lưu trữ trong ~/.codexbar/config.json. Trong Warp, hãy mở Khóa Cài đặt > Nền tảng > API, sau đó tạo một khóa.";
-"Stored in ~/.codexbar/config.json. Metrics require Groq Enterprise Prometheus access." = "Được lưu trữ trong ~/.codexbar/config.json. Các số liệu yêu cầu quyền truy cập Groq Enterprise Prometheus.";
-"Stored in ~/.codexbar/config.json. OPENAI_ADMIN_KEY is preferred; OPENAI_API_KEY still works." = "Được lưu trữ trong ~/.codexbar/config.json. OPENAI_ADMIN_KEY được ưu tiên; OPENAI_API_KEY vẫn hoạt động.";
-"Stored in ~/.codexbar/config.json. Requires an Anthropic Admin API key." = "Được lưu trữ trong ~/.codexbar/config.json. Yêu cầu khóa Anthropic Quản trị viên API.";
-"Stored in ~/.codexbar/config.json. Used for /v1/quota-stats." = "Được lưu trữ trong ~/.codexbar/config.json. Được sử dụng cho /v1/ Hạn mức -stats.";
-"Stored in ~/.codexbar/config.json. You can also provide CODEBUFF_API_KEY or let CodexBar read ~/.config/manicode/credentials.json (created by `codebuff login`)." = "Được lưu trữ trong ~/.codexbar/config.json. Bạn cũng có thể cung cấp CODEBUFF_API_KEY hoặc để CodexBar đọc ~/.config/manicode/credentials.json (được tạo bởi `codebuff login`).";
-"Stored in ~/.codexbar/config.json. You can also provide CROF_API_KEY." = "Được lưu trữ trong ~/.codexbar/config.json. Bạn cũng có thể cung cấp CROF_API_KEY.";
-"Stored in ~/.codexbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "Được lưu trữ trong ~/.codexbar/config.json. Bạn cũng có thể cung cấp KILO_API_KEY hoặc ~/.local/share/kilo/auth.json (kilo.access).";
+"Stored in ~/.tokenbar/config.json." = "Được lưu trữ trong ~/.tokenbar/config.json.";
+"Stored in ~/.tokenbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Được lưu trữ trong ~/.tokenbar/config.json. AZURE_OPENAI_API_KEY cũng được hỗ trợ.";
+"Stored in ~/.tokenbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Được lưu trữ trong ~/.tokenbar/config.json. Đối với Kimi API chính thức, hãy sử dụng Moonshot / Kimi API .";
+"Stored in ~/.tokenbar/config.json. Get your API key from the Volcengine Ark console." = "Được lưu trữ trong ~/.tokenbar/config.json. Nhận khóa API của bạn từ bảng điều khiển Volcengine Ark.";
+"Stored in ~/.tokenbar/config.json. Get your key from Ollama settings." = "Được lưu trữ trong ~/.tokenbar/config.json. Nhận chìa khóa của bạn từ Ollama Cài đặt .";
+"Stored in ~/.tokenbar/config.json. Get your key from console.deepgram.com." = "Được lưu trữ trong ~/.tokenbar/config.json. Nhận chìa khóa của bạn từ console.deepgram.com.";
+"Stored in ~/.tokenbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Được lưu trữ trong ~/.tokenbar/config.json. Nhận khóa của bạn từ Elevenlabs.io/app/ Cài đặt /api-keys.";
+"Stored in ~/.tokenbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Được lưu trữ trong ~/.tokenbar/config.json. Nhận khóa của bạn từ openrouter.ai/ Cài đặt /keys và đặt giới hạn chi tiêu cho khóa ở đó để cho phép theo dõi API khóa Hạn mức.";
+"Stored in ~/.tokenbar/config.json. In Warp, open Settings > Platform > API Keys, then create one." = "Được lưu trữ trong ~/.tokenbar/config.json. Trong Warp, hãy mở Khóa Cài đặt > Nền tảng > API, sau đó tạo một khóa.";
+"Stored in ~/.tokenbar/config.json. Metrics require Groq Enterprise Prometheus access." = "Được lưu trữ trong ~/.tokenbar/config.json. Các số liệu yêu cầu quyền truy cập Groq Enterprise Prometheus.";
+"Stored in ~/.tokenbar/config.json. OPENAI_ADMIN_KEY is preferred; OPENAI_API_KEY still works." = "Được lưu trữ trong ~/.tokenbar/config.json. OPENAI_ADMIN_KEY được ưu tiên; OPENAI_API_KEY vẫn hoạt động.";
+"Stored in ~/.tokenbar/config.json. Requires an Anthropic Admin API key." = "Được lưu trữ trong ~/.tokenbar/config.json. Yêu cầu khóa Anthropic Quản trị viên API.";
+"Stored in ~/.tokenbar/config.json. Used for /v1/quota-stats." = "Được lưu trữ trong ~/.tokenbar/config.json. Được sử dụng cho /v1/ Hạn mức -stats.";
+"Stored in ~/.tokenbar/config.json. You can also provide CODEBUFF_API_KEY or let TokenBar read ~/.config/manicode/credentials.json (created by `codebuff login`)." = "Được lưu trữ trong ~/.tokenbar/config.json. Bạn cũng có thể cung cấp CODEBUFF_API_KEY hoặc để TokenBar đọc ~/.config/manicode/credentials.json (được tạo bởi `codebuff login`).";
+"Stored in ~/.tokenbar/config.json. You can also provide CROF_API_KEY." = "Được lưu trữ trong ~/.tokenbar/config.json. Bạn cũng có thể cung cấp CROF_API_KEY.";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "Được lưu trữ trong ~/.tokenbar/config.json. Bạn cũng có thể cung cấp KILO_API_KEY hoặc ~/.local/share/kilo/auth.json (kilo.access).";
 "T3 Chat cookie" = "Cookie trò chuyện T3";
-"That account is no longer available in CodexBar. Refresh the account list and try again." = "Tài khoản đó không còn khả dụng trong CodexBar . Hãy làm mới danh sách tài khoản và thử lại.";
+"That account is no longer available in TokenBar. Refresh the account list and try again." = "Tài khoản đó không còn khả dụng trong TokenBar . Hãy làm mới danh sách tài khoản và thử lại.";
 "The browser login did not complete in time. Try Antigravity login again." = "Quá trình đăng nhập trình duyệt không hoàn tất kịp thời. Hãy thử đăng nhập lại bằng AntiGravity.";
 "Timed out waiting for Cursor login. %@" = "Đã hết thời gian chờ đăng nhập Con trỏ. %@";
 "Timed out waiting for Cursor login. %@ Last error: %@" = "Đã hết thời gian chờ đăng nhập Con trỏ. %@ Lỗi cuối cùng: %@";
@@ -1065,3 +1070,6 @@
 "Search providers" = "Tìm kiếm nhà cung cấp";
 
 "language_vietnamese" = "Tiếng Việt";
+
+/* TokenBar fork additions */
+"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Tự động nhập cookie trình duyệt Chrome từ Xiaomi MiMo.";

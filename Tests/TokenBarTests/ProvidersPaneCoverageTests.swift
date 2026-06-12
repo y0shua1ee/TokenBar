@@ -309,6 +309,41 @@ struct ProvidersPaneCoverageTests {
     }
 
     @Test
+    func `provider detail renders metric status without progress`() {
+        let metric = UsageMenuCardView.Model.Metric(
+            id: "fixture",
+            title: "Example quota",
+            percent: 0,
+            percentStyle: .left,
+            statusText: "Unavailable",
+            resetText: nil,
+            detailText: nil,
+            detailLeftText: nil,
+            detailRightText: nil,
+            pacePercent: nil,
+            paceOnTop: false)
+
+        #expect(ProviderDetailView<EmptyView>.metricInlinePresentation(metric) == .status("Unavailable"))
+    }
+
+    @Test
+    func `provider detail renders ordinary metric progress`() {
+        let metric = UsageMenuCardView.Model.Metric(
+            id: "fixture",
+            title: "Example quota",
+            percent: 50,
+            percentStyle: .left,
+            resetText: nil,
+            detailText: nil,
+            detailLeftText: nil,
+            detailRightText: nil,
+            pacePercent: nil,
+            paceOnTop: false)
+
+        #expect(ProviderDetailView<EmptyView>.metricInlinePresentation(metric) == .progress)
+    }
+
+    @Test
     func `opencode manual cookie source hides cached browser trailing text`() {
         let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-opencode-manual")
         let store = Self.makeUsageStore(settings: settings)

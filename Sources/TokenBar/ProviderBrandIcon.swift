@@ -68,6 +68,7 @@ enum ProviderBrandIcon {
         case .crof: "c.circle"
         case .venice: "v.circle"
         case .commandcode: "terminal.fill"
+        case .devin: "d.square"
         case .stepfun: "s.circle"
         case .antigravity: "arrow.up.and.down.and.sparkles"
         case .zai: "bolt"

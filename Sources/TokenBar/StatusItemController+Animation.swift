@@ -232,8 +232,13 @@ extension StatusItemController {
     }
 
     @discardableResult
-    func applyIcon(phase: Double?) -> Bool {
+    func applyIcon(
+        phase: Double?,
+        bypassMergedMenuTrackingDeferral: Bool = false) -> Bool
+    {
         guard let button = self.statusItem.button else { return false }
+        if !bypassMergedMenuTrackingDeferral,
+           self.deferMergedIconRenderDuringMenuTrackingIfNeeded() { return true }
 
         let style = self.store.iconStyle
         let showUsed = self.settings.usageBarsShowUsed
@@ -393,6 +398,25 @@ extension StatusItemController {
         }
         self.noteIconPerfRender(skipped: false)
         return false
+    }
+
+    private func deferMergedIconRenderDuringMenuTrackingIfNeeded() -> Bool {
+        guard self.shouldMergeIcons, self.isMergedMenuOpen else { return false }
+        self.deferredMergedIconRenderAfterTracking = true
+        self.noteIconPerfRender(skipped: true)
+        return true
+    }
+
+    func applyDeferredMergedIconRenderAfterTrackingIfNeeded() {
+        guard self.deferredMergedIconRenderAfterTracking else { return }
+        guard self.shouldMergeIcons else {
+            self.deferredMergedIconRenderAfterTracking = false
+            return
+        }
+        guard !self.isMergedMenuOpen else { return }
+        self.deferredMergedIconRenderAfterTracking = false
+        let phase: Double? = self.animationDriver == nil ? nil : self.animationPhase
+        self.applyIcon(phase: phase)
     }
 
     private func shouldSkipMergedIconRender(_ signature: String) -> Bool {
@@ -595,6 +619,42 @@ extension StatusItemController {
         return false
     }
 
+    func startQuotaWarningFlash(provider: UsageProvider, postedAt: Date = Date()) {
+        let until = postedAt.addingTimeInterval(Self.quotaWarningFlashDuration)
+        self.quotaWarningFlashUntil[provider] = until
+        self.quotaWarningFlashTasks[provider]?.cancel()
+        self.updateIcons()
+        self.applyQuotaWarningIconDuringMergedMenuTrackingIfNeeded()
+        self.quotaWarningFlashTasks[provider] = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.quotaWarningFlashDuration))
+            await MainActor.run { [weak self] in
+                self?.clearExpiredQuotaWarningFlash(provider: provider)
+            }
+        }
+    }
+
+    func clearExpiredQuotaWarningFlash(provider: UsageProvider, now: Date = Date()) {
+        guard let currentUntil = self.quotaWarningFlashUntil[provider],
+              currentUntil <= now
+        else {
+            return
+        }
+        self.quotaWarningFlashUntil.removeValue(forKey: provider)
+        self.quotaWarningFlashTasks.removeValue(forKey: provider)
+        self.updateIcons()
+        self.applyQuotaWarningIconDuringMergedMenuTrackingIfNeeded()
+    }
+
+    private func applyQuotaWarningIconDuringMergedMenuTrackingIfNeeded() {
+        guard self.shouldMergeIcons,
+              self.isMergedMenuOpen
+        else {
+            return
+        }
+        let phase: Double? = self.animationDriver == nil ? nil : self.animationPhase
+        self.applyIcon(phase: phase, bypassMergedMenuTrackingDeferral: true)
+    }
+
     static func quotaWarningFlashImage(base: NSImage) -> NSImage {
         let image = NSImage(size: base.size)
         image.lockFocus()
@@ -631,6 +691,7 @@ extension StatusItemController {
     }
 
     func menuBarDisplayText(for provider: UsageProvider, snapshot: UsageSnapshot?) -> String? {
+        let mode = self.settings.menuBarDisplayMode
         if provider == .openrouter,
            self.settings.menuBarMetricPreference(for: provider, snapshot: snapshot) == .automatic,
            let balance = snapshot?.openRouterUsage?.balance
@@ -663,14 +724,15 @@ extension StatusItemController {
                 mode: self.settings.kiroMenuBarDisplayMode,
                 showUsed: self.settings.usageBarsShowUsed)
         }
-        if self.settings.menuBarMetricPreference(for: provider, snapshot: snapshot) == .extraUsage,
+        if mode != .resetTime,
+           self.settings.menuBarMetricPreference(for: provider, snapshot: snapshot) == .extraUsage,
+           provider != .cursor || mode == .pace,
            let spend = Self.extraUsageSpendDisplayText(snapshot: snapshot)
         {
             return spend
         }
 
         let percentWindow = self.menuBarPercentWindow(for: provider, snapshot: snapshot)
-        let mode = self.settings.menuBarDisplayMode
         let now = Date()
         let codexProjection = self.store.codexConsumerProjectionIfNeeded(
             for: provider,
@@ -693,6 +755,13 @@ extension StatusItemController {
             pace = paceWindow.flatMap { window in
                 self.store.weeklyPace(provider: provider, window: window, now: now)
             }
+        case .resetTime:
+            return MenuBarDisplayText.displayText(
+                mode: mode,
+                percentWindow: percentWindow,
+                showUsed: self.settings.usageBarsShowUsed,
+                resetTimeDisplayStyle: self.settings.resetTimeDisplayStyle,
+                now: now)
         }
         let displayText = MenuBarDisplayText.displayText(
             mode: mode,

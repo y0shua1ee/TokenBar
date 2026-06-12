@@ -101,7 +101,7 @@ extension StatusItemController {
             tokenSnapshot: tokenSnapshot,
             tokenError: tokenError,
             account: fallbackAccount,
-            isRefreshing: self.store.shouldShowRefreshingMenuCard(for: target),
+            isRefreshing: self.store.shouldShowRefreshingMenuCardIndicator(for: target),
             lastError: errorOverride
                 ?? codexProjection?.userFacingErrors.usage
                 ?? self.store.userFacingError(for: target),
@@ -118,6 +118,7 @@ extension StatusItemController {
                 .weekly: self.quotaWarningMarkerThresholds(provider: target, window: .weekly),
             ],
             workDaysPerWeek: self.settings.weeklyProgressWorkDays,
+            usesLiveSubtitle: surface == .liveCard,
             now: now)
         return UsageMenuCardView.Model.make(input)
     }

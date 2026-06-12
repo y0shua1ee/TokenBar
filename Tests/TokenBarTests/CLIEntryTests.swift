@@ -192,6 +192,29 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertEqual(TokenBarCLI.mapError(UsageError.noRateLimitsFound), ExitCode(3))
     }
 
+    func test_antigravityPlanDebugKeepsOneShotHelperAliveUntilDebugFetch() {
+        XCTAssertTrue(TokenBarCLI.holdsAntigravityCLISessionForPlanDebug(
+            provider: .antigravity,
+            planDebugEnabled: true,
+            jsonOnly: false,
+            persistsCLISessions: false))
+        XCTAssertFalse(TokenBarCLI.holdsAntigravityCLISessionForPlanDebug(
+            provider: .codex,
+            planDebugEnabled: true,
+            jsonOnly: false,
+            persistsCLISessions: false))
+        XCTAssertFalse(TokenBarCLI.holdsAntigravityCLISessionForPlanDebug(
+            provider: .antigravity,
+            planDebugEnabled: true,
+            jsonOnly: true,
+            persistsCLISessions: false))
+        XCTAssertFalse(TokenBarCLI.holdsAntigravityCLISessionForPlanDebug(
+            provider: .antigravity,
+            planDebugEnabled: true,
+            jsonOnly: false,
+            persistsCLISessions: true))
+    }
+
     func test_missingCodexBinaryErrorPayloadUsesInstallGuidance() {
         let payload = TokenBarCLI.makeErrorPayload(CodexStatusProbeError.codexNotInstalled, kind: .provider)
 

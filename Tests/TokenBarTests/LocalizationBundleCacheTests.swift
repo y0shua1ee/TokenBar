@@ -12,7 +12,7 @@ import Testing
 struct LocalizationBundleCacheTests {
     @Test
     func `resolves the correct lproj per language and re-resolves on switch`() {
-        resetTokenBarLocalizationCacheForTesting()
+        resetCodexBarLocalizationCacheForTesting()
 
         let fr = CodexBarLocalizationOverride.$appLanguage.withValue("fr") {
             codexBarLocalizedBundleForTesting()
@@ -34,7 +34,7 @@ struct LocalizationBundleCacheTests {
 
     @Test
     func `repeated same-language calls keep resolving the same lproj`() {
-        resetTokenBarLocalizationCacheForTesting()
+        resetCodexBarLocalizationCacheForTesting()
 
         for _ in 0..<5 {
             let bundle = CodexBarLocalizationOverride.$appLanguage.withValue("es") {
@@ -46,7 +46,7 @@ struct LocalizationBundleCacheTests {
 
     @Test
     func `unknown language falls back to en lproj`() {
-        resetTokenBarLocalizationCacheForTesting()
+        resetCodexBarLocalizationCacheForTesting()
 
         let bundle = CodexBarLocalizationOverride.$appLanguage.withValue("zz-unknown") {
             codexBarLocalizedBundleForTesting()
@@ -61,7 +61,7 @@ struct LocalizationBundleCacheTests {
         }
         #expect(first.bundleURL.lastPathComponent == "uk.lproj")
 
-        resetTokenBarLocalizationCacheForTesting()
+        resetCodexBarLocalizationCacheForTesting()
 
         let afterReset = CodexBarLocalizationOverride.$appLanguage.withValue("uk") {
             codexBarLocalizedBundleForTesting()

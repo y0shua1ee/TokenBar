@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 struct MiniMaxMenuCardModelPlanTests {
     @Test

@@ -48,11 +48,44 @@ public struct NamedRateWindow: Codable, Equatable, Sendable {
     public let id: String
     public let title: String
     public let window: RateWindow
+    /// Whether `window.usedPercent` reflects known quota usage.
+    ///
+    /// Some providers expose reset metadata for a named quota window before
+    /// they expose remaining usage. Keep those windows visible for reset/debug
+    /// context, but mark them so clients do not render `usedPercent` as a real
+    /// exhausted quota. Missing values decode as `true` for older cached payloads.
+    public let usageKnown: Bool
 
-    public init(id: String, title: String, window: RateWindow) {
+    public init(id: String, title: String, window: RateWindow, usageKnown: Bool = true) {
         self.id = id
         self.title = title
         self.window = window
+        self.usageKnown = usageKnown
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case window
+        case usageKnown
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.window = try container.decode(RateWindow.self, forKey: .window)
+        self.usageKnown = try container.decodeIfPresent(Bool.self, forKey: .usageKnown) ?? true
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.id, forKey: .id)
+        try container.encode(self.title, forKey: .title)
+        try container.encode(self.window, forKey: .window)
+        if !self.usageKnown {
+            try container.encode(false, forKey: .usageKnown)
+        }
     }
 }
 
@@ -450,6 +483,15 @@ public enum UsageLimitsAvailability: Equatable, Sendable {
         account: AccountInfo? = nil,
         lastErrorDescription: String? = nil) -> Self
     {
+        if provider == .doubao {
+            guard let snapshot,
+                  snapshot.identity(for: provider) != nil
+            else {
+                return .available
+            }
+            return snapshot.hasRateLimitWindows ? .available : .unavailable
+        }
+
         guard provider == .codex else { return .available }
 
         if let snapshot {

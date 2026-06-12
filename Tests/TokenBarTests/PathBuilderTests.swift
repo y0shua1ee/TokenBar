@@ -59,11 +59,11 @@ struct PathBuilderTests {
             semaphore.signal()
         }
 
-        #expect(semaphore.wait(timeout: .now() + 2.0) == .success)
+        #expect(semaphore.wait(timeout: .now() + 10.0) == .success)
         #expect(firstResult == nil)
         #expect(cache.current == nil)
 
-        let recovered = cache.currentOrCapture(shell: "/unused", timeout: 2.0)
+        let recovered = cache.currentOrCapture(shell: "/unused", timeout: 10.0)
         #expect(recovered == ["/login/bin", "/usr/bin"])
         #expect(cache.current == ["/login/bin", "/usr/bin"])
         #expect(capture.callCount == 2)

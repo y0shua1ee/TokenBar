@@ -1,4 +1,4 @@
-/* English localization for CodexBar (base/fallback) */
+/* English localization for TokenBar (base/fallback) */
 
 " providers" = " fournisseurs";
 "(System)" = "(System)";
@@ -37,7 +37,7 @@
 "Automatic imports browser cookies or stored sessions." = "Importe automatiquement les cookies du navigateur ou les sessions stockées.";
 "Automatic imports browser cookies." = "Importe automatiquement les cookies du navigateur.";
 "Automatically imports browser session cookie." = "Importe automatiquement le cookie de session du navigateur.";
-"Automatically opens CodexBar when you start your Mac." = "Ouvre automatiquement CodexBar lorsque vous démarrez votre Mac.";
+"Automatically opens TokenBar when you start your Mac." = "Ouvre automatiquement TokenBar lorsque vous démarrez votre Mac.";
 "Automation" = "Automatisation";
 "Average (\\(label1) + \\(label2))" = "Moyenne (\\(label1) + \\(label2))";
 "Average (\\(metadata.sessionLabel) + \\(metadata.weeklyLabel))" = "Moyenne (\\(metadata.sessionLabel) + \\(metadata.weeklyLabel))";
@@ -63,7 +63,7 @@
 "Choose up to \\(Self.maxOverviewProviders) providers" = "Choisissez jusqu'à \\(Self.maxOverviewProviders) fournisseurs";
 "Choose up to \\(count) providers" = "Choisissez jusqu'à \\(count) fournisseurs";
 "Choose what to show in the menu bar (Pace shows usage vs. expected)." = "Choisissez ce que vous voulez afficher dans la barre de menu (Pace affiche l'utilisation par rapport à celle attendue).";
-"Choose which Codex account CodexBar should follow." = "Choisissez quel compte Codex CodexBar doit suivre.";
+"Choose which Codex account TokenBar should follow." = "Choisissez quel compte Codex TokenBar doit suivre.";
 "Choose which window drives the menu bar percent." = "Choisissez quelle fenêtre gère le pourcentage de la barre de menus.";
 "Chrome" = "Chrome";
 "Claude CLI not found" = "Claude CLI introuvable";
@@ -78,9 +78,9 @@
 "Codex binary" = "Binaire Codex";
 "Codex login failed" = "Échec de la connexion au Codex";
 "Codex login timed out" = "La connexion au Codex a expiré";
-"CodexBar Lifecycle Keepalive" = "Cycle de vie de CodexBar Keepalive";
-"CodexBar can't show its menu bar icon" = "CodexBar ne peut pas afficher l'icône de sa barre de menus";
-"CodexBar could not read managed account storage. " = "CodexBar n'a pas pu lire le stockage du compte géré.";
+"TokenBar Lifecycle Keepalive" = "Cycle de vie de TokenBar Keepalive";
+"TokenBar can't show its menu bar icon" = "TokenBar ne peut pas afficher l'icône de sa barre de menus";
+"TokenBar could not read managed account storage. " = "TokenBar n'a pas pu lire le stockage du compte géré.";
 "Configure…" = "Configurer…";
 "Connected" = "Connecté";
 "Controls how much detail is logged." = "Contrôle la quantité de détails enregistrés.";
@@ -140,7 +140,7 @@
 "Hide details" = "Masquer les détails";
 "Hide personal information" = "Masquer les informations personnelles";
 "Historical tracking" = "Suivi historique";
-"How often CodexBar polls providers in the background." = "À quelle fréquence CodexBar interroge les fournisseurs en arrière-plan.";
+"How often TokenBar polls providers in the background." = "À quelle fréquence TokenBar interroge les fournisseurs en arrière-plan.";
 "Inactive" = "Inactif";
 "Install CLI" = "Installer la CLI";
 "Install the Claude CLI (npm i -g @anthropic-ai/claude-code) and try again." = "Installez la CLI Claude (npm i -g @anthropic-ai/claude-code) et réessayez.";
@@ -198,7 +198,7 @@
 "Open" = "Ouvrir";
 "Open API Keys" = "Clés API ouvertes";
 "Open Amp Settings" = "Ouvrir les paramètres de l'ampli";
-"Open Antigravity to sign in, then refresh CodexBar." = "Ouvrez Antigravity pour vous connecter, puis actualisez CodexBar.";
+"Open Antigravity to sign in, then refresh TokenBar." = "Ouvrez Antigravity pour vous connecter, puis actualisez TokenBar.";
 "Open Browser" = "Ouvrir le navigateur";
 "Open Coding Plan" = "Plan de codage ouvert";
 "Open Console" = "Ouvrir la console";
@@ -242,7 +242,7 @@
 "Progress bars fill as you consume quota (instead of showing remaining)." = "Les barres de progression se remplissent à mesure que vous consommez le quota (au lieu d'afficher le reste).";
 "Provider" = "Fournisseur";
 "Providers" = "Fournisseurs";
-"Quit CodexBar" = "Quitter CodexBar";
+"Quit TokenBar" = "Quitter TokenBar";
 "Random (default)" = "Aléatoire (par défaut)";
 "Reads local usage logs. Shows today + last 30 days cost in the menu." = "Lit les journaux d'utilisation locaux. Affiche aujourd'hui + la fenêtre d'historique sélectionnée dans le menu.";
 "Refresh" = "Actualiser";
@@ -250,8 +250,8 @@
 "Remote" = "Distant";
 "Remove" = "Supprimer";
 "Remove Codex account?" = "Supprimer le compte Codex ?";
-"Remove \\(account.email) from CodexBar? Its managed Codex home will be deleted." = "Supprimer \\(account.email) de CodexBar ? Sa maison Codex gérée sera supprimée.";
-"Remove \\(email) from CodexBar? Its managed Codex home will be deleted." = "Supprimer \\(email) de CodexBar ? Sa maison Codex gérée sera supprimée.";
+"Remove \\(account.email) from TokenBar? Its managed Codex home will be deleted." = "Supprimer \\(account.email) de TokenBar ? Sa maison Codex gérée sera supprimée.";
+"Remove \\(email) from TokenBar? Its managed Codex home will be deleted." = "Supprimer \\(email) de TokenBar ? Sa maison Codex gérée sera supprimée.";
 "Remove selected account" = "Supprimer le compte sélectionné";
 "Replace critter bars with provider branding icons and a percentage." = "Remplacez les barres de créatures par des icônes de marque du fournisseur et un pourcentage.";
 "Replay selected animation" = "Rejouer l'animation sélectionnée";
@@ -291,18 +291,18 @@
 "Store multiple Ollama Cookie headers." = "Stockez plusieurs en-têtes Ollama Cookie.";
 "Store multiple OpenCode Cookie headers." = "Stockez plusieurs en-têtes de cookies OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Stockez plusieurs en-têtes OpenCode Go Cookie.";
-"Stored in the CodexBar config file." = "Stocké dans le fichier de configuration CodexBar.";
-"Stored in ~/.codexbar/config.json. " = "Stocké dans ~/.codexbar/config.json.";
-"Stored in ~/.codexbar/config.json. Generate one at kimi-k2.ai." = "Stocké dans ~/.codexbar/config.json. Générez-en un sur kimi-k2.ai.";
-"Stored in ~/.codexbar/config.json. Paste the key from the Synthetic dashboard." = "Stocké dans ~/.codexbar/config.json. Collez la clé du tableau de bord synthétique.";
-"Stored in ~/.codexbar/config.json. Paste your Coding Plan API key from Model Studio." = "Stocké dans ~/.codexbar/config.json. Collez la clé API de votre plan de codage depuis Model Studio.";
-"Stored in ~/.codexbar/config.json. Paste your MiniMax API key." = "Stocké dans ~/.codexbar/config.json. Collez votre clé API MiniMax.";
-"Stored in ~/.codexbar/config.json. You can also provide KILO_API_KEY or " = "Stocké dans ~/.codexbar/config.json. Vous pouvez également fournir KILO_API_KEY ou";
+"Stored in the TokenBar config file." = "Stocké dans le fichier de configuration TokenBar.";
+"Stored in ~/.tokenbar/config.json. " = "Stocké dans ~/.tokenbar/config.json.";
+"Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai." = "Stocké dans ~/.tokenbar/config.json. Générez-en un sur kimi-k2.ai.";
+"Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard." = "Stocké dans ~/.tokenbar/config.json. Collez la clé du tableau de bord synthétique.";
+"Stored in ~/.tokenbar/config.json. Paste your Coding Plan API key from Model Studio." = "Stocké dans ~/.tokenbar/config.json. Collez la clé API de votre plan de codage depuis Model Studio.";
+"Stored in ~/.tokenbar/config.json. Paste your MiniMax API key." = "Stocké dans ~/.tokenbar/config.json. Collez votre clé API MiniMax.";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or " = "Stocké dans ~/.tokenbar/config.json. Vous pouvez également fournir KILO_API_KEY ou";
 "Stores local Codex usage history (8 weeks) to personalize Pace predictions." = "Stocke l’historique d’utilisation local du Codex (8 semaines) pour personnaliser les prédictions Pace.";
 "Subscription Utilization" = "Utilisation de l'abonnement";
 "Surprise me" = "Surprenez-moi";
 "Switcher shows icons" = "Le commutateur affiche des icônes";
-"Symlink CodexBarCLI to /usr/local/bin and /opt/homebrew/bin as codexbar." = "Lien symbolique CodexBarCLI vers /usr/local/bin et /opt/homebrew/bin en tant que codexbar.";
+"Symlink TokenBarCLI to /usr/local/bin and /opt/homebrew/bin as tokenbar." = "Lien symbolique TokenBarCLI vers /usr/local/bin et /opt/homebrew/bin en tant que tokenbar.";
 "System" = "Système";
 "Temporarily shows the loading animation after the next refresh." = "Affiche temporairement l'animation de chargement après la prochaine actualisation.";
 "Tertiary (\\(label))" = "Tertiaire (\\(label))";
@@ -366,8 +366,8 @@
 "cursor_on_demand" = "À la demande : %@";
 "cursor_on_demand_with_limit" = "À la demande : %1$@ / %2$@";
 "extra_usage_format" = "Utilisation supplémentaire : %1$@ / %2$@";
-"jetbrains_detected_generate" = "Détecté : %@. Utilisez l'assistant IA une fois pour générer des données de quota, puis actualisez CodexBar.";
-"jetbrains_detected_select" = "Détecté : %@. Sélectionnez votre IDE préféré dans Paramètres, puis actualisez CodexBar.";
+"jetbrains_detected_generate" = "Détecté : %@. Utilisez l'assistant IA une fois pour générer des données de quota, puis actualisez TokenBar.";
+"jetbrains_detected_select" = "Détecté : %@. Sélectionnez votre IDE préféré dans Paramètres, puis actualisez TokenBar.";
 "last_fetch_failed_with_provider" = "La dernière récupération de %@ a échoué :";
 "last_spend" = "Dernière dépense : %@";
 "mcp_model_usage" = "%1$@ : %2$@";
@@ -377,10 +377,10 @@
 "metric_primary" = "Primaire (%@)";
 "metric_secondary" = "Secondaire (%@)";
 "metric_tertiary" = "Tertiaire (%@)";
-"multiple_workspaces_found" = "CodexBar a trouvé plusieurs espaces de travail pour %@. Veuillez choisir l'espace de travail à ajouter.";
+"multiple_workspaces_found" = "TokenBar a trouvé plusieurs espaces de travail pour %@. Veuillez choisir l'espace de travail à ajouter.";
 "ory_session_…=…; csrftoken=…" = "ory_session_…=…; csrftoken=…";
 "overview_choose_providers" = "Choisissez jusqu'à %@ fournisseurs";
-"remove_account_message" = "Supprimer %@ de CodexBar ? Sa maison Codex gérée sera supprimée.";
+"remove_account_message" = "Supprimer %@ de TokenBar ? Sa maison Codex gérée sera supprimée.";
 "version_format" = "Version %@";
 "vertex_ai_login_instructions" = "Pour suivre l'utilisation de Vertex AI, authentifiez-vous auprès de Google Cloud.\n\n1. Ouvrez le terminal\n2. Exécutez : gcloud auth application-default login\n3. Suivez les invites du navigateur pour vous connecter\n4. Définissez votre projet : gcloud config set project PROJECT_ID\n\nOuvrir le terminal maintenant ?";
 "workspaceID is set but only opencode, opencodego, and deepgram support workspaceID." = "workspaceID est défini mais seuls opencode, opencodego et deepgram prennent en charge workspaceID.";
@@ -403,15 +403,17 @@
 "language_french" = "Français";
 "language_dutch" = "Néerlandais";
 "language_ukrainian" = "Ukrainien";
+"language_japanese" = "Japonais";
+"language_korean" = "Coréen";
 "language_vietnamese" = "Vietnamien";
 "start_at_login_title" = "Lancer à l'ouverture de session";
-"start_at_login_subtitle" = "Ouvre automatiquement CodexBar au démarrage de votre Mac.";
+"start_at_login_subtitle" = "Ouvre automatiquement TokenBar au démarrage de votre Mac.";
 "show_cost_summary" = "Afficher le récapitulatif des coûts";
 "show_cost_summary_subtitle" = "Lit les journaux d'utilisation locaux. Affiche le coût d'aujourd'hui et de la période sélectionnée dans le menu.";
 "cost_history_days_title" = "Fenêtre d'historique : %d jours";
 "cost_auto_refresh_info" = "Actualisation automatique : toutes les heures · Délai d'expiration : 10 min";
 "refresh_cadence_title" = "Fréquence d'actualisation";
-"refresh_cadence_subtitle" = "Définit la fréquence à laquelle CodexBar interroge les fournisseurs en arrière-plan.";
+"refresh_cadence_subtitle" = "Définit la fréquence à laquelle TokenBar interroge les fournisseurs en arrière-plan.";
 "manual_refresh_hint" = "L'actualisation automatique est désactivée ; utilisez la commande Actualiser du menu.";
 "check_provider_status_title" = "Vérifier l'état des fournisseurs";
 "check_provider_status_subtitle" = "Interroge les pages d'état OpenAI/Claude et Google Workspace pour Gemini/Antigravity, et affiche les incidents dans l'icône et le menu.";
@@ -444,7 +446,7 @@
 "quota_warning_upper" = "Seuil haut";
 "quota_warning_lower" = "Seuil bas";
 "apply" = "Appliquer";
-"quit_app" = "Quitter CodexBar";
+"quit_app" = "Quitter TokenBar";
 
 /* Tab titles */
 "tab_general" = "Général";
@@ -468,8 +470,8 @@
 "managed_login_missing_email" = "Connexion au Codex terminée, mais aucune adresse e-mail du compte n'était disponible. Réessayez après avoir confirmé que le compte est entièrement connecté.";
 "login_success_notification_title" = "%@ connexion réussie";
 "login_success_notification_body" = "Vous pouvez revenir à l’app ; authentification terminée.";
-"workspace_selection_cancelled" = "CodexBar a trouvé plusieurs espaces de travail, mais aucun espace de travail n'a été sélectionné.";
-"unsafe_managed_home" = "CodexBar a refusé de modifier un chemin d'accès à la maison géré inattendu : %@";
+"workspace_selection_cancelled" = "TokenBar a trouvé plusieurs espaces de travail, mais aucun espace de travail n'a été sélectionné.";
+"unsafe_managed_home" = "TokenBar a refusé de modifier un chemin d'accès à la maison géré inattendu : %@";
 "menu_bar_metric_title" = "Métrique de la barre de menus";
 "menu_bar_metric_subtitle" = "Choisissez quelle fenêtre gère le pourcentage de la barre de menus.";
 "menu_bar_metric_subtitle_deepseek" = "Affiche le solde DeepSeek dans la barre de menu.";
@@ -522,8 +524,8 @@
 "open_menu_shortcut_title" = "Ouvrir le menu";
 "open_menu_shortcut_subtitle" = "Déclenchez le menu de la barre de menus depuis n'importe où.";
 "install_cli" = "Installer la CLI";
-"install_cli_subtitle" = "Lien symbolique CodexBarCLI vers /usr/local/bin et /opt/homebrew/bin en tant que codexbar.";
-"cli_not_found" = "CodexBarCLI introuvable dans l'ensemble d'applications.";
+"install_cli_subtitle" = "Lien symbolique TokenBarCLI vers /usr/local/bin et /opt/homebrew/bin en tant que tokenbar.";
+"cli_not_found" = "TokenBarCLI introuvable dans l'ensemble d'applications.";
 "no_writable_bin_dirs" = "Aucun répertoire bin inscriptible trouvé.";
 "show_debug_settings_title" = "Afficher les paramètres de débogage";
 "show_debug_settings_subtitle" = "Exposez les outils de dépannage dans l’onglet Débogage.";
@@ -608,7 +610,7 @@
 "login_shell_path" = "CHEMIN du shell de connexion (capture de démarrage)";
 "cleared" = "Effacé";
 "no_fetch_attempts" = "Aucune tentative de récupération pour l'instant.";
-"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. CodexBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn CodexBar on." = "macOS Tahoe peut bloquer les applications de la barre de menus dans Paramètres système → Barre de menus → Autoriser dans la barre de menus. CodexBar est en cours d'exécution, mais macOS cache peut-être son icône. Ouvrez les paramètres de la barre de menu et activez CodexBar.";
+"macOS Tahoe can block menu bar apps in System Settings → Menu Bar → Allow in the Menu Bar. TokenBar is running, but macOS may be hiding its icon. Open Menu Bar settings and turn TokenBar on." = "macOS Tahoe peut bloquer les applications de la barre de menus dans Paramètres système → Barre de menus → Autoriser dans la barre de menus. TokenBar est en cours d'exécution, mais macOS cache peut-être son icône. Ouvrez les paramètres de la barre de menu et activez TokenBar.";
 
 /* Metric preferences */
 "metric_pref_automatic" = "Automatique";
@@ -622,9 +624,11 @@
 "display_mode_percent" = "Pourcentage";
 "display_mode_pace" = "Rythme";
 "display_mode_both" = "Les deux";
+"display_mode_reset_time" = "Heure de réinitialisation";
 "display_mode_percent_desc" = "Afficher le pourcentage restant/utilisé (par exemple 45 %)";
 "display_mode_pace_desc" = "Afficher l'indicateur d'allure (par exemple +5 %)";
 "display_mode_both_desc" = "Afficher à la fois le pourcentage et le rythme (par exemple 45 % · +5 %)";
+"display_mode_reset_time_desc" = "Afficher l'heure de réinitialisation de la métrique sélectionnée (par exemple ↻ 15:56)";
 
 /* Provider status */
 "status_operational" = "Opérationnel";
@@ -650,7 +654,7 @@
 "cost_estimate_hint" = "Estimé à partir des journaux locaux · peut différer de votre facture";
 "No JetBrains IDE with AI Assistant detected. Install a JetBrains IDE and enable AI Assistant." = "Aucun IDE JetBrains avec AI Assistant détecté. Installez un IDE JetBrains et activez AI Assistant.";
 "OpenRouter API token not configured. Set OPENROUTER_API_KEY environment variable or configure in Settings." = "Jeton API OpenRouter non configuré. Définissez la variable d'environnement OPENROUTER_API_KEY ou configurez-la dans Paramètres.";
-"z.ai API token not found. Set apiKey in ~/.codexbar/config.json or Z_AI_API_KEY." = "Jeton API z.ai introuvable. Définissez apiKey dans ~/.codexbar/config.json ou Z_AI_API_KEY.";
+"z.ai API token not found. Set apiKey in ~/.tokenbar/config.json or Z_AI_API_KEY." = "Jeton API z.ai introuvable. Définissez apiKey dans ~/.tokenbar/config.json ou Z_AI_API_KEY.";
 "Missing DeepSeek API key." = "Clé API DeepSeek manquante.";
 "%@ is unavailable in the current environment." = "%@ n'est pas disponible dans l'environnement actuel.";
 "All Systems Operational" = "Tous les systèmes opérationnels";
@@ -671,7 +675,7 @@
 "No local data found" = "Aucune donnée locale trouvée";
 "Credits unavailable; keep Codex running to refresh." = "Crédits indisponibles ; laissez le Codex fonctionner pour l'actualiser.";
 "No available fetch strategy for minimax." = "Aucune stratégie de récupération disponible pour minimax.";
-"No Cursor session found. Please log in to cursor.com in Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX, or Edge Canary. If you use Safari, grant CodexBar Full Disk Access in System Settings ▸ Privacy & Security. You can also sign in to Cursor from the CodexBar menu (Add / switch account)." = "Aucune session de Cursor trouvée. Veuillez vous connecter à cursor.com dans Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX ou Edge Canary. Si vous utilisez Safari, accordez l'accès complet au disque à CodexBar dans Paramètres système ▸ Confidentialité et sécurité. Vous pouvez également vous connecter à Cursor à partir du menu CodexBar (Ajouter/changer de compte).";
+"No Cursor session found. Please log in to cursor.com in Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX, or Edge Canary. If you use Safari, grant TokenBar Full Disk Access in System Settings ▸ Privacy & Security. You can also sign in to Cursor from the TokenBar menu (Add / switch account)." = "Aucune session de Cursor trouvée. Veuillez vous connecter à cursor.com dans Safari, Chrome, Microsoft Edge, Brave, Arc, Dia, ChatGPT Atlas, Chromium, Helium, Vivaldi, Yandex Browser, Firefox, Zen, Colibri, Sidekick, Opera, Opera GX ou Edge Canary. Si vous utilisez Safari, accordez l'accès complet au disque à TokenBar dans Paramètres système ▸ Confidentialité et sécurité. Vous pouvez également vous connecter à Cursor à partir du menu TokenBar (Ajouter/changer de compte).";
 "No OpenCode session cookies found in browsers." = "Aucun cookie de session OpenCode trouvé dans les navigateurs.";
 "No available fetch strategy for %@." = "Aucune stratégie de récupération disponible pour %@.";
 "Today" = "Aujourd’hui";
@@ -685,7 +689,7 @@
 "Usage Dashboard" = "Tableau de bord d'utilisation";
 "Status Page" = "Page d'état";
 "Settings..." = "Réglages…";
-"About CodexBar" = "À propos de CodexBar";
+"About TokenBar" = "À propos de TokenBar";
 "Quit" = "Quitter";
 "Last %d day" = "Dernier %d jour";
 "Last %d days" = "%d derniers jours";
@@ -909,7 +913,7 @@
 "Antigravity login failed" = "La connexion antigravité a échoué";
 "Antigravity login timed out" = "La connexion antigravité a expiré";
 "Auth source" = "Source d'authentification";
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importe automatiquement les cookies du navigateur Chrome de Xiaomi MiMo.";
+"Automatic imports browser cookies from Xiaomi MiMo." = "Importe automatiquement les cookies du navigateur de Xiaomi MiMo.";
 "Automatic imports Windsurf session data from Chromium browser localStorage." = "Importe automatiquement les données de session Windsurf à partir du navigateur Chromium localStorage.";
 "Automatic imports browser cookies from Bailian." = "Importe automatiquement les cookies du navigateur depuis Bailian.";
 "Automatically imports browser cookies." = "Importe automatiquement les cookies du navigateur.";
@@ -926,32 +930,32 @@
 "Capacity Start" = "Capacité Début";
 "Changelog" = "Journal des modifications";
 "Choose the Moonshot/Kimi API host for international or China mainland accounts." = "Choisissez l'hôte API Moonshot/Kimi pour les comptes internationaux ou en Chine continentale.";
-"CodexBar can't replace a system account that is signed in with an API key only setup." = "CodexBar ne peut pas remplacer un compte système connecté par une configuration de clé API uniquement.";
-"CodexBar could not find saved auth for that account. Re-authenticate it and try again." = "CodexBar n'a pas pu trouver l'authentification enregistrée pour ce compte. Ré-authentifiez-le et réessayez.";
-"CodexBar could not read managed account storage. Recover the store before adding another account." = "CodexBar n'a pas pu lire le stockage du compte géré. Récupérez la boutique avant d'ajouter un autre compte.";
-"CodexBar could not read saved auth for that account. Re-authenticate it and try again." = "CodexBar n'a pas pu lire l'authentification enregistrée pour ce compte. Ré-authentifiez-le et réessayez.";
-"CodexBar could not read the current system account on this Mac." = "CodexBar n'a pas pu lire le compte système actuel sur ce Mac.";
-"CodexBar could not replace the live Codex auth on this Mac." = "CodexBar n'a pas pu remplacer l'authentification Codex en direct sur ce Mac.";
-"CodexBar could not safely preserve the current system account before switching." = "CodexBar n'a pas pu conserver en toute sécurité le compte système actuel avant le changement.";
-"CodexBar could not save the current system account before switching." = "CodexBar n'a pas pu enregistrer le compte système actuel avant de changer.";
-"CodexBar could not update managed account storage." = "CodexBar n'a pas pu mettre à jour le stockage du compte géré.";
-"CodexBar found another managed account that already uses the current system account. Resolve the duplicate account before switching." = "CodexBar a trouvé un autre compte géré qui utilise déjà le compte système actuel. Résolvez le compte en double avant de changer.";
-"CodexBar will ask macOS Keychain for “%@” so it can decrypt browser cookies and authenticate your account. Click OK to continue." = "CodexBar demandera au Trousseau macOS « %@ » afin de pouvoir décrypter les cookies du navigateur et authentifier votre compte. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for the Claude Code OAuth token so it can fetch your Claude usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS le jeton Claude Code OAuth afin de pouvoir récupérer votre utilisation de Claude. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Amp cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS l'en-tête de votre cookie Amp afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Augment cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre en-tête de cookie Augment afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Claude cookie header so it can fetch Claude web usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre en-tête de cookie Claude afin de pouvoir récupérer l'utilisation du Web de Claude. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Cursor cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS l'en-tête de votre cookie Cursor afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Factory cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS l'en-tête de votre cookie d'usine afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your GitHub Copilot token so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre jeton GitHub Copilot afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Kimi K2 API key so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre clé API Kimi K2 afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Kimi auth token so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre jeton d'authentification Kimi afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your MiniMax API token so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre jeton API MiniMax afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your MiniMax cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre en-tête de cookie MiniMax afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your OpenAI cookie header so it can fetch Codex dashboard extras. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre en-tête de cookie OpenAI afin de pouvoir récupérer les extras du tableau de bord Codex. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your OpenCode cookie header so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre en-tête de cookie OpenCode afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your Synthetic API key so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre clé API synthétique afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
-"CodexBar will ask macOS Keychain for your z.ai API token so it can fetch usage. Click OK to continue." = "CodexBar demandera au Trousseau macOS votre jeton API z.ai afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar can't replace a system account that is signed in with an API key only setup." = "TokenBar ne peut pas remplacer un compte système connecté par une configuration de clé API uniquement.";
+"TokenBar could not find saved auth for that account. Re-authenticate it and try again." = "TokenBar n'a pas pu trouver l'authentification enregistrée pour ce compte. Ré-authentifiez-le et réessayez.";
+"TokenBar could not read managed account storage. Recover the store before adding another account." = "TokenBar n'a pas pu lire le stockage du compte géré. Récupérez la boutique avant d'ajouter un autre compte.";
+"TokenBar could not read saved auth for that account. Re-authenticate it and try again." = "TokenBar n'a pas pu lire l'authentification enregistrée pour ce compte. Ré-authentifiez-le et réessayez.";
+"TokenBar could not read the current system account on this Mac." = "TokenBar n'a pas pu lire le compte système actuel sur ce Mac.";
+"TokenBar could not replace the live Codex auth on this Mac." = "TokenBar n'a pas pu remplacer l'authentification Codex en direct sur ce Mac.";
+"TokenBar could not safely preserve the current system account before switching." = "TokenBar n'a pas pu conserver en toute sécurité le compte système actuel avant le changement.";
+"TokenBar could not save the current system account before switching." = "TokenBar n'a pas pu enregistrer le compte système actuel avant de changer.";
+"TokenBar could not update managed account storage." = "TokenBar n'a pas pu mettre à jour le stockage du compte géré.";
+"TokenBar found another managed account that already uses the current system account. Resolve the duplicate account before switching." = "TokenBar a trouvé un autre compte géré qui utilise déjà le compte système actuel. Résolvez le compte en double avant de changer.";
+"TokenBar will ask macOS Keychain for “%@” so it can decrypt browser cookies and authenticate your account. Click OK to continue." = "TokenBar demandera au Trousseau macOS « %@ » afin de pouvoir décrypter les cookies du navigateur et authentifier votre compte. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for the Claude Code OAuth token so it can fetch your Claude usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS le jeton Claude Code OAuth afin de pouvoir récupérer votre utilisation de Claude. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Amp cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS l'en-tête de votre cookie Amp afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Augment cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre en-tête de cookie Augment afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Claude cookie header so it can fetch Claude web usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre en-tête de cookie Claude afin de pouvoir récupérer l'utilisation du Web de Claude. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Cursor cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS l'en-tête de votre cookie Cursor afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Factory cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS l'en-tête de votre cookie d'usine afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your GitHub Copilot token so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre jeton GitHub Copilot afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Kimi K2 API key so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre clé API Kimi K2 afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Kimi auth token so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre jeton d'authentification Kimi afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your MiniMax API token so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre jeton API MiniMax afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your MiniMax cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre en-tête de cookie MiniMax afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your OpenAI cookie header so it can fetch Codex dashboard extras. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre en-tête de cookie OpenAI afin de pouvoir récupérer les extras du tableau de bord Codex. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your OpenCode cookie header so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre en-tête de cookie OpenCode afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your Synthetic API key so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre clé API synthétique afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
+"TokenBar will ask macOS Keychain for your z.ai API token so it can fetch usage. Click OK to continue." = "TokenBar demandera au Trousseau macOS votre jeton API z.ai afin de pouvoir récupérer son utilisation. Cliquez sur OK pour continuer.";
 "Could not open Cursor login in your browser." = "Impossible d'ouvrir la connexion par curseur dans votre navigateur.";
 "Could not open browser for Antigravity" = "Impossible d'ouvrir le navigateur pour Antigravity";
 "Credits used" = "Crédits utilisés";
@@ -1009,6 +1013,7 @@
 "Personal account" = "Compte personnel";
 "Project ID" = "ID du projet";
 "Re-auth" = "Se reconnecter";
+"Re-login at claude.ai" = "Se reconnecter à claude.ai";
 "Re-authenticating…" = "Réauthentification…";
 "Refresh Session" = "Session de rafraîchissement";
 "Refresh organizations" = "Actualiser les organisations";
@@ -1020,27 +1025,27 @@
 "Service" = "Service";
 "Show or hide Kiro credits, percent, or both next to the menu bar icon." = "Affichez ou masquez les crédits Kiro, le pourcentage ou les deux à côté de l'icône de la barre de menu.";
 "Show usage for organizations you belong to. Personal account is always shown." = "Afficher l'utilisation des organisations auxquelles vous appartenez. Le compte personnel est toujours affiché.";
-"Sign in to cursor.com in your browser, then refresh Cursor in CodexBar." = "Connectez-vous à cursor.com dans votre navigateur, puis actualisez Cursor dans CodexBar.";
+"Sign in to cursor.com in your browser, then refresh Cursor in TokenBar." = "Connectez-vous à cursor.com dans votre navigateur, puis actualisez Cursor dans TokenBar.";
 "Simulated error text" = "Texte d'erreur simulé";
 "StepFun platform account (phone number or email)." = "Compte de la plateforme StepFun (numéro de téléphone ou email).";
-"Stored in ~/.codexbar/config.json." = "Stocké dans ~/.codexbar/config.json.";
-"Stored in ~/.codexbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Stocké dans ~/.codexbar/config.json. AZURE_OPENAI_API_KEY est également pris en charge.";
-"Stored in ~/.codexbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Stocké dans ~/.codexbar/config.json. Pour l'API Kimi officielle, utilisez l'API Moonshot / Kimi.";
-"Stored in ~/.codexbar/config.json. Get your API key from the Volcengine Ark console." = "Stocké dans ~/.codexbar/config.json. Obtenez votre clé API depuis la console Volcengine Ark.";
-"Stored in ~/.codexbar/config.json. Get your key from Ollama settings." = "Stocké dans ~/.codexbar/config.json. Obtenez votre clé dans les paramètres d'Ollama.";
-"Stored in ~/.codexbar/config.json. Get your key from console.deepgram.com." = "Stocké dans ~/.codexbar/config.json. Obtenez votre clé sur console.deepgram.com.";
-"Stored in ~/.codexbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Stocké dans ~/.codexbar/config.json. Obtenez votre clé sur Elevenlabs.io/app/settings/api-keys.";
-"Stored in ~/.codexbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Stocké dans ~/.codexbar/config.json. Obtenez votre clé sur openrouter.ai/settings/keys et définissez-y une limite de dépenses pour activer le suivi des quotas de clés API.";
-"Stored in ~/.codexbar/config.json. In Warp, open Settings > Platform > API Keys, then create one." = "Stocké dans ~/.codexbar/config.json. Dans Warp, ouvrez Paramètres > Plateforme > Clés API, puis créez-en une.";
-"Stored in ~/.codexbar/config.json. Metrics require Groq Enterprise Prometheus access." = "Stocké dans ~/.codexbar/config.json. Les métriques nécessitent un accès à Groq Enterprise Prometheus.";
-"Stored in ~/.codexbar/config.json. OPENAI_ADMIN_KEY is preferred; OPENAI_API_KEY still works." = "Stocké dans ~/.codexbar/config.json. OPENAI_ADMIN_KEY est préféré ; OPENAI_API_KEY fonctionne toujours.";
-"Stored in ~/.codexbar/config.json. Requires an Anthropic Admin API key." = "Stocké dans ~/.codexbar/config.json. Nécessite une clé API Anthropic Admin.";
-"Stored in ~/.codexbar/config.json. Used for /v1/quota-stats." = "Stocké dans ~/.codexbar/config.json. Utilisé pour /v1/quota-stats.";
-"Stored in ~/.codexbar/config.json. You can also provide CODEBUFF_API_KEY or let CodexBar read ~/.config/manicode/credentials.json (created by `codebuff login`)." = "Stocké dans ~/.codexbar/config.json. Vous pouvez également fournir CODEBUFF_API_KEY ou laisser CodexBar lire ~/.config/manicode/credentials.json (créé par `codebuff login`).";
-"Stored in ~/.codexbar/config.json. You can also provide CROF_API_KEY." = "Stocké dans ~/.codexbar/config.json. Vous pouvez également fournir CROF_API_KEY.";
-"Stored in ~/.codexbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "Stocké dans ~/.codexbar/config.json. Vous pouvez également fournir KILO_API_KEY ou ~/.local/share/kilo/auth.json (kilo.access).";
+"Stored in ~/.tokenbar/config.json." = "Stocké dans ~/.tokenbar/config.json.";
+"Stored in ~/.tokenbar/config.json. AZURE_OPENAI_API_KEY is also supported." = "Stocké dans ~/.tokenbar/config.json. AZURE_OPENAI_API_KEY est également pris en charge.";
+"Stored in ~/.tokenbar/config.json. For the official Kimi API, use Moonshot / Kimi API." = "Stocké dans ~/.tokenbar/config.json. Pour l'API Kimi officielle, utilisez l'API Moonshot / Kimi.";
+"Stored in ~/.tokenbar/config.json. Get your API key from the Volcengine Ark console." = "Stocké dans ~/.tokenbar/config.json. Obtenez votre clé API depuis la console Volcengine Ark.";
+"Stored in ~/.tokenbar/config.json. Get your key from Ollama settings." = "Stocké dans ~/.tokenbar/config.json. Obtenez votre clé dans les paramètres d'Ollama.";
+"Stored in ~/.tokenbar/config.json. Get your key from console.deepgram.com." = "Stocké dans ~/.tokenbar/config.json. Obtenez votre clé sur console.deepgram.com.";
+"Stored in ~/.tokenbar/config.json. Get your key from elevenlabs.io/app/settings/api-keys." = "Stocké dans ~/.tokenbar/config.json. Obtenez votre clé sur Elevenlabs.io/app/settings/api-keys.";
+"Stored in ~/.tokenbar/config.json. Get your key from openrouter.ai/settings/keys and set a key spending limit there to enable API key quota tracking." = "Stocké dans ~/.tokenbar/config.json. Obtenez votre clé sur openrouter.ai/settings/keys et définissez-y une limite de dépenses pour activer le suivi des quotas de clés API.";
+"Stored in ~/.tokenbar/config.json. In Warp, open Settings > Platform > API Keys, then create one." = "Stocké dans ~/.tokenbar/config.json. Dans Warp, ouvrez Paramètres > Plateforme > Clés API, puis créez-en une.";
+"Stored in ~/.tokenbar/config.json. Metrics require Groq Enterprise Prometheus access." = "Stocké dans ~/.tokenbar/config.json. Les métriques nécessitent un accès à Groq Enterprise Prometheus.";
+"Stored in ~/.tokenbar/config.json. OPENAI_ADMIN_KEY is preferred; OPENAI_API_KEY still works." = "Stocké dans ~/.tokenbar/config.json. OPENAI_ADMIN_KEY est préféré ; OPENAI_API_KEY fonctionne toujours.";
+"Stored in ~/.tokenbar/config.json. Requires an Anthropic Admin API key." = "Stocké dans ~/.tokenbar/config.json. Nécessite une clé API Anthropic Admin.";
+"Stored in ~/.tokenbar/config.json. Used for /v1/quota-stats." = "Stocké dans ~/.tokenbar/config.json. Utilisé pour /v1/quota-stats.";
+"Stored in ~/.tokenbar/config.json. You can also provide CODEBUFF_API_KEY or let TokenBar read ~/.config/manicode/credentials.json (created by `codebuff login`)." = "Stocké dans ~/.tokenbar/config.json. Vous pouvez également fournir CODEBUFF_API_KEY ou laisser TokenBar lire ~/.config/manicode/credentials.json (créé par `codebuff login`).";
+"Stored in ~/.tokenbar/config.json. You can also provide CROF_API_KEY." = "Stocké dans ~/.tokenbar/config.json. Vous pouvez également fournir CROF_API_KEY.";
+"Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "Stocké dans ~/.tokenbar/config.json. Vous pouvez également fournir KILO_API_KEY ou ~/.local/share/kilo/auth.json (kilo.access).";
 "T3 Chat cookie" = "Cookie de discussion T3";
-"That account is no longer available in CodexBar. Refresh the account list and try again." = "Ce compte n'est plus disponible dans CodexBar. Actualisez la liste des comptes et réessayez.";
+"That account is no longer available in TokenBar. Refresh the account list and try again." = "Ce compte n'est plus disponible dans TokenBar. Actualisez la liste des comptes et réessayez.";
 "The browser login did not complete in time. Try Antigravity login again." = "La connexion au navigateur ne s'est pas terminée à temps. Essayez à nouveau de vous connecter à Antigravity.";
 "Timed out waiting for Cursor login. %@" = "Le délai d'attente pour la connexion au curseur a expiré. %@";
 "Timed out waiting for Cursor login. %@ Last error: %@" = "Le délai d'attente pour la connexion au curseur a expiré. %@ Dernière erreur : %@";
@@ -1064,3 +1069,6 @@
 "Clear" = "Effacer";
 "No matching providers" = "Aucun fournisseur correspondant";
 "Search providers" = "Fournisseurs de recherche";
+
+/* TokenBar fork additions */
+"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importe automatiquement les cookies du navigateur Chrome de Xiaomi MiMo.";

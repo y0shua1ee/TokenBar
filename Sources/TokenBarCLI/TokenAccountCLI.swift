@@ -244,7 +244,7 @@ struct TokenAccountCLIContext {
                     password: ""))
         case .codex, .openai, .claude, .zai, .gemini, .antigravity, .copilot, .kilo, .kiro, .vertexai,
              .jetbrains, .kimik2, .moonshot, .synthetic, .openrouter, .warp, .deepseek, .codebuff, .windsurf,
-             .custom, .krill, .crof, .venice, .commandcode, .bedrock, .elevenlabs, .grok, .groq, .azureopenai,
+             .custom, .krill, .crof, .venice, .commandcode, .devin, .bedrock, .elevenlabs, .grok, .groq, .azureopenai,
              .t3chat, .llmproxy, .deepgram:
             return nil
         }

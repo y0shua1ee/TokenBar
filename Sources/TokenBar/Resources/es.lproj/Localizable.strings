@@ -403,6 +403,8 @@
 "language_dutch" = "Nederlands";
 "language_french" = "Francés";
 "language_ukrainian" = "Ucraniano";
+"language_japanese" = "Japonés";
+"language_korean" = "Coreano";
 "start_at_login_title" = "Abrir al iniciar sesión";
 "start_at_login_subtitle" = "Abre TokenBar automáticamente al iniciar tu Mac.";
 "show_cost_summary" = "Mostrar resumen de coste";
@@ -610,9 +612,11 @@
 "display_mode_percent" = "Porcentaje";
 "display_mode_pace" = "Ritmo";
 "display_mode_both" = "Ambos";
+"display_mode_reset_time" = "Tiempo de restablecimiento";
 "display_mode_percent_desc" = "Mostrar el porcentaje restante/usado (p. ej. 45 %)";
 "display_mode_pace_desc" = "Mostrar el indicador de ritmo (p. ej. +5 %)";
 "display_mode_both_desc" = "Mostrar porcentaje y ritmo (p. ej. 45 % · +5 %)";
+"display_mode_reset_time_desc" = "Mostrar el tiempo de restablecimiento de la métrica seleccionada (p. ej. ↻ 3:56 PM)";
 
 /* Provider status */
 "status_operational" = "Operativo";
@@ -765,7 +769,7 @@
 "Antigravity login failed" = "Error al iniciar sesión en Antigravity";
 "Antigravity login timed out" = "El inicio de sesión en Antigravity agotó el tiempo";
 "Auth source" = "Fuente de autenticación";
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importa automáticamente las cookies de Chrome desde Xiaomi MiMo.";
+"Automatic imports browser cookies from Xiaomi MiMo." = "Importa automáticamente las cookies del navegador desde Xiaomi MiMo.";
 "Automatic imports Windsurf session data from Chromium browser localStorage." = "Importa automáticamente datos de sesión de Windsurf desde localStorage de Chromium.";
 "Automatic imports browser cookies from Bailian." = "Importa automáticamente cookies del navegador desde Bailian.";
 "Automatically imports browser cookies." = "Importa automáticamente cookies del navegador.";
@@ -865,6 +869,7 @@
 "Personal account" = "Cuenta personal";
 "Project ID" = "ID de proyecto";
 "Re-auth" = "Reautenticar";
+"Re-login at claude.ai" = "Volver a iniciar sesión en claude.ai";
 "Re-authenticating…" = "Reautenticando…";
 "Refresh Session" = "Actualizar sesión";
 "Refresh organizations" = "Actualizar organizaciones";
@@ -922,3 +927,6 @@
 "Search providers" = "Buscar proveedores";
 
 "language_vietnamese" = "Vietnamita";
+
+/* TokenBar fork additions */
+"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importa automáticamente las cookies de Chrome desde Xiaomi MiMo.";

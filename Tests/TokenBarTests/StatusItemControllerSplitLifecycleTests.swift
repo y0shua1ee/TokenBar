@@ -105,9 +105,9 @@ struct StatusItemControllerSplitLifecycleTests {
         let codexButton = try #require(controller.statusItems[.codex]?.button)
         let claudeButton = try #require(controller.statusItems[.claude]?.button)
 
-        #expect(controller.statusItem.autosaveName == "codexbar-merged")
-        #expect(controller.statusItems[.codex]?.autosaveName == "codexbar-codex")
-        #expect(controller.statusItems[.claude]?.autosaveName == "codexbar-claude")
+        #expect(controller.statusItem.autosaveName == "tokenbar-merged")
+        #expect(controller.statusItems[.codex]?.autosaveName == "tokenbar-codex")
+        #expect(controller.statusItems[.claude]?.autosaveName == "tokenbar-claude")
         #expect(controller.statusItem.button?.accessibilityIdentifier() == "TokenBar.StatusItem")
         #expect(codexButton.accessibilityIdentifier() == "TokenBar.StatusItem.codex")
         #expect(claudeButton.accessibilityIdentifier() == "TokenBar.StatusItem.claude")
@@ -118,9 +118,9 @@ struct StatusItemControllerSplitLifecycleTests {
 
     @Test
     func `status item identity returns stable autosave names`() {
-        #expect(StatusItemController.StatusItemIdentity.merged.autosaveName == "codexbar-merged")
-        #expect(StatusItemController.StatusItemIdentity.provider(.codex).autosaveName == "codexbar-codex")
-        #expect(StatusItemController.StatusItemIdentity.provider(.claude).autosaveName == "codexbar-claude")
+        #expect(StatusItemController.StatusItemIdentity.merged.autosaveName == "tokenbar-merged")
+        #expect(StatusItemController.StatusItemIdentity.provider(.codex).autosaveName == "tokenbar-codex")
+        #expect(StatusItemController.StatusItemIdentity.provider(.claude).autosaveName == "tokenbar-claude")
     }
 
     @Test
@@ -130,9 +130,9 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
 
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
 
-        #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+        #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "tokenbar-merged"))
         #expect(defaults.object(forKey: key) == nil)
     }
 
@@ -143,11 +143,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
 
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-merged",
+            autosaveName: "tokenbar-merged",
             legacyDefaultItemIndex: 0))
 
         #expect(defaults.object(forKey: key) == nil)
@@ -161,11 +161,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(11298, forKey: "NSStatusItem Preferred Position Item-0")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
 
         #expect(MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-merged",
+            autosaveName: "tokenbar-merged",
             legacyDefaultItemIndex: 0,
             maximumPreferredPosition: 3000))
 
@@ -181,11 +181,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
         defaults.set(11298, forKey: "NSStatusItem Preferred Position Item-1")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
 
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-merged",
+            autosaveName: "tokenbar-merged",
             legacyDefaultItemIndex: 0))
 
         #expect(defaults.object(forKey: key) == nil)
@@ -201,11 +201,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
         defaults.set(11298, forKey: "NSStatusItem Preferred Position Item-1")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-codex")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-codex")
 
         #expect(MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-codex",
+            autosaveName: "tokenbar-codex",
             legacyDefaultItemIndex: 1,
             maximumPreferredPosition: 3000))
 
@@ -221,11 +221,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-codex")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-codex")
 
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-codex",
+            autosaveName: "tokenbar-codex",
             legacyDefaultItemIndex: 1))
 
         #expect(defaults.object(forKey: key) == nil)
@@ -240,11 +240,11 @@ struct StatusItemControllerSplitLifecycleTests {
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(42, forKey: "NSStatusItem Preferred Position Item-0")
         defaults.set(58, forKey: "NSStatusItem Preferred Position Item-1")
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-codex")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-codex")
 
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-codex",
+            autosaveName: "tokenbar-codex",
             legacyDefaultItemIndex: 1))
 
         #expect(defaults.object(forKey: key) == nil)
@@ -258,12 +258,12 @@ struct StatusItemControllerSplitLifecycleTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
         defaults.set(11298, forKey: key)
 
         #expect(MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-merged",
+            autosaveName: "tokenbar-merged",
             maximumPreferredPosition: 3000))
 
         #expect(defaults.object(forKey: key) == nil)
@@ -275,10 +275,10 @@ struct StatusItemControllerSplitLifecycleTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
         defaults.set(0, forKey: key)
 
-        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "tokenbar-merged"))
 
         #expect(defaults.object(forKey: key) == nil)
     }
@@ -289,10 +289,10 @@ struct StatusItemControllerSplitLifecycleTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
         defaults.set("not-a-position", forKey: key)
 
-        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+        #expect(MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "tokenbar-merged"))
 
         #expect(defaults.object(forKey: key) == nil)
     }
@@ -303,10 +303,10 @@ struct StatusItemControllerSplitLifecycleTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
         defaults.set(42, forKey: key)
 
-        #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "codexbar-merged"))
+        #expect(!MenuBarStatusItemPlacementPreflight.prepare(defaults: defaults, autosaveName: "tokenbar-merged"))
 
         #expect(defaults.double(forKey: key) == 42)
     }
@@ -317,12 +317,12 @@ struct StatusItemControllerSplitLifecycleTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "codexbar-merged")
+        let key = MenuBarStatusItemPlacementPreflight.preferredPositionKey(autosaveName: "tokenbar-merged")
         defaults.set(2500, forKey: key)
 
         #expect(!MenuBarStatusItemPlacementPreflight.prepare(
             defaults: defaults,
-            autosaveName: "codexbar-merged",
+            autosaveName: "tokenbar-merged",
             maximumPreferredPosition: 2560))
 
         #expect(defaults.double(forKey: key) == 2500)
@@ -336,6 +336,7 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.set(false, forKey: "NSStatusItem VisibleCC Item-0")
         defaults.set(0, forKey: "NSStatusItem VisibleCC Item-12")
         defaults.set(false, forKey: "NSStatusItem VisibleCC codexbar-merged")
+        defaults.set(false, forKey: "NSStatusItem VisibleCC tokenbar-merged")
         defaults.set(true, forKey: "NSStatusItem VisibleCC Item-1")
         defaults.set(false, forKey: "NSStatusItem VisibleCC com.apple.clock")
         defer {
@@ -352,6 +353,7 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC Item-0") == nil)
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC Item-12") == nil)
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC codexbar-merged") == nil)
+        #expect(defaults.object(forKey: "NSStatusItem VisibleCC tokenbar-merged") != nil)
         #expect(defaults.bool(forKey: "NSStatusItem VisibleCC Item-1"))
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC com.apple.clock") != nil)
 
@@ -376,7 +378,7 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(newCodexItem === oldCodexItem)
         #expect(newClaudeItem === oldClaudeItem)
         #expect(newCodexItem.button === oldCodexButton)
-        #expect(newCodexItem.autosaveName == "codexbar-codex")
+        #expect(newCodexItem.autosaveName == "tokenbar-codex")
         #expect(newCodexItem.button?.accessibilityIdentifier() == "TokenBar.StatusItem.codex")
     }
 
@@ -394,7 +396,7 @@ struct StatusItemControllerSplitLifecycleTests {
 
         #expect(controller.statusItem === oldMergedItem)
         #expect(controller.statusItem.button === oldMergedButton)
-        #expect(controller.statusItem.autosaveName == "codexbar-merged")
+        #expect(controller.statusItem.autosaveName == "tokenbar-merged")
         #expect(controller.statusItem.button?.accessibilityIdentifier() == "TokenBar.StatusItem")
     }
 
@@ -426,7 +428,7 @@ struct StatusItemControllerSplitLifecycleTests {
 
         let newCodexItem = try #require(controller.statusItems[.codex])
         #expect(newCodexItem !== oldCodexItem)
-        #expect(newCodexItem.autosaveName == "codexbar-codex")
+        #expect(newCodexItem.autosaveName == "tokenbar-codex")
         #expect(newCodexItem.button?.accessibilityIdentifier() == "TokenBar.StatusItem.codex")
     }
 
@@ -444,7 +446,7 @@ struct StatusItemControllerSplitLifecycleTests {
 
         let mergedButton = try #require(controller.statusItem.button)
         #expect(mergedButton.image != nil)
-        #expect(controller.statusItem.autosaveName == "codexbar-merged")
+        #expect(controller.statusItem.autosaveName == "tokenbar-merged")
         #expect(mergedButton.accessibilityIdentifier() == "TokenBar.StatusItem")
     }
 }

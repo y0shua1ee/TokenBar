@@ -41,7 +41,13 @@ enum TokenBarCLI {
             Self.bootstrapLogging(path: invocation.path, values: invocation.parsedValues)
             switch invocation.path {
             case ["usage"]:
-                Self.runAsync { await self.runUsage(invocation.parsedValues) }
+                Self.runAsync {
+                    let signalMonitor = CLITerminationSignalMonitor { signalNumber in
+                        CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
+                    }
+                    defer { signalMonitor.cancel() }
+                    await self.runUsage(invocation.parsedValues)
+                }
             case ["cost"]:
                 Self.runAsync { await self.runCost(invocation.parsedValues) }
             case ["serve"]:
@@ -61,7 +67,13 @@ enum TokenBarCLI {
             case ["cache", "clear"]:
                 self.runCacheClear(invocation.parsedValues)
             case ["diagnose"]:
-                Self.runAsync { await self.runDiagnose(invocation.parsedValues) }
+                Self.runAsync {
+                    let signalMonitor = CLITerminationSignalMonitor { signalNumber in
+                        CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
+                    }
+                    defer { signalMonitor.cancel() }
+                    await self.runDiagnose(invocation.parsedValues)
+                }
             default:
                 Self.exit(
                     code: .failure,
