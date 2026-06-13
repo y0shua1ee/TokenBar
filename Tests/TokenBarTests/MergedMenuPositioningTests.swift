@@ -35,4 +35,43 @@ struct MergedMenuPositioningTests {
 
         #expect(point.y == -8)
     }
+
+    @Test
+    func `auto popup point opens to the right when space is available`() {
+        let point = StatusItemController.autoAlignedMenuPopupPoint(
+            statusButtonBounds: NSRect(x: 0, y: 0, width: 24, height: 22),
+            statusButtonIsFlipped: true,
+            statusButtonScreenFrame: NSRect(x: 700, y: 870, width: 24, height: 22),
+            screenVisibleFrame: NSRect(x: 0, y: 0, width: 1200, height: 900),
+            menuWidth: 320)
+
+        #expect(point.x == 24)
+        #expect(point.y == 30)
+    }
+
+    @Test
+    func `auto popup point falls back to trailing alignment near the screen edge`() {
+        let point = StatusItemController.autoAlignedMenuPopupPoint(
+            statusButtonBounds: NSRect(x: 0, y: 0, width: 24, height: 22),
+            statusButtonIsFlipped: false,
+            statusButtonScreenFrame: NSRect(x: 1000, y: 870, width: 24, height: 22),
+            screenVisibleFrame: NSRect(x: 0, y: 0, width: 1200, height: 900),
+            menuWidth: 320.4)
+
+        #expect(point.x == -297)
+        #expect(point.y == -8)
+    }
+
+    @Test
+    func `auto popup point uses trailing alignment when screen geometry is unavailable`() {
+        let point = StatusItemController.autoAlignedMenuPopupPoint(
+            statusButtonBounds: NSRect(x: 0, y: 0, width: 24, height: 22),
+            statusButtonIsFlipped: true,
+            statusButtonScreenFrame: nil,
+            screenVisibleFrame: nil,
+            menuWidth: 320)
+
+        #expect(point.x == -296)
+        #expect(point.y == 30)
+    }
 }

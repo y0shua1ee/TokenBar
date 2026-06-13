@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.33.2 — 2026-06-13
+
+### Fixed
+- Menu bar: open the merged TokenBar dropdown to the right when screen space allows, with the existing edge-safe trailing fallback near the screen boundary.
+
 ## 0.33.1 — 2026-06-12
 
 ### Added
