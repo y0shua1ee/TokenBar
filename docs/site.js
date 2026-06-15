@@ -101,9 +101,9 @@ function renderRichMessage(element, value) {
 
 function richToken(name) {
   const codeTokens = {
-    cask: "brew install --cask steipete/tap/tokenbar",
+    cask: "brew install --cask y0shua1ee/tokenbar/tokenbar",
     tokenbar: "tokenbar",
-    linuxCommand: "brew install steipete/tap/tokenbar",
+    linuxCommand: "brew install y0shua1ee/tokenbar/tokenbar",
     upgrade: "brew upgrade",
   };
   if (codeTokens[name]) {
@@ -113,13 +113,13 @@ function richToken(name) {
   }
   if (name === "releases") {
     const link = document.createElement("a");
-    link.href = "https://github.com/steipete/CodexBar/releases/latest";
+    link.href = "https://github.com/y0shua1ee/TokenBar/releases/latest";
     link.textContent = "GitHub Releases";
     return link;
   }
   if (name === "issue") {
     const link = document.createElement("a");
-    link.href = "https://github.com/steipete/CodexBar/issues/12";
+    link.href = "https://github.com/y0shua1ee/TokenBar/issues/12";
     link.textContent = "issue #12";
     return link;
   }

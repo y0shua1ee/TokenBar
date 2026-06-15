@@ -17,7 +17,7 @@ Use it when you need usage numbers in scripts, CI, or dashboards without UI.
 - Manual: `ln -sf "/Applications/TokenBar.app/Contents/Helpers/TokenBarCLI" /usr/local/bin/tokenbar`.
 
 ### Release tarball install (macOS/Linux)
-- Homebrew formula (Linux today): `brew install steipete/tap/tokenbar`.
+- Homebrew formula (Linux today): `brew install y0shua1ee/tokenbar/tokenbar`.
 - Download release tarballs from GitHub Releases:
   - macOS: `TokenBarCLI-v<tag>-macos-arm64.tar.gz`, `TokenBarCLI-v<tag>-macos-x86_64.tar.gz`
   - Linux: `TokenBarCLI-v<tag>-linux-aarch64.tar.gz`, `TokenBarCLI-v<tag>-linux-x86_64.tar.gz`

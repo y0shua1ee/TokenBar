@@ -4,6 +4,8 @@
 
 Merge latest upstream `steipete/CodexBar` into TokenBar on branch `codex/merge-upstream-codexbar-20260615`, preserving TokenBar fork identity, providers, release paths, and local menu behavior.
 
+Follow-up goal: fix the main-thread review findings before this merge branch is considered ready to merge.
+
 ## Upstream Source
 
 - Remote: `upstream https://github.com/steipete/CodexBar.git`
@@ -28,19 +30,35 @@ Merge latest upstream `steipete/CodexBar` into TokenBar on branch `codex/merge-u
 - Kept merged-menu detached auto-positioning behavior through `StatusItemController+MergedMenuPresentation.swift`.
 - Updated `Scripts/lint.sh` to run SwiftLint with `--no-cache` so `make check` works in restricted worktrees where SwiftLint cannot write its default cache.
 
+## Review Fixes Applied
+
+- Restored Release CLI workflow dispatch/watch targets to `y0shua1ee/homebrew-tokenbar` and `repository=y0shua1ee/TokenBar`.
+- Restored public README, website, CNAME, CLI docs, release docs, and release skill install/update links to TokenBar fork URLs and `y0shua1ee/tokenbar/tokenbar`.
+- Restored `TokenBarCLI.resetTimeDisplayStyleFromDefaults()` to read `com.y0shua1ee.tokenbar` and `com.y0shua1ee.tokenbar.debug`.
+- Restored DeepSeek dashboard login support by setting `supportsLoginFlow`, adding a DeepSeek dashboard menu action, and wiring `runLoginFlow` to `DeepSeekPlatformTokenManager.shared.loginViaWebView()`.
+- Cleared trailing whitespace introduced by `docs/UPSTREAM_STRATEGY.md`.
+- Added focused regression tests for the CLI defaults domain and DeepSeek dashboard login capability.
+
 ## Validation
 
 - `swift build --disable-sandbox` in the temporary resolved tree: passed.
 - `make check`: passed.
 - `swift build --disable-sandbox`: passed after final identity/lint fixes.
 - `swift test --disable-sandbox --filter ProviderConfigEnvironmentTests`: passed, 33 tests.
+- Follow-up review fix validation:
+  - `rg -n "steipete/CodexBar|steipete/homebrew-tap|steipete/tap/tokenbar|codexbar\\.app|brew install --cask tokenbar|com\\.steipete\\.tokenbar\\\"|com\\.steipete\\.tokenbar\\.debug" README.md docs/index.html docs/site.js docs/CNAME docs/cli.md docs/RELEASING.md docs/releasing-homebrew.md .github/workflows/release-cli.yml .agents/skills/release-codexbar/SKILL.md Sources/TokenBarCLI/CLIHelpers.swift`: no matches.
+  - `git diff --check`: passed.
+  - `swift test --disable-sandbox --filter 'ProviderSettingsDescriptorTests|CLIEntryTests'`: passed, 42 selected tests.
+  - `make check`: passed.
 
 ## Not Run
 
 - No live provider probes, browser-cookie imports, real `tokenbar usage` calls, or app-bundle relaunch validation were run, to avoid macOS Keychain prompts and live account access.
 - Full unfiltered `swift test` was not run; the focused provider config tests were used after the final targeted refactor.
+- Follow-up fixes also did not run live DeepSeek dashboard login, because that opens a WebView and may touch real account state. The regression test verifies the UI capability/menu path without triggering the login flow.
 
 ## Remaining Risk
 
 - This is a large upstream sync, so UI/runtime behavior should still be smoke-tested from a freshly packaged app before release.
 - The top historical `appcast.xml` item already contains an upstream CodexBar 0.29.1 entry from the branch baseline; this merge did not add a new release entry or regenerate appcast.
+- Full unfiltered `swift test` remains not run on this branch; current evidence is focused tests plus `make check`.

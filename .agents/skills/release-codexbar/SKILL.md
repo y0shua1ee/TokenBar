@@ -54,9 +54,9 @@ Paths:
 - packaged app: `TokenBar.app`
 - version file: `version.env`
 - changelog: `CHANGELOG.md`
-- Homebrew tap: `~/Projects/homebrew-tap`
-- cask: `~/Projects/homebrew-tap/Casks/tokenbar.rb`
-- formula: `~/Projects/homebrew-tap/Formula/tokenbar.rb`
+- Homebrew tap: `~/Projects/homebrew-tokenbar`
+- cask: `~/Projects/homebrew-tokenbar/Casks/tokenbar.rb`
+- formula: `~/Projects/homebrew-tokenbar/Formula/tokenbar.rb`
 - CLI release workflow: `.github/workflows/release-cli.yml`
 
 Normal release:
@@ -108,10 +108,10 @@ For Homebrew:
 
 ```bash
 shasum -a 256 TokenBar-macos-universal-<VERSION>.zip
-cd /Users/steipete/Projects/homebrew-tap
-python3 .github/scripts/update_formula.py --formula tokenbar --tag v<VERSION> --repository steipete/CodexBar --artifact-template 'TokenBarCLI-{tag}-{target}.tar.gz' --target-aliases 'darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64'
+cd ~/Projects/homebrew-tokenbar
+python3 .github/scripts/update_formula.py --formula tokenbar --tag v<VERSION> --repository y0shua1ee/TokenBar --artifact-template 'TokenBarCLI-{tag}-{target}.tar.gz' --target-aliases 'darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64'
 brew fetch --cask --force --retry tokenbar
-brew fetch --formula --force --retry steipete/tap/tokenbar
+brew fetch --formula --force --retry y0shua1ee/tokenbar/tokenbar
 ```
 
 Update the cask when app zip assets exist. Update the formula only when standalone CLI tarballs for that version exist.

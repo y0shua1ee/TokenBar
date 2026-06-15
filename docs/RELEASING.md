@@ -70,7 +70,7 @@ Uploads not handled automatically—commit/publish appcast + zip to the feed loc
 ```
 
 ## Homebrew (Cask)
-TokenBar ships a Homebrew **Cask** in `../homebrew-tap`. When installed via Homebrew, TokenBar disables Sparkle and the app
+TokenBar ships a Homebrew **Cask** in `../homebrew-tokenbar`. When installed via Homebrew, TokenBar disables Sparkle and the app
 must be updated via `brew`.
 
 After publishing the GitHub release, `.github/workflows/release-cli.yml` builds the CLI tarballs, uploads `TokenBarCLI-v<version>-{macos-arm64,macos-x86_64,linux-aarch64,linux-x86_64}.tar.gz` plus checksums, then dispatches the Homebrew tap update for both the CLI formula and app cask. If the final dispatch is rate-limited, the tarballs and app zip may still be present; rerun or manually update the tap formula/cask from the published assets.
@@ -88,11 +88,11 @@ After publishing the GitHub release, `.github/workflows/release-cli.yml` builds 
   - Beta channel: prefix the command with `SPARKLE_CHANNEL=beta` to tag the entry.
   - Verify the enclosure signature + size: `./Scripts/verify_appcast.sh <ver>`
 - [ ] Upload zip + appcast to feed; publish tag + GitHub release so Sparkle URL is live (avoid 404)
-- [ ] Homebrew tap: wait for the Release CLI workflow to update `../homebrew-tap/Casks/tokenbar.rb` (app zip url + sha256) and `../homebrew-tap/Formula/tokenbar.rb` (CLI tarball urls + sha256), then verify:
+- [ ] Homebrew tap: wait for the Release CLI workflow to update `../homebrew-tokenbar/Casks/tokenbar.rb` (app zip url + sha256) and `../homebrew-tokenbar/Formula/tokenbar.rb` (CLI tarball urls + sha256), then verify:
   - `gh run watch <release-cli-run-id> --exit-status`
   - `Scripts/check-release-assets.sh v<version>`
   - `brew uninstall --cask tokenbar || true`
-  - `brew untap steipete/tap || true; brew tap steipete/tap`
+  - `brew untap y0shua1ee/tokenbar || true; brew tap y0shua1ee/tokenbar`
   - `brew install --cask y0shua1ee/tokenbar/tokenbar && open -a TokenBar`
 - [ ] Version continuity: confirm the new version is the immediate next patch/minor (no gaps) and CHANGELOG has no skipped numbers (e.g., after 0.2.0 use 0.2.1, not 0.2.2)
 - [ ] Changelog sanity: single top-level title, no duplicate version sections, versions strictly descending with no repeats

@@ -156,8 +156,8 @@ extension TokenBarCLI {
 
     static func resetTimeDisplayStyleFromDefaults() -> ResetTimeDisplayStyle {
         let domains = [
-            "com.steipete.tokenbar",
-            "com.steipete.tokenbar.debug",
+            "com.y0shua1ee.tokenbar",
+            "com.y0shua1ee.tokenbar.debug",
         ]
         for domain in domains {
             if let value = UserDefaults(suiteName: domain)?.object(forKey: "resetTimesShowAbsolute") as? Bool {

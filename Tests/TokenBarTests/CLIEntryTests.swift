@@ -39,6 +39,24 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertTrue(header.contains("cli"))
     }
 
+    func test_resetTimeDisplayStyleReadsTokenBarDefaultsDomain() throws {
+        let releaseDomain = "com.y0shua1ee.tokenbar"
+        let debugDomain = "com.y0shua1ee.tokenbar.debug"
+        for domain in [releaseDomain, debugDomain] {
+            UserDefaults(suiteName: domain)?.removeObject(forKey: "resetTimesShowAbsolute")
+        }
+        defer {
+            for domain in [releaseDomain, debugDomain] {
+                UserDefaults(suiteName: domain)?.removeObject(forKey: "resetTimesShowAbsolute")
+            }
+        }
+
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: debugDomain))
+        defaults.set(true, forKey: "resetTimesShowAbsolute")
+
+        XCTAssertEqual(TokenBarCLI.resetTimeDisplayStyleFromDefaults(), .absolute)
+    }
+
     func test_cliVersionFallsBackToContainingAppBundle() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("tokenbar-cli-version-\(UUID().uuidString)", isDirectory: true)

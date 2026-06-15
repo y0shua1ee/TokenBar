@@ -279,6 +279,22 @@ struct ProviderSettingsDescriptorTests {
         #expect(fields.first?.actions.contains(where: { $0.id == "alibaba-token-plan-open-dashboard" }) == true)
     }
 
+    @Test
+    func `deepseek exposes dashboard login flow`() throws {
+        let fixture = try self.makeSettingsFixture(suite: "ProviderSettingsDescriptorTests-deepseek-login")
+        let implementation = DeepSeekProviderImplementation()
+        let loginContext = ProviderMenuLoginContext(
+            provider: .deepseek,
+            store: fixture.store,
+            settings: fixture.settings,
+            account: AccountInfo(email: nil, plan: nil))
+        let action = try #require(implementation.loginMenuAction(context: loginContext))
+
+        #expect(implementation.supportsLoginFlow)
+        #expect(action.label == "Login to DeepSeek Dashboard...")
+        #expect(action.action == .switchAccount(.deepseek))
+    }
+
     private func makeSettingsFixture(suite: String) throws -> ProviderSettingsFixture {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)

@@ -3,6 +3,7 @@ import TokenBarCore
 
 struct DeepSeekProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .deepseek
+    let supportsLoginFlow: Bool = true
 
     @MainActor
     func presentation(context _: ProviderPresentationContext) -> ProviderPresentation {
@@ -23,5 +24,22 @@ struct DeepSeekProviderImplementation: ProviderImplementation {
     @MainActor
     func settingsFields(context _: ProviderSettingsContext) -> [ProviderSettingsFieldDescriptor] {
         []
+    }
+
+    @MainActor
+    func loginMenuAction(context _: ProviderMenuLoginContext)
+        -> (label: String, action: MenuDescriptor.MenuAction)?
+    {
+        ("Login to DeepSeek Dashboard...", .switchAccount(.deepseek))
+    }
+
+    @MainActor
+    func runLoginFlow(context _: ProviderLoginContext) async -> Bool {
+        do {
+            _ = try await DeepSeekPlatformTokenManager.shared.loginViaWebView()
+            return true
+        } catch {
+            return false
+        }
     }
 }
