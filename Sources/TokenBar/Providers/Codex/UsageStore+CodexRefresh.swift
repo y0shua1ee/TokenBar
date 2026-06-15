@@ -75,11 +75,8 @@ extension UsageStore {
         ].joined(separator: "|")
     }
 
-    func refreshCreditsIfNeeded(
-        minimumSnapshotUpdatedAt: Date? = nil,
-        allowDisabled: Bool = false) async
-    {
-        guard allowDisabled || self.isEnabled(.codex) else { return }
+    func refreshCreditsIfNeeded(minimumSnapshotUpdatedAt: Date? = nil) async {
+        guard self.isEnabled(.codex) else { return }
         var expectedGuard = self.freshCodexAccountScopedRefreshGuard()
         if expectedGuard.identity == .unresolved,
            let minimumSnapshotUpdatedAt,

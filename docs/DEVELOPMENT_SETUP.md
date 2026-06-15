@@ -15,7 +15,7 @@ When developing TokenBar, you may see frequent keychain permission prompts like:
 > **TokenBar wants to access key "Claude Code-credentials" in your keychain.**
 
 This happens because each rebuild creates a new code signature, and macOS treats it as a "different" app.
-That can affect both TokenBar-owned entries (`com.y0shua1ee.TokenBar`, `com.y0shua1ee.tokenbar.cache`) and
+That can affect both TokenBar-owned entries (`com.steipete.TokenBar`, `com.steipete.tokenbar.cache`) and
 third-party items such as `Claude Code-credentials`, so an ad-hoc-signed rebuild can keep re-triggering
 password/keychain approval dialogs even after you previously chose **Always Allow**.
 
@@ -99,18 +99,18 @@ The build script creates `TokenBar.app` in the project root. Old numbered builds
 This script:
 1. Kills existing TokenBar instances
 2. Runs `swift build` (release mode)
-3. Runs `swift test` (all tests)
+3. Runs the sharded full test suite when `--test` is passed
 4. Packages the app with `./Scripts/package_app.sh`
 5. Launches `TokenBar.app`
 6. Verifies it stays running
 
-Launching an unbundled `CodexBar` executable, including SwiftPM builds using `.build` or a custom scratch path, disables
+Launching an unbundled `TokenBar` executable, including SwiftPM builds using `.build` or a custom scratch path, disables
 Keychain access for that process to avoid repeated password prompts. Use the packaged `TokenBar.app` when local
 validation needs browser cookies or stored credentials; packaged app bundles keep their normal Keychain behavior
 regardless of signing mode.
 
-When the script falls back to ad-hoc signing, it preserves CodexBar-owned keychain state by default.
-That means you may still see keychain prompts for existing CodexBar cache entries, but allowing those prompts keeps the
+When the script falls back to ad-hoc signing, it preserves TokenBar-owned keychain state by default.
+That means you may still see keychain prompts for existing TokenBar cache entries, but allowing those prompts keeps the
 cached browser/OAuth state available across normal rebuilds.
 If you want a clean reset of TokenBar-owned keychain state for an ad-hoc build, run
 `./Scripts/compile_and_run.sh --clear-adhoc-keychain` before relaunching.
@@ -126,7 +126,7 @@ swift build -c release
 ### Run Tests Only
 
 ```bash
-swift test
+make test
 ```
 
 ### Debug Build

@@ -2,10 +2,10 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
-CLI="${TOKENBAR_CLI:-$ROOT/TokenBar.app/Contents/Helpers/TokenBarCLI}"
+CLI="${CODEXBAR_CLI:-$ROOT/TokenBar.app/Contents/Helpers/TokenBarCLI}"
 TIMEOUT_BIN="${TIMEOUT_BIN:-$(command -v gtimeout || command -v timeout || true)}"
-WEB_TIMEOUT="${TOKENBAR_QA_WEB_TIMEOUT:-12}"
-CASE_TIMEOUT="${TOKENBAR_QA_CASE_TIMEOUT:-60}"
+WEB_TIMEOUT="${CODEXBAR_QA_WEB_TIMEOUT:-12}"
+CASE_TIMEOUT="${CODEXBAR_QA_CASE_TIMEOUT:-60}"
 
 usage() {
   cat <<'USAGE'
@@ -16,10 +16,10 @@ Usage:
   live_provider_matrix.sh --providers openai,zai,deepseek
 
 Environment:
-  TOKENBAR_CLI=/path/to/TokenBarCLI
-  TOKENBAR_CONFIG=/path/to/config.json
-  TOKENBAR_QA_WEB_TIMEOUT=12
-  TOKENBAR_QA_CASE_TIMEOUT=60
+  CODEXBAR_CLI=/path/to/TokenBarCLI
+  CODEXBAR_CONFIG=/path/to/config.json
+  CODEXBAR_QA_WEB_TIMEOUT=12
+  CODEXBAR_QA_CASE_TIMEOUT=60
 USAGE
 }
 

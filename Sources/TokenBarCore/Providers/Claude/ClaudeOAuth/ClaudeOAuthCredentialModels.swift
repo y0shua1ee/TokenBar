@@ -116,27 +116,6 @@ public enum ClaudeOAuthCredentialOwner: String, Codable, Sendable {
     case claudeCLI
     case tokenbar
     case environment
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let rawValue = try container.decode(String.self)
-        switch rawValue {
-        case "codexbar":
-            self = .tokenbar
-        default:
-            guard let owner = Self(rawValue: rawValue) else {
-                throw DecodingError.dataCorruptedError(
-                    in: container,
-                    debugDescription: "Unknown Claude OAuth credential owner: \(rawValue)")
-            }
-            self = owner
-        }
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.rawValue)
-    }
 }
 
 public enum ClaudeOAuthCredentialSource: String, Sendable {

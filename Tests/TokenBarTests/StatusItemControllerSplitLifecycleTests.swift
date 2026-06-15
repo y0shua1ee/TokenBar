@@ -1,7 +1,7 @@
 import AppKit
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @MainActor
 @Suite(.serialized)
@@ -78,6 +78,59 @@ struct StatusItemControllerSplitLifecycleTests {
 
         #expect(controller.statusItem.isVisible == true)
         #expect(controller.statusItems.isEmpty)
+    }
+
+    @Test
+    func `removing split provider status items clears all menu lifecycle state`() throws {
+        let (settings, controller) = try self.makeSplitController()
+        defer { controller.releaseStatusItemsForTesting() }
+
+        let menus = try [UsageProvider.codex, .claude].map { provider in
+            try #require(controller.providerMenus[provider])
+        }
+        let keys = menus.map(ObjectIdentifier.init)
+        for (menu, key) in zip(menus, keys) {
+            controller.menuProviders[key] = .codex
+            controller.menuReadinessSignatures[key] = "readiness"
+            controller.menuIdentitySignatures[key] = "identity"
+            controller.menuSession.markFresh(key)
+            controller.menuSession.deferUntilNextOpen(key)
+            controller.menuSession.deferParentRebuild(key)
+            controller.openMenus[key] = menu
+            controller.menuRefreshTasks[key] = Task {
+                try? await Task.sleep(for: .seconds(60))
+            }
+            controller.closedMenuRebuildTasks[key] = Task {
+                try? await Task.sleep(for: .seconds(60))
+            }
+            controller.openMenuRebuildTasks[key] = Task {
+                try? await Task.sleep(for: .seconds(60))
+            }
+            _ = controller.closedMenuRebuildRequests.replaceRequest(for: key)
+            _ = controller.openMenuRebuildRequests.replaceRequest(for: key)
+            controller.openMenuRebuildsClosingHostedSubviewMenus.insert(key)
+            controller.highlightedMenuItems[key] = NSMenuItem(title: "Highlighted", action: nil, keyEquivalent: "")
+        }
+
+        settings.mergeIcons = true
+        controller.handleProviderConfigChange(reason: "test")
+
+        for key in keys {
+            #expect(controller.menuProviders[key] == nil)
+            #expect(controller.menuReadinessSignatures[key] == nil)
+            #expect(controller.menuIdentitySignatures[key] == nil)
+            #expect(controller.menuSession.renderedVersion(for: key) == nil)
+            #expect(!controller.menuSession.isDeferredUntilNextOpen(key))
+            #expect(!controller.menuSession.isParentRebuildDeferred(key))
+            #expect(controller.openMenus[key] == nil)
+            #expect(controller.menuRefreshTasks[key] == nil)
+            #expect(controller.closedMenuRebuildTasks[key] == nil)
+            #expect(controller.openMenuRebuildTasks[key] == nil)
+            #expect(controller.closedMenuRebuildRequests.tokens[key] == nil)
+            #expect(controller.openMenuRebuildRequests.tokens[key] == nil)
+            #expect(!controller.openMenuRebuildsClosingHostedSubviewMenus.contains(key))
+            #expect(controller.highlightedMenuItems[key] == nil)
+        }
     }
 
     @Test
@@ -335,7 +388,6 @@ struct StatusItemControllerSplitLifecycleTests {
         defaults.removePersistentDomain(forName: suite)
         defaults.set(false, forKey: "NSStatusItem VisibleCC Item-0")
         defaults.set(0, forKey: "NSStatusItem VisibleCC Item-12")
-        defaults.set(false, forKey: "NSStatusItem VisibleCC codexbar-merged")
         defaults.set(false, forKey: "NSStatusItem VisibleCC tokenbar-merged")
         defaults.set(true, forKey: "NSStatusItem VisibleCC Item-1")
         defaults.set(false, forKey: "NSStatusItem VisibleCC com.apple.clock")
@@ -348,12 +400,11 @@ struct StatusItemControllerSplitLifecycleTests {
         #expect(repairedKeys == [
             "NSStatusItem VisibleCC Item-0",
             "NSStatusItem VisibleCC Item-12",
-            "NSStatusItem VisibleCC codexbar-merged",
+            "NSStatusItem VisibleCC tokenbar-merged",
         ])
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC Item-0") == nil)
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC Item-12") == nil)
-        #expect(defaults.object(forKey: "NSStatusItem VisibleCC codexbar-merged") == nil)
-        #expect(defaults.object(forKey: "NSStatusItem VisibleCC tokenbar-merged") != nil)
+        #expect(defaults.object(forKey: "NSStatusItem VisibleCC tokenbar-merged") == nil)
         #expect(defaults.bool(forKey: "NSStatusItem VisibleCC Item-1"))
         #expect(defaults.object(forKey: "NSStatusItem VisibleCC com.apple.clock") != nil)
 

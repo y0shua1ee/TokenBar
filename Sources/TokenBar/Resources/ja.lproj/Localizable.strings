@@ -99,6 +99,8 @@
 "Could not start codex login" = "codex login を開始できませんでした";
 "Could not switch system account" = "システムアカウントを切り替えられませんでした";
 "Credits" = "クレジット";
+"Individual credits" = "個人クレジット";
+"Workspace" = "ワークスペース";
 "Credits history" = "クレジット履歴";
 "Cursor login failed" = "Cursor のログインに失敗しました";
 "Custom" = "カスタム";
@@ -402,9 +404,12 @@
 "language_dutch" = "オランダ語";
 "language_swedish" = "スウェーデン語";
 "language_french" = "フランス語";
+"language_german" = "ドイツ語";
 "language_ukrainian" = "ウクライナ語";
 "language_japanese" = "日本語";
 "language_korean" = "韓国語";
+"language_italian" = "Italiano";
+"language_polish" = "ポーランド語";
 "start_at_login_title" = "ログイン時に起動";
 "start_at_login_subtitle" = "Mac の起動時に TokenBar を自動的に開きます。";
 "show_cost_summary" = "コスト概要を表示";
@@ -498,7 +503,7 @@
 "show_quota_warning_markers_title" = "クォータ警告マーカーを表示";
 "show_quota_warning_markers_subtitle" = "クォータ警告が設定されている場合、使用量バーにしきい値の目盛りを描画します。";
 "weekly_progress_work_days_title" = "週間進捗の作業日";
-"weekly_progress_work_days_subtitle" = "週間使用量バーに日付の区切り目盛りを描画します。";
+"weekly_progress_work_days_subtitle" = "週間使用量バーの目盛りとペース計算に使用する作業日を設定します。";
 "show_reset_time_as_clock_title" = "リセット時刻を時計表示";
 "show_reset_time_as_clock_subtitle" = "リセット時刻をカウントダウンではなく絶対時刻で表示します。";
 "show_provider_changelog_links_title" = "プロバイダの変更履歴リンクを表示";
@@ -1070,3 +1075,8 @@
 "Search providers" = "プロバイダを検索";
 
 "language_vietnamese" = "ベトナム語";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "インドネシア語";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

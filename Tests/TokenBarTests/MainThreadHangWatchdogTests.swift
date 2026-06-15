@@ -19,7 +19,7 @@ struct MainThreadHangWatchdogTests {
     }
 
     @Test
-    func `watchdog reports an unsynchronized main thread stall`() throws {
+    func `watchdog reports a breadcrumb for a delayed main thread response`() throws {
         let watchdog = MainThreadHangWatchdog(
             pingInterval: 0.01,
             hangThreshold: 0.05,
@@ -41,6 +41,37 @@ struct MainThreadHangWatchdogTests {
     }
 
     @Test
+    func `watchdog polling loop reports a delayed ping response`() {
+        let pingScheduled = DispatchSemaphore(value: 0)
+        let hangDetected = DispatchSemaphore(value: 0)
+        let reported = DispatchSemaphore(value: 0)
+        let pendingResponse = OSAllocatedBox<(@Sendable () -> Void)?>(nil)
+        let watchdog = MainThreadHangWatchdog(
+            pingInterval: 1,
+            hangThreshold: 0.02,
+            sampleThreshold: 60,
+            sampleCooldown: 3600,
+            schedulePing: { response in
+                pendingResponse.set(response)
+                pingScheduled.signal()
+            })
+        watchdog.onHangForTesting = { _, _ in
+            reported.signal()
+        }
+        watchdog.onHangDetectionForTesting = {
+            hangDetected.signal()
+        }
+
+        watchdog.start()
+        defer { watchdog.stop() }
+
+        #expect(pingScheduled.wait(timeout: .now() + 10) == .success)
+        #expect(hangDetected.wait(timeout: .now() + 10) == .success)
+        pendingResponse.get()?()
+        #expect(reported.wait(timeout: .now() + 10) == .success)
+    }
+
+    @Test
     func `sample capture cannot inflate reported hang duration`() throws {
         let sampleRequested = OSAllocatedBox(false)
         let watchdog = MainThreadHangWatchdog(
@@ -51,7 +82,7 @@ struct MainThreadHangWatchdogTests {
             sampleCaptureOverride: {
                 sampleRequested.set(true)
                 Thread.sleep(forTimeInterval: 1)
-                return "/tmp/codexbar-watchdog-test-sample.txt"
+                return "/tmp/tokenbar-watchdog-test-sample.txt"
             })
 
         let reported = OSAllocatedBox<[(TimeInterval, [String])]>([])

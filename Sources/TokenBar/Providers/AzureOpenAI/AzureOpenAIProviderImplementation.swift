@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct AzureOpenAIProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .azureopenai
 

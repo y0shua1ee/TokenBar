@@ -147,6 +147,7 @@ final class SettingsStore {
 
     @ObservationIgnored let userDefaults: UserDefaults
     @ObservationIgnored let configStore: CodexBarConfigStore
+    @ObservationIgnored let antigravityOAuthCredentialsStore: AntigravityOAuthCredentialsStore
     @ObservationIgnored var config: CodexBarConfig
     @ObservationIgnored var configPersistTask: Task<Void, Never>?
     @ObservationIgnored var configLoading = false
@@ -204,7 +205,9 @@ final class SettingsStore {
             account: "amp-cookie",
             promptKind: .ampCookie),
         copilotTokenStore: any CopilotTokenStoring = KeychainCopilotTokenStore(),
-        tokenAccountStore: any ProviderTokenAccountStoring = FileTokenAccountStore())
+        tokenAccountStore: any ProviderTokenAccountStoring = FileTokenAccountStore(),
+        antigravityOAuthCredentialsStore: AntigravityOAuthCredentialsStore = AntigravityOAuthCredentialsStore(),
+        performInitialProviderDetection: Bool = !SettingsStore.isRunningTests)
     {
         let appGroupID = AppGroupSupport.currentGroupID()
         let appGroupMigration: AppGroupSupport.MigrationResult
@@ -256,6 +259,7 @@ final class SettingsStore {
             stores: legacyStores)
         self.userDefaults = userDefaults
         self.configStore = configStore
+        self.antigravityOAuthCredentialsStore = antigravityOAuthCredentialsStore
         self.config = config
         self.configLoading = true
         let defaultsState = Self.loadDefaultsState(userDefaults: userDefaults)
@@ -268,7 +272,9 @@ final class SettingsStore {
         userDefaults.removeObject(forKey: "showCodexUsage")
         userDefaults.removeObject(forKey: "showClaudeUsage")
         LaunchAtLoginManager.setEnabled(self.launchAtLogin)
-        self.runInitialProviderDetectionIfNeeded()
+        if performInitialProviderDetection {
+            self.runInitialProviderDetectionIfNeeded()
+        }
         self.ensureAlibabaProviderAutoEnabledIfNeeded()
         self.applyTokenCostDefaultIfNeeded()
         if self.claudeUsageDataSource != .cli {
@@ -327,20 +333,7 @@ extension SettingsStore {
         }
         let launchAtLogin = userDefaults.object(forKey: "launchAtLogin") as? Bool ?? false
         let debugMenuEnabled = userDefaults.object(forKey: "debugMenuEnabled") as? Bool ?? false
-        let debugDisableKeychainAccess: Bool = {
-            if let stored = userDefaults.object(forKey: "debugDisableKeychainAccess") as? Bool {
-                return stored
-            }
-            if Self.shouldBridgeSharedDefaults(for: userDefaults),
-               let shared = Self.sharedDefaults?.object(forKey: "debugDisableKeychainAccess") as? Bool
-            {
-                if Self.isRunningTests {
-                    userDefaults.set(shared, forKey: "debugDisableKeychainAccess")
-                }
-                return shared
-            }
-            return false
-        }()
+        let debugDisableKeychainAccess = Self.loadDebugDisableKeychainAccess(userDefaults: userDefaults)
         let debugFileLoggingEnabled = userDefaults.object(forKey: "debugFileLoggingEnabled") as? Bool ?? false
         let debugLogLevelRaw = userDefaults.string(forKey: "debugLogLevel") ?? CodexBarLog.Level.verbose.rawValue
         if Self.isRunningTests, userDefaults.string(forKey: "debugLogLevel") == nil {
@@ -372,11 +365,10 @@ extension SettingsStore {
         let kiroMenuBarDisplayModeRaw = userDefaults.string(forKey: "kiroMenuBarDisplayMode")
             ?? KiroMenuBarDisplayMode.automatic.rawValue
         let historicalTrackingEnabled = userDefaults.object(forKey: "historicalTrackingEnabled") as? Bool ?? false
-        let multiAccountMenuLayoutRaw = userDefaults.string(forKey: "multiAccountMenuLayout") ?? {
-            let legacyShowAll = userDefaults.object(forKey: "showAllTokenAccountsInMenu") as? Bool ?? false
-            return legacyShowAll ? MultiAccountMenuLayout.stacked.rawValue : MultiAccountMenuLayout.segmented.rawValue
-        }()
+        let multiAccountMenuLayoutRaw = Self.loadMultiAccountMenuLayoutRaw(userDefaults: userDefaults)
         let resolvedPreferences = Self.loadMenuBarMetricPreferences(userDefaults: userDefaults)
+        let copilotBudgetExtrasEnabled = userDefaults.object(forKey: "copilotBudgetExtrasEnabled") as? Bool ?? false
+        let copilotIconSecondaryWindowIDRaw = Self.loadCopilotIconSecondaryWindowIDRaw(userDefaults: userDefaults)
         let costUsageEnabled = userDefaults.object(forKey: "tokenCostUsageEnabled") as? Bool ?? false
         let rawCostUsageHistoryDays = userDefaults.object(forKey: "tokenCostUsageHistoryDays") as? Int ?? 30
         let costUsageHistoryDays = max(1, min(365, rawCostUsageHistoryDays))
@@ -447,6 +439,8 @@ extension SettingsStore {
             historicalTrackingEnabled: historicalTrackingEnabled,
             multiAccountMenuLayoutRaw: multiAccountMenuLayoutRaw,
             menuBarMetricPreferencesRaw: resolvedPreferences,
+            copilotBudgetExtrasEnabled: copilotBudgetExtrasEnabled,
+            copilotIconSecondaryWindowIDRaw: copilotIconSecondaryWindowIDRaw,
             costUsageEnabled: costUsageEnabled,
             costUsageHistoryDays: costUsageHistoryDays,
             hidePersonalInfo: hidePersonalInfo,
@@ -473,13 +467,63 @@ extension SettingsStore {
 
     private static func loadMenuBarMetricPreferences(userDefaults: UserDefaults) -> [String: String] {
         let storedPreferences = userDefaults.dictionary(forKey: "menuBarMetricPreferences") as? [String: String] ?? [:]
-        if !storedPreferences.isEmpty {
-            return storedPreferences
+        let preferences: [String: String] = if !storedPreferences.isEmpty {
+            storedPreferences
+        } else if let menuBarMetricRaw = userDefaults.string(forKey: "menuBarMetricPreference"),
+                  let legacyPreference = MenuBarMetricPreference(rawValue: menuBarMetricRaw)
+        {
+            Dictionary(
+                uniqueKeysWithValues: UsageProvider.allCases.map { ($0.rawValue, legacyPreference.rawValue) })
+        } else {
+            [:]
         }
-        guard let menuBarMetricRaw = userDefaults.string(forKey: "menuBarMetricPreference"),
-              let legacyPreference = MenuBarMetricPreference(rawValue: menuBarMetricRaw)
-        else { return [:] }
-        return Dictionary(uniqueKeysWithValues: UsageProvider.allCases.map { ($0.rawValue, legacyPreference.rawValue) })
+
+        let migrationKey = "antigravityTwoPoolMetricPreferenceMigrated"
+        guard !userDefaults.bool(forKey: migrationKey) else { return preferences }
+
+        // Tagged builds through v0.35 used primary=Claude, secondary=Gemini Pro,
+        // and tertiary=Gemini Flash. Remap those meanings once to the two-pool schema.
+        var migrated = preferences
+        switch MenuBarMetricPreference(rawValue: migrated[UsageProvider.antigravity.rawValue] ?? "") {
+        case .primary:
+            migrated[UsageProvider.antigravity.rawValue] = MenuBarMetricPreference.secondary.rawValue
+        case .secondary:
+            migrated[UsageProvider.antigravity.rawValue] = MenuBarMetricPreference.primary.rawValue
+        case .tertiary:
+            migrated[UsageProvider.antigravity.rawValue] = MenuBarMetricPreference.primary.rawValue
+        case .automatic, .extraUsage, .average, .none:
+            break
+        }
+        userDefaults.set(migrated, forKey: "menuBarMetricPreferences")
+        userDefaults.set(true, forKey: migrationKey)
+        return migrated
+    }
+
+    private static func loadMultiAccountMenuLayoutRaw(userDefaults: UserDefaults) -> String {
+        if let layout = userDefaults.string(forKey: "multiAccountMenuLayout") {
+            return layout
+        }
+        let legacyShowAll = userDefaults.object(forKey: "showAllTokenAccountsInMenu") as? Bool ?? false
+        return legacyShowAll ? MultiAccountMenuLayout.stacked.rawValue : MultiAccountMenuLayout.segmented.rawValue
+    }
+
+    private static func loadCopilotIconSecondaryWindowIDRaw(userDefaults: UserDefaults) -> String {
+        userDefaults.string(forKey: "copilotIconSecondaryWindowID") ?? CopilotIconSecondaryWindowSelection.chat
+    }
+
+    private static func loadDebugDisableKeychainAccess(userDefaults: UserDefaults) -> Bool {
+        if let stored = userDefaults.object(forKey: "debugDisableKeychainAccess") as? Bool {
+            return stored
+        }
+        if Self.shouldBridgeSharedDefaults(for: userDefaults),
+           let shared = Self.sharedDefaults?.object(forKey: "debugDisableKeychainAccess") as? Bool
+        {
+            if Self.isRunningTests {
+                userDefaults.set(shared, forKey: "debugDisableKeychainAccess")
+            }
+            return shared
+        }
+        return false
     }
 
     private struct LoadedQuotaWarningDefaults {

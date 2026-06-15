@@ -52,7 +52,7 @@ public enum KeychainAccessGate {
     #if DEBUG
     private nonisolated(unsafe) static var forcesDisabledUnderTests: Bool {
         self.isRunningUnderTests
-            && ProcessInfo.processInfo.environment["TOKENBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1"
+            && ProcessInfo.processInfo.environment["CODEXBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1"
     }
 
     private nonisolated(unsafe) static var isRunningUnderTests: Bool {

@@ -99,7 +99,7 @@ extension GeminiStatusProbe {
         return try Self.parseCurlDataLoaderResult(result.stdout, url: url)
     }
 
-    private static let curlHTTPStatusMarker = "__TOKENBAR_HTTP_STATUS__:"
+    private static let curlHTTPStatusMarker = "__CODEXBAR_HTTP_STATUS__:"
 
     private static func curlConfigQuote(_ value: String) -> String {
         let escaped = value

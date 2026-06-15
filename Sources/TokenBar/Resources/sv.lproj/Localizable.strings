@@ -99,6 +99,8 @@
 "Could not start codex login" = "Kunde inte starta codex login";
 "Could not switch system account" = "Kunde inte byta systemkonto";
 "Credits" = "Krediter";
+"Individual credits" = "Individuella krediter";
+"Workspace" = "Arbetsyta";
 "Credits history" = "Kredithistorik";
 "Cursor login failed" = "Cursor-inloggning misslyckades";
 "Custom" = "Anpassat";
@@ -292,7 +294,7 @@
 "Store multiple Ollama Cookie headers." = "Spara flera Cookie-headers för Ollama.";
 "Store multiple OpenCode Cookie headers." = "Spara flera Cookie-headers för OpenCode.";
 "Store multiple OpenCode Go Cookie headers." = "Spara flera Cookie-headers för OpenCode Go.";
-"Stored in the TokenBar config file." = "Sparas i TokenBars konfigurationsfil.";
+"Stored in the TokenBar config file." = "Sparas i CodexBars konfigurationsfil.";
 "Stored in ~/.tokenbar/config.json. " = "Sparas i ~/.tokenbar/config.json. ";
 "Stored in ~/.tokenbar/config.json. Generate one at kimi-k2.ai." = "Sparas i ~/.tokenbar/config.json. Skapa en på kimi-k2.ai.";
 "Stored in ~/.tokenbar/config.json. Paste the key from the Synthetic dashboard." = "Sparas i ~/.tokenbar/config.json. Klistra in nyckeln från Synthetic-instrumentpanelen.";
@@ -401,11 +403,16 @@
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_swedish" = "Svenska";
 "language_french" = "Franska";
 "language_ukrainian" = "Ukrainska";
 "language_japanese" = "Japanska";
 "language_korean" = "Koreanska";
+"language_turkish" = "Türkçe";
+"language_italian" = "Italiano";
+"language_indonesian" = "Indonesiska";
+"language_polish" = "Polski";
 "start_at_login_title" = "Starta vid inloggning";
 "start_at_login_subtitle" = "Öppnar TokenBar automatiskt när du startar din Mac.";
 "show_cost_summary" = "Visa kostnadssammanfattning";
@@ -498,7 +505,7 @@
 "show_quota_warning_markers_title" = "Visa kvotvarningsmarkörer";
 "show_quota_warning_markers_subtitle" = "Rita tröskelmarkeringar på användningsstaplar när kvotvarningar är konfigurerade.";
 "weekly_progress_work_days_title" = "Arbetsdagar i veckoförlopp";
-"weekly_progress_work_days_subtitle" = "Rita dagsgränsmarkeringar på veckostaplar.";
+"weekly_progress_work_days_subtitle" = "Ställ in arbetsdagar för markeringar i veckostaplar och tempoberäkningar.";
 "show_reset_time_as_clock_title" = "Visa återställningstid som klockslag";
 "show_reset_time_as_clock_subtitle" = "Visa återställningstider som klockslag i stället för nedräkningar.";
 "show_provider_changelog_links_title" = "Visa länkar till leverantörers ändringsloggar";
@@ -1068,6 +1075,6 @@
 "Search providers" = "Sök leverantörer";
 
 "language_vietnamese" = "Vietnamesiska";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importerar Chrome-cookies från Xiaomi MiMo automatiskt.";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

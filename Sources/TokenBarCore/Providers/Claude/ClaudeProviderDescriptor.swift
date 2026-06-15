@@ -1,9 +1,8 @@
 import Foundation
-import TokenBarMacroSupport
 
-@ProviderDescriptorRegistration
-@ProviderDescriptorDefinition
 public enum ClaudeProviderDescriptor {
+    public static let descriptor: ProviderDescriptor = Self.makeDescriptor()
+
     static func makeDescriptor() -> ProviderDescriptor {
         ProviderDescriptor(
             id: .claude,

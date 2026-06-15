@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TokenBarCore
+import TokenBarCore
 
 struct OpenAIDashboardModelsTests {
     @Test

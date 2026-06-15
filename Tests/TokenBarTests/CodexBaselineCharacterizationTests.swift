@@ -62,11 +62,11 @@ struct CodexBaselineCharacterizationTests {
         import os
         import sys
 
-        counter = os.environ.get("TOKENBAR_STUB_COUNTER")
+        counter = os.environ.get("CODEXBAR_STUB_COUNTER")
         if counter:
             with open(counter, "a") as f:
                 f.write("start\\n")
-        credits_only = os.environ.get("TOKENBAR_STUB_CREDITS_ONLY") == "1"
+        credits_only = os.environ.get("CODEXBAR_STUB_CREDITS_ONLY") == "1"
 
         for line in sys.stdin:
             if not line.strip():
@@ -252,7 +252,7 @@ struct CodexBaselineCharacterizationTests {
 
         let env = [
             "CODEX_CLI_PATH": stubCLIPath,
-            "TOKENBAR_STUB_COUNTER": counterURL.path,
+            "CODEXBAR_STUB_COUNTER": counterURL.path,
         ]
 
         let outcome = await self.fetchOutcome(
@@ -286,7 +286,7 @@ struct CodexBaselineCharacterizationTests {
             sourceMode: .cli,
             env: [
                 "CODEX_CLI_PATH": stubCLIPath,
-                "TOKENBAR_STUB_CREDITS_ONLY": "1",
+                "CODEXBAR_STUB_CREDITS_ONLY": "1",
             ],
             includeCredits: true)
 

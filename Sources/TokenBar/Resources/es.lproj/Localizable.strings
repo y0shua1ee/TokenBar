@@ -98,6 +98,8 @@
 "Could not start codex login" = "No se pudo iniciar codex login";
 "Could not switch system account" = "No se pudo cambiar la cuenta del sistema";
 "Credits" = "Créditos";
+"Individual credits" = "Créditos individuales";
+"Workspace" = "Espacio de trabajo";
 "Credits history" = "Historial de créditos";
 "Cursor login failed" = "El inicio de sesión de Cursor falló";
 "Custom" = "Personalizado";
@@ -401,10 +403,13 @@
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_swedish" = "Sueco";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_french" = "Francés";
 "language_ukrainian" = "Ucraniano";
 "language_japanese" = "Japonés";
 "language_korean" = "Coreano";
+"language_italian" = "Italiano";
+"language_polish" = "Polski";
 "start_at_login_title" = "Abrir al iniciar sesión";
 "start_at_login_subtitle" = "Abre TokenBar automáticamente al iniciar tu Mac.";
 "show_cost_summary" = "Mostrar resumen de coste";
@@ -488,6 +493,8 @@
 "show_usage_as_used_subtitle" = "Las barras de progreso se llenan a medida que consumes la cuota (en lugar de mostrar lo restante).";
 "show_quota_warning_markers_title" = "Mostrar marcadores de aviso de cuota";
 "show_quota_warning_markers_subtitle" = "Dibuja marcas de umbral en las barras de uso cuando hay avisos de cuota configurados.";
+"weekly_progress_work_days_title" = "Días laborables del progreso semanal";
+"weekly_progress_work_days_subtitle" = "Define los días laborables para los marcadores de las barras de uso semanal y los cálculos de ritmo.";
 "show_reset_time_as_clock_title" = "Mostrar la hora de reinicio como reloj";
 "show_reset_time_as_clock_subtitle" = "Mostrar las horas de reinicio como valores de reloj absolutos en lugar de cuentas atrás.";
 "show_provider_changelog_links_title" = "Mostrar enlaces al registro de cambios del proveedor";
@@ -927,6 +934,8 @@
 "Search providers" = "Buscar proveedores";
 
 "language_vietnamese" = "Vietnamita";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importa automáticamente las cookies de Chrome desde Xiaomi MiMo.";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Indonesio";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

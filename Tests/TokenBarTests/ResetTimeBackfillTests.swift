@@ -1,6 +1,6 @@
 import Foundation
+import TokenBarCore
 import XCTest
-@testable import TokenBarCore
 
 final class ResetTimeBackfillTests: XCTestCase {
     func test_backfillsMissingResetMetadataFromCachedWindow() {

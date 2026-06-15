@@ -124,9 +124,11 @@ public struct UsageSnapshot: Codable, Sendable {
     public let extraRateWindows: [NamedRateWindow]?
     public let providerCost: ProviderCostSnapshot?
     public let kiroUsage: KiroUsageDetails?
+    public let ampUsage: AmpUsageDetails?
     public let zaiUsage: ZaiUsageSnapshot?
     public let minimaxUsage: MiniMaxUsageSnapshot?
     public let deepseekUsage: DeepSeekUsageSummary?
+    public let mimoUsage: MiMoUsageSnapshot?
     public let openRouterUsage: OpenRouterUsageSnapshot?
     public let openAIAPIUsage: OpenAIAPIUsageSnapshot?
     public let claudeAdminAPIUsage: ClaudeAdminAPIUsageSnapshot?
@@ -145,6 +147,8 @@ public struct UsageSnapshot: Codable, Sendable {
         case extraRateWindows
         case providerCost
         case kiroUsage
+        case ampUsage
+        case mimoUsage
         case openRouterUsage
         case openAIAPIUsage
         case claudeAdminAPIUsage
@@ -165,10 +169,12 @@ public struct UsageSnapshot: Codable, Sendable {
         tertiary: RateWindow? = nil,
         extraRateWindows: [NamedRateWindow]? = nil,
         kiroUsage: KiroUsageDetails? = nil,
+        ampUsage: AmpUsageDetails? = nil,
         providerCost: ProviderCostSnapshot? = nil,
         zaiUsage: ZaiUsageSnapshot? = nil,
         minimaxUsage: MiniMaxUsageSnapshot? = nil,
         deepseekUsage: DeepSeekUsageSummary? = nil,
+        mimoUsage: MiMoUsageSnapshot? = nil,
         openRouterUsage: OpenRouterUsageSnapshot? = nil,
         openAIAPIUsage: OpenAIAPIUsageSnapshot? = nil,
         claudeAdminAPIUsage: ClaudeAdminAPIUsageSnapshot? = nil,
@@ -185,10 +191,12 @@ public struct UsageSnapshot: Codable, Sendable {
         self.tertiary = tertiary
         self.extraRateWindows = extraRateWindows
         self.kiroUsage = kiroUsage
+        self.ampUsage = ampUsage
         self.providerCost = providerCost
         self.zaiUsage = zaiUsage
         self.minimaxUsage = minimaxUsage
         self.deepseekUsage = deepseekUsage
+        self.mimoUsage = mimoUsage
         self.openRouterUsage = openRouterUsage
         self.openAIAPIUsage = openAIAPIUsage
         self.claudeAdminAPIUsage = claudeAdminAPIUsage
@@ -201,6 +209,16 @@ public struct UsageSnapshot: Codable, Sendable {
         self.identity = identity
     }
 
+    public func with(extraRateWindows: [NamedRateWindow]?) -> UsageSnapshot {
+        self.replacing(extraRateWindows: .value(extraRateWindows))
+    }
+
+    public func with(primary: RateWindow?, secondary: RateWindow?) -> UsageSnapshot {
+        self.replacing(
+            primary: .value(primary),
+            secondary: .value(secondary))
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.primary = try container.decodeIfPresent(RateWindow.self, forKey: .primary)
@@ -209,9 +227,11 @@ public struct UsageSnapshot: Codable, Sendable {
         self.extraRateWindows = try container.decodeIfPresent([NamedRateWindow].self, forKey: .extraRateWindows)
         self.providerCost = try container.decodeIfPresent(ProviderCostSnapshot.self, forKey: .providerCost)
         self.kiroUsage = try container.decodeIfPresent(KiroUsageDetails.self, forKey: .kiroUsage)
+        self.ampUsage = try container.decodeIfPresent(AmpUsageDetails.self, forKey: .ampUsage)
         self.zaiUsage = nil // Not persisted, fetched fresh each time
         self.minimaxUsage = nil // Not persisted, fetched fresh each time
         self.deepseekUsage = nil // Not persisted, fetched fresh each time
+        self.mimoUsage = try container.decodeIfPresent(MiMoUsageSnapshot.self, forKey: .mimoUsage)
         self.openRouterUsage = try container.decodeIfPresent(OpenRouterUsageSnapshot.self, forKey: .openRouterUsage)
         self.openAIAPIUsage = try container.decodeIfPresent(OpenAIAPIUsageSnapshot.self, forKey: .openAIAPIUsage)
         self.claudeAdminAPIUsage = try container.decodeIfPresent(
@@ -250,6 +270,8 @@ public struct UsageSnapshot: Codable, Sendable {
         try container.encodeIfPresent(self.extraRateWindows, forKey: .extraRateWindows)
         try container.encodeIfPresent(self.providerCost, forKey: .providerCost)
         try container.encodeIfPresent(self.kiroUsage, forKey: .kiroUsage)
+        try container.encodeIfPresent(self.ampUsage, forKey: .ampUsage)
+        try container.encodeIfPresent(self.mimoUsage, forKey: .mimoUsage)
         try container.encodeIfPresent(self.openRouterUsage, forKey: .openRouterUsage)
         try container.encodeIfPresent(self.openAIAPIUsage, forKey: .openAIAPIUsage)
         try container.encodeIfPresent(self.claudeAdminAPIUsage, forKey: .claudeAdminAPIUsage)
@@ -342,28 +364,8 @@ public struct UsageSnapshot: Codable, Sendable {
         UsageLimitsAvailability.resolve(provider: provider, snapshot: self).isUnavailable
     }
 
-    /// Keep this initializer-style copy in sync with UsageSnapshot fields so relabeling/scoping never drops data.
     public func withIdentity(_ identity: ProviderIdentitySnapshot?) -> UsageSnapshot {
-        UsageSnapshot(
-            primary: self.primary,
-            secondary: self.secondary,
-            tertiary: self.tertiary,
-            extraRateWindows: self.extraRateWindows,
-            kiroUsage: self.kiroUsage,
-            providerCost: self.providerCost,
-            zaiUsage: self.zaiUsage,
-            minimaxUsage: self.minimaxUsage,
-            deepseekUsage: self.deepseekUsage,
-            openRouterUsage: self.openRouterUsage,
-            openAIAPIUsage: self.openAIAPIUsage,
-            claudeAdminAPIUsage: self.claudeAdminAPIUsage,
-            mistralUsage: self.mistralUsage,
-            deepgramUsage: self.deepgramUsage,
-            cursorRequests: self.cursorRequests,
-            subscriptionExpiresAt: self.subscriptionExpiresAt,
-            subscriptionRenewsAt: self.subscriptionRenewsAt,
-            updatedAt: self.updatedAt,
-            identity: identity)
+        self.replacing(identity: .value(identity))
     }
 
     public func scoped(to provider: UsageProvider) -> UsageSnapshot {
@@ -382,26 +384,10 @@ public struct UsageSnapshot: Codable, Sendable {
         if primary == self.primary, secondary == self.secondary, tertiary == self.tertiary {
             return self
         }
-        return UsageSnapshot(
-            primary: primary,
-            secondary: secondary,
-            tertiary: tertiary,
-            extraRateWindows: self.extraRateWindows,
-            kiroUsage: self.kiroUsage,
-            providerCost: self.providerCost,
-            zaiUsage: self.zaiUsage,
-            minimaxUsage: self.minimaxUsage,
-            deepseekUsage: self.deepseekUsage,
-            openRouterUsage: self.openRouterUsage,
-            openAIAPIUsage: self.openAIAPIUsage,
-            claudeAdminAPIUsage: self.claudeAdminAPIUsage,
-            mistralUsage: self.mistralUsage,
-            deepgramUsage: self.deepgramUsage,
-            cursorRequests: self.cursorRequests,
-            subscriptionExpiresAt: self.subscriptionExpiresAt,
-            subscriptionRenewsAt: self.subscriptionRenewsAt,
-            updatedAt: self.updatedAt,
-            identity: self.identity)
+        return self.replacing(
+            primary: .value(primary),
+            secondary: .value(secondary),
+            tertiary: .value(tertiary))
     }
 
     private func orderedPerplexityFallbackWindows() -> [RateWindow] {
@@ -420,6 +406,49 @@ public struct UsageSnapshot: Codable, Sendable {
             return lhsEmail == rhsEmail
         }
         return true
+    }
+
+    private enum Replacement<Value> {
+        case unchanged
+        case value(Value)
+
+        func resolving(_ current: Value) -> Value {
+            switch self {
+            case .unchanged: current
+            case let .value(value): value
+            }
+        }
+    }
+
+    private func replacing(
+        primary: Replacement<RateWindow?> = .unchanged,
+        secondary: Replacement<RateWindow?> = .unchanged,
+        tertiary: Replacement<RateWindow?> = .unchanged,
+        extraRateWindows: Replacement<[NamedRateWindow]?> = .unchanged,
+        identity: Replacement<ProviderIdentitySnapshot?> = .unchanged) -> UsageSnapshot
+    {
+        UsageSnapshot(
+            primary: primary.resolving(self.primary),
+            secondary: secondary.resolving(self.secondary),
+            tertiary: tertiary.resolving(self.tertiary),
+            extraRateWindows: extraRateWindows.resolving(self.extraRateWindows),
+            kiroUsage: self.kiroUsage,
+            ampUsage: self.ampUsage,
+            providerCost: self.providerCost,
+            zaiUsage: self.zaiUsage,
+            minimaxUsage: self.minimaxUsage,
+            deepseekUsage: self.deepseekUsage,
+            mimoUsage: self.mimoUsage,
+            openRouterUsage: self.openRouterUsage,
+            openAIAPIUsage: self.openAIAPIUsage,
+            claudeAdminAPIUsage: self.claudeAdminAPIUsage,
+            mistralUsage: self.mistralUsage,
+            deepgramUsage: self.deepgramUsage,
+            cursorRequests: self.cursorRequests,
+            subscriptionExpiresAt: self.subscriptionExpiresAt,
+            subscriptionRenewsAt: self.subscriptionRenewsAt,
+            updatedAt: self.updatedAt,
+            identity: identity.resolving(self.identity))
     }
 }
 

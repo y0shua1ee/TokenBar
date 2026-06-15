@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct ManusProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .manus
     let supportsLoginFlow: Bool = true

@@ -23,7 +23,6 @@ falls back across the provider's supported web requests when needed.
 
 2) **Cached/imported browser session** (automatic web path)
    - Uses TokenBar's standard cookie cache and browser import flow.
-   - Keychain cache: `com.y0shua1ee.tokenbar.cache` (account `cookie.minimax`).
 
 3) **Browser cookie import** (automatic)
    - Uses provider metadata for browser order and MiniMax domain filters.
@@ -56,13 +55,13 @@ falls back across the provider's supported web requests when needed.
   - Top model and top method breakdowns.
   - Summary rows for recent billing-history totals.
 
-If the billing-history endpoint is unavailable but normal Coding Plan quota data is present, CodexBar still shows the
+If the billing-history endpoint is unavailable but normal Coding Plan quota data is present, TokenBar still shows the
 quota card and omits the chart instead of treating the whole provider as failed.
 
 ## Key files
-- `Sources/CodexBarCore/Providers/MiniMax/MiniMaxUsageFetcher.swift`
-- `Sources/CodexBarCore/Providers/MiniMax/MiniMaxProviderDescriptor.swift`
-- `Sources/CodexBar/Providers/MiniMax/MiniMaxProviderImplementation.swift`
+- `Sources/TokenBarCore/Providers/MiniMax/MiniMaxUsageFetcher.swift`
+- `Sources/TokenBarCore/Providers/MiniMax/MiniMaxProviderDescriptor.swift`
+- `Sources/TokenBar/Providers/MiniMax/MiniMaxProviderImplementation.swift`
 
 ## CLI diagnose command
 
@@ -71,7 +70,7 @@ for issue reporting and verification. MiniMax adds a provider-specific `details`
 
 ### Usage
 ```
-codexbar diagnose --provider minimax --format json --pretty
+tokenbar diagnose --provider minimax --format json --pretty
 ```
 
 ### Output

@@ -10,7 +10,7 @@ struct LocalizationBundleTests {
 
         let bundle = codexBarLocalizationResourceBundle(mainBundle: fixture.appBundle)
 
-        #expect(bundle.bundleURL.lastPathComponent == "TokenBar_TokenBar.bundle")
+        #expect(bundle.bundleURL.lastPathComponent == "CodexBar_CodexBar.bundle")
         #expect(bundle.path(forResource: "en", ofType: "lproj") != nil)
     }
 
@@ -66,7 +66,7 @@ struct LocalizationBundleTests {
         includeEmptyChineseLocalization: Bool = false) throws -> (root: URL, appBundle: Bundle)
     {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "codexbar-localization-\(UUID().uuidString)",
+            "tokenbar-localization-\(UUID().uuidString)",
             isDirectory: true)
         let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
@@ -79,7 +79,7 @@ struct LocalizationBundleTests {
         <plist version="1.0">
         <dict>
             <key>CFBundleExecutable</key><string>TokenBar</string>
-            <key>CFBundleIdentifier</key><string>com.y0shua1ee.tokenbar.tests</string>
+            <key>CFBundleIdentifier</key><string>com.steipete.tokenbar.tests</string>
             <key>CFBundleName</key><string>TokenBar</string>
             <key>CFBundlePackageType</key><string>APPL</string>
         </dict>
@@ -95,7 +95,7 @@ struct LocalizationBundleTests {
         }
 
         if includeLocalizationBundle {
-            let bundleURL = resourcesURL.appendingPathComponent("TokenBar_TokenBar.bundle", isDirectory: true)
+            let bundleURL = resourcesURL.appendingPathComponent("CodexBar_CodexBar.bundle", isDirectory: true)
             try Self.writeEnglishLocalization(to: bundleURL.appendingPathComponent("en.lproj", isDirectory: true))
             if includeEmptyChineseLocalization {
                 try Self.writeEmptyChineseLocalization(

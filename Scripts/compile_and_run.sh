@@ -15,7 +15,7 @@ WAIT_FOR_LOCK=0
 RUN_TESTS=0
 DEBUG_LLDB=0
 RELEASE_ARCHES=""
-SIGNING_MODE="${TOKENBAR_SIGNING:-}"
+SIGNING_MODE="${TOKENBAR_SIGNING:-${CODEXBAR_SIGNING:-}}"
 CLEAR_ADHOC_KEYCHAIN=0
 
 log()  { printf '%s\n' "$*"; }
@@ -284,7 +284,7 @@ fi
 
 # 3) Package (release build happens inside package_app.sh).
 if [[ "${RUN_TESTS}" == "1" ]]; then
-  run_step "swift test" swift test -q
+  run_step "sharded swift tests" "${ROOT_DIR}/Scripts/test.sh"
 fi
 if [[ "${DEBUG_LLDB}" == "1" && -n "${RELEASE_ARCHES}" ]]; then
   fail "--release-arches is only supported for release packaging"

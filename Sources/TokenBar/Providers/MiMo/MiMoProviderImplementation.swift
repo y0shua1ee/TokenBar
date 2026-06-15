@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct MiMoProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .mimo
     let supportsLoginFlow: Bool = true
@@ -55,7 +53,7 @@ struct MiMoProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .mimo) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .mimo) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

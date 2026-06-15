@@ -1,7 +1,7 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @Suite(.serialized)
 struct CodexBarConfigMigratorTests {
@@ -65,7 +65,7 @@ struct CodexBarConfigMigratorTests {
         defer { defaults.removePersistentDomain(forName: suite) }
 
         let base = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-tests", isDirectory: true)
+            .appendingPathComponent("tokenbar-tests", isDirectory: true)
             .appendingPathComponent(suite, isDirectory: true)
         try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: base) }
@@ -93,7 +93,7 @@ struct CodexBarConfigMigratorTests {
         #expect(defaults.bool(forKey: Self.legacyMigrationCompletedKey) == true)
     }
 
-    private static let legacyMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
 
     private static func legacyStores(
         secrets: CountingLegacySecretStore,
@@ -180,7 +180,7 @@ private final class CountingTokenAccountStore: ProviderTokenAccountStoring, @unc
     func storeAccounts(_: [UsageProvider: ProviderTokenAccountData]) throws {}
 
     func ensureFileExists() throws -> URL {
-        FileManager.default.temporaryDirectory.appendingPathComponent("codexbar-empty-accounts.json")
+        FileManager.default.temporaryDirectory.appendingPathComponent("tokenbar-empty-accounts.json")
     }
 }
 

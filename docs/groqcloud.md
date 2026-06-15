@@ -7,7 +7,7 @@ read_when:
 
 # GroqCloud
 
-CodexBar's GroqCloud provider is separate from the xAI Grok provider. It uses a GroqCloud API key and the Enterprise
+TokenBar's GroqCloud provider is separate from the xAI Grok provider. It uses a GroqCloud API key and the Enterprise
 Prometheus metrics API.
 
 ## Setup
@@ -28,4 +28,4 @@ base URL for private gateways.
 - Tertiary: prompt cache hits per minute when the metric exists.
 - Dashboard link: GroqCloud metrics dashboard.
 
-If the key lacks Prometheus metrics access, CodexBar shows the API error instead of guessing from unrelated endpoints.
+If the key lacks Prometheus metrics access, TokenBar shows the API error instead of guessing from unrelated endpoints.

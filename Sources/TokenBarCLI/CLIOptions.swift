@@ -134,17 +134,10 @@ enum OutputFormat: String, ExpressibleFromArgument {
 }
 
 enum ProviderHelp {
-    /// Keep CLI help lightweight: --help is smoke-tested during macOS release builds, so avoid
-    /// touching ProviderDescriptorRegistry or provider descriptors from the fast help path.
-    private static let providerNames = [
-        "codex", "claude", "cursor", "opencode", "opencodego", "alibaba-coding-plan",
-        "factory", "gemini", "antigravity", "copilot", "zai", "minimax", "kimi",
-        "kilo", "kiro", "vertexai", "augment", "jetbrains", "kimik2", "amp",
-        "ollama", "synthetic", "warp", "openrouter", "windsurf", "perplexity",
-        "abacusai", "mistral", "deepseek", "codebuff", "custom", "krill",
-    ]
-
-    static let list = (Self.providerNames + ["both", "all"]).joined(separator: "|")
+    static var list: String {
+        let names = ProviderDescriptorRegistry.all.map(\ .cli.name)
+        return (names + ["both", "all"]).joined(separator: "|")
+    }
 
     static var optionHelp: String {
         "Provider to query: \(self.list)"

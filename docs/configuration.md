@@ -13,7 +13,7 @@ API keys, manual cookie headers, source selection, ordering, and token accounts 
 
 ## Location
 - `~/.tokenbar/config.json`
-- Override for scripts/tests: set `TOKENBAR_CONFIG=/path/to/config.json`.
+- Override for scripts/tests: set `CODEXBAR_CONFIG=/path/to/config.json`.
 - The directory is created if missing.
 - Permissions are set to `0600` whenever TokenBar writes the file on macOS and Linux.
 
@@ -103,6 +103,7 @@ printf '%s' "$ELEVENLABS_API_KEY" | tokenbar config set-api-key --provider eleve
 printf '%s' "$OPENAI_ADMIN_KEY" | tokenbar config set-api-key --provider openai --stdin
 printf '%s' "$GROQ_API_KEY" | tokenbar config set-api-key --provider groq --stdin
 printf '%s' "$LLM_PROXY_API_KEY" | tokenbar config set-api-key --provider llmproxy --stdin
+printf '%s' "$LITELLM_API_KEY" | tokenbar config set-api-key --provider litellm --stdin
 ```
 
 OpenAI API project scoping uses `workspaceID` in config. This maps to `OPENAI_PROJECT_ID` for Admin API usage and is
@@ -125,6 +126,17 @@ LLM Proxy also needs a base URL. Set `enterpriseHost` in config or `LLM_PROXY_BA
   "enabled": true,
   "apiKey": "<REDACTED>",
   "enterpriseHost": "https://proxy.example.com"
+}
+```
+
+LiteLLM also needs a base URL. Set `enterpriseHost` in config or `LITELLM_BASE_URL` in the process environment:
+
+```json
+{
+  "id": "litellm",
+  "enabled": true,
+  "apiKey": "<REDACTED>",
+  "enterpriseHost": "https://litellm.example.com"
 }
 ```
 
@@ -152,7 +164,7 @@ and never paste real cookie values or readable DevTools screenshots into public 
 
 ## Provider IDs
 Current IDs (see `Sources/TokenBarCore/Providers/Providers.swift`):
-`codex`, `openai`, `azureopenai`, `claude`, `cursor`, `opencode`, `opencodego`, `alibaba`, `factory`, `gemini`, `antigravity`, `copilot`, `zai`, `minimax`, `manus`, `kimi`, `kilo`, `kiro`, `vertexai`, `augment`, `jetbrains`, `kimik2`, `moonshot`, `amp`, `ollama`, `synthetic`, `warp`, `openrouter`, `elevenlabs`, `windsurf`, `perplexity`, `mimo`, `doubao`, `abacus`, `mistral`, `deepseek`, `codebuff`, `crof`, `venice`, `commandcode`, `stepfun`, `bedrock`, `grok`, `groq`, `llmproxy`, `deepgram`.
+`codex`, `openai`, `azureopenai`, `claude`, `cursor`, `opencode`, `opencodego`, `alibaba`, `alibabatokenplan`, `factory`, `gemini`, `antigravity`, `copilot`, `devin`, `zai`, `minimax`, `manus`, `kimi`, `kilo`, `kiro`, `vertexai`, `augment`, `jetbrains`, `kimik2`, `moonshot`, `amp`, `t3chat`, `ollama`, `synthetic`, `warp`, `openrouter`, `elevenlabs`, `windsurf`, `perplexity`, `mimo`, `doubao`, `abacus`, `mistral`, `deepseek`, `codebuff`, `crof`, `venice`, `commandcode`, `stepfun`, `bedrock`, `grok`, `groq`, `llmproxy`, `litellm`, `deepgram`.
 
 ## Ordering
 The order of `providers` controls display/order in the app and CLI. Reorder the array to change ordering.

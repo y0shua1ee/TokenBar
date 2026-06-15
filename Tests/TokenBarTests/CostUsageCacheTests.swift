@@ -5,7 +5,7 @@ import Testing
 struct CostUsageCacheTests {
     @Test
     func `cache file URL uses provider artifact versions`() {
-        let root = URL(fileURLWithPath: "/tmp/codexbar-cost-cache", isDirectory: true)
+        let root = URL(fileURLWithPath: "/tmp/tokenbar-cost-cache", isDirectory: true)
 
         let codexURL = CostUsageCacheIO.cacheFileURL(provider: .codex, cacheRoot: root)
         let claudeURL = CostUsageCacheIO.cacheFileURL(provider: .claude, cacheRoot: root)

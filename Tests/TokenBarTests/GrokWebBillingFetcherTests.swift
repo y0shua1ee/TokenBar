@@ -60,7 +60,7 @@ struct GrokWebBillingFetcherTests {
         #expect(!GrokWebFetchStrategy.canImportBrowserCookies(runtime: .cli, env: [:]))
         #expect(GrokWebFetchStrategy.canImportBrowserCookies(
             runtime: .cli,
-            env: ["TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT": "1"]))
+            env: ["CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT": "1"]))
     }
 
     @Test
@@ -204,7 +204,7 @@ struct GrokWebBillingFetcherTests {
     @Test
     func `web strategy preserves malformed auth file error`() async throws {
         let grokHome = FileManager.default.temporaryDirectory
-            .appendingPathComponent("CodexBar-GrokWebBilling-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("TokenBar-GrokWebBilling-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: grokHome, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: grokHome) }
         try Data("not-json".utf8).write(to: grokHome.appendingPathComponent("auth.json"))

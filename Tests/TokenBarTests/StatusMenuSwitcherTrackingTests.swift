@@ -7,6 +7,23 @@ import TokenBarCore
 @Suite(.serialized)
 struct StatusMenuSwitcherTrackingTests {
     @Test
+    func `switcher rebuild scheduler runs during menu tracking exactly once`() {
+        var runCount = 0
+        ProviderSwitcherTrackingRunLoopScheduler.schedule {
+            runCount += 1
+        }
+
+        CFRunLoopRunInMode(
+            CFRunLoopMode(RunLoop.Mode.eventTracking.rawValue as CFString),
+            0.1,
+            true)
+        #expect(runCount == 1)
+
+        CFRunLoopRunInMode(.defaultMode, 0.1, true)
+        #expect(runCount == 1)
+    }
+
+    @Test
     func `pointer switch defers structural menu rebuild until mouse up`() async throws {
         let previousMenuCardRendering = StatusItemController.menuCardRenderingEnabled
         let previousMenuRefresh = StatusItemController.menuRefreshEnabled
@@ -41,11 +58,14 @@ struct StatusMenuSwitcherTrackingTests {
             account: fetcher.loadAccountInfo(),
             updater: DisabledUpdaterController(),
             preferencesSelection: PreferencesSelection(),
-            statusBar: .system)
+            statusBar: .system,
+            menuRefreshEnabled: false)
         defer { controller.releaseStatusItemsForTesting() }
 
         let menu = controller.makeMenu()
         controller.menuWillOpen(menu)
+        controller.menuRefreshEnabledOverrideForTesting = true
+        controller.openMenus[ObjectIdentifier(menu)] = menu
         let switcher = try #require(menu.items.first?.view as? ProviderSwitcherView)
         let mouseDown = try #require(switcher._test_mouseDownEvent(buttonTag: 2))
         let mouseUp = try #require(switcher._test_mouseUpEvent(buttonTag: 2))
@@ -112,11 +132,14 @@ struct StatusMenuSwitcherTrackingTests {
             account: fetcher.loadAccountInfo(),
             updater: DisabledUpdaterController(),
             preferencesSelection: PreferencesSelection(),
-            statusBar: .system)
+            statusBar: .system,
+            menuRefreshEnabled: false)
         defer { controller.releaseStatusItemsForTesting() }
 
         let menu = controller.makeMenu()
         controller.menuWillOpen(menu)
+        controller.menuRefreshEnabledOverrideForTesting = true
+        controller.openMenus[ObjectIdentifier(menu)] = menu
         let switcher = try #require(menu.items.first?.view as? ProviderSwitcherView)
         let mouseDown = try #require(switcher._test_mouseDownEvent(buttonTag: 2))
         let mouseUpElsewhere = try #require(switcher._test_mouseUpEvent(buttonTag: 1))

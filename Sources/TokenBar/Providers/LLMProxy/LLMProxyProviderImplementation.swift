@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct LLMProxyProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .llmproxy
 

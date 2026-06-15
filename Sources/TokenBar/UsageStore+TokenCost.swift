@@ -133,7 +133,6 @@ extension UsageStore {
             last30DaysTokens: snapshot.last30DaysTokens,
             last30DaysCostUSD: snapshot.last30DaysCostUSD,
             last30DaysRequests: snapshot.last30DaysRequests,
-            costCurrencyCode: snapshot.costCurrencyCode,
             currencyCode: snapshot.currencyCode,
             daily: daily,
             updatedAt: snapshot.updatedAt)

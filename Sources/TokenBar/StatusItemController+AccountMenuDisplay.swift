@@ -115,18 +115,9 @@ extension StatusItemController {
         provider: UsageProvider) -> CodexAccountMenuDisplay?
     {
         guard provider == .codex else { return display }
-        let hasSwitcher = menu.items.contains { $0.view is CodexAccountSwitcherView }
-        if let display {
-            if !menu.items.isEmpty,
-               !hasSwitcher,
-               self.lastCodexAccountMenuDisplay == nil
-            {
-                return nil
-            }
-            return display
-        }
+        guard display == nil else { return display }
         guard self.openMenus[ObjectIdentifier(menu)] != nil else { return display }
-        guard hasSwitcher else { return display }
+        guard menu.items.contains(where: { $0.view is CodexAccountSwitcherView }) else { return display }
         guard let previous = self.lastCodexAccountMenuDisplay, previous.showSwitcher else { return display }
         return previous
     }

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TokenBarCore
+import TokenBarCore
 
 struct ConfigValidationTests {
     @Test
@@ -78,6 +78,18 @@ struct ConfigValidationTests {
 
         #expect(!issues.contains(where: { $0.provider == .azureopenai && $0.code == "workspace_unused" }))
         #expect(!issues.contains(where: { $0.provider == .azureopenai && $0.code == "enterprise_host_unused" }))
+    }
+
+    @Test
+    func `allows LiteLLM endpoint`() {
+        var config = CodexBarConfig.makeDefault()
+        config.setProviderConfig(ProviderConfig(
+            id: .litellm,
+            apiKey: "sk-test",
+            enterpriseHost: "https://litellm.example.com"))
+        let issues = CodexBarConfigValidator.validate(config)
+
+        #expect(!issues.contains(where: { $0.provider == .litellm && $0.code == "enterprise_host_unused" }))
     }
 
     @Test

@@ -1,9 +1,8 @@
 import Foundation
-import TokenBarMacroSupport
 
-@ProviderDescriptorRegistration
-@ProviderDescriptorDefinition
 public enum GrokProviderDescriptor {
+    public static let descriptor: ProviderDescriptor = Self.makeDescriptor()
+
     static func makeDescriptor() -> ProviderDescriptor {
         ProviderDescriptor(
             id: .grok,
@@ -104,7 +103,7 @@ struct GrokWebFetchStrategy: ProviderFetchStrategy {
     let kind: ProviderFetchKind = .web
 
     static func canImportBrowserCookies(runtime: ProviderRuntime, env: [String: String]) -> Bool {
-        runtime == .app || env["TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT"] == "1"
+        runtime == .app || env["CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT"] == "1"
     }
 
     func isAvailable(_ context: ProviderFetchContext) async -> Bool {

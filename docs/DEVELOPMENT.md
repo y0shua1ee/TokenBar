@@ -16,7 +16,7 @@ read_when:
 # Full build, package, and launch (recommended)
 ./Scripts/compile_and_run.sh
 
-# Also run swift test before packaging/relaunching
+# Also run the sharded test suite before packaging/relaunching
 ./Scripts/compile_and_run.sh --test
 
 # Just build and package (no tests)
@@ -52,7 +52,7 @@ when you intentionally want to reset ad-hoc keychain state.
 
 ### Reset Migration (Testing)
 ```bash
-defaults delete com.y0shua1ee.tokenbar KeychainMigrationV1Completed
+defaults delete com.steipete.tokenbar KeychainMigrationV1Completed
 ```
 
 ## Augment Cookie Refresh
@@ -81,7 +81,7 @@ If automatic import fails:
 ```
 TokenBar/
 ├── Sources/TokenBar/          # Main app (SwiftUI + AppKit)
-│   ├── TokenBarApp.swift      # App entry point
+│   ├── CodexBarApp.swift      # App entry point
 │   ├── StatusItemController.swift  # Menu bar icon
 │   ├── UsageStore.swift       # Usage data management
 │   ├── SettingsStore.swift    # User preferences
@@ -102,19 +102,20 @@ TokenBar/
 1. Add a `UsageProvider` case in `Sources/TokenBarCore/Providers/Providers.swift`
 2. Add core descriptor/fetcher wiring under `Sources/TokenBarCore/Providers/YourProvider/`
 3. Add app-side implementation under `Sources/TokenBar/Providers/YourProvider/`
-4. Register the implementation in `ProviderImplementationRegistry`
-5. Add icon assets such as `Resources/ProviderIcon-yourprovider.svg`
+4. Register the descriptor in `ProviderDescriptorRegistry`
+5. Register the implementation in `ProviderImplementationRegistry`
+6. Add icon assets such as `Resources/ProviderIcon-yourprovider.svg`
 
 ### Debug Cookie Issues
 1. Enable Debug → Logging → "Enable file logging" or raise verbosity in the app settings.
 2. Reproduce with `./Scripts/compile_and_run.sh`.
 3. Check logs in Console.app:
-   - Filter: `subsystem:com.y0shua1ee.tokenbar category:augment`
+   - Filter: `subsystem:com.steipete.tokenbar category:augment`
    - Importer messages include the `[augment-cookie]` prefix
 
 ### Run Tests Only
 ```bash
-swift test
+make test
 ```
 
 ### Format Code
@@ -128,13 +129,13 @@ swiftlint --strict
 ### Local Development Build
 ```bash
 ./Scripts/package_app.sh
-# Creates: TokenBar.app (ad-hoc signed by default for the fork; set TOKENBAR_SIGNING=adhoc explicitly if needed)
+# Creates: TokenBar.app (Developer ID by default; set CODEXBAR_SIGNING=adhoc for ad-hoc signing)
 ```
 
 ### Release Build (Notarized)
 ```bash
 ./Scripts/sign-and-notarize.sh
-# Fork release flow creates TokenBar artifacts; see docs/RELEASING.md for the current adhoc workflow.
+# Creates: TokenBar-<version>.zip and TokenBar-<version>.dSYM.zip
 ```
 
 See `docs/RELEASING.md` for full release process.
@@ -153,7 +154,7 @@ ls -lt ~/Library/Logs/DiagnosticReports/TokenBar* | head -5
 ### Keychain Prompts Keep Appearing
 ```bash
 # Verify migration completed
-defaults read com.y0shua1ee.tokenbar KeychainMigrationV1Completed
+defaults read com.steipete.tokenbar KeychainMigrationV1Completed
 # Should output: 1
 
 # Check migration logs
@@ -169,17 +170,17 @@ log show --predicate 'category == "keychain-migration"' --last 5m
 ### Main-Thread Hangs
 
 Debug builds start the hang watchdog automatically. To diagnose a release build,
-enable it explicitly and restart CodexBar:
+enable it explicitly and restart TokenBar:
 
 ```bash
-defaults write com.steipete.codexbar debugMainThreadHangWatchdog -bool true
+defaults write com.steipete.tokenbar debugMainThreadHangWatchdog -bool true
 ```
 
 Hangs are written to the app log. Hangs over two seconds also request a process
-sample under `~/Library/Logs/CodexBar/`. Disable the release opt-in with:
+sample under `~/Library/Logs/TokenBar/`. Disable the release opt-in with:
 
 ```bash
-defaults delete com.steipete.codexbar debugMainThreadHangWatchdog
+defaults delete com.steipete.tokenbar debugMainThreadHangWatchdog
 ```
 
 ## Architecture Notes

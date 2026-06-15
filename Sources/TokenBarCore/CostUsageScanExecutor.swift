@@ -7,7 +7,7 @@ import Foundation
 /// executor pins all corpus scans to a single serial utility queue off the cooperative pool, so
 /// long scans cost one dedicated thread instead of the app's async runtime.
 public enum CostUsageScanExecutor {
-    public static let queueLabel = "com.steipete.codexbar.cost-usage-scan"
+    public static let queueLabel = "com.y0shua1ee.tokenbar.cost-usage-scan"
 
     private static let queue = DispatchQueue(label: queueLabel, qos: .utility)
 

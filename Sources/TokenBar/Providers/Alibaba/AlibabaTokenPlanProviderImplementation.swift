@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct AlibabaTokenPlanProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .alibabatokenplan
 
@@ -57,7 +55,7 @@ struct AlibabaTokenPlanProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .alibabatokenplan) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .alibabatokenplan) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

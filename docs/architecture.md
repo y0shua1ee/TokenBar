@@ -12,13 +12,11 @@ read_when:
 - `Sources/TokenBar`: state + UI (UsageStore, SettingsStore, StatusItemController, menus, icon rendering).
 - `Sources/TokenBarWidget`: WidgetKit extension wired to the shared snapshot.
 - `Sources/TokenBarCLI`: bundled CLI for `tokenbar` usage/status output.
-- `Sources/TokenBarMacros`: SwiftSyntax macros for provider registration.
-- `Sources/TokenBarMacroSupport`: shared macro support used by app/core/CLI targets.
 - `Sources/TokenBarClaudeWatchdog`: helper process for stable Claude CLI PTY sessions.
 - `Sources/TokenBarClaudeWebProbe`: CLI helper to diagnose Claude web fetches.
 
 ## Entry points
-- `TokenBarApp`: SwiftUI keepalive + Settings scene.
+- `CodexBarApp`: SwiftUI keepalive + Settings scene.
 - `AppDelegate`: wires status controller, Sparkle updater, notifications.
 
 ## Data flow

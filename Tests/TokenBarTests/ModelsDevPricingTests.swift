@@ -1017,7 +1017,7 @@ extension ModelsDevPricingTests {
 
     private static func cacheRoot() throws -> URL {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-modelsdev-tests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-modelsdev-tests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         return root
     }

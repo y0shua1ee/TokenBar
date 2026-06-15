@@ -98,6 +98,8 @@
 "Could not start codex login" = "No s'ha pogut iniciar codex login";
 "Could not switch system account" = "No s'ha pogut canviar el compte del sistema";
 "Credits" = "Crèdits";
+"Individual credits" = "Crèdits individuals";
+"Workspace" = "Espai de treball";
 "Credits history" = "Historial de crèdits";
 "Cursor login failed" = "L'inici de sessió de Cursor ha fallat";
 "Custom" = "Personalitzat";
@@ -401,10 +403,13 @@
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_swedish" = "Suec";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_french" = "Francès";
 "language_ukrainian" = "Ucraïnès";
 "language_japanese" = "Japonès";
 "language_korean" = "Coreà";
+"language_italian" = "Italiano";
+"language_polish" = "Polski";
 "start_at_login_title" = "Obrir en iniciar la sessió";
 "start_at_login_subtitle" = "Obre el TokenBar automàticament en iniciar el Mac.";
 "show_cost_summary" = "Mostra el resum de cost";
@@ -488,6 +493,8 @@
 "show_usage_as_used_subtitle" = "Les barres de progrés s'omplen a mesura que consumeixes la quota (en comptes de mostrar el que queda).";
 "show_quota_warning_markers_title" = "Mostra els marcadors d'avís de quota";
 "show_quota_warning_markers_subtitle" = "Dibuixa marques de llindar a les barres d'ús quan hi ha avisos de quota configurats.";
+"weekly_progress_work_days_title" = "Dies laborables del progrés setmanal";
+"weekly_progress_work_days_subtitle" = "Defineix els dies laborables per als marcadors de les barres d'ús setmanal i els càlculs de ritme.";
 "show_reset_time_as_clock_title" = "Mostra l'hora de reinici com a rellotge";
 "show_reset_time_as_clock_subtitle" = "Mostra les hores de reinici com a valors de rellotge absoluts en comptes de comptes enrere.";
 "show_provider_changelog_links_title" = "Mostra els enllaços al registre de canvis del proveïdor";
@@ -927,6 +934,8 @@
 "Search providers" = "Cerca proveïdors";
 
 "language_vietnamese" = "Vietnamita";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importa automàticament les galetes de Chrome de Xiaomi MiMo.";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Indonesi";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

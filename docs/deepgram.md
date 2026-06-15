@@ -30,11 +30,11 @@ Optionally set a Deepgram project ID:
 export DEEPGRAM_PROJECT_ID="your-project-uuid"
 ```
 
-If `DEEPGRAM_PROJECT_ID` is omitted, CodexBar calls Deepgram's project list endpoint and aggregates usage across all projects visible to the API key.
+If `DEEPGRAM_PROJECT_ID` is omitted, TokenBar calls Deepgram's project list endpoint and aggregates usage across all projects visible to the API key.
 
 ### Settings
 
-You can also configure the API key and optional project ID in CodexBar Settings → Providers → Deepgram.
+You can also configure the API key and optional project ID in TokenBar Settings → Providers → Deepgram.
 
 ### CLI config
 

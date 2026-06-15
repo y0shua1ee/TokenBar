@@ -24,7 +24,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `loads from keychain cache before expired file`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try ProviderInteractionContext.$current.withValue(.background) {
             try KeychainCacheStore.withServiceOverrideForTesting(service) {
                 try KeychainAccessGate.withTaskOverrideForTesting(false) {
@@ -92,7 +92,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `load record non interactive repair can be disabled`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }
@@ -196,7 +196,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `returns expired file when no other sources`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(true) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -231,7 +231,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `load with auto refresh expired claude CLI owner throws delegated refresh`() async throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }
@@ -280,8 +280,8 @@ struct ClaudeOAuthCredentialsStoreTests {
     }
 
     @Test
-    func `load with auto refresh expired codexbar owner uses direct refresh path`() async throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+    func `load with auto refresh expired tokenbar owner uses direct refresh path`() async throws {
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }
@@ -300,7 +300,7 @@ struct ClaudeOAuthCredentialsStoreTests {
                     defer { KeychainCacheStore.clear(key: cacheKey) }
 
                     let expiredData = self.makeCredentialsData(
-                        accessToken: "expired-codexbar-owner",
+                        accessToken: "expired-tokenbar-owner",
                         expiresAt: Date(timeIntervalSinceNow: -3600),
                         refreshToken: "refresh-token")
                     KeychainCacheStore.store(
@@ -372,7 +372,7 @@ struct ClaudeOAuthCredentialsStoreTests {
     }
 
     @Test
-    func `has cached credentials returns false for expired unrefreshable codexbar cache entry`() throws {
+    func `has cached credentials returns false for expired unrefreshable tokenbar cache entry`() throws {
         KeychainCacheStore.setTestStoreForTesting(true)
         defer { KeychainCacheStore.setTestStoreForTesting(false) }
 
@@ -455,7 +455,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `syncs cache when claude keychain fingerprint changes and token differs`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -556,7 +556,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `does not sync in background when cache valid and prompt mode only on user action`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             try KeychainAccessGate.withTaskOverrideForTesting(false) {
                 KeychainCacheStore.setTestStoreForTesting(true)
@@ -760,7 +760,7 @@ struct ClaudeOAuthCredentialsStoreTests {
 
     @Test
     func `respects prompt cooldown gate when disabled prompting`() throws {
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
         try KeychainCacheStore.withServiceOverrideForTesting(service) {
             KeychainCacheStore.setTestStoreForTesting(true)
             defer { KeychainCacheStore.setTestStoreForTesting(false) }

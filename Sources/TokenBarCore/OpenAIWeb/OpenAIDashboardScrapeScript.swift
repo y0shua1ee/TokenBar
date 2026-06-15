@@ -558,7 +558,7 @@ let openAIDashboardScrapeScript = """
       };
       const usageBreakdownJSON = (() => {
         try {
-          if (window.__tokenbarUsageBreakdownJSON) return window.__tokenbarUsageBreakdownJSON;
+          if (window.__codexbarUsageBreakdownJSON) return window.__codexbarUsageBreakdownJSON;
 
           const paths = Array.from(document.querySelectorAll('g.recharts-bar-rectangle path.recharts-rectangle'));
           let debug = {
@@ -639,8 +639,8 @@ let openAIDashboardScrapeScript = """
 
           const breakdown = eligibleCandidates[0] ? eligibleCandidates[0].breakdown : [];
           const json = (breakdown.length > 0) ? JSON.stringify(breakdown) : null;
-          window.__tokenbarUsageBreakdownJSON = json;
-          window.__tokenbarUsageBreakdownDebug = json ? null : JSON.stringify(debug);
+          window.__codexbarUsageBreakdownJSON = json;
+          window.__codexbarUsageBreakdownDebug = json ? null : JSON.stringify(debug);
           return json;
         } catch {
           return null;
@@ -648,7 +648,7 @@ let openAIDashboardScrapeScript = """
       })();
       const usageBreakdownDebug = (() => {
         try {
-          return window.__tokenbarUsageBreakdownDebug || null;
+          return window.__codexbarUsageBreakdownDebug || null;
         } catch {
           return null;
         }
@@ -726,8 +726,8 @@ let openAIDashboardScrapeScript = """
           if (rows.length === 0) {
             rows = allTableRows();
           }
-          if (rows.length === 0 && !window.__tokenbarDidScrollToCredits) {
-            window.__tokenbarDidScrollToCredits = true;
+          if (rows.length === 0 && !window.__codexbarDidScrollToCredits) {
+            window.__codexbarDidScrollToCredits = true;
             // If the table is virtualized/lazy-loaded, we need to scroll to trigger rendering even if the
             // header is already in view.
             header.scrollIntoView({ block: 'start', inline: 'nearest' });
@@ -736,17 +736,17 @@ let openAIDashboardScrapeScript = """
             }
             didScrollToCredits = true;
           }
-        } else if (rows.length === 0 && !window.__tokenbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
+        } else if (rows.length === 0 && !window.__codexbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
           rows = allTableRows();
           if (rows.length > 0) {
             creditsHeaderPresent = true;
             creditsHeaderInViewport = true;
           }
         }
-        if (rows.length === 0 && !window.__tokenbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
+        if (rows.length === 0 && !window.__codexbarDidScrollToCredits && scrollHeight > viewportHeight * 1.5) {
           // The credits history section often isn't part of the DOM until you scroll down. Nudge the page
           // once so subsequent scrapes can find the header and rows.
-          window.__tokenbarDidScrollToCredits = true;
+          window.__codexbarDidScrollToCredits = true;
           window.scrollTo(0, Math.max(0, scrollHeight - viewportHeight - 40));
           didScrollToCredits = true;
         }

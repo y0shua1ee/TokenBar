@@ -1,9 +1,5 @@
 import Commander
-import Dispatch
 import TokenBarCore
-#if canImport(AppKit)
-import AppKit
-#endif
 #if canImport(Darwin)
 import Darwin
 #else
@@ -16,16 +12,12 @@ import FoundationNetworking
 
 @main
 enum TokenBarCLI {
-    static func main() {
-        trace("main:start")
+    static func main() async {
         let rawArgv = Array(CommandLine.arguments.dropFirst())
-        Self.trace("main:raw-argv")
         let argv = Self.effectiveArgv(rawArgv)
-        Self.trace("main:effective-argv")
         let outputPreferences = CLIOutputPreferences.from(argv: argv)
-        Self.trace("main:output-preferences")
 
-        // Fast path: global help/version before entering Swift's async runtime.
+        // Fast path: global help/version before building descriptors.
         if let helpIndex = argv.firstIndex(where: { $0 == "-h" || $0 == "--help" }) {
             let command = helpIndex == 0 ? argv.dropFirst().first : argv.first
             Self.printHelp(for: command)
@@ -41,17 +33,15 @@ enum TokenBarCLI {
             Self.bootstrapLogging(path: invocation.path, values: invocation.parsedValues)
             switch invocation.path {
             case ["usage"]:
-                Self.runAsync {
-                    let signalMonitor = CLITerminationSignalMonitor { signalNumber in
-                        CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
-                    }
-                    defer { signalMonitor.cancel() }
-                    await self.runUsage(invocation.parsedValues)
+                let signalMonitor = CLITerminationSignalMonitor { signalNumber in
+                    CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
                 }
+                defer { signalMonitor.cancel() }
+                await self.runUsage(invocation.parsedValues)
             case ["cost"]:
-                Self.runAsync { await self.runCost(invocation.parsedValues) }
+                await self.runCost(invocation.parsedValues)
             case ["serve"]:
-                Self.runAsync { await self.runServe(invocation.parsedValues) }
+                await self.runServe(invocation.parsedValues)
             case ["config", "validate"]:
                 self.runConfigValidate(invocation.parsedValues)
             case ["config", "dump"]:
@@ -67,13 +57,11 @@ enum TokenBarCLI {
             case ["cache", "clear"]:
                 self.runCacheClear(invocation.parsedValues)
             case ["diagnose"]:
-                Self.runAsync {
-                    let signalMonitor = CLITerminationSignalMonitor { signalNumber in
-                        CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
-                    }
-                    defer { signalMonitor.cancel() }
-                    await self.runDiagnose(invocation.parsedValues)
+                let signalMonitor = CLITerminationSignalMonitor { signalNumber in
+                    CLITerminationSignalMonitor.terminateActiveHelpersAndReraise(signalNumber)
                 }
+                defer { signalMonitor.cancel() }
+                await self.runDiagnose(invocation.parsedValues)
             default:
                 Self.exit(
                     code: .failure,
@@ -86,16 +74,6 @@ enum TokenBarCLI {
         } catch {
             Self.exit(code: .failure, message: error.localizedDescription, output: outputPreferences, kind: .runtime)
         }
-    }
-
-    private static func runAsync(_ operation: @escaping @Sendable () async -> Void) -> Never {
-        let semaphore = DispatchSemaphore(value: 0)
-        Task {
-            await operation()
-            semaphore.signal()
-        }
-        semaphore.wait()
-        Self.platformExit(0)
     }
 
     private static func commandDescriptors() -> [CommandDescriptor] {

@@ -1,9 +1,7 @@
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct FactoryProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .factory
     let supportsLoginFlow: Bool = true
@@ -64,7 +62,7 @@ struct FactoryProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .factory) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .factory) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

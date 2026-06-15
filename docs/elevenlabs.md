@@ -35,11 +35,11 @@ This trims the piped key, writes it to `~/.tokenbar/config.json` with restrictiv
 2. Enable **ElevenLabs**
 3. Open `https://elevenlabs.io/app/settings/api-keys`
 4. Create or copy an API key
-5. Paste the key into CodexBar's ElevenLabs provider settings
+5. Paste the key into TokenBar's ElevenLabs provider settings
 
 ### Environment Variables
 
-CodexBar also accepts these environment variables:
+TokenBar also accepts these environment variables:
 
 - `ELEVENLABS_API_KEY`
 - `XI_API_KEY`

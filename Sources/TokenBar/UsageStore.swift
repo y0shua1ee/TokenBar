@@ -4,8 +4,53 @@ import Observation
 import SweetCookieKit
 import TokenBarCore
 
+// MARK: - Observation helpers
+
 @MainActor
 extension UsageStore {
+    var menuObservationToken: Int {
+        _ = self.snapshots
+        _ = self.errors
+        _ = self.lastSourceLabels
+        _ = self.lastFetchAttempts
+        _ = self.accountSnapshots
+        _ = self.codexAccountSnapshots
+        _ = self.kiloScopeSnapshots
+        _ = self.tokenSnapshots
+        _ = self.tokenErrors
+        _ = self.tokenRefreshInFlight
+        _ = self.credits
+        _ = self.lastCreditsError
+        _ = self.openAIDashboard
+        _ = self.lastOpenAIDashboardError
+        _ = self.openAIDashboardRequiresLogin
+        _ = self.openAIDashboardAttachmentRevision
+        _ = self.versions
+        _ = self.isRefreshing
+        _ = self.refreshingProviders
+        _ = self.pathDebugInfo
+        _ = self.statuses
+        _ = self.probeLogs
+        _ = self.historicalPaceRevision
+        _ = self.planUtilizationHistoryRevision
+        _ = self.providerStorageFootprints
+        return 0
+    }
+
+    var iconObservationToken: Int {
+        _ = self.snapshots
+        _ = self.errors
+        _ = self.credits
+        _ = self.lastCreditsError
+        _ = self.openAIDashboard
+        _ = self.lastOpenAIDashboardError
+        _ = self.openAIDashboardRequiresLogin
+        _ = self.refreshingProviders
+        _ = self.statuses
+        _ = self.historicalPaceRevision
+        return 0
+    }
+
     func observeSettingsChanges() {
         withObservationTracking {
             _ = self.backgroundWorkSettingsObservationToken
@@ -49,6 +94,11 @@ extension UsageStore {
         _ = self.settings.historicalTrackingEnabled
         _ = self.settings.providerStorageFootprintsEnabled
         return 0
+    }
+
+    var attachedOpenAIDashboardSnapshot: OpenAIDashboardSnapshot? {
+        guard self.openAIDashboardAttachmentAuthorized else { return nil }
+        return self.openAIDashboard
     }
 }
 
@@ -177,11 +227,7 @@ final class UsageStore {
     @ObservationIgnored var providerSpecs: [UsageProvider: ProviderSpec] = [:]
     @ObservationIgnored let providerMetadata: [UsageProvider: ProviderMetadata]
     @ObservationIgnored var providerRuntimes: [UsageProvider: any ProviderRuntime] = [:]
-    @ObservationIgnored var providerRefreshTasks: [UsageProvider: [ProviderRefreshTaskState]] = [:]
-    @ObservationIgnored var providerRefreshTaskGeneration: UInt64 = 0
-    @ObservationIgnored var providerRefreshWaiterGeneration: UInt64 = 0
-    @ObservationIgnored var latestProviderRefreshGenerations: [UsageProvider: UInt64] = [:]
-    @ObservationIgnored var providerRefreshCounts: [UsageProvider: Int] = [:]
+    @ObservationIgnored var providerRefreshCoordinator = ProviderRefreshCoordinator<UsageProvider>()
     @ObservationIgnored private var providerAvailabilityCache: [UsageProvider: ProviderAvailabilityCacheEntry] = [:]
     @ObservationIgnored var accountInfoCache: [UsageProvider: AccountInfoCacheEntry] = [:]
     @ObservationIgnored private var timerTask: Task<Void, Never>?
@@ -507,12 +553,7 @@ final class UsageStore {
         startupConnectivityRetryAttempt: Int?,
         coalesceProviderRefreshesOverride: Bool? = nil) async
     {
-        guard !self.isRefreshing else {
-            if forceTokenUsage {
-                await self.refreshTokenUsageSequenceNow(force: true)
-            }
-            return
-        }
+        guard !self.isRefreshing else { return }
         self.prepareRefreshState()
         let refreshPhase = Self.refreshPhase(hasCompletedInitialRefresh: self.hasCompletedInitialRefresh)
         let openAIWebRefreshPhase = Self.openAIWebRefreshPhase(
@@ -690,16 +731,6 @@ final class UsageStore {
         await self.refreshTokenUsageSequence(force: force)
     }
 
-    func forceRefreshTokenUsage(for provider: UsageProvider) async {
-        if let existing = self.tokenRefreshSequenceTask {
-            existing.cancel()
-            await existing.value
-            self.tokenRefreshSequenceTask = nil
-        }
-
-        await self.refreshTokenUsage(provider, force: true)
-    }
-
     private func refreshTokenUsageSequence(force: Bool) async {
         for provider in self.enabledProvidersForBackgroundWork() {
             if Task.isCancelled { break }
@@ -721,6 +752,8 @@ final class UsageStore {
     enum SessionQuotaWindowSource: String {
         case primary
         case copilotSecondaryFallback
+        case antigravityQuotaSummary
+        case antigravityLegacy
     }
 
     struct QuotaWarningStateKey: Hashable {
@@ -731,24 +764,14 @@ final class UsageStore {
     struct QuotaWarningState {
         var lastRemaining: Double?
         var firedThresholds: Set<Int> = []
+        var source: SessionQuotaWindowSource?
     }
 
-    private func sessionQuotaWindow(
-        provider: UsageProvider,
-        snapshot: UsageSnapshot) -> (window: RateWindow, source: SessionQuotaWindowSource)?
-    {
-        if let primary = snapshot.primary, Self.isSessionWindow(primary) {
-            return (primary, .primary)
-        }
-        if provider == .copilot, let secondary = snapshot.secondary {
-            return (secondary, .copilotSecondaryFallback)
-        }
-        return nil
-    }
-
-    private static func isSessionWindow(_ window: RateWindow) -> Bool {
-        guard let minutes = window.windowMinutes else { return true }
-        return minutes <= 6 * 60
+    func postQuotaWarning(_ event: QuotaWarningEvent, provider: UsageProvider) {
+        self.sessionQuotaNotifier.postQuotaWarning(
+            event: event,
+            provider: provider,
+            soundEnabled: self.settings.quotaWarningSoundEnabled)
     }
 
     func handleSessionQuotaTransition(provider: UsageProvider, snapshot: UsageSnapshot) {
@@ -826,77 +849,6 @@ final class UsageStore {
         self.sessionQuotaLogger.info(message)
 
         self.sessionQuotaNotifier.post(transition: transition, provider: provider, badge: nil)
-    }
-
-    func handleQuotaWarningTransitions(provider: UsageProvider, snapshot: UsageSnapshot) {
-        guard self.settings.quotaWarningNotificationsEnabled else { return }
-
-        let accountDisplayName = self.quotaWarningAccountDisplayName(provider: provider, snapshot: snapshot)
-        self.handleQuotaWarningTransition(
-            provider: provider,
-            window: .session,
-            rateWindow: snapshot.primary,
-            accountDisplayName: accountDisplayName)
-        self.handleQuotaWarningTransition(
-            provider: provider,
-            window: .weekly,
-            rateWindow: snapshot.secondary,
-            accountDisplayName: accountDisplayName)
-    }
-
-    private func handleQuotaWarningTransition(
-        provider: UsageProvider,
-        window: QuotaWarningWindow,
-        rateWindow: RateWindow?,
-        accountDisplayName: String?)
-    {
-        let key = QuotaWarningStateKey(provider: provider, window: window)
-        guard self.settings.quotaWarningEnabled(provider: provider, window: window) else {
-            self.quotaWarningState.removeValue(forKey: key)
-            return
-        }
-        guard let rateWindow else {
-            self.quotaWarningState.removeValue(forKey: key)
-            return
-        }
-
-        let thresholds = self.settings.resolvedQuotaWarningThresholds(provider: provider, window: window)
-        let currentRemaining = rateWindow.remainingPercent
-        var state = self.quotaWarningState[key] ?? QuotaWarningState()
-        let cleared = QuotaWarningNotificationLogic.thresholdsToClear(
-            currentRemaining: currentRemaining,
-            alreadyFired: state.firedThresholds)
-        state.firedThresholds.subtract(cleared)
-
-        if let threshold = QuotaWarningNotificationLogic.crossedThreshold(
-            previousRemaining: state.lastRemaining,
-            currentRemaining: currentRemaining,
-            thresholds: thresholds,
-            alreadyFired: state.firedThresholds)
-        {
-            state.firedThresholds.formUnion(QuotaWarningNotificationLogic.firedThresholdsAfterWarning(
-                threshold: threshold,
-                thresholds: thresholds))
-            self.sessionQuotaNotifier.postQuotaWarning(
-                event: QuotaWarningEvent(
-                    window: window,
-                    threshold: threshold,
-                    currentRemaining: currentRemaining,
-                    accountDisplayName: accountDisplayName),
-                provider: provider,
-                soundEnabled: self.settings.quotaWarningSoundEnabled)
-        }
-
-        state.lastRemaining = currentRemaining
-        self.quotaWarningState[key] = state
-    }
-
-    private func quotaWarningAccountDisplayName(provider: UsageProvider, snapshot: UsageSnapshot) -> String? {
-        guard !self.settings.hidePersonalInfo else { return nil }
-        let account = snapshot.accountEmail(for: provider)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let account, !account.isEmpty else { return nil }
-        return account
     }
 
     private func refreshStatus(_ provider: UsageProvider) async {
@@ -1031,7 +983,10 @@ extension UsageStore {
                 .groq: "Groq debug log not yet implemented",
                 .t3chat: "T3 Chat debug log not yet implemented",
                 .llmproxy: "LLM Proxy debug log not yet implemented",
+                .litellm: "LiteLLM debug log not yet implemented",
                 .deepgram: "Deepgram debug log not yet implemented",
+                .custom: "Custom provider debug log not yet implemented",
+                .krill: "Krill debug log not yet implemented",
             ]
             let buildText = {
                 switch provider {
@@ -1108,8 +1063,8 @@ extension UsageStore {
                         hasTokenAccount: deepSeekHasTokenAccount)
                 case .gemini, .antigravity, .opencode, .opencodego, .alibabatokenplan, .factory, .copilot, .devin,
                      .vertexai, .kilo, .kiro, .kimi, .kimik2, .moonshot, .jetbrains, .perplexity, .mimo, .doubao,
-                     .abacus, .mistral, .codebuff, .crof, .windsurf, .venice, .manus, .commandcode, .stepfun,
-                     .custom, .krill, .bedrock, .grok, .groq, .t3chat, .llmproxy, .deepgram:
+                     .abacus, .mistral, .codebuff, .crof, .windsurf, .venice, .manus, .commandcode, .stepfun, .bedrock,
+                     .grok, .groq, .t3chat, .llmproxy, .litellm, .deepgram, .custom, .krill:
                     return unimplementedDebugLogMessages[provider] ?? "Debug log not yet implemented"
                 }
             }
@@ -1544,16 +1499,15 @@ extension UsageStore {
             .debug("cost usage start provider=\(providerText) force=\(force)")
 
         do {
-            let usesProviderConfigEnvironment = provider == .bedrock || provider == .openrouter
-            let fetchEnvironment = usesProviderConfigEnvironment
+            let fetcher = self.costUsageFetcher
+            let timeoutSeconds = self.tokenFetchTimeout
+            let environment = provider == .bedrock || provider == .openrouter
                 ? ProviderRegistry.makeEnvironment(
                     base: self.environmentBase,
                     provider: provider,
                     settings: self.settings,
                     tokenOverride: nil)
                 : self.environmentBase
-            let fetcher = CostUsageFetcher(environment: fetchEnvironment)
-            let timeoutSeconds = self.tokenFetchTimeout
             // Codex cost usage scans local session logs from this machine. That data is
             // intentionally presented as provider-level local telemetry rather than managed-account
             // remote state, so managed Codex account selection does not retarget that fetch.
@@ -1563,6 +1517,7 @@ extension UsageStore {
                 group.addTask(priority: .utility) {
                     try await fetcher.loadTokenSnapshot(
                         provider: provider,
+                        environment: environment,
                         now: now,
                         forceRefresh: force,
                         allowVertexClaudeFallback: !self.isEnabled(.claude),

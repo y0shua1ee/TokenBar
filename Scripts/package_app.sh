@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 CONF=${1:-release}
-ALLOW_LLDB=${TOKENBAR_ALLOW_LLDB:-0}
-SIGNING_MODE=${TOKENBAR_SIGNING:-adhoc}
+ALLOW_LLDB=${TOKENBAR_ALLOW_LLDB:-${CODEXBAR_ALLOW_LLDB:-0}}
+SIGNING_MODE=${TOKENBAR_SIGNING:-${CODEXBAR_SIGNING:-adhoc}}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 LOWER_CONF=$(printf "%s" "$CONF" | tr '[:upper:]' '[:lower:]')
+case "$LOWER_CONF" in
+  debug|release) ;;
+  *)
+    echo "ERROR: Unsupported build configuration: $CONF (expected debug or release)" >&2
+    exit 1
+    ;;
+esac
 
 # Load version info
 source "$ROOT/version.env"
+source "$ROOT/Scripts/package_product_paths.sh"
+source "$ROOT/Scripts/sparkle_signing_paths.sh"
 
 # Clean build only when explicitly requested (slower).
-if [[ "${TOKENBAR_FORCE_CLEAN:-0}" == "1" ]]; then
+if [[ "${TOKENBAR_FORCE_CLEAN:-${CODEXBAR_FORCE_CLEAN:-0}}" == "1" ]]; then
   if [[ -d "$ROOT/.build" ]]; then
     if command -v trash >/dev/null 2>&1; then
       if ! trash "$ROOT/.build"; then
@@ -105,8 +114,59 @@ if [[ ! -f "$KEYBOARD_SHORTCUTS_UTIL" ]]; then
 fi
 patch_keyboard_shortcuts
 
+# Resolve SwiftPM's current output path without relying on a fixed build-system layout.
+# The output variable keeps the per-arch cache in this shell instead of losing it to
+# command substitution.
+swiftpm_bin_path() {
+  local arch="$1"
+  local output_var="$2"
+  local cache_var="SWIFTPM_BIN_PATH_${arch//[^A-Za-z0-9]/_}"
+  if [[ -z "${!cache_var+set}" ]]; then
+    local resolved
+    if ! resolved=$(codexbar_swiftpm_bin_path "$CONF" "$arch"); then
+      return 1
+    fi
+    printf -v "$cache_var" '%s' "$resolved"
+  fi
+  printf -v "$output_var" '%s' "${!cache_var}"
+}
+
+binary_has_arch() {
+  local binary="$1"
+  local arch="$2"
+  [[ -f "$binary" ]] && lipo -archs "$binary" 2>/dev/null | tr ' ' '\n' | grep -qx "$arch"
+}
+
+# SwiftBuild can reuse one output directory for sequential per-arch builds. Snapshot
+# each fresh slice before the next build can replace it.
+PRODUCT_STAGE_ROOT="$ROOT/.build/package-products/$LOWER_CONF"
+rm -rf "$PRODUCT_STAGE_ROOT"
+
+stage_build_products() {
+  local arch="$1"
+  local bin_dir stage_dir name product
+  swiftpm_bin_path "$arch" bin_dir
+
+  stage_dir="$PRODUCT_STAGE_ROOT/$arch"
+  mkdir -p "$stage_dir"
+  for name in TokenBar TokenBarCLI TokenBarClaudeWatchdog; do
+    if ! product=$(codexbar_require_product_file "$bin_dir" "$name" "$arch"); then
+      return 1
+    fi
+    if ! binary_has_arch "$product" "$arch"; then
+      echo "ERROR: ${product} does not contain required architecture: ${arch}" >&2
+      return 1
+    fi
+    cp "$product" "$stage_dir/$name"
+  done
+  if [[ -d "$bin_dir/TokenBar.dSYM" ]]; then
+    cp -R "$bin_dir/TokenBar.dSYM" "$stage_dir/"
+  fi
+}
+
 for ARCH in "${ARCH_LIST[@]}"; do
   swift build -c "$CONF" --arch "$ARCH"
+  stage_build_products "$ARCH"
 done
 
 APP_FINAL="$ROOT/TokenBar.app"
@@ -198,35 +258,28 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>SUFeedURL</key><string>${FEED_URL}</string>
     <key>SUPublicEDKey</key><string>AGCY8w5vHirVfGGDGc8Szc5iuOqupZSh9pMj/Qs67XI=</string>
     <key>SUEnableAutomaticChecks</key><${AUTO_CHECKS}/>
-    <key>CodexBuildTimestamp</key><string>${BUILD_TIMESTAMP}</string>
-    <key>CodexGitCommit</key><string>${GIT_COMMIT}</string>
+    <key>TokenBarBuildTimestamp</key><string>${BUILD_TIMESTAMP}</string>
+    <key>TokenBarGitCommit</key><string>${GIT_COMMIT}</string>
     <key>TokenBarTeamID</key><string>${APP_TEAM_ID}</string>
 </dict>
 </plist>
 PLIST
 
-build_product_path() {
-  local name="$1"
-  local arch="$2"
-  case "$arch" in
-    arm64|x86_64) echo ".build/${arch}-apple-macosx/$CONF/$name" ;;
-    *) echo ".build/$CONF/$name" ;;
-  esac
-}
-
-# Resolve path to built binary; some SwiftPM versions use .build/$CONF/ when building for host only.
+# Resolve a built binary from the fresh per-arch snapshot or SwiftPM's reported directory.
 resolve_binary_path() {
   local name="$1"
   local arch="$2"
-  local candidate
-  candidate=$(build_product_path "$name" "$arch")
-  if [[ -f "$candidate" ]]; then
-    echo "$candidate"
-    return
+  local bin_dir candidate
+  swiftpm_bin_path "$arch" bin_dir
+  if ! candidate=$(codexbar_resolve_staged_or_reported_file \
+    "$PRODUCT_STAGE_ROOT" "$bin_dir" "$name" "$arch"); then
+    return 1
   fi
-  if [[ "$arch" == "arm64" || "$arch" == "x86_64" ]] && [[ -f ".build/$CONF/$name" ]]; then
-    echo ".build/$CONF/$name"
+  if ! binary_has_arch "$candidate" "$arch"; then
+    echo "ERROR: ${candidate} does not contain required architecture: ${arch}" >&2
+    return 1
   fi
+  echo "$candidate"
 }
 
 verify_binary_arches() {
@@ -255,9 +308,7 @@ install_binary() {
   local binaries=()
   for arch in "${ARCH_LIST[@]}"; do
     local src
-    src=$(resolve_binary_path "$name" "$arch")
-    if [[ -z "$src" || ! -f "$src" ]]; then
-      echo "ERROR: Missing ${name} build for ${arch} at $(build_product_path "$name" "$arch")" >&2
+    if ! src=$(resolve_binary_path "$name" "$arch"); then
       exit 1
     fi
     binaries+=("$src")
@@ -293,7 +344,7 @@ build_widget_extension() {
   local derived_dir="$ROOT/.build/xcode-widget-extension-${LOWER_CONF}"
   local project_dir="$ROOT/WidgetExtension/TokenBarWidgetExtension.xcodeproj"
   local build_log="$derived_dir/xcodebuild.log"
-  local timeout_seconds="${TOKENBAR_WIDGET_EXTENSION_TIMEOUT_SECONDS:-900}"
+  local timeout_seconds="${TOKENBAR_WIDGET_EXTENSION_TIMEOUT_SECONDS:-${CODEXBAR_WIDGET_EXTENSION_TIMEOUT_SECONDS:-900}}"
   local archs="${ARCH_LIST[*]}"
 
   mkdir -p "$derived_dir"
@@ -359,21 +410,20 @@ install_widget_extension() {
 
 install_binary "TokenBar" "$APP/Contents/MacOS/TokenBar"
 # Ship TokenBarCLI alongside the app for easy symlinking.
-if [[ -n "$(resolve_binary_path "TokenBarCLI" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "TokenBarCLI" "$APP/Contents/Helpers/TokenBarCLI"
-fi
+install_binary "TokenBarCLI" "$APP/Contents/Helpers/TokenBarCLI"
 # Watchdog helper: ensures `claude` probes die when TokenBar crashes/gets killed.
-if [[ -n "$(resolve_binary_path "TokenBarClaudeWatchdog" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "TokenBarClaudeWatchdog" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
-fi
+install_binary "TokenBarClaudeWatchdog" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
 install_widget_extension
+
+swiftpm_bin_path "${ARCH_LIST[0]}" PREFERRED_BUILD_DIR
+
 # Embed Sparkle.framework
-if [[ -d ".build/$CONF/Sparkle.framework" ]]; then
-  cp -R ".build/$CONF/Sparkle.framework" "$APP/Contents/Frameworks/"
-  chmod -R a+rX "$APP/Contents/Frameworks/Sparkle.framework"
-  install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/TokenBar"
-  # Re-sign Sparkle and all nested components with Developer ID + timestamp
-  SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+SPARKLE_SOURCE=$(codexbar_require_product_directory "$PREFERRED_BUILD_DIR" Sparkle.framework packaging)
+cp -R "$SPARKLE_SOURCE" "$APP/Contents/Frameworks/"
+chmod -R a+rX "$APP/Contents/Frameworks/Sparkle.framework"
+install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP/Contents/MacOS/TokenBar"
+# Re-sign Sparkle and all nested components with Developer ID + timestamp
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
 if [[ "$SIGNING_MODE" == "adhoc" ]]; then
   CODESIGN_ID="-"
   CODESIGN_ARGS=(--force --sign "$CODESIGN_ID")
@@ -385,19 +435,11 @@ else
   CODESIGN_ARGS=(--force --timestamp --options runtime --sign "$CODESIGN_ID")
 fi
 function resign() { codesign "${CODESIGN_ARGS[@]}" "$1"; }
-  # Sign innermost binaries first, then the framework root to seal resources
-  resign "$SPARKLE"
-  resign "$SPARKLE/Versions/B/Sparkle"
-  resign "$SPARKLE/Versions/B/Autoupdate"
-  resign "$SPARKLE/Versions/B/Updater.app"
-  resign "$SPARKLE/Versions/B/Updater.app/Contents/MacOS/Updater"
-  resign "$SPARKLE/Versions/B/XPCServices/Downloader.xpc"
-  resign "$SPARKLE/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader"
-  resign "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
-  resign "$SPARKLE/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer"
-  resign "$SPARKLE/Versions/B"
-  resign "$SPARKLE"
-fi
+# Validate Sparkle's nested layout before signing so framework layout drift fails clearly.
+SPARKLE_SIGNING_TARGETS=$(codexbar_sparkle_signing_targets "$SPARKLE")
+while IFS= read -r SPARKLE_TARGET; do
+  resign "$SPARKLE_TARGET"
+done <<<"$SPARKLE_SIGNING_TARGETS"
 
 if [[ -f "$ICON_TARGET" ]]; then
   cp "$ICON_TARGET" "$APP/Contents/Resources/Icon.icns"
@@ -414,8 +456,6 @@ if [[ ! -f "$APP/Contents/Resources/Icon-classic.icns" ]]; then
 fi
 
 # SwiftPM resource bundles (e.g. KeyboardShortcuts) are emitted next to the built binary.
-TOKENBAR_BINARY="$(resolve_binary_path "TokenBar" "${ARCH_LIST[0]}")"
-PREFERRED_BUILD_DIR="$(dirname "${TOKENBAR_BINARY:-$(build_product_path "TokenBar" "${ARCH_LIST[0]}")}")"
 shopt -s nullglob
 SWIFTPM_BUNDLES=("${PREFERRED_BUILD_DIR}/"*.bundle)
 shopt -u nullglob

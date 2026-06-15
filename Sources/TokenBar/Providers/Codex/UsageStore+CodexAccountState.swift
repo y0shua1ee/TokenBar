@@ -43,9 +43,7 @@ extension UsageStore {
 
         await self.refreshProvider(.codex, allowDisabled: allowDisabled)
         phaseDidChange?(.usage)
-        await self.refreshCreditsIfNeeded(
-            minimumSnapshotUpdatedAt: refreshStartedAt,
-            allowDisabled: allowDisabled)
+        await self.refreshCreditsIfNeeded(minimumSnapshotUpdatedAt: refreshStartedAt)
         phaseDidChange?(.credits)
 
         if self.settings.codexCookieSource.isEnabled {
@@ -60,9 +58,7 @@ extension UsageStore {
         if self.openAIDashboardRequiresLogin {
             await self.refreshProvider(.codex, allowDisabled: allowDisabled)
             phaseDidChange?(.usage)
-            await self.refreshCreditsIfNeeded(
-                minimumSnapshotUpdatedAt: refreshStartedAt,
-                allowDisabled: allowDisabled)
+            await self.refreshCreditsIfNeeded(minimumSnapshotUpdatedAt: refreshStartedAt)
             phaseDidChange?(.credits)
         }
 

@@ -1,7 +1,7 @@
 import Commander
 import Testing
+import TokenBarCore
 @testable import TokenBarCLI
-@testable import TokenBarCore
 
 struct CLIConfigCommandTests {
     @Test
@@ -79,6 +79,8 @@ struct CLIConfigCommandTests {
         #expect(ProviderConfigEnvironment.supportsAPIKeyOverride(for: .groq))
         #expect(ProviderConfigEnvironment.supportsAPIKeyOverride(for: .llmproxy))
         #expect(ProviderConfigEnvironment.supportsAPIKeyOverride(for: .openai))
+        #expect(ProviderConfigEnvironment.supportsAPIKeyOverride(for: .amp))
+        #expect(ProviderConfigEnvironment.supportsAPIKeyOverride(for: .kimi))
         #expect(!ProviderConfigEnvironment.supportsAPIKeyOverride(for: .bedrock))
         #expect(!ProviderConfigEnvironment.supportsAPIKeyOverride(for: .deepseek))
         #expect(!ProviderConfigEnvironment.supportsAPIKeyOverride(for: .cursor))

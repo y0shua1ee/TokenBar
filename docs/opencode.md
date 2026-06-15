@@ -22,7 +22,7 @@ read_when:
 - Responses are `text/javascript` with serialized objects; parse via regex.
 - Missing workspace ID or usage fields should raise parse errors.
 - Cookie import defaults to Chrome-only to avoid extra browser prompts; pass a browser list to override.
-- Set `TOKENBAR_OPENCODE_WORKSPACE_ID` to skip workspace lookup and force a specific workspace.
+- Set `CODEXBAR_OPENCODE_WORKSPACE_ID` to skip workspace lookup and force a specific workspace.
 - Workspace override accepts a raw `wrk_…` ID or a full `https://opencode.ai/workspace/...` URL.
-- Cached cookies: Keychain cache `com.y0shua1ee.tokenbar.cache` (account `cookie.opencode`, source + timestamp). Browser
+- Cached cookies: Keychain cache `com.steipete.tokenbar.cache` (account `cookie.opencode`, source + timestamp). Browser
   import only runs when the cached cookie fails.

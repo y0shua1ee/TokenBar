@@ -59,11 +59,11 @@ struct ClaudeProbeWorkingDirectoryTests {
     func `probe project directory name matches Claude Code encoding`() {
         let cases = [
             (
-                "/Users/test/Library/Application Support/CodexBar/ClaudeProbe",
-                "-Users-test-Library-Application-Support-CodexBar-ClaudeProbe"),
+                "/Users/test/Library/Application Support/TokenBar/ClaudeProbe",
+                "-Users-test-Library-Application-Support-TokenBar-ClaudeProbe"),
             (
-                "/Users/test.name/t\u{00E9}st_under/Library/Application Support/CodexBar/ClaudeProbe",
-                "-Users-test-name-t-st-under-Library-Application-Support-CodexBar-ClaudeProbe"),
+                "/Users/test.name/t\u{00E9}st_under/Library/Application Support/TokenBar/ClaudeProbe",
+                "-Users-test-name-t-st-under-Library-Application-Support-TokenBar-ClaudeProbe"),
             (
                 "/Users/test/emoji_😀/ClaudeProbe",
                 "-Users-test-emoji----ClaudeProbe"),
@@ -141,7 +141,7 @@ struct ClaudeProbeWorkingDirectoryTests {
 
     private static func makeTemporaryDirectory() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-claude-probe-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-claude-probe-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

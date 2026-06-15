@@ -103,6 +103,7 @@ public enum ProviderDescriptorRegistry {
         .grok: GrokProviderDescriptor.descriptor,
         .groq: GroqProviderDescriptor.descriptor,
         .llmproxy: LLMProxyProviderDescriptor.descriptor,
+        .litellm: LiteLLMProviderDescriptor.descriptor,
         .deepgram: DeepgramProviderDescriptor.descriptor,
     ]
     private static let bootstrap: Void = {

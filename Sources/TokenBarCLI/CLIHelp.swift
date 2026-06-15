@@ -63,13 +63,12 @@ extension TokenBarCLI {
                        [--no-color] [--pretty] [--refresh]
 
         Description:
-          Print token cost usage from Claude/Codex native logs, supported pi sessions, and Krill API stats.
-          Native-log providers use cached scan results unless --refresh is provided.
+          Print local token cost usage from Claude/Codex native logs plus supported pi sessions.
+          This does not require web or CLI access and uses cached scan results unless --refresh is provided.
 
         Examples:
           tokenbar cost
           tokenbar cost --provider claude --format json --pretty
-          tokenbar cost --provider krill --format json --pretty
         """
     }
 
@@ -78,7 +77,7 @@ extension TokenBarCLI {
         TokenBar \(version)
 
         Usage:
-          codexbar serve [--port <port>] [--refresh-interval <seconds>]
+          tokenbar serve [--port <port>] [--refresh-interval <seconds>]
                          [--request-timeout <seconds>]
                          [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                          [-v|--verbose]
@@ -96,8 +95,8 @@ extension TokenBarCLI {
           GET /cost?provider=codex
 
         Examples:
-          codexbar serve
-          codexbar serve --port 8080 --refresh-interval 60 --request-timeout 30
+          tokenbar serve
+          tokenbar serve --port 8080 --refresh-interval 60 --request-timeout 30
           curl http://127.0.0.1:8080/usage?provider=all
         """
     }
@@ -210,7 +209,7 @@ extension TokenBarCLI {
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
                        [--provider \(ProviderHelp.list)] [--no-color] [--pretty] [--refresh]
-          codexbar serve [--port <port>] [--refresh-interval <seconds>]
+          tokenbar serve [--port <port>] [--refresh-interval <seconds>]
                        [--request-timeout <seconds>]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
           tokenbar config <validate|dump|providers> [--format text|json]

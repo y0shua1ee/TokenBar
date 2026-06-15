@@ -18,7 +18,7 @@ public enum CodexBarConfigStoreError: LocalizedError {
 }
 
 public struct CodexBarConfigStore: @unchecked Sendable {
-    public static let pathEnvironmentKey = "TOKENBAR_CONFIG"
+    public static let pathEnvironmentKey = "CODEXBAR_CONFIG"
 
     public let fileURL: URL
     private let fileManager: FileManager

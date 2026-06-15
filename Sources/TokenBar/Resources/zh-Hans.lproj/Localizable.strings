@@ -101,6 +101,8 @@
 "Could not start codex login" = "无法启动 codex login";
 "Could not switch system account" = "无法切换系统账户";
 "Credits" = "额度";
+"Individual credits" = "个人额度";
+"Workspace" = "工作区";
 "Credits history" = "额度记录";
 "Cursor login failed" = "Cursor 登录失败";
 "Custom" = "自定义";
@@ -408,10 +410,13 @@
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_swedish" = "瑞典语";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_french" = "法语";
 "language_ukrainian" = "乌克兰语";
 "language_japanese" = "日语";
 "language_korean" = "韩语";
+"language_italian" = "Italiano";
+"language_polish" = "Polski";
 "start_at_login_title" = "开机启动";
 "start_at_login_subtitle" = "启动 Mac 时自动打开 TokenBar。";
 "show_cost_summary" = "显示费用摘要";
@@ -843,7 +848,7 @@
 "Cleanup ideas" = "清理建议";
 "%d unreadable item(s) skipped" = "已跳过 %d 个不可读项目";
 "weekly_progress_work_days_title" = "工作日刻度线";
-"weekly_progress_work_days_subtitle" = "在每周用量条上显示按天分隔的刻度线。";
+"weekly_progress_work_days_subtitle" = "设置用于每周用量条刻度和进度计算的工作日。";
 "copilot_device_code" = "设备代码已复制到剪贴板：%1$@\n\n请在以下地址验证：%2$@";
 "copilot_waiting_text" = "请在浏览器中完成登录。\n登录完成后，此窗口会自动关闭。";
 "vertex_ai_login_instructions" = "要跟踪 Vertex AI 用量，请通过 Google Cloud 进行认证。\n\n1. 打开终端\n2. 运行：gcloud auth application-default login\n3. 按照浏览器提示登录\n4. 设置你的项目：gcloud config set project PROJECT_ID\n\n是否现在打开终端？";
@@ -1046,6 +1051,8 @@
 "language_vietnamese" = "越南语";
 
 "Request quota: %@ / %@" = "请求额度：%@ / %@";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "自动导入 Xiaomi MiMo 的 Chrome 浏览器 Cookie。";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "印度尼西亚语";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

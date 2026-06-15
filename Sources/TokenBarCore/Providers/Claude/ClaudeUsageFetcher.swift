@@ -91,7 +91,7 @@ public struct ClaudeUsageFetcher: ClaudeUsageFetching, Sendable {
     private let configuration: Configuration
     private static let log = CodexBarLog.logger(LogCategories.claudeUsage)
     private static var isClaudeOAuthFlowDebugEnabled: Bool {
-        ProcessInfo.processInfo.environment["TOKENBAR_DEBUG_CLAUDE_OAUTH_FLOW"] == "1"
+        ProcessInfo.processInfo.environment["CODEXBAR_DEBUG_CLAUDE_OAUTH_FLOW"] == "1"
     }
 
     private var environment: [String: String] {

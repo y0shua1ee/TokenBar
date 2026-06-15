@@ -1,7 +1,7 @@
 import AppKit
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @MainActor
 @Suite(.serialized)
@@ -907,8 +907,7 @@ struct StatusItemAnimationTests {
             percentWindow: percentWindow,
             showUsed: true)
 
-        #expect(pace == nil)
-        // "Both" mode falls back to percent-only when pace is unavailable
+        #expect(pace == "40%")
         #expect(both == "40%")
     }
 
@@ -927,8 +926,7 @@ struct StatusItemAnimationTests {
             pace: nil,
             showUsed: true)
 
-        #expect(pace == nil)
-        // "Both" mode falls back to percent-only when pace is unavailable
+        #expect(pace == "40%")
         #expect(both == "40%")
     }
 

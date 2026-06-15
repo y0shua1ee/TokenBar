@@ -1,8 +1,8 @@
 import Commander
 import Foundation
+import TokenBarCore
 import XCTest
 @testable import TokenBarCLI
-@testable import TokenBarCore
 
 final class CLIEntryTests: XCTestCase {
     func test_effectiveArgvDefaultsToUsage() {
@@ -110,36 +110,6 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertEqual(
             TokenBarCLI.currentVersion(bundleVersion: "TokenBar", executablePath: helperURL.path),
             "4.5.6")
-    }
-
-    func test_cliVersionPrefersAdjacentVersionOverContainingAppBundle() throws {
-        let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-app-adjacent-\(UUID().uuidString)", isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: root) }
-
-        let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
-        let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
-        let helpersURL = contentsURL.appendingPathComponent("Helpers", isDirectory: true)
-        try FileManager.default.createDirectory(at: helpersURL, withIntermediateDirectories: true)
-
-        let infoURL = contentsURL.appendingPathComponent("Info.plist")
-        let plist: [String: Any] = ["CFBundleShortVersionString": "8.8.8"]
-        let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
-        try data.write(to: infoURL)
-
-        let helperURL = helpersURL.appendingPathComponent("TokenBarCLI")
-        try Data().write(to: helperURL)
-        try "5.6.7\n".write(
-            to: helpersURL.appendingPathComponent("VERSION"),
-            atomically: false,
-            encoding: .utf8)
-
-        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: nil, executablePath: helperURL.path), "5.6.7")
-    }
-
-    func test_cliVersionFallsBackToBundleVersion() {
-        XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: "7.8.9", executablePath: nil), "7.8.9")
-        XCTAssertNil(TokenBarCLI.currentVersion(bundleVersion: "TokenBar", executablePath: nil))
     }
 
     private func expectAdjacentVersionFile(raw: String, expected: String) throws {
@@ -329,21 +299,63 @@ final class CLIEntryTests: XCTestCase {
             attempts: attempts))
     }
 
-    func test_sourceModeRequiresWebSupportIsProviderAware() {
+    func test_sourceModeRequiresWebSupportIsProviderAware() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("mimo-cli-source-mode-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let validMiMoCache = directory.appendingPathComponent("valid.json")
+        let invalidMiMoCache = directory.appendingPathComponent("invalid.json")
+        let payload: [String: Any] = [
+            "sessions_scanned": 1,
+            "windows": [
+                "today": [:],
+                "week": [:],
+                "all_time": [:],
+            ],
+        ]
+        try JSONSerialization.data(withJSONObject: payload).write(to: validMiMoCache)
+        try Data("{}".utf8).write(to: invalidMiMoCache)
+
         XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(.web, provider: .kilo))
         XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .codex))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .kilo))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .grok))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.web, provider: .grok))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .amp))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.api, provider: .kilo))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
             .auto,
             provider: .ollama,
+            environment: ["OLLAMA_API_KEY": "ollama-test"]))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .codex,
             environment: ["OLLAMA_API_KEY": "ollama-test"]))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
             .auto,
             provider: .ollama,
             settings: ProviderSettingsSnapshot.make(
                 ollama: .init(cookieSource: .off, manualCookieHeader: nil))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .kimi,
+            environment: ["KIMI_CODE_API_KEY": "kimi-test"]))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .mimo,
+            environment: ["MIMO_LOCAL_USAGE_PATH": validMiMoCache.path]))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .web,
+            provider: .mimo,
+            environment: ["MIMO_LOCAL_USAGE_PATH": validMiMoCache.path]))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .mimo,
+            environment: ["MIMO_LOCAL_USAGE_PATH": invalidMiMoCache.path]))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .mimo,
+            environment: ["MIMO_LOCAL_USAGE_PATH": directory.appendingPathComponent("missing.json").path]))
     }
 }

@@ -68,9 +68,9 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["load(...)"] --> B["Environment token (TOKENBAR_CLAUDE_OAUTH_TOKEN)"]
+    A["load(...)"] --> B["Environment token (CODEXBAR_CLAUDE_OAUTH_TOKEN)"]
     B -->|miss| C["Memory cache (valid + unexpired)"]
-    C -->|miss| D["TokenBar keychain cache: com.y0shua1ee.tokenbar.cache/oauth.claude"]
+    C -->|miss| D["TokenBar keychain cache: com.steipete.tokenbar.cache/oauth.claude"]
     D -->|miss| E["~/.claude/.credentials.json"]
     E -->|miss| F{"allowKeychainPrompt && prompt gate open?"}
     F -- "yes" --> G["Claude keychain service: Claude Code-credentials (promptable fallback)"]

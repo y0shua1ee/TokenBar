@@ -45,25 +45,23 @@ struct PathBuilderTests {
     }
 
     @Test
-    func `login shell cache retries after timed out nil capture`() {
+    func `login shell cache retries after timed out nil capture`() async {
         let capture = LoginShellPathCaptureStub([
             nil,
             ["/login/bin", "/usr/bin"],
         ])
 
         let cache = LoginShellPathCache { _, _ in capture.next() }
-        let semaphore = DispatchSemaphore(value: 0)
-        var firstResult: [String]?
-        cache.captureOnce(shell: "/unused", timeout: 0.01) { result in
-            firstResult = result
-            semaphore.signal()
+        let firstResult: [String]? = await withCheckedContinuation { continuation in
+            cache.captureOnce(shell: "/unused", timeout: 0.01) { result in
+                continuation.resume(returning: result)
+            }
         }
 
-        #expect(semaphore.wait(timeout: .now() + 10.0) == .success)
         #expect(firstResult == nil)
         #expect(cache.current == nil)
 
-        let recovered = cache.currentOrCapture(shell: "/unused", timeout: 10.0)
+        let recovered = cache.currentOrCapture(shell: "/unused", timeout: 2.0)
         #expect(recovered == ["/login/bin", "/usr/bin"])
         #expect(cache.current == ["/login/bin", "/usr/bin"])
         #expect(capture.callCount == 2)
@@ -78,7 +76,7 @@ struct PathBuilderTests {
           printf 'err-%04d\\n' "$i" >&2
           i=$((i + 1))
         done
-        printf '__TOKENBAR_DONE__\\n'
+        printf '__CODEXBAR_DONE__\\n'
         """
         let data = try #require(ShellCommandLocator.test_runShellCommand(
             shell: "/bin/sh",
@@ -87,7 +85,7 @@ struct PathBuilderTests {
         let output = try #require(String(data: data, encoding: .utf8))
 
         #expect(output.contains("out-3999"))
-        #expect(output.contains("__TOKENBAR_DONE__"))
+        #expect(output.contains("__CODEXBAR_DONE__"))
     }
 
     @Test

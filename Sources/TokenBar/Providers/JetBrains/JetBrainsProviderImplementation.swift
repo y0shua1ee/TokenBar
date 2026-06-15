@@ -1,9 +1,7 @@
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct JetBrainsProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .jetbrains
 

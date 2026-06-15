@@ -11,7 +11,7 @@ start-debug:
 start-release:
 	./Scripts/package_app.sh release
 	pkill -x TokenBar || pkill -f TokenBar.app || true
-	cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app
+	cd /Users/steipete/Projects/tokenbar && open -n /Users/steipete/Projects/tokenbar/TokenBar.app
 
 restart: start
 
@@ -31,7 +31,7 @@ build:
 	swift build
 
 test:
-	swift test
+	./Scripts/test.sh
 
 test-tty:
 	swift test --filter TTYIntegrationTests

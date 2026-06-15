@@ -38,7 +38,7 @@ struct DeepSeekDashboardUsageFetcherTests {
         let tokenSnapshot = dashboard.toTokenSnapshot(now: now)
 
         #expect(abs((tokenSnapshot.last30DaysCostUSD ?? 0) - 12.32) < 0.0001)
-        #expect(tokenSnapshot.costCurrencyCode == "CNY")
+        #expect(tokenSnapshot.currencyCode == "CNY")
         #expect(tokenSnapshot.last30DaysTokens == 65_118_189)
         #expect(tokenSnapshot.last30DaysRequests == 660)
         #expect(tokenSnapshot.daily.count == 2)

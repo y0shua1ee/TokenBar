@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct DevinProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .devin
     let supportsLoginFlow: Bool = true

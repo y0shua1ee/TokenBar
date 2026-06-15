@@ -2,15 +2,16 @@
 
 > Every AI coding limit, in your menu bar.
 
-[![Latest release](https://img.shields.io/github/v/release/y0shua1ee/TokenBar?style=flat-square&color=0a0a0c)](https://github.com/y0shua1ee/TokenBar/releases/latest)
-[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0a0a0c?style=flat-square)](https://github.com/y0shua1ee/TokenBar/releases/latest)
-[![Homebrew](https://img.shields.io/badge/brew-y0shua1ee%2Ftokenbar-orange?style=flat-square)](https://github.com/y0shua1ee/homebrew-tokenbar)
+[![Latest release](https://img.shields.io/github/v/release/steipete/CodexBar?style=flat-square&color=0a0a0c)](https://github.com/steipete/CodexBar/releases/latest)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0a0a0c?style=flat-square)](https://github.com/steipete/CodexBar/releases/latest)
+[![Homebrew](https://img.shields.io/badge/brew-steipete%2Ftap%2Fcodexbar-orange?style=flat-square)](https://github.com/steipete/homebrew-tap)
+[![AUR](https://img.shields.io/aur/version/tokenbar-cli?style=flat-square&color=1793d1)](https://aur.archlinux.org/packages/tokenbar-cli)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6e5aff?style=flat-square)](LICENSE)
 [![Site](https://img.shields.io/badge/site-tokenbar.app-16d3b4?style=flat-square)](https://tokenbar.app)
 
-<a href="https://tokenbar.app"><img src="docs/social.png" alt="TokenBar — every AI coding limit in your menu bar. 40+ providers." width="100%" /></a>
+<a href="https://tokenbar.app"><img src="docs/social.png" alt="TokenBar — every AI coding limit in your menu bar. 50 providers." width="100%" /></a>
 
-Tiny macOS 14+ menu bar app that keeps **AI coding-provider limits visible** and shows when each window resets. Codex, OpenAI, Claude, Cursor, Gemini, Copilot, Grok, GroqCloud, ElevenLabs, Deepgram, z.ai, MiniMax, Kiro, Vertex AI, Augment, OpenRouter, LLM Proxy, Codebuff, Command Code, AWS Bedrock, and many newer coding providers. One status item per provider, or Merge Icons mode with a provider switcher. No Dock icon, minimal UI, dynamic bar icons.
+Tiny macOS 14+ menu bar app that keeps **AI coding-provider limits visible** and shows when each window resets. Codex, OpenAI, Claude, Cursor, Gemini, Copilot, Grok, GroqCloud, ElevenLabs, Deepgram, z.ai, MiniMax, Kiro, Vertex AI, Augment, OpenRouter, LiteLLM, LLM Proxy, Codebuff, Command Code, AWS Bedrock, and many newer coding providers. One status item per provider, or Merge Icons mode with a provider switcher. No Dock icon, minimal UI, dynamic bar icons.
 
 <img src="tokenbar.png" alt="TokenBar menu popover with provider tiles, usage bars, and reset countdowns" width="520" />
 
@@ -27,17 +28,21 @@ Tiny macOS 14+ menu bar app that keeps **AI coding-provider limits visible** and
 - macOS 14+ (Sonoma)
 
 ### GitHub Releases
-Download: <https://github.com/y0shua1ee/TokenBar/releases>
+Download: <https://github.com/steipete/CodexBar/releases>
 
 ### Homebrew
 ```bash
-brew install --cask y0shua1ee/tokenbar/tokenbar
+brew install --cask tokenbar
 ```
 
 ### CLI Tarballs (macOS/Linux)
 Homebrew formula (Linux today):
 ```bash
-brew install y0shua1ee/tokenbar/tokenbar
+brew install steipete/tap/tokenbar
+```
+Arch Linux AUR package:
+```bash
+yay -S tokenbar-cli
 ```
 Or download release tarballs from GitHub Releases:
 - macOS: `TokenBarCLI-v<tag>-macos-arm64.tar.gz`, `TokenBarCLI-v<tag>-macos-x86_64.tar.gz`
@@ -114,6 +119,7 @@ See [CLI configuration](docs/cli-configuration.md) for the full flow.
 - [Grok](docs/grok.md) — Grok CLI billing RPC plus grok.com browser-session fallback.
 - [GroqCloud](docs/groqcloud.md) — API key for Enterprise Prometheus request/token/cache-hit metrics.
 - [LLM Proxy](docs/llm-proxy.md) — API key + base URL for aggregate proxy quota stats and provider breakdowns.
+- [LiteLLM](docs/litellm.md) — Virtual key + proxy URL for personal and team budget/spend tracking.
 - [Deepgram](docs/deepgram.md) — API key usage summaries across speech, agent, token, and TTS metrics.
 - Open to new providers: [provider authoring guide](docs/provider.md).
 
@@ -125,7 +131,7 @@ show an incident indicator.
 - Multi-provider menu bar with per-provider toggles (Settings → Providers).
 - Provider-specific usage meters with reset countdowns.
 - Optional Codex web dashboard enrichments (code review remaining, usage breakdown, credits history).
-- Inline spend and usage charts for API-backed providers such as OpenAI, Claude Admin API, OpenRouter, z.ai, MiniMax, Mistral, and AWS Bedrock.
+- Inline spend and usage charts for API-backed providers such as OpenAI, Claude Admin API, OpenRouter, LiteLLM, z.ai, MiniMax, Mistral, and AWS Bedrock.
 - Configurable cost-usage scans for Codex + Claude, plus reused chart UI for supported provider histories.
 - Provider status polling with incident badges in the menu and icon overlay.
 - Merge Icons mode to combine providers into one status item + switcher.
@@ -133,11 +139,12 @@ show an incident indicator.
 - Refresh cadence presets (manual, 1m, 2m, 5m, 15m).
 - Bundled CLI (`tokenbar`) for scripts and CI (including `tokenbar cost --provider codex`, `claude`, or `both` for local cost usage); macOS and Linux CLI builds available.
 - WidgetKit widgets for supported providers.
+- Localized app and website with a shared 21-language catalog, automatic website detection, persistent pickers, and RTL support.
 - Optional session quota notifications and weekly-reset confetti.
 - Privacy-first: on-device parsing by default; browser cookies are opt-in and reused (no passwords stored).
 
 ## Privacy note
-Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, provider config files, local JSONL logs) when the related features are enabled. Provider tokens and token-account settings live in `~/.tokenbar/config.json` with restrictive file permissions. See the discussion and audit notes in [issue #12](https://github.com/y0shua1ee/TokenBar/issues/12).
+Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, provider config files, local JSONL logs) when the related features are enabled. Provider tokens and token-account settings live in `~/.tokenbar/config.json` with restrictive file permissions. See the discussion and audit notes in [issue #12](https://github.com/steipete/CodexBar/issues/12).
 
 ## macOS permissions (why they’re needed)
 - **Full Disk Access (optional)**: only required to read Safari cookies/local storage for web-based providers. If you don’t grant it, use another supported browser, manual cookies/API keys, OAuth, or CLI/local sources where that provider supports them.
@@ -188,14 +195,14 @@ Requires macOS 14+ and Swift 6.2+.
 
 ```bash
 ./Scripts/package_app.sh        # builds TokenBar.app in-place
-TOKENBAR_SIGNING=adhoc ./Scripts/package_app.sh  # ad-hoc signing (no Apple Developer account)
+CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh  # ad-hoc signing (no Apple Developer account)
 open TokenBar.app
 ```
 
 Dev loop:
 ```bash
 ./Scripts/compile_and_run.sh
-./Scripts/compile_and_run.sh --test  # also run swift test before packaging/relaunching
+./Scripts/compile_and_run.sh --test  # also run the sharded test suite before packaging/relaunching
 make check                           # SwiftFormat + SwiftLint
 make docs-list                       # list docs with frontmatter summaries
 ```
@@ -221,7 +228,7 @@ CLI install:
 
 
 ## Status bar & terminal integration
-- [showy-quota](https://github.com/enieuwy/showy-quota) — always-on AI plan quota strips for SketchyBar, tmux, and Zellij (standalone WASM plugin), built on `codexbar serve` / the bundled CLI.
+- [showy-quota](https://github.com/enieuwy/showy-quota) — always-on AI plan quota strips for SketchyBar, tmux, and Zellij (standalone WASM plugin), built on `tokenbar serve` / the bundled CLI.
 
 ## Credits
 Inspired by [ccusage](https://github.com/ryoppippi/ccusage) (MIT), specifically the cost usage tracking.

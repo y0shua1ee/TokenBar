@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct VeniceProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .venice
 

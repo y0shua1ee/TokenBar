@@ -1,9 +1,7 @@
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct WindsurfProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .windsurf
 

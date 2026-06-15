@@ -3,7 +3,7 @@ import Foundation
 enum MenuBarStatusItemDefaultsRepair {
     static let didRepairKey = "hasRepairedHiddenStatusItemVisibilityDefaults"
     private static let visibilityPrefix = "NSStatusItem VisibleCC "
-    private static let legacyAutosavePrefix = "codexbar-"
+    private static let legacyAutosavePrefix = "tokenbar-"
 
     static func repairHiddenVisibilityDefaultsIfNeeded(defaults: UserDefaults) -> [String] {
         guard !defaults.bool(forKey: self.didRepairKey) else { return [] }

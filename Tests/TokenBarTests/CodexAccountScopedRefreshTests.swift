@@ -1,7 +1,7 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @Suite(.serialized)
 @MainActor
@@ -613,9 +613,6 @@ struct CodexAccountScopedRefreshTests {
         self.installImmediateCodexProvider(
             on: store,
             snapshot: self.codexSnapshot(email: "alpha@example.com", usedPercent: 18))
-        store._test_codexCreditsLoaderOverride = { self.credits(remaining: 55) }
-        defer { store._test_codexCreditsLoaderOverride = nil }
-
         await store.refresh()
 
         let dashboardBlocker = BlockingOpenAIDashboardLoader()

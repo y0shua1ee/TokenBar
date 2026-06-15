@@ -4,8 +4,8 @@ import FoundationNetworking
 #endif
 
 struct AlibabaTokenPlanCookieHeaders {
-    private static let cachedAPIHeaderName = "__tokenbar_alibaba_token_plan_api"
-    private static let cachedDashboardHeaderName = "__tokenbar_alibaba_token_plan_dashboard"
+    private static let cachedAPIHeaderName = "__codexbar_alibaba_token_plan_api"
+    private static let cachedDashboardHeaderName = "__codexbar_alibaba_token_plan_dashboard"
 
     let apiCookieHeader: String
     let dashboardCookieHeader: String

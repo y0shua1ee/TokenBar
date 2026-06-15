@@ -99,6 +99,8 @@
 "Could not start codex login" = "Kan codex-aanmelding niet starten";
 "Could not switch system account" = "Kan van systeemaccount niet wisselen";
 "Credits" = "Kredieten";
+"Individual credits" = "Individuele kredieten";
+"Workspace" = "Werkruimte";
 "Credits history" = "Creditgeschiedenis";
 "Cursor login failed" = "Cursoraanmelding mislukt";
 "Custom" = "Aangepast";
@@ -400,12 +402,17 @@
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Portugees (Brazilië)";
 "language_dutch" = "Nederlands";
+"language_german" = "Duits";
 "language_french" = "Frans";
 "language_ukrainian" = "Oekraïens";
 "language_japanese" = "Japans";
 "language_korean" = "Koreaans";
+"language_italian" = "Italiano";
 "language_swedish" = "Zweeds";
 "language_vietnamese" = "Vietnamees";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Indonesisch";
+"language_polish" = "Pools";
 "start_at_login_title" = "Begin bij Inloggen";
 "start_at_login_subtitle" = "Opent automatisch TokenBar wanneer u uw Mac start.";
 "show_cost_summary" = "Kostenoverzicht weergeven";
@@ -499,7 +506,7 @@
 "show_quota_warning_markers_title" = "Toon waarschuwingsmarkeringen voor quota";
 "show_quota_warning_markers_subtitle" = "Teken drempelmarkeringen op gebruiksbalken wanneer quotawaarschuwingen zijn geconfigureerd.";
 "weekly_progress_work_days_title" = "Wekelijkse voortgang werkdagen";
-"weekly_progress_work_days_subtitle" = "Teken daggrensmarkeringen op de wekelijkse gebruiksbalken.";
+"weekly_progress_work_days_subtitle" = "Stel werkdagen in voor markeringen op wekelijkse gebruiksbalken en tempoberekeningen.";
 "show_reset_time_as_clock_title" = "Toon resettijd als klok";
 "show_reset_time_as_clock_subtitle" = "Geef resettijden weer als absolute klokwaarden in plaats van aftellingen.";
 "show_provider_changelog_links_title" = "Toon provider changelog-links";
@@ -1069,6 +1076,6 @@
 "Clear" = "Duidelijk";
 "No matching providers" = "Geen overeenkomende aanbieders";
 "Search providers" = "Zoekaanbieders";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importeert automatisch Chrome-browsercookies van Xiaomi MiMo.";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

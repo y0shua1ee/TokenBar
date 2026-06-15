@@ -11,7 +11,7 @@ struct KeychainCacheStoreTests {
 
     @Test
     func `tests suppress real keychain access by default`() {
-        guard ProcessInfo.processInfo.environment["TOKENBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
+        guard ProcessInfo.processInfo.environment["CODEXBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
 
         #expect(KeychainCacheStore.canUseRealKeychainForTesting == false)
         let key = KeychainCacheStore.Key(category: "test", identifier: UUID().uuidString)
@@ -159,7 +159,9 @@ struct KeychainCacheStoreTests {
     @Test
     func `delete interaction not allowed is non fatal`() {
         let key = KeychainCacheStore.Key(category: "test", identifier: UUID().uuidString)
-        #expect(KeychainCacheStore.clearResultForKeychainDeleteStatus(errSecInteractionNotAllowed, key: key) == false)
+        #expect(KeychainCacheStore.clearResultForKeychainDeleteStatus(
+            errSecInteractionNotAllowed,
+            key: key) == .failed)
     }
 
     @Test

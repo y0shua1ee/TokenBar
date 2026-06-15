@@ -53,7 +53,7 @@ Usage source picker:
   3) Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
   - Domains loaded: `chatgpt.com`, `openai.com`.
   - No cookie-name filter; we import all matching domain cookies.
-- Cached cookies: Keychain cache `com.y0shua1ee.tokenbar.cache` (account `cookie.codex`, source + timestamp).
+- Cached cookies: Keychain cache `com.steipete.tokenbar.cache` (account `cookie.codex`, source + timestamp).
   Reused before re-importing from browsers.
 - Manual cookie header:
   - Paste the `Cookie:` header from a `chatgpt.com` request in Preferences → Providers → Codex.
@@ -78,14 +78,14 @@ Usage source picker:
   - `account/read`
   - `account/rateLimits/read`
 - RPC reads are bounded: initialization has a longer startup budget, and normal requests have a shorter per-method
-  timeout. On timeout, CodexBar terminates the child `codex app-server` process so the stdout reader unwinds instead
+  timeout. On timeout, TokenBar terminates the child `codex app-server` process so the stdout reader unwinds instead
   of leaving refresh stuck indefinitely.
 - Provides:
   - Usage windows (primary + secondary) with reset timestamps.
   - Credits snapshot (balance, hasCredits, unlimited).
   - Account identity (email + plan type) when available.
 - App-server errors are terminal for the CLI strategy, except when Codex includes a recoverable `wham/usage` JSON body in the error text.
-- If macOS blocks or quarantines the `codex` executable, CodexBar records the launch failure and skips background CLI
+- If macOS blocks or quarantines the `codex` executable, TokenBar records the launch failure and skips background CLI
   launches for 30 minutes. Use a manual refresh after reinstalling or unblocking `codex` to retry immediately.
 - If managed Codex account login fails after macOS moved `codex` to Trash, first confirm `codex --version` works in
   Terminal. Check `which -a codex` for stale duplicate installs, then run
@@ -126,8 +126,8 @@ Usage source picker:
   - pi assistant usage is bucketed by assistant-turn timestamp, so mixed-model pi sessions can contribute to multiple
     days/models correctly.
 - Cache:
-  - Native + merged provider cache: `~/Library/Caches/CodexBar/cost-usage/codex-v2.json`
-  - pi session cache: `~/Library/Caches/CodexBar/cost-usage/pi-sessions-v1.json`
+  - Native + merged provider cache: `~/Library/Caches/TokenBar/cost-usage/codex-v2.json`
+  - pi session cache: `~/Library/Caches/TokenBar/cost-usage/pi-sessions-v1.json`
 - Window: configurable 1-365 day rolling history, with a 60s minimum refresh interval.
 
 ## Key files

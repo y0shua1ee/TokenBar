@@ -3,14 +3,14 @@
 ## Project Structure & Modules
 - `Sources/TokenBar`: Swift 6 menu bar app (usage/credits probes, icon renderer, settings). Keep changes small and reuse existing helpers.
 - `Tests/TokenBarTests`: XCTest coverage for usage parsing, status probes, icon patterns; mirror new logic with focused tests.
-- `Scripts`: build/package helpers (`package_app.sh`, `sign-and-notarize.sh`, `make_appcast.sh`, `build_icon.sh`, `compile_and_run.sh`).
+- `Scripts`: build/package helpers (`package_app.sh`, `sign-and-notarize.sh`, `make_appcast.sh`, `build_icon.sh`, `compile_and_run.sh`). Release wrappers call `Scripts/mac-release`, which resolves `MAC_RELEASE_TOOL` or the shared `agent-scripts` checkout.
 - `docs`: release notes and process (`docs/RELEASING.md`, screenshots). Root-level zips/appcast are generated artifacts—avoid editing except during releases.
 
 ## Build, Test, Run
-- Dev loop: `./Scripts/compile_and_run.sh` kills old instances, runs `swift build` + `swift test`, packages, relaunches `TokenBar.app`, and confirms it stays running.
-- Quick build/test: `swift build` (debug) or `swift build -c release`; `swift test` for the full XCTest suite.
-- Package locally: `./Scripts/package_app.sh` to refresh `TokenBar.app`, then restart with `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app`.
-- Release flow: `./Scripts/sign-and-notarize.sh` (arm64 notarized zip) and `./Scripts/make_appcast.sh <zip> <feed-url>`; follow validation steps in `docs/RELEASING.md`.
+- Dev loop: `./Scripts/compile_and_run.sh` kills old instances, builds, packages, relaunches `TokenBar.app`, and confirms it stays running; add `--test` for the sharded full suite.
+- Quick build/test: `swift build` (debug) or `swift build -c release`; `make test` for the sharded full suite.
+- Package locally: `./Scripts/package_app.sh` to refresh `TokenBar.app`, then restart with `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/steipete/Projects/tokenbar && open -n /Users/steipete/Projects/tokenbar/TokenBar.app`.
+- Release flow: `./Scripts/release.sh`; app metadata lives in `.mac-release.env`, repo build/signing stays in `Scripts/sign-and-notarize.sh`, and validation steps live in `docs/RELEASING.md`.
 
 ## Coding Style & Naming
 - Enforce SwiftFormat/SwiftLint: run `swiftformat Sources Tests` and `swiftlint --strict`. 4-space indent, 120-char lines, explicit `self` is intentional—do not remove.
@@ -19,7 +19,7 @@
 ## Testing Guidelines
 - Add/extend XCTest cases under `Tests/TokenBarTests/*Tests.swift` (`FeatureNameTests` with `test_caseDescription` methods).
 - Model names in tests/code: released models or clearly fictitious names only; never expose unreleased names.
-- Always run `swift test` before handoff; add focused filters for parser/provider fixes when possible.
+- Always run `make test` before handoff; add focused `swift test --filter ...` runs for parser/provider fixes when possible.
 - After any code change, run `make check` and fix all reported format/lint issues before handoff.
 - Prefer CLI/focused tests over app-bundle live tests when behavior can be verified without relaunching TokenBar.
 - Never run tests/checks or ad-hoc validation that can display macOS Keychain prompts. Live provider probes, browser-cookie imports, `tokenbar usage` against real accounts, and real SecItem reads must be explicitly requested; otherwise use parser tests, stubs, test stores, or `KeychainNoUIQuery`.
@@ -31,8 +31,9 @@
 
 ## Agent Notes
 - Use the provided scripts and package manager (SwiftPM); avoid adding dependencies or tooling without confirmation.
+- Menu bar automation: capture the target screen first and verify the TokenBar icon is visibly onscreen. Reject `click-extra` success when coordinates fall outside display bounds; hidden menu extras are not click proof.
 - Validate UI/runtime behavior against the freshly built bundle; restart via the pkill+open command above to avoid running stale binaries.
-- To guarantee the right bundle is running after a rebuild, use: `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app`.
+- To guarantee the right bundle is running after a rebuild, use: `pkill -x TokenBar || pkill -f TokenBar.app || true; cd /Users/steipete/Projects/tokenbar && open -n /Users/steipete/Projects/tokenbar/TokenBar.app`.
 - For CLI-testable provider/parser/settings behavior, use CLI/focused tests instead of `Scripts/package_app.sh` or `./Scripts/compile_and_run.sh`.
 - Run `./Scripts/compile_and_run.sh` only when UI/runtime behavior needs bundle-level validation; it builds, tests, packages, relaunches, and verifies the app stays running.
 - Widget/Tahoe UI issues: use Parallels macOS VM plus screenshots/clicks for autonomous verification.

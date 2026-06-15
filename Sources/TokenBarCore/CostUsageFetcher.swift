@@ -18,22 +18,13 @@ public enum CostUsageError: LocalizedError, Sendable {
 }
 
 public struct CostUsageFetcher: Sendable {
-    private let environment: [String: String]
     private let scannerOptions: CostUsageScanner.Options?
 
-    public init(
-        environment: [String: String] = ProcessInfo.processInfo.environment,
-        cacheRoot: URL? = nil)
-    {
-        self.environment = environment
+    public init(cacheRoot: URL? = nil) {
         self.scannerOptions = cacheRoot.map { CostUsageScanner.Options(cacheRoot: $0) }
     }
 
-    init(
-        environment: [String: String] = ProcessInfo.processInfo.environment,
-        scannerOptions: CostUsageScanner.Options)
-    {
-        self.environment = environment
+    init(scannerOptions: CostUsageScanner.Options) {
         self.scannerOptions = scannerOptions
     }
 
@@ -51,6 +42,7 @@ public struct CostUsageFetcher: Sendable {
 
     public func loadTokenSnapshot(
         provider: UsageProvider,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
         now: Date = Date(),
         forceRefresh: Bool = false,
         allowVertexClaudeFallback: Bool = false,
@@ -60,7 +52,7 @@ public struct CostUsageFetcher: Sendable {
     {
         try await Self.loadTokenSnapshot(
             provider: provider,
-            environment: self.environment,
+            environment: environment,
             now: now,
             forceRefresh: forceRefresh,
             allowVertexClaudeFallback: allowVertexClaudeFallback,
@@ -82,7 +74,7 @@ public struct CostUsageFetcher: Sendable {
         refreshPricingInBackground: Bool = true,
         automaticCodexScanByteLimit _: Int64?) async throws -> CostUsageTokenSnapshot
     {
-        try await Self.loadTokenSnapshot(
+        try await self.loadTokenSnapshot(
             provider: provider,
             environment: environment,
             now: now,
@@ -90,8 +82,7 @@ public struct CostUsageFetcher: Sendable {
             allowVertexClaudeFallback: allowVertexClaudeFallback,
             codexHomePath: codexHomePath,
             historyDays: historyDays,
-            refreshPricingInBackground: refreshPricingInBackground,
-            scannerOptions: self.scannerOptionsOverride())
+            refreshPricingInBackground: refreshPricingInBackground)
     }
 
     private func scannerOptionsOverride() -> CostUsageScanner.Options? {
@@ -307,26 +298,19 @@ public struct CostUsageFetcher: Sendable {
         now: Date,
         historyDays: Int = 30) -> CostUsageTokenSnapshot
     {
-        let todayFormatter = DateFormatter()
-        todayFormatter.locale = Locale(identifier: "en_US_POSIX")
-        todayFormatter.timeZone = TimeZone.current
-        todayFormatter.dateFormat = "yyyy-MM-dd"
-        let todayString = todayFormatter.string(from: now)
-
-        // Pick today's entry directly; fall back to most recent day with data.
-        let currentDay = daily.data.first(where: { $0.date == todayString })
-            ?? daily.data.max { lhs, rhs in
-                let lDate = CostUsageDateParser.parse(lhs.date) ?? .distantPast
-                let rDate = CostUsageDateParser.parse(rhs.date) ?? .distantPast
-                if lDate != rDate { return lDate < rDate }
-                let lCost = lhs.costUSD ?? -1
-                let rCost = rhs.costUSD ?? -1
-                if lCost != rCost { return lCost < rCost }
-                let lTokens = lhs.totalTokens ?? -1
-                let rTokens = rhs.totalTokens ?? -1
-                if lTokens != rTokens { return lTokens < rTokens }
-                return lhs.date < rhs.date
-            }
+        // Pick the most recent day; break ties by cost/tokens to keep a stable "session" row.
+        let currentDay = daily.data.max { lhs, rhs in
+            let lDate = CostUsageDateParser.parse(lhs.date) ?? .distantPast
+            let rDate = CostUsageDateParser.parse(rhs.date) ?? .distantPast
+            if lDate != rDate { return lDate < rDate }
+            let lCost = lhs.costUSD ?? -1
+            let rCost = rhs.costUSD ?? -1
+            if lCost != rCost { return lCost < rCost }
+            let lTokens = lhs.totalTokens ?? -1
+            let rTokens = rhs.totalTokens ?? -1
+            if lTokens != rTokens { return lTokens < rTokens }
+            return lhs.date < rhs.date
+        }
         // Prefer summary totals when present; fall back to summing daily entries.
         let totalFromSummary = daily.summary?.totalCostUSD
         let totalFromEntries = daily.data.compactMap(\.costUSD).reduce(0, +)

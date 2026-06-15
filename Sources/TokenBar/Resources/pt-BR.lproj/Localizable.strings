@@ -99,6 +99,8 @@
 "Could not start codex login" = "Não foi possível iniciar o login do Codex";
 "Could not switch system account" = "Não foi possível trocar a conta do sistema";
 "Credits" = "Créditos";
+"Individual credits" = "Créditos individuais";
+"Workspace" = "Workspace";
 "Credits history" = "Histórico de créditos";
 "Cursor login failed" = "Falha no login do Cursor";
 "Custom" = "Personalizado";
@@ -401,10 +403,13 @@
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_swedish" = "Sueco";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_french" = "Francês";
 "language_ukrainian" = "Ucraniano";
 "language_japanese" = "Japonês";
 "language_korean" = "Coreano";
+"language_italian" = "Italiano";
+"language_polish" = "Polski";
 "start_at_login_title" = "Iniciar ao fazer login";
 "start_at_login_subtitle" = "Abre o TokenBar automaticamente ao iniciar o Mac.";
 "show_cost_summary" = "Mostrar resumo de custos";
@@ -498,7 +503,7 @@
 "show_quota_warning_markers_title" = "Mostrar marcadores de alerta de cota";
 "show_quota_warning_markers_subtitle" = "Desenha marcas de limite nas barras de uso quando os alertas de cota estão configurados.";
 "weekly_progress_work_days_title" = "Dias úteis no progresso semanal";
-"weekly_progress_work_days_subtitle" = "Desenha marcas de limite de dia nas barras de uso semanal.";
+"weekly_progress_work_days_subtitle" = "Define os dias úteis para marcadores das barras de uso semanal e cálculos de ritmo.";
 "show_reset_time_as_clock_title" = "Mostrar renovação como horário";
 "show_reset_time_as_clock_subtitle" = "Mostra horários de renovação como horas absolutas, em vez de contagens regressivas.";
 "show_provider_changelog_links_title" = "Mostrar links de changelog dos provedores";
@@ -1070,6 +1075,8 @@
 "Search providers" = "Buscar provedores";
 
 "language_vietnamese" = "Vietnamita";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importa automaticamente cookies do Chrome do Xiaomi MiMo.";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Indonésio";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

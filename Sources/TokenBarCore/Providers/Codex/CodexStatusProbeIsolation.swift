@@ -11,7 +11,7 @@ enum CodexStatusProbeIsolation {
         }
 
         let directory = baseURL
-            .appendingPathComponent("CodexBar", isDirectory: true)
+            .appendingPathComponent("TokenBar", isDirectory: true)
             .appendingPathComponent("CodexStatusProbe", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory

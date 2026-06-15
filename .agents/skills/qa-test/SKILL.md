@@ -35,7 +35,7 @@ Useful modes:
 
 Interpretation:
 
-- `--enabled` asks `TokenBarCLI config providers` for enabled providers, honoring `TOKENBAR_CONFIG` and default toggles.
+- `--enabled` asks `TokenBarCLI config providers` for enabled providers, honoring `CODEXBAR_CONFIG` and default toggles.
 - `--default` runs the app-facing default command with no provider override.
 - `--provider all` forces every registered provider and is expected to fail for providers without sessions/keys.
 - A green app config needs `--enabled` and `--default` clean; `--provider all` is a discovery/triage tool.

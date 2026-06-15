@@ -1,13 +1,12 @@
 import Foundation
-import TokenBarMacroSupport
 
 #if os(macOS)
 import SweetCookieKit
 #endif
 
-@ProviderDescriptorRegistration
-@ProviderDescriptorDefinition
 public enum AbacusProviderDescriptor {
+    public static let descriptor: ProviderDescriptor = Self.makeDescriptor()
+
     static func makeDescriptor() -> ProviderDescriptor {
         ProviderDescriptor(
             id: .abacus,

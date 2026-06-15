@@ -1,6 +1,6 @@
 import Foundation
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 #if os(macOS)
 import AppKit
 #endif
@@ -127,7 +127,7 @@ final class InMemoryTokenAccountStore: ProviderTokenAccountStoring, @unchecked S
 func testConfigStore(suiteName: String, reset: Bool = true) -> CodexBarConfigStore {
     let sanitized = suiteName.replacingOccurrences(of: "/", with: "-")
     let base = FileManager.default.temporaryDirectory
-        .appendingPathComponent("codexbar-tests", isDirectory: true)
+        .appendingPathComponent("tokenbar-tests", isDirectory: true)
         .appendingPathComponent(sanitized, isDirectory: true)
     let url = base.appendingPathComponent("config.json")
     if reset {
@@ -136,7 +136,43 @@ func testConfigStore(suiteName: String, reset: Bool = true) -> CodexBarConfigSto
     return CodexBarConfigStore(fileURL: url)
 }
 
+@MainActor
+func testSettingsStore(
+    suiteName: String,
+    tokenAccountStore: any ProviderTokenAccountStoring = InMemoryTokenAccountStore()) -> SettingsStore
+{
+    let isolatedSuiteName = "\(suiteName)-\(UUID().uuidString)"
+    guard let defaults = UserDefaults(suiteName: isolatedSuiteName) else {
+        preconditionFailure("Could not create test defaults suite")
+    }
+    defaults.removePersistentDomain(forName: isolatedSuiteName)
+    return SettingsStore(
+        userDefaults: defaults,
+        configStore: testConfigStore(suiteName: isolatedSuiteName),
+        zaiTokenStore: NoopZaiTokenStore(),
+        syntheticTokenStore: NoopSyntheticTokenStore(),
+        codexCookieStore: InMemoryCookieHeaderStore(),
+        claudeCookieStore: InMemoryCookieHeaderStore(),
+        cursorCookieStore: InMemoryCookieHeaderStore(),
+        opencodeCookieStore: InMemoryCookieHeaderStore(),
+        factoryCookieStore: InMemoryCookieHeaderStore(),
+        minimaxCookieStore: InMemoryMiniMaxCookieStore(),
+        minimaxAPITokenStore: InMemoryMiniMaxAPITokenStore(),
+        kimiTokenStore: InMemoryKimiTokenStore(),
+        kimiK2TokenStore: InMemoryKimiK2TokenStore(),
+        augmentCookieStore: InMemoryCookieHeaderStore(),
+        ampCookieStore: InMemoryCookieHeaderStore(),
+        copilotTokenStore: InMemoryCopilotTokenStore(),
+        tokenAccountStore: tokenAccountStore)
+}
+
 #if os(macOS)
+@MainActor
+func testStatusBar() -> NSStatusBar {
+    // Standalone NSStatusBar instances can crash during swiftpm-testing-helper teardown.
+    .system
+}
+
 @MainActor
 @discardableResult
 func withStatusItemControllerForTesting<T>(
@@ -181,7 +217,7 @@ func withStatusItemControllerForTesting<T>(
 func testPlanUtilizationHistoryStore(suiteName: String, reset: Bool = true) -> PlanUtilizationHistoryStore {
     let sanitized = suiteName.replacingOccurrences(of: "/", with: "-")
     let base = FileManager.default.temporaryDirectory
-        .appendingPathComponent("codexbar-tests", isDirectory: true)
+        .appendingPathComponent("tokenbar-tests", isDirectory: true)
         .appendingPathComponent(sanitized, isDirectory: true)
     let url = base.appendingPathComponent("history", isDirectory: true)
     if reset {

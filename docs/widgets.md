@@ -15,15 +15,15 @@ read_when:
 - If no snapshot is available, widgets fall back to preview/empty data.
 
 ## Extension
-- `Sources/CodexBarWidget` contains timeline + views.
-- `WidgetExtension/CodexBarWidgetExtension.xcodeproj` builds those sources as the packaged macOS WidgetKit app extension.
+- `Sources/TokenBarWidget` contains timeline + views.
+- `WidgetExtension/TokenBarWidgetExtension.xcodeproj` builds those sources as the packaged macOS WidgetKit app extension.
 - Keep data shape in sync with `WidgetSnapshot` in the main app.
 
 ## Widget types
-- **TokenBar Switcher** (`TokenBarSwitcherWidget`): static provider switcher widget, small/medium/large.
-- **TokenBar Usage** (`TokenBarUsageWidget`): configurable provider usage widget, small/medium/large.
-- **TokenBar History** (`TokenBarHistoryWidget`): configurable usage-history chart, medium/large.
-- **TokenBar Metric** (`TokenBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
+- **TokenBar Switcher** (`CodexBarSwitcherWidget`): static provider switcher widget, small/medium/large.
+- **TokenBar Usage** (`CodexBarUsageWidget`): configurable provider usage widget, small/medium/large.
+- **TokenBar History** (`CodexBarHistoryWidget`): configurable usage-history chart, medium/large.
+- **TokenBar Metric** (`CodexBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
 
 ## Provider picker support
 The configurable provider widgets currently expose:
@@ -39,7 +39,7 @@ registration, signing, or daemon caching (not SwiftUI code).
 ```
 APP="/Applications/TokenBar.app"
 WAPPEX="$APP/Contents/PlugIns/TokenBarWidget.appex"
-WIDGET_ID="com.y0shua1ee.tokenbar.widget" # debug builds use com.y0shua1ee.tokenbar.debug.widget
+WIDGET_ID="com.steipete.tokenbar.widget" # debug builds use com.steipete.tokenbar.debug.widget
 
 ls -la "$WAPPEX" "$WAPPEX/Contents" "$WAPPEX/Contents/MacOS"
 ```
@@ -47,7 +47,6 @@ ls -la "$WAPPEX" "$WAPPEX/Contents" "$WAPPEX/Contents/MacOS"
 ### 2) PlugInKit registration (pkd)
 ```
 pluginkit -m -p com.apple.widgetkit-extension -v | grep -i tokenbar || true
-WIDGET_ID="com.y0shua1ee.tokenbar.widget"
 pluginkit -m -p com.apple.widgetkit-extension -i "$WIDGET_ID" -vv
 ```
 Notes:
@@ -85,7 +84,7 @@ log stream --style compact --predicate '(process == "pkd" OR process == "chronod
 ```
 
 ### 6) Packaging sanity checks
-- Widget bundle id should be `com.y0shua1ee.tokenbar.widget` for release builds.
+- Widget bundle id should be `com.steipete.tokenbar.widget` for release and `com.steipete.tokenbar.debug.widget` for debug.
 - `NSExtensionPointIdentifier` must be `com.apple.widgetkit-extension`.
 - Bundle folder name should match: `TokenBarWidget.appex`.
 

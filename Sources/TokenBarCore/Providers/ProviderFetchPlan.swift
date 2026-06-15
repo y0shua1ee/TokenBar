@@ -39,7 +39,7 @@ public struct ProviderFetchContext: Sendable {
     public let costUsageHistoryDays: Int
     /// Whether warm CLI helper sessions (such as the managed Antigravity `agy`
     /// process) may outlive a single fetch. True for long-lived hosts (the app,
-    /// `codexbar serve`); false for one-shot CLI invocations that should reset
+    /// `tokenbar serve`); false for one-shot CLI invocations that should reset
     /// the session after each fetch.
     public let persistsCLISessions: Bool
     /// Minimum idle lifetime for persistent CLI helper sessions. Long-lived

@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct OpenCodeGoProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .opencodego
 

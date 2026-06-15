@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const docsDir = path.join(repoRoot, "docs");
-const origin = "https://y0shua1ee.github.io/TokenBar";
+const cname = fs.readFileSync(path.join(docsDir, "CNAME"), "utf8").trim();
+const origin = "https://" + cname;
 const productName = "TokenBar";
-const productDescription = "TokenBar shows OpenAI Codex, Claude Code, Krill, Custom providers, and other AI coding usage limits in the macOS menu bar.";
-const source = "https://github.com/y0shua1ee/TokenBar";
+const source = "https://github.com/steipete/CodexBar";
 
 const pages = allHtml(docsDir)
   .map((file) => {
@@ -23,6 +23,9 @@ const pages = allHtml(docsDir)
   })
   .filter(Boolean)
   .sort((a, b) => (a.rel === "index.html" ? -1 : b.rel === "index.html" ? 1 : a.rel.localeCompare(b.rel)));
+const productDescription =
+  pages.find((page) => page.rel === "index.html")?.description ||
+  "TokenBar shows AI coding-provider usage limits in the macOS menu bar.";
 
 const lines = [
   "# " + productName,

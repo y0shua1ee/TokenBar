@@ -5,9 +5,9 @@ import Testing
 struct OpenCodeGoUsageParserTests {
     @Test
     func `parses workspace ids`() {
-        let text = ";0x00000089;((self.$R=self.$R||{})[\"codexbar\"]=[]," +
+        let text = ";0x00000089;((self.$R=self.$R||{})[\"tokenbar\"]=[]," +
             "($R=>$R[0]=[$R[1]={id:\"wrk_01K6AR1ZET89H8NB691FQ2C2VB\",name:\"Default\",slug:null}])" +
-            "($R[\"codexbar\"]))"
+            "($R[\"tokenbar\"]))"
         let ids = OpenCodeGoUsageFetcher.parseWorkspaceIDs(text: text)
         #expect(ids == ["wrk_01K6AR1ZET89H8NB691FQ2C2VB"])
     }
@@ -57,6 +57,30 @@ struct OpenCodeGoUsageParserTests {
         let text = String(data: data, encoding: .utf8) ?? ""
 
         #expect(OpenCodeGoUsageFetcher.parseZenBalance(text: text) == 1042.75)
+    }
+
+    @Test
+    func `parses scaled zen balance from billing server response`() {
+        let text =
+            #";0x00000120;((self.$R=self.$R||{})["server-fn:test"]=[],"# +
+            #"($R=>$R[0]=$R[1]={customerID:"cus_test",balance:$R[2]=2375000000,reload:!1})"# +
+            #"($R["server-fn:test"]))"#
+
+        #expect(OpenCodeGoZenBalanceParser.parseBillingServerResponse(text: text) == 23.75)
+    }
+
+    @Test
+    func `billing server parser ignores unrelated balance metadata`() {
+        let text = #"$R[0]={balanceEnabled:!0,balanceUpdatedAt:1800000000}"#
+
+        #expect(OpenCodeGoZenBalanceParser.parseBillingServerResponse(text: text) == nil)
+    }
+
+    @Test
+    func `billing server parser ignores balance when billing is disabled`() {
+        let text = #"$R[0]={customerID:null,balance:0,reload:!1}"#
+
+        #expect(OpenCodeGoZenBalanceParser.parseBillingServerResponse(text: text) == nil)
     }
 
     @Test

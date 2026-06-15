@@ -1,8 +1,8 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
 @testable import TokenBarCLI
-@testable import TokenBarCore
 
 @Suite(.serialized)
 @MainActor
@@ -105,6 +105,28 @@ struct TokenAccountEnvironmentPrecedenceTests {
 
         #expect(ollamaSettings.cookieSource == .manual)
         #expect(ollamaSettings.manualCookieHeader == "session=account-token")
+    }
+
+    @Test
+    func `app snapshot override resolves cookie account without mutating stored selection`() throws {
+        let settings = Self.makeSettingsStore(suite: "TokenAccountEnvironmentPrecedenceTests-cookie-override-app")
+        settings.cursorCookieSource = .auto
+        settings.cursorCookieHeader = "configured=true"
+        let account = ProviderTokenAccount(
+            id: UUID(),
+            label: "Override",
+            token: "account=true",
+            addedAt: 0,
+            lastUsed: nil)
+
+        let snapshot = ProviderRegistry.makeSettingsSnapshot(
+            settings: settings,
+            tokenOverride: TokenAccountOverride(provider: .cursor, account: account))
+        let cursorSettings = try #require(snapshot.cursor)
+
+        #expect(cursorSettings.cookieSource == .manual)
+        #expect(cursorSettings.manualCookieHeader == "account=true")
+        #expect(settings.tokenAccounts(for: .cursor).isEmpty)
     }
 
     @Test

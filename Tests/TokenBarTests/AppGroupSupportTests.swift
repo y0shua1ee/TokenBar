@@ -6,17 +6,17 @@ struct AppGroupSupportTests {
     @Test
     func `app group identifiers use resolved team-prefixed release and debug variants`() {
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "Y5PE65HELJ", bundleID: "com.y0shua1ee.tokenbar")
-                == "Y5PE65HELJ.com.y0shua1ee.tokenbar")
+            AppGroupSupport.currentGroupID(teamID: "Y5PE65HELJ", bundleID: "com.steipete.tokenbar")
+                == "Y5PE65HELJ.com.steipete.tokenbar")
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: "com.y0shua1ee.tokenbar.debug")
-                == "ABCDE12345.com.y0shua1ee.tokenbar.debug")
+            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: "com.steipete.tokenbar.debug")
+                == "ABCDE12345.com.steipete.tokenbar.debug")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.y0shua1ee.tokenbar")
-                == "group.com.y0shua1ee.tokenbar")
+            AppGroupSupport.legacyGroupID(for: "com.steipete.tokenbar")
+                == "group.com.steipete.tokenbar")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.y0shua1ee.tokenbar.debug")
-                == "group.com.y0shua1ee.tokenbar.debug")
+            AppGroupSupport.legacyGroupID(for: "com.steipete.tokenbar.debug")
+                == "group.com.steipete.tokenbar.debug")
     }
 
     @Test
@@ -62,7 +62,7 @@ struct AppGroupSupportTests {
 
         let currentSnapshotURL = root.appendingPathComponent("current/widget-snapshot.json", isDirectory: false)
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.y0shua1ee.tokenbar",
+            bundleID: "com.steipete.tokenbar",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -80,7 +80,7 @@ struct AppGroupSupportTests {
                 == AppGroupSupport.migrationVersion)
 
         let secondResult = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.y0shua1ee.tokenbar",
+            bundleID: "com.steipete.tokenbar",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -108,7 +108,7 @@ struct AppGroupSupportTests {
         legacyDefaults.set(UsageProvider.cursor.rawValue, forKey: "widgetSelectedProvider")
 
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.y0shua1ee.tokenbar",
+            bundleID: "com.steipete.tokenbar",
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults)

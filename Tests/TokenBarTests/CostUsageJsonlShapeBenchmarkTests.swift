@@ -7,7 +7,7 @@ struct CostUsageJsonlShapeBenchmarkTests {
     @Test
     func `scanner benchmark covers codex session history shape`() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "codexbar-cost-jsonl-shape-\(UUID().uuidString)",
+            "tokenbar-cost-jsonl-shape-\(UUID().uuidString)",
             isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -117,7 +117,7 @@ struct CostUsageJsonlShapeBenchmarkTests {
     }
 
     private static func shapeDivisor() -> Int {
-        let value = ProcessInfo.processInfo.environment["TOKENBAR_COST_JSONL_SHAPE_DIVISOR"] ?? "20"
+        let value = ProcessInfo.processInfo.environment["CODEXBAR_COST_JSONL_SHAPE_DIVISOR"] ?? "20"
         return max(1, Int(value) ?? 20)
     }
 

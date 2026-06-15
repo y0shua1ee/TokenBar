@@ -114,7 +114,7 @@ Current routing rules:
     normalizes raw session keys into `sessionKey=<value>`.
 - CLI-side Claude token-account behavior:
   - OAuth token account changes the effective source mode from `auto` to `oauth`, disables cookie mode, omits a
-    manual cookie header, and injects `TOKENBAR_CLAUDE_OAUTH_TOKEN`.
+    manual cookie header, and injects `CODEXBAR_CLAUDE_OAUTH_TOKEN`.
   - Session-key or cookie-header account stays in cookie/manual mode.
 
 ## Siloing and web-enrichment baseline

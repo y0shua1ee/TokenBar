@@ -1,10 +1,10 @@
 import AppKit
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
-struct CodexBarTests {
+struct TokenBarTests {
     @Test
     func `icon renderer produces template image`() {
         let image = IconRenderer.makeIcon(
@@ -72,6 +72,30 @@ struct CodexBarTests {
         let remaining = IconRemainingResolver.resolvedRemaining(snapshot: snapshot, style: .antigravity)
         #expect(remaining.primary == 70)
         #expect(remaining.secondary == 40)
+    }
+
+    @Test
+    func `antigravity icon uses compact fallback model quota`() {
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: nil,
+            extraRateWindows: [
+                NamedRateWindow(
+                    id: "antigravity-compact-fallback-model",
+                    title: "New Model",
+                    window: RateWindow(
+                        usedPercent: 64,
+                        windowMinutes: nil,
+                        resetsAt: nil,
+                        resetDescription: nil)),
+            ],
+            updatedAt: Date())
+
+        let remaining = IconRemainingResolver.resolvedRemaining(snapshot: snapshot, style: .antigravity)
+
+        #expect(remaining.primary == 36)
+        #expect(remaining.secondary == nil)
     }
 
     @Test
@@ -161,6 +185,200 @@ struct CodexBarTests {
 
         // Primary bar (top track) must have fill to prove the progress bar rendered.
         #expect(regionHasFill(xRange: 3...33, yRange: 19...31))
+    }
+
+    @Test
+    func `copilot icon can use selected budget as secondary lane`() {
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 20, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 30, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            extraRateWindows: [
+                NamedRateWindow(
+                    id: "copilot-budget-agent",
+                    title: "Budget - Copilot Agent Premium Requests",
+                    window: RateWindow(usedPercent: 65, windowMinutes: nil, resetsAt: nil, resetDescription: nil)),
+            ],
+            updatedAt: Date())
+
+        let remaining = IconRemainingResolver.resolvedRemaining(
+            snapshot: snapshot,
+            style: .copilot,
+            secondaryOverrideWindowID: "copilot-budget-agent")
+
+        #expect(remaining.primary == 80)
+        #expect(remaining.secondary == 35)
+    }
+
+    @Test
+    func `copying extra rate windows preserves subscription dates`() {
+        let expiresAt = Date(timeIntervalSince1970: 1_810_656_000)
+        let renewsAt = Date(timeIntervalSince1970: 1_810_569_600)
+        let ampUsage = AmpUsageDetails(
+            individualCredits: 12.5,
+            workspaceBalances: [AmpWorkspaceBalance(name: "Team", remaining: 7.25)])
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            ampUsage: ampUsage,
+            subscriptionExpiresAt: expiresAt,
+            subscriptionRenewsAt: renewsAt,
+            updatedAt: Date(timeIntervalSince1970: 1_800_000_000))
+
+        let copied = snapshot.with(extraRateWindows: [])
+
+        #expect(copied.subscriptionExpiresAt == expiresAt)
+        #expect(copied.subscriptionRenewsAt == renewsAt)
+        #expect(copied.ampUsage == ampUsage)
+    }
+
+    @Test
+    func `copying rate windows preserves provider payloads`() {
+        let updatedAt = Date(timeIntervalSince1970: 1_800_000_000)
+        let mimoUsage = MiMoUsageSnapshot(
+            balance: 12.5,
+            currency: "USD",
+            tokenUsed: 25,
+            tokenLimit: 100,
+            tokenPercent: 0.25,
+            updatedAt: updatedAt)
+        let identity = ProviderIdentitySnapshot(
+            providerID: .codex,
+            accountEmail: "test@example.com",
+            accountOrganization: "Example",
+            loginMethod: "OAuth")
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            tertiary: RateWindow(usedPercent: 30, windowMinutes: 60, resetsAt: nil, resetDescription: nil),
+            mimoUsage: mimoUsage,
+            cursorRequests: CursorRequestUsage(used: 10, limit: 50),
+            subscriptionExpiresAt: updatedAt.addingTimeInterval(100),
+            subscriptionRenewsAt: updatedAt.addingTimeInterval(200),
+            updatedAt: updatedAt,
+            identity: identity)
+
+        let copied = snapshot.with(
+            primary: RateWindow(usedPercent: 40, windowMinutes: 300, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 50, windowMinutes: 10080, resetsAt: nil, resetDescription: nil))
+
+        #expect(copied.primary?.usedPercent == 40)
+        #expect(copied.secondary?.usedPercent == 50)
+        #expect(copied.tertiary?.usedPercent == 30)
+        #expect(copied.mimoUsage?.balance == 12.5)
+        #expect(copied.cursorRequests?.used == 10)
+        #expect(copied.subscriptionExpiresAt == updatedAt.addingTimeInterval(100))
+        #expect(copied.subscriptionRenewsAt == updatedAt.addingTimeInterval(200))
+        #expect(copied.identity?.accountOrganization == "Example")
+    }
+
+    @Test
+    func `copying identity preserves provider payloads`() {
+        let updatedAt = Date(timeIntervalSince1970: 1_800_000_000)
+        let ampUsage = AmpUsageDetails(
+            individualCredits: 12.5,
+            workspaceBalances: [AmpWorkspaceBalance(name: "Team", remaining: 7.25)])
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            ampUsage: ampUsage,
+            cursorRequests: CursorRequestUsage(used: 10, limit: 50),
+            subscriptionExpiresAt: updatedAt.addingTimeInterval(100),
+            subscriptionRenewsAt: updatedAt.addingTimeInterval(200),
+            updatedAt: updatedAt)
+        let identity = ProviderIdentitySnapshot(
+            providerID: .kilo,
+            accountEmail: "test@example.com",
+            accountOrganization: "Example",
+            loginMethod: "API")
+
+        let copied = snapshot.withIdentity(identity)
+
+        #expect(copied.ampUsage == ampUsage)
+        #expect(copied.cursorRequests?.used == 10)
+        #expect(copied.subscriptionExpiresAt == updatedAt.addingTimeInterval(100))
+        #expect(copied.subscriptionRenewsAt == updatedAt.addingTimeInterval(200))
+        #expect(copied.identity?.accountOrganization == "Example")
+    }
+
+    @Test
+    func `copilot icon falls back to chat lane when selected budget is unavailable`() {
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 20, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 30, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            extraRateWindows: nil,
+            updatedAt: Date())
+
+        let remaining = IconRemainingResolver.resolvedRemaining(
+            snapshot: snapshot,
+            style: .copilot,
+            secondaryOverrideWindowID: "copilot-budget-agent")
+
+        #expect(remaining.primary == 80)
+        #expect(remaining.secondary == 70)
+    }
+
+    @Test
+    func `copilot icon uses selected budget in show used mode`() {
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 20, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 30, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            extraRateWindows: [
+                NamedRateWindow(
+                    id: "copilot-budget-agent",
+                    title: "Budget - Copilot Agent Premium Requests",
+                    window: RateWindow(usedPercent: 65, windowMinutes: nil, resetsAt: nil, resetDescription: nil)),
+            ],
+            updatedAt: Date())
+
+        let percents = IconRemainingResolver.resolvedPercents(
+            snapshot: snapshot,
+            style: .copilot,
+            showUsed: true,
+            secondaryOverrideWindowID: "copilot-budget-agent")
+
+        #expect(percents.primary == 20)
+        #expect(percents.secondary == 65)
+    }
+
+    @Test
+    func `warp icon preserves exhausted bonus layout in show used mode`() {
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 10, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 100, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            updatedAt: Date())
+
+        let percents = IconRemainingResolver.resolvedPercents(
+            snapshot: snapshot,
+            style: .warp,
+            showUsed: true)
+
+        #expect(percents.primary == 10)
+        #expect(percents.secondary == 0)
+    }
+
+    @Test
+    func `warp icon keeps unused bonus lane visible in show used mode`() {
+        let snapshot = UsageSnapshot(
+            primary: RateWindow(usedPercent: 10, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            secondary: RateWindow(usedPercent: 0, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+            updatedAt: Date())
+
+        let percents = IconRemainingResolver.resolvedPercents(
+            snapshot: snapshot,
+            style: .warp,
+            showUsed: true)
+
+        #expect(percents.primary == 10)
+        #expect(percents.secondary != nil)
+        #expect(percents.secondary ?? 1 < 0.01)
+    }
+
+    @Test
+    @MainActor
+    func `status icon accessibility uses percentage scale`() {
+        #expect(
+            StatusIconView.accessibilityPercentRemaining(50) ==
+                String(format: L("%d percent remaining"), 50))
     }
 
     @Test

@@ -49,7 +49,7 @@ struct ClaudeOAuthKeychainAccessGateTests {
 
     @Test
     func `process keeps keychain access disabled despite false global override`() {
-        guard ProcessInfo.processInfo.environment["TOKENBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
+        guard ProcessInfo.processInfo.environment["CODEXBAR_ALLOW_TEST_KEYCHAIN_ACCESS"] != "1" else { return }
         KeychainAccessGate.resetOverrideForTesting()
         defer { KeychainAccessGate.resetOverrideForTesting() }
 

@@ -1,8 +1,8 @@
 import Commander
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBarCLI
-@testable import TokenBarCore
 
 struct CLICostTests {
     @Test
@@ -31,30 +31,11 @@ struct CLICostTests {
             .replacingOccurrences(of: "\u{00A0}", with: " ")
             .replacingOccurrences(of: "$ ", with: "$")
 
-        #expect(output.contains("Claude Cost (local)"))
+        #expect(output.contains("Claude Cost (API-rate estimate)"))
         #expect(output.contains("Today: $1.25 · 1.2K tokens"))
         #expect(output.contains("Last 90 days: $9.99 · 9K tokens"))
         #expect(output.contains("cache read/write tokens"))
         #expect(output.contains("Claude Code /status"))
-    }
-
-    @Test
-    func `renders Krill cost as api backed`() {
-        let snap = CostUsageTokenSnapshot(
-            sessionTokens: 1200,
-            sessionCostUSD: 1.25,
-            last30DaysTokens: 9000,
-            last30DaysCostUSD: 9.99,
-            daily: [],
-            updatedAt: Date(timeIntervalSince1970: 0))
-
-        let output = TokenBarCLI.renderCostText(provider: .krill, snapshot: snap, useColor: false)
-            .replacingOccurrences(of: "\u{00A0}", with: " ")
-            .replacingOccurrences(of: "$ ", with: "$")
-
-        #expect(output.contains("Krill Cost (api)"))
-        #expect(output.contains("Today: $1.25 · 1.2K tokens"))
-        #expect(output.contains("Last 30 days: $9.99 · 9K tokens"))
     }
 
     @Test

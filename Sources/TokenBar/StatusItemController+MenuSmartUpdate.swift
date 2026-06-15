@@ -27,9 +27,49 @@ extension StatusItemController {
                 switcherView.updateQuotaIndicators()
             }
             let outgoingSelection = self.lastMergedMenuContentSelection
+            let isSelectionSwitch = outgoingSelection != nil && outgoingSelection != context.switcherSelection
             let enabledProviders = self.store.enabledProvidersForDisplay()
 
-            // Rebuild path (data tick, or provider switch): recycle
+            if isSelectionSwitch,
+               let outgoingSelection,
+               let cachedItems = self.reusableMergedSwitcherContent(
+                   for: context.switcherSelection,
+                   in: menu,
+                   menuWidth: context.menuWidth,
+                   codexAccountDisplay: context.codexAccountDisplay,
+                   tokenAccountDisplay: context.tokenAccountDisplay)
+            {
+                // Park the outgoing payloads for an equally instant switch-back. Compatible
+                // menu-item shells stay attached, avoiding the empty intermediate layout that
+                // AppKit can visibly render when the whole content block is removed first.
+                let outgoingCodexAccountDisplay = self.lastCodexAccountMenuDisplay
+                let outgoingTokenAccountDisplay = self.lastTokenAccountMenuDisplay
+                self.rememberMergedSwitcherState(enabledProviders, context.switcherSelection)
+                let displacedItems = self.replaceMenuContentKeepingRowsVisible(
+                    menu,
+                    fromIndex: contentStartIndex,
+                    with: cachedItems)
+                self.cacheMergedSwitcherContent(
+                    displacedItems,
+                    in: menu,
+                    selection: outgoingSelection,
+                    context: MergedSwitcherContentCacheContext(
+                        menuWidth: context.menuWidth,
+                        codexAccountDisplay: outgoingCodexAccountDisplay,
+                        tokenAccountDisplay: outgoingTokenAccountDisplay,
+                        contentVersion: nil))
+                self.lastCodexAccountMenuDisplay = context.codexAccountDisplay
+                self.lastTokenAccountMenuDisplay = context.tokenAccountDisplay
+                self.cacheVisibleMergedSwitcherContent(
+                    in: menu,
+                    selection: context.switcherSelection,
+                    contentStartIndex: contentStartIndex,
+                    menuWidth: context.menuWidth,
+                    contentVersion: self.menuSession.contentVersion)
+                return
+            }
+
+            // Rebuild path (data tick, or switch whose incoming tab must be built): recycle
             // the outgoing hosting views and reconcile in place when the row skeleton is
             // unchanged, so an open tracked menu sees content mutations instead of item
             // churn. The fresh content is built into a detached scratch menu while its
@@ -51,7 +91,7 @@ extension StatusItemController {
                 selection: context.switcherSelection,
                 contentStartIndex: contentStartIndex,
                 menuWidth: context.menuWidth,
-                contentVersion: self.menuContentVersion)
+                contentVersion: self.menuSession.contentVersion)
         }
     }
 

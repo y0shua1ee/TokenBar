@@ -1,7 +1,7 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 extension HistoricalUsagePaceTests {
     private static let dashboardTimeZone: TimeZone = .current
@@ -25,7 +25,7 @@ extension HistoricalUsagePaceTests {
 
     static func makeTempURL() -> URL {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-historical-tests", isDirectory: true)
+            .appendingPathComponent("tokenbar-historical-tests", isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return root.appendingPathComponent("usage-history.jsonl", isDirectory: false)
     }

@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct OpenRouterProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .openrouter
     let supportsLoginFlow: Bool = true

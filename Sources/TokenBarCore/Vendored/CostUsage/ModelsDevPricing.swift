@@ -69,7 +69,7 @@ struct ModelsDevCatalog: Codable, Equatable {
     }
 
     func isPlausibleRefresh() -> Bool {
-        // These are the direct pricing sources CodexBar relies on. Requiring both
+        // These are the direct pricing sources TokenBar relies on. Requiring both
         // rejects empty/partial responses without comparing against a fallback-
         // enriched cache that intentionally grows as models.dev churns.
         ["anthropic", "openai"].allSatisfy { providerID in
@@ -92,7 +92,7 @@ struct ModelsDevCatalog: Codable, Equatable {
             {
                 let fallbackKey = provider.models[modelKey] == nil
                     ? modelKey
-                    : "codexbar-fallback:\(modelKey):\(cachedModel.normalizedID)"
+                    : "tokenbar-fallback:\(modelKey):\(cachedModel.normalizedID)"
                 provider.models[fallbackKey] = cachedModel
             }
             merged.providers[normalizedProviderID] = provider
@@ -207,7 +207,7 @@ struct ModelsDevModel: Codable, Equatable {
     func pricing(providerID: String, providerName: String?) -> ModelsDevPricingInfo? {
         guard let input = self.cost?.input, let output = self.cost?.output else { return nil }
 
-        // models.dev publishes USD per 1M tokens. CodexBar cost math uses USD per token.
+        // models.dev publishes USD per 1M tokens. TokenBar cost math uses USD per token.
         let unit = 1_000_000.0
         let contextOver200K = self.cost?.contextOver200K
         return ModelsDevPricingInfo(

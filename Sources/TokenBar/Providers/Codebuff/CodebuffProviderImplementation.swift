@@ -1,9 +1,7 @@
 import AppKit
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct CodebuffProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .codebuff
 

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import TokenBarCore
+import TokenBarCore
 
 struct JetBrainsStatusProbeTests {
     @Test
@@ -254,7 +254,7 @@ struct JetBrainsStatusProbeTests {
         let testRoot = home
             .appendingPathComponent("Library")
             .appendingPathComponent("Caches")
-            .appendingPathComponent("CodexBarTests")
+            .appendingPathComponent("TokenBarTests")
             .appendingPathComponent("JetBrains-\(UUID().uuidString)")
         let optionsDir = testRoot.appendingPathComponent("options")
         try fileManager.createDirectory(

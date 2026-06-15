@@ -48,7 +48,7 @@ struct BedrockUsageStatsTests {
             "AWS_ACCESS_KEY_ID": "AKIAIOSFODNN7EXAMPLE",
             "AWS_SECRET_ACCESS_KEY": "secret",
             "AWS_REGION": "eu-west-1",
-            "TOKENBAR_BEDROCK_BUDGET": "500",
+            "CODEXBAR_BEDROCK_BUDGET": "500",
         ]
 
         #expect(BedrockSettingsReader.accessKeyID(environment: env) == "AKIAIOSFODNN7EXAMPLE")
@@ -116,7 +116,7 @@ struct BedrockUsageStatsTests {
             credentials: credentials,
             region: "us-east-1",
             budget: 100,
-            environment: ["TOKENBAR_BEDROCK_API_URL": "https://bedrock.test"])
+            environment: ["CODEXBAR_BEDROCK_API_URL": "https://bedrock.test"])
 
         #expect(usage.monthlySpend == 42.50)
         #expect(usage.monthlyBudget == 100)
@@ -303,12 +303,13 @@ struct BedrockUsageStatsTests {
             return responses.next(url: url)
         }
 
-        let snapshot = try await CostUsageFetcher(environment: [
-            BedrockSettingsReader.accessKeyIDKey: "AKIATEST",
-            BedrockSettingsReader.secretAccessKeyKey: "testSecret",
-            BedrockSettingsReader.apiURLKey: "https://bedrock.test",
-        ]).loadTokenSnapshot(
+        let snapshot = try await CostUsageFetcher().loadTokenSnapshot(
             provider: .bedrock,
+            environment: [
+                BedrockSettingsReader.accessKeyIDKey: "AKIATEST",
+                BedrockSettingsReader.secretAccessKeyKey: "testSecret",
+                BedrockSettingsReader.apiURLKey: "https://bedrock.test",
+            ],
             now: Date(timeIntervalSince1970: 1_765_324_800))
 
         #expect(snapshot.last30DaysCostUSD == 7.25)

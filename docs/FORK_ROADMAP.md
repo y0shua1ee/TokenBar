@@ -29,7 +29,7 @@ This document outlines the development roadmap for the TokenBar fork maintained 
 
 **Tasks:**
 1. **Replace print() with proper logging**
-   - Use `TokenBarLog.logger("augment")` throughout
+   - Use `CodexBarLog.logger("augment")` throughout
    - Add structured metadata for debugging
    - Follow patterns from Claude/Cursor providers
 

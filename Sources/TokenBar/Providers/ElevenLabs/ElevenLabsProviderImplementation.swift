@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct ElevenLabsProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .elevenlabs
 

@@ -24,14 +24,14 @@ struct VertexAIOAuthCredentialsTests {
 
         #expect(credentials.accessToken == "ya29.service-account")
         #expect(credentials.projectId == "service-project")
-        #expect(credentials.email == "codexbar@test.iam.gserviceaccount.com")
+        #expect(credentials.email == "tokenbar@test.iam.gserviceaccount.com")
         #expect(!credentials.needsRefresh)
     }
 
     @Test
     func `user ADC credentials still parse from CLOUDSDK_CONFIG`() throws {
         let configDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-vertex-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-vertex-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: configDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: configDir) }
 
@@ -62,7 +62,7 @@ struct VertexAIOAuthCredentialsTests {
 
     private static func writeServiceAccountCredentials() throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-vertex-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-vertex-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let fileURL = directory.appendingPathComponent("service-account.json")
         let json = """
@@ -71,7 +71,7 @@ struct VertexAIOAuthCredentialsTests {
           "project_id": "service-project",
           "private_key_id": "key-id",
           "private_key": "-----BEGIN PRIVATE KEY-----\\nabc\\n-----END PRIVATE KEY-----\\n",
-          "client_email": "codexbar@test.iam.gserviceaccount.com",
+          "client_email": "tokenbar@test.iam.gserviceaccount.com",
           "client_id": "1234567890",
           "token_uri": "https://oauth2.googleapis.com/token"
         }

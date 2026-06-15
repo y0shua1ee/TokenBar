@@ -1,8 +1,9 @@
+import AppKit
 import Foundation
 import SwiftUI
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @MainActor
 struct ProvidersPaneCoverageTests {
@@ -49,6 +50,53 @@ struct ProvidersPaneCoverageTests {
         #expect(
             ProvidersPane.filteredProviders(providers, query: "deepseek", displayName: { _ in "API" })
                 == [.deepseek])
+    }
+
+    @Test
+    func `selected provider sidebar palette uses contrasting selected text colors`() {
+        let palette = ProviderSidebarRowPalette(isSelected: true)
+
+        #expect(palette.primary.isEqual(NSColor.alternateSelectedControlTextColor))
+        #expect(palette.secondary.alphaComponent == 0.82)
+        #expect(palette.tertiary.alphaComponent == 0.65)
+    }
+
+    @Test
+    func `unselected provider sidebar palette uses standard label colors`() {
+        let palette = ProviderSidebarRowPalette(isSelected: false)
+
+        #expect(palette.primary.isEqual(NSColor.labelColor))
+        #expect(palette.secondary.isEqual(NSColor.secondaryLabelColor))
+        #expect(palette.tertiary.isEqual(NSColor.tertiaryLabelColor))
+    }
+
+    @Test
+    func `copilot menu card preview follows budget extras setting`() {
+        let settings = Self.makeSettingsStore(suite: "ProvidersPaneCoverageTests-copilot-budget-preview")
+        let store = Self.makeUsageStore(settings: settings)
+        let budgetTitle = "Budget - Copilot Agent Premium Requests"
+        store._setSnapshotForTesting(
+            UsageSnapshot(
+                primary: RateWindow(usedPercent: 20, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+                secondary: RateWindow(usedPercent: 30, windowMinutes: nil, resetsAt: nil, resetDescription: nil),
+                extraRateWindows: [
+                    NamedRateWindow(
+                        id: "copilot-budget-agent",
+                        title: budgetTitle,
+                        window: RateWindow(
+                            usedPercent: 65,
+                            windowMinutes: nil,
+                            resetsAt: nil,
+                            resetDescription: nil)),
+                ],
+                updatedAt: Date()),
+            provider: .copilot)
+        let pane = ProvidersPane(settings: settings, store: store)
+
+        #expect(!pane._test_menuCardModel(for: .copilot).metrics.map(\.title).contains(budgetTitle))
+
+        settings.copilotBudgetExtrasEnabled = true
+        #expect(pane._test_menuCardModel(for: .copilot).metrics.map(\.title).contains(budgetTitle))
     }
 
     @Test

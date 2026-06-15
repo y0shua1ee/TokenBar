@@ -11,27 +11,17 @@ extension TokenBarCLI {
         FileHandle.standardError.write(data)
     }
 
-    static func trace(_ message: String) {
-        guard ProcessInfo.processInfo.environment["TOKENBAR_CLI_TRACE"] == "1" else { return }
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        Self.writeStderr("[TokenBarCLI trace] \(timestamp) \(message)\n")
-    }
-
     static func printVersion() -> Never {
-        self.trace("printVersion:start")
         if let version = currentVersion() {
             print("TokenBar \(version)")
         } else {
             print("TokenBar")
         }
-        self.trace("printVersion:exit")
-        self.platformExit(0)
+        Self.platformExit(0)
     }
 
     static func printHelp(for command: String?) -> Never {
-        self.trace("printHelp:start command=\(command ?? "root")")
         let version = self.currentVersion() ?? "unknown"
-        Self.trace("printHelp:version=\(version)")
         switch command {
         case "usage":
             print(Self.usageHelp(version: version))
@@ -48,19 +38,18 @@ extension TokenBarCLI {
         default:
             print(Self.rootHelp(version: version))
         }
-        Self.trace("printHelp:printed")
         Self.platformExit(0)
     }
 
     static func currentVersion(
-        bundle: Bundle? = nil,
+        bundle: Bundle = .main,
         executablePath: String? = CommandLine.arguments.first) -> String?
     {
         if let version = self.currentVersion(bundleVersion: nil, executablePath: executablePath) {
             return version
         }
         return self.currentVersion(
-            bundleVersion: bundle?.infoDictionary?["CFBundleShortVersionString"] as? String,
+            bundleVersion: bundle.infoDictionary?["CFBundleShortVersionString"] as? String,
             executablePath: nil)
     }
 

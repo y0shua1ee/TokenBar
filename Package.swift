@@ -1,5 +1,4 @@
 // swift-tools-version: 6.2
-import CompilerPluginSupport
 import Foundation
 import PackageDescription
 
@@ -39,7 +38,6 @@ let package = Package(
         .package(url: "https://github.com/steipete/Commander", from: "0.2.1"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.0.0"),
         .package(url: "https://github.com/apple/swift-log", from: "1.12.0"),
-        .package(url: "https://github.com/apple/swift-syntax", from: "600.0.1"),
         .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", from: "2.4.0"),
         .package(url: "https://github.com/zats/Vortex", revision: "ef5392088d4aeb255c4eee83157dbdafcd31bf07"),
         sweetCookieKitDependency,
@@ -49,26 +47,12 @@ let package = Package(
             .target(
                 name: "TokenBarCore",
                 dependencies: [
-                    "TokenBarMacroSupport",
                     .product(name: "Crypto", package: "swift-crypto"),
                     .product(name: "Logging", package: "swift-log"),
                     .product(name: "SweetCookieKit", package: "SweetCookieKit"),
                 ],
-                path: "Sources/TokenBarCore",
                 swiftSettings: [
                     .enableUpcomingFeature("StrictConcurrency"),
-                ]),
-            .macro(
-                name: "TokenBarMacros",
-                dependencies: [
-                    .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                    .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
-                    .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                ]),
-            .target(
-                name: "TokenBarMacroSupport",
-                dependencies: [
-                    "TokenBarMacros",
                 ]),
             .executableTarget(
                 name: "TokenBarCLI",
@@ -105,7 +89,6 @@ let package = Package(
                     .product(name: "Sparkle", package: "Sparkle"),
                     .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
                     .product(name: "Vortex", package: "Vortex"),
-                    "TokenBarMacroSupport",
                     "TokenBarCore",
                 ],
                 path: "Sources/TokenBar",

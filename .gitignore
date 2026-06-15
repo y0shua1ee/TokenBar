@@ -1,7 +1,7 @@
 # Xcode user/session
 xcuserdata/
 .swiftpm/xcode/xcshareddata/
-.codexbar/config.json
+.tokenbar/config.json
 *.env
 *.local
 
@@ -13,8 +13,8 @@ DerivedData
 # Main app bundle (any variation)
 TokenBar.app/
 TokenBar *.app/
-TokenBar_*.app/
-Tokenbar.app/
+CodexBar_*.app/
+Codexbar.app/
 # Release artifacts
 *.ipa
 *.dSYM*
@@ -33,6 +33,7 @@ debug_*.swift
 .codex/environments/
 .swiftpm-cache/
 .tmp-clang/
+__pycache__/
 
 # Debug/analysis docs
 docs/*-analysis.md

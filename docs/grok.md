@@ -39,7 +39,7 @@ browser session when the CLI surface does not expose billing.
    - TokenBar imports Chrome only by default to avoid unrelated browser
      Keychain prompts.
    - CLI/test runtime does not import browser cookies unless
-     `TOKENBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
+     `CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set.
    - `~/.grok/auth.json` is still used for identity and as a last best-effort
      bearer-only probe after browser sessions fail. Expired tokens are not sent.
    - Parses the returned protobuf enough to recover used percent and

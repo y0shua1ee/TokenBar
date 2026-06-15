@@ -1,5 +1,5 @@
 import Testing
-@testable import TokenBarCore
+import TokenBarCore
 
 struct KimiK2SettingsReaderTests {
     @Test

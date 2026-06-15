@@ -1,6 +1,6 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
+import TokenBarCore
 
 /// Cross-platform tests for the OpenAI dashboard text parser.
 ///

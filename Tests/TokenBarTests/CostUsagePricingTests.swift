@@ -585,7 +585,7 @@ struct CostUsagePricingTests {
 
     private static func cacheRoot() throws -> URL {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-pricing-tests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-pricing-tests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         return root
     }

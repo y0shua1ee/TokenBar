@@ -70,7 +70,6 @@ public struct DeepSeekDashboardUsageSnapshot: Sendable, Equatable {
             last30DaysTokens: snapshot.last30DaysTokens,
             last30DaysCostUSD: snapshot.last30DaysCostUSD,
             last30DaysRequests: self.requestCount > 0 ? self.requestCount : nil,
-            costCurrencyCode: self.currencyCode,
             currencyCode: self.currencyCode,
             daily: snapshot.daily,
             updatedAt: snapshot.updatedAt)

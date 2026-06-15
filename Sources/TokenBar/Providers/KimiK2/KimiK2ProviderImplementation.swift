@@ -1,9 +1,7 @@
 import AppKit
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct KimiK2ProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .kimik2
 
@@ -29,9 +27,7 @@ struct KimiK2ProviderImplementation: ProviderImplementation {
                         style: .link,
                         isVisible: nil,
                         perform: {
-                            if let url =
-                                URL(string: "https://github.com/y0shua1ee/TokenBar/blob/main/docs/kimi-k2.md")
-                            {
+                            if let url = URL(string: "https://github.com/steipete/CodexBar/blob/main/docs/kimi-k2.md") {
                                 NSWorkspace.shared.open(url)
                             }
                         }),

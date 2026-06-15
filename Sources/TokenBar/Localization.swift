@@ -28,15 +28,12 @@ private func isRunningTestsProcess() -> Bool {
     isRunningTestsProcessAtStartup
 }
 
-private let standardAppLanguageAtProcessStart = UserDefaults.standard.string(forKey: "appLanguage")
-
 private func resolvedAppLanguage() -> String {
     if let override = CodexBarLocalizationOverride.appLanguage {
         return override
     }
     if isRunningTestsProcess() {
-        let current = UserDefaults.standard.string(forKey: "appLanguage")
-        return current == standardAppLanguageAtProcessStart ? "en" : current ?? ""
+        return "en"
     }
     return appLanguageDefaults().string(forKey: "appLanguage") ?? ""
 }
@@ -99,11 +96,11 @@ private enum LocalizationBundleCache {
 
 func codexBarLocalizationResourceBundle(
     mainBundle: Bundle = .main,
-    bundleName: String = "TokenBar_TokenBar") -> Bundle
+    bundleName: String = "CodexBar_CodexBar") -> Bundle
 {
     // Only the default (process `.main`) resolution is cached: it is constant for the lifetime of the
     // process. Custom arguments (tests) keep resolving directly so they stay isolated from the cache.
-    guard mainBundle === Bundle.main, bundleName == "TokenBar_TokenBar" else {
+    guard mainBundle === Bundle.main, bundleName == "CodexBar_CodexBar" else {
         return resolveLocalizationResourceBundle(mainBundle: mainBundle, bundleName: bundleName)
     }
     return LocalizationBundleCache.defaultResourceBundle {

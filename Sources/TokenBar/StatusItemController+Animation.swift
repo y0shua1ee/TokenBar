@@ -253,27 +253,11 @@ extension StatusItemController {
             IconRemainingResolver.resolvedPercents(
                 snapshot: $0,
                 style: style,
-                showUsed: showUsed)
+                showUsed: showUsed,
+                secondaryOverrideWindowID: self.settings.copilotIconSecondaryWindowOverrideID(snapshot: $0))
         }
         var primary = resolved?.primary
         var weekly = resolved?.secondary
-        if showUsed,
-           primaryProvider == .warp,
-           let remaining = snapshot?.secondary?.remainingPercent,
-           remaining <= 0
-        {
-            // Preserve Warp "no bonus/exhausted bonus" layout even in show-used mode.
-            weekly = 0
-        }
-        if showUsed,
-           primaryProvider == .warp,
-           let remaining = snapshot?.secondary?.remainingPercent,
-           remaining > 0,
-           weekly == 0
-        {
-            // In show-used mode, `0` means "unused", not "missing". Keep the weekly lane present.
-            weekly = Self.loadingPercentEpsilon
-        }
         var credits = self.menuBarCreditsRemainingForIcon(provider: primaryProvider, snapshot: snapshot)
         var stale = self.store.isStale(provider: primaryProvider)
         var morphProgress: Double?
@@ -479,27 +463,11 @@ extension StatusItemController {
             IconRemainingResolver.resolvedPercents(
                 snapshot: $0,
                 style: style,
-                showUsed: showUsed)
+                showUsed: showUsed,
+                secondaryOverrideWindowID: self.settings.copilotIconSecondaryWindowOverrideID(snapshot: $0))
         }
         var primary = resolved?.primary
         var weekly = resolved?.secondary
-        if showUsed,
-           provider == .warp,
-           let remaining = snapshot?.secondary?.remainingPercent,
-           remaining <= 0
-        {
-            // Preserve Warp "no bonus/exhausted bonus" layout even in show-used mode.
-            weekly = 0
-        }
-        if showUsed,
-           provider == .warp,
-           let remaining = snapshot?.secondary?.remainingPercent,
-           remaining > 0,
-           weekly == 0
-        {
-            // In show-used mode, `0` means "unused", not "missing". Keep the weekly lane present.
-            weekly = Self.loadingPercentEpsilon
-        }
         var credits = self.menuBarCreditsRemainingForIcon(provider: provider, snapshot: snapshot)
         var stale = self.store.isStale(provider: provider)
         var morphProgress: Double?
@@ -698,8 +666,20 @@ extension StatusItemController {
         {
             return UsageFormatter.usdString(balance)
         }
+        if provider == .opencodego,
+           let balance = Self.openCodeGoZenBalanceDisplayText(snapshot: snapshot)
+        {
+            return balance
+        }
         if provider == .deepseek,
            let balance = Self.deepSeekBalanceDisplayText(snapshot: snapshot)
+        {
+            return balance
+        }
+        if provider == .mimo,
+           let balance = Self.miMoBalanceDisplayText(
+               snapshot: snapshot,
+               preference: self.settings.menuBarMetricPreference(for: provider, snapshot: snapshot))
         {
             return balance
         }
@@ -798,6 +778,16 @@ extension StatusItemController {
         return balance.map(String.init)
     }
 
+    nonisolated static func miMoBalanceDisplayText(
+        snapshot: UsageSnapshot?,
+        preference: MenuBarMetricPreference) -> String?
+    {
+        guard let snapshot, let mimoUsage = snapshot.mimoUsage else { return nil }
+        if snapshot.primary != nil, preference != .secondary { return nil }
+        let detail = mimoUsage.balanceDetail
+        return detail.components(separatedBy: " (Paid:").first
+    }
+
     nonisolated static func moonshotBalanceDisplayText(snapshot: UsageSnapshot?) -> String? {
         self.displayValue(
             from: snapshot?.loginMethod(for: .moonshot),
@@ -829,6 +819,17 @@ extension StatusItemController {
         guard let cost = snapshot?.providerCost,
               cost.limit > 0,
               cost.used >= 0
+        else {
+            return nil
+        }
+        return UsageFormatter.currencyString(cost.used, currencyCode: cost.currencyCode)
+    }
+
+    nonisolated static func openCodeGoZenBalanceDisplayText(snapshot: UsageSnapshot?) -> String? {
+        guard snapshot?.primary == nil,
+              snapshot?.secondary == nil,
+              let cost = snapshot?.providerCost,
+              cost.period == "Zen balance"
         else {
             return nil
         }

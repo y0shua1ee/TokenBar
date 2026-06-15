@@ -241,7 +241,7 @@ private struct AntigravityOAuthCallback {
 
 private final class AntigravityLoopbackServer: @unchecked Sendable {
     private let expectedState: String
-    private let queue = DispatchQueue(label: "codexbar.antigravity.oauth")
+    private let queue = DispatchQueue(label: "tokenbar.antigravity.oauth")
     private let lock = NSLock()
     private var listener: NWListener?
     private var readyContinuation: CheckedContinuation<URL, Error>?

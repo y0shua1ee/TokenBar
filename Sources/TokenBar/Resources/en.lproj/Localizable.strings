@@ -99,6 +99,8 @@
 "Could not start codex login" = "Could not start codex login";
 "Could not switch system account" = "Could not switch system account";
 "Credits" = "Credits";
+"Individual credits" = "Individual credits";
+"Workspace" = "Workspace";
 "Credits history" = "Credits history";
 "Cursor login failed" = "Cursor login failed";
 "Custom" = "Custom";
@@ -402,11 +404,15 @@
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
 "language_dutch" = "Nederlands";
+"language_german" = "Deutsch";
 "language_swedish" = "Svenska";
 "language_french" = "French";
 "language_ukrainian" = "Українська";
 "language_japanese" = "Japanese";
 "language_korean" = "Korean";
+"language_turkish" = "Türkçe";
+"language_italian" = "Italiano";
+"language_polish" = "Polski";
 "start_at_login_title" = "Start at Login";
 "start_at_login_subtitle" = "Automatically opens TokenBar when you start your Mac.";
 "show_cost_summary" = "Show cost summary";
@@ -500,7 +506,7 @@
 "show_quota_warning_markers_title" = "Show quota warning markers";
 "show_quota_warning_markers_subtitle" = "Draw threshold tick marks on usage bars when quota warnings are configured.";
 "weekly_progress_work_days_title" = "Weekly progress work days";
-"weekly_progress_work_days_subtitle" = "Draw day-boundary tick marks on weekly usage bars.";
+"weekly_progress_work_days_subtitle" = "Set work days for weekly usage-bar markers and pace calculations.";
 "show_reset_time_as_clock_title" = "Show reset time as clock";
 "show_reset_time_as_clock_subtitle" = "Display reset times as absolute clock values instead of countdowns.";
 "show_provider_changelog_links_title" = "Show provider changelog links";
@@ -1072,8 +1078,9 @@
 "Search providers" = "Search providers";
 
 "language_vietnamese" = "Vietnamese";
+"language_indonesian" = "Bahasa Indonesia";
 
 "Request quota: %@ / %@" = "Request quota: %@ / %@";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Automatic imports Chrome browser cookies from Xiaomi MiMo.";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

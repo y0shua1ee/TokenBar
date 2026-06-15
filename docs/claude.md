@@ -98,7 +98,7 @@ Admin API key setup:
 - Domain: `claude.ai`.
 - Cookie name required:
   - `sessionKey` (value prefix `sk-ant-...`).
-- Cached cookies: Keychain cache `com.y0shua1ee.tokenbar.cache` (account `cookie.claude`, source + timestamp).
+- Cached cookies: Keychain cache `com.steipete.tokenbar.cache` (account `cookie.claude`, source + timestamp).
   Reused before re-importing from browsers.
 - API calls (all include `Cookie: sessionKey=<value>`):
   - `GET https://claude.ai/api/organizations` → org UUID.
@@ -116,7 +116,7 @@ Admin API key setup:
 - Default behavior: exit after each probe; Debug → "Keep CLI sessions alive" keeps it running between probes.
 - Probe working directory: `~/Library/Application Support/TokenBar/ClaudeProbe` with local Claude settings that disable
   deep-link URL handler registration during headless probes.
-- After transient probes exit, CodexBar removes Claude Code `.jsonl` session artifacts for that dedicated
+- After transient probes exit, TokenBar removes Claude Code `.jsonl` session artifacts for that dedicated
   `ClaudeProbe` project directory so background `/usage` polling does not clutter the user's Claude project history.
 - Command flow:
   1) Start CLI with `--allowed-tools ""` (no tools).

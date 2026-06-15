@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct CommandCodeProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .commandcode
 

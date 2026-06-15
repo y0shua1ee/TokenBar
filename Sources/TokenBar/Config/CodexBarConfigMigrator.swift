@@ -20,7 +20,7 @@ struct CodexBarConfigMigrator {
         let tokenAccountStore: any ProviderTokenAccountStoring
     }
 
-    private static let legacyMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
 
     private struct MigrationState {
         var didUpdate = false

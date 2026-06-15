@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct VertexAIProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .vertexai
     let supportsLoginFlow: Bool = true

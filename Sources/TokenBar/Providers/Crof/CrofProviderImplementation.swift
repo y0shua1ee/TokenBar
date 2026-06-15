@@ -1,9 +1,7 @@
 import AppKit
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct CrofProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .crof
 

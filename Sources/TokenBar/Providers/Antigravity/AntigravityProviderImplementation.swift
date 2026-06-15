@@ -1,9 +1,7 @@
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct AntigravityProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .antigravity
     let supportsLoginFlow: Bool = true
@@ -42,7 +40,8 @@ struct AntigravityProviderImplementation: ProviderImplementation {
             ProviderSettingsPickerDescriptor(
                 id: "antigravity-usage-source",
                 title: "Usage source",
-                subtitle: "Auto uses the desktop local API first, then agy CLI, then Google OAuth.",
+                subtitle: "Auto tries Antigravity app, agy CLI, then IDE; " +
+                    "OAuth follows for selected or signed-in accounts.",
                 binding: usageBinding,
                 options: usageOptions,
                 isVisible: nil,
@@ -60,7 +59,7 @@ struct AntigravityProviderImplementation: ProviderImplementation {
         let accountCount = context.settings.tokenAccounts(for: .antigravity).count
         let loginTitle = accountCount > 0 ? "Add Google Account" : "Login with Google"
         let subtitle = """
-        Stores Google accounts in ~/.tokenbar/antigravity/oauth_creds.json for quick Antigravity switching. \
+        Stores each signed-in Google account for quick Antigravity switching. \
         Uses Antigravity.app OAuth when available, \
         or ANTIGRAVITY_OAUTH_CLIENT_ID and ANTIGRAVITY_OAUTH_CLIENT_SECRET as an override.
         """

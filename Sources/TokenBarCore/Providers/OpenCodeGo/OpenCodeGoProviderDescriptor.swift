@@ -1,9 +1,8 @@
 import Foundation
-import TokenBarMacroSupport
 
-@ProviderDescriptorRegistration
-@ProviderDescriptorDefinition
 public enum OpenCodeGoProviderDescriptor {
+    public static let descriptor: ProviderDescriptor = Self.makeDescriptor()
+
     static func makeDescriptor() -> ProviderDescriptor {
         ProviderDescriptor(
             id: .opencodego,
@@ -124,7 +123,7 @@ struct OpenCodeGoUsageFetchStrategy: ProviderFetchStrategy {
 
     func fetch(_ context: ProviderFetchContext) async throws -> ProviderFetchResult {
         let workspaceOverride = context.settings?.opencodego?.workspaceID
-            ?? context.env["TOKENBAR_OPENCODEGO_WORKSPACE_ID"]
+            ?? context.env["CODEXBAR_OPENCODEGO_WORKSPACE_ID"]
         let cookieSource = context.settings?.opencodego?.cookieSource ?? .auto
         do {
             let cookieHeader = try Self.resolveCookieHeader(context: context, allowCached: true)

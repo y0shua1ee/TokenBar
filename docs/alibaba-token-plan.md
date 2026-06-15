@@ -46,7 +46,7 @@ The Alibaba Token Plan provider tracks Bailian token-plan credits from the Aliba
 
 ### "No Alibaba Token Plan session cookies found in browsers"
 
-Log in at `https://bailian.console.aliyun.com/cn-beijing?tab=plan#/efm/subscription/token-plan` in Chrome, then refresh CodexBar.
+Log in at `https://bailian.console.aliyun.com/cn-beijing?tab=plan#/efm/subscription/token-plan` in Chrome, then refresh TokenBar.
 
 ### "Alibaba Token Plan cookie header is invalid"
 
@@ -54,8 +54,8 @@ The pasted header is empty or not a valid Cookie header. Re-copy the request fro
 
 ### "Alibaba Token Plan login required"
 
-Your Bailian session is stale. Sign out and back in on the Bailian console, then refresh CodexBar.
+Your Bailian session is stale. Sign out and back in on the Bailian console, then refresh TokenBar.
 
 ### Empty subscription summary
 
-If Bailian returns `TotalCount: 0`, CodexBar keeps the provider visible but does not show a quota window because the account has no active token-plan subscription summary to graph.
+If Bailian returns `TotalCount: 0`, TokenBar keeps the provider visible but does not show a quota window because the account has no active token-plan subscription summary to graph.

@@ -6,7 +6,7 @@ struct CostUsageScannerTests {
     @Test
     func `codex file metadata detects append truncation and replacement`() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-codex-metadata-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tokenbar-codex-metadata-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let fileURL = root.appendingPathComponent("session.jsonl")
@@ -874,7 +874,7 @@ struct CostUsageTestEnvironment {
 
     init() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "codexbar-cost-usage-\(UUID().uuidString)",
+            "tokenbar-cost-usage-\(UUID().uuidString)",
             isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         self.root = root

@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct PerplexityProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .perplexity
     let supportsLoginFlow: Bool = true

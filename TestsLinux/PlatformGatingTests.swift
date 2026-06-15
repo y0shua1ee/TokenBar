@@ -1,8 +1,14 @@
-@testable import TokenBarCore
 import Testing
+import TokenBarCore
+@testable import TokenBarCLI
 
 @Suite
 struct PlatformGatingTests {
+    @Test
+    func ampAutoSource_doesNotRequireWebSupport() {
+        #expect(!TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .amp))
+    }
+
     @Test
     func claudeWebFetcher_isNotSupportedOnLinux() async {
         #if os(Linux)

@@ -13,8 +13,7 @@ so TokenBar only needs a valid API key to show your remaining credit balance.
 
 ## Data sources
 
-1. **API key** stored in `~/.tokenbar/config.json`, supplied via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`, or selected from DeepSeek token accounts.
-   TokenBar stores the key in config after you paste it in Settings → Providers → DeepSeek.
+1. **API key** supplied via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY`, or selected from DeepSeek token accounts in `~/.tokenbar/config.json`.
 2. **Balance endpoint**
    - `GET https://api.deepseek.com/user/balance`
    - Request headers: `Authorization: Bearer <api key>`, `Accept: application/json`
@@ -36,6 +35,5 @@ so TokenBar only needs a valid API key to show your remaining credit balance.
 - `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekProviderDescriptor.swift` (descriptor + fetch strategy)
 - `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekUsageFetcher.swift` (HTTP client + JSON parser)
 - `Sources/TokenBarCore/Providers/DeepSeek/DeepSeekSettingsReader.swift` (env var resolution)
-- `Sources/TokenBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (provider activation, settings field, and token-account visibility)
-- `Sources/TokenBar/Providers/DeepSeek/DeepSeekSettingsStore.swift` (SettingsStore extension)
+- `Sources/TokenBar/Providers/DeepSeek/DeepSeekProviderImplementation.swift` (provider activation and token-account visibility)
 - `Sources/TokenBarCore/TokenAccountSupportCatalog+Data.swift` (DeepSeek token-account injection)

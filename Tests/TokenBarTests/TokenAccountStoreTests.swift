@@ -1,7 +1,7 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @Test
 func `ProviderTokenAccountData encoding`() throws {
@@ -29,7 +29,7 @@ func `ProviderTokenAccountData encoding`() throws {
 @Test
 func `FileTokenAccountStore round trip`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-token-accounts-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-token-accounts-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let now = Date().timeIntervalSince1970

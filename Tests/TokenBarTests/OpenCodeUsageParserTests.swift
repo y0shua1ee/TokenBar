@@ -5,9 +5,9 @@ import Testing
 struct OpenCodeUsageParserTests {
     @Test
     func `parses workspace I ds`() {
-        let text = ";0x00000089;((self.$R=self.$R||{})[\"codexbar\"]=[]," +
+        let text = ";0x00000089;((self.$R=self.$R||{})[\"tokenbar\"]=[]," +
             "($R=>$R[0]=[$R[1]={id:\"wrk_01K6AR1ZET89H8NB691FQ2C2VB\",name:\"Default\",slug:null}])" +
-            "($R[\"codexbar\"]))"
+            "($R[\"tokenbar\"]))"
         let ids = OpenCodeUsageFetcher.parseWorkspaceIDs(text: text)
         #expect(ids == ["wrk_01K6AR1ZET89H8NB691FQ2C2VB"])
     }

@@ -7,7 +7,7 @@ struct CostUsageJsonlPerformanceTests {
     @Test
     func `scanner benchmark beats front buffer baseline`() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "codexbar-cost-usage-bench-\(UUID().uuidString)",
+            "tokenbar-cost-usage-bench-\(UUID().uuidString)",
             isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }

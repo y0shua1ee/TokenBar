@@ -1,7 +1,7 @@
 import AppKit
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @MainActor
 @Suite(.serialized)
@@ -517,8 +517,6 @@ struct StatusMenuSwitcherClickTests {
         #expect(settings.selectedMenuProvider == .claude)
         #expect(rebuildCount == 1)
 
-        // Yield an extra runloop spin for headless CI timing
-        await Task.yield()
         #expect(try menu.performKeyEquivalent(with: Self.arrowKeyEvent(keyCode: 123)) == true)
         for _ in 0..<100 where rebuildCount == 1 {
             await Task.yield()

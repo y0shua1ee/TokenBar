@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HELPER="/Applications/TokenBar.app/Contents/Helpers/TokenBarCLI"
-if [[ ! -x "$HELPER" ]]; then
-  HELPER="$(cd "$(dirname "$0")/.." && pwd)/.build/release/TokenBarCLI"
-fi
+APP="/Applications/TokenBar.app"
+HELPER="$APP/Contents/Helpers/TokenBarCLI"
+TARGETS=("/usr/local/bin/tokenbar" "/opt/homebrew/bin/tokenbar")
+
 if [[ ! -x "$HELPER" ]]; then
   echo "TokenBarCLI helper not found at $HELPER. Please reinstall TokenBar." >&2
   exit 1

@@ -1,9 +1,7 @@
 import AppKit
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct WarpProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .warp
 

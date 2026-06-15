@@ -1,6 +1,6 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
+import TokenBarCore
 
 /// Tests for the regex-based JetBrains XML parser used on Linux.
 /// These tests verify that the non-libxml2 implementation correctly parses

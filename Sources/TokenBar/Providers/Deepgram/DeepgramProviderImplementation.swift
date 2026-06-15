@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct DeepgramProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .deepgram
 

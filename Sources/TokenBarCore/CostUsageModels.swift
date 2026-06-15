@@ -7,7 +7,6 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
     public let last30DaysTokens: Int?
     public let last30DaysCostUSD: Double?
     public let last30DaysRequests: Int?
-    public let costCurrencyCode: String
     public let currencyCode: String
     public let historyDays: Int
     public let historyLabel: String?
@@ -21,7 +20,6 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
         last30DaysTokens: Int?,
         last30DaysCostUSD: Double?,
         last30DaysRequests: Int? = nil,
-        costCurrencyCode: String? = nil,
         currencyCode: String = "USD",
         historyDays: Int = 30,
         historyLabel: String? = nil,
@@ -34,14 +32,9 @@ public struct CostUsageTokenSnapshot: Sendable, Equatable {
         self.last30DaysTokens = last30DaysTokens
         self.last30DaysCostUSD = last30DaysCostUSD
         self.last30DaysRequests = last30DaysRequests
-        let resolvedCurrencyCode = currencyCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        self.currencyCode = currencyCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? "USD"
             : currencyCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        self.currencyCode = resolvedCurrencyCode
-        let rawCostCurrencyCode = costCurrencyCode ?? resolvedCurrencyCode
-        self.costCurrencyCode = rawCostCurrencyCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            ? resolvedCurrencyCode
-            : rawCostCurrencyCode.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         self.historyDays = historyDays
         self.historyLabel = historyLabel
         self.daily = daily

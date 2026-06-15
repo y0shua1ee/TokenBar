@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct GeminiProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .gemini
     let supportsLoginFlow: Bool = true

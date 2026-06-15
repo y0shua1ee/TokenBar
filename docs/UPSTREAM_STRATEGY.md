@@ -7,8 +7,8 @@ read_when:
 
 # Multi-Upstream Fork Management Strategy
 
-**Fork:** topoffunnel/TokenBar
-**Upstream 1:** steipete/CodexBar (original)
+**Fork:** topoffunnel/TokenBar  
+**Upstream 1:** steipete/CodexBar (original)  
 **Upstream 2:** nguyenphutrong/quotio (inspiration source)
 
 ---
@@ -120,23 +120,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      
       - name: Add upstream remotes
         run: |
           git remote add upstream https://github.com/steipete/CodexBar.git
           git remote add quotio https://github.com/nguyenphutrong/quotio.git
           git fetch upstream
           git fetch quotio
-
+      
       - name: Check for new commits
         id: check
         run: |
           UPSTREAM_NEW=$(git log --oneline main..upstream/main --no-merges | wc -l)
           QUOTIO_NEW=$(git log --oneline --all --remotes=quotio/main --since="1 week ago" | wc -l)
-
+          
           echo "upstream_commits=$UPSTREAM_NEW" >> $GITHUB_OUTPUT
           echo "quotio_commits=$QUOTIO_NEW" >> $GITHUB_OUTPUT
-
+      
       - name: Create issue if changes detected
         if: steps.check.outputs.upstream_commits > 0 || steps.check.outputs.quotio_commits > 0
         uses: actions/github-script@v7
@@ -144,18 +144,18 @@ jobs:
           script: |
             const upstreamCommits = '${{ steps.check.outputs.upstream_commits }}';
             const quotioCommits = '${{ steps.check.outputs.quotio_commits }}';
-
+            
             const body = `## Upstream Changes Detected
-
+            
             **steipete/CodexBar:** ${upstreamCommits} new commits
             **quotio:** ${quotioCommits} new commits (last week)
-
+            
             Review changes:
             - [steipete commits](https://github.com/steipete/CodexBar/compare/main...upstream/main)
             - [quotio commits](https://github.com/nguyenphutrong/quotio/commits/main)
-
+            
             Run \`./Scripts/review_upstream.sh\` to analyze changes.`;
-
+            
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,

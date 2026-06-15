@@ -94,8 +94,8 @@ enum ProviderChoice: String, AppEnum {
         case .mistral: return nil // Mistral not yet supported in widgets
         case .deepseek: return nil // DeepSeek not yet supported in widgets
         case .codebuff: return nil // Codebuff not yet supported in widgets
-        case .custom: return nil // Custom not yet supported in widgets
-        case .krill: return nil // Krill not yet supported in widgets
+        case .custom: return nil // Custom providers are not yet supported in widgets
+        case .krill: return nil // Krill is not yet supported in widgets
         case .crof: return nil // Crof not yet supported in widgets
         case .venice: return nil // Venice not yet supported in widgets
         case .commandcode: return nil // CommandCode not yet supported in widgets
@@ -104,6 +104,7 @@ enum ProviderChoice: String, AppEnum {
         case .grok: return nil // Grok not yet supported in widgets
         case .groq: return nil // Groq not yet supported in widgets
         case .llmproxy: return nil // LLM Proxy not yet supported in widgets
+        case .litellm: return nil // LiteLLM not yet supported in widgets
         case .deepgram: return nil // Deepgram not yet supported in widgets
         }
     }
@@ -177,21 +178,21 @@ struct TokenBarWidgetEntry: TimelineEntry {
     let snapshot: WidgetSnapshot
 }
 
-struct TokenBarCompactEntry: TimelineEntry {
+struct CodexBarCompactEntry: TimelineEntry {
     let date: Date
     let provider: UsageProvider
     let metric: CompactMetric
     let snapshot: WidgetSnapshot
 }
 
-struct TokenBarSwitcherEntry: TimelineEntry {
+struct CodexBarSwitcherEntry: TimelineEntry {
     let date: Date
     let provider: UsageProvider
     let availableProviders: [UsageProvider]
     let snapshot: WidgetSnapshot
 }
 
-struct TokenBarTimelineProvider: AppIntentTimelineProvider {
+struct CodexBarTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TokenBarWidgetEntry {
         TokenBarWidgetEntry(
             date: Date(),
@@ -219,28 +220,28 @@ struct TokenBarTimelineProvider: AppIntentTimelineProvider {
     }
 }
 
-struct TokenBarSwitcherTimelineProvider: TimelineProvider {
-    func placeholder(in context: Context) -> TokenBarSwitcherEntry {
+struct CodexBarSwitcherTimelineProvider: TimelineProvider {
+    func placeholder(in context: Context) -> CodexBarSwitcherEntry {
         let snapshot = WidgetPreviewData.snapshot()
         let providers = self.availableProviders(from: snapshot)
-        return TokenBarSwitcherEntry(
+        return CodexBarSwitcherEntry(
             date: Date(),
             provider: providers.first ?? .codex,
             availableProviders: providers,
             snapshot: snapshot)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (TokenBarSwitcherEntry) -> Void) {
+    func getSnapshot(in context: Context, completion: @escaping (CodexBarSwitcherEntry) -> Void) {
         completion(self.makeEntry())
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TokenBarSwitcherEntry>) -> Void) {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<CodexBarSwitcherEntry>) -> Void) {
         let entry = self.makeEntry()
         let refresh = Date().addingTimeInterval(30 * 60)
         completion(Timeline(entries: [entry], policy: .after(refresh)))
     }
 
-    private func makeEntry() -> TokenBarSwitcherEntry {
+    private func makeEntry() -> CodexBarSwitcherEntry {
         let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
         let providers = self.availableProviders(from: snapshot)
         let stored = WidgetSelectionStore.loadSelectedProvider()
@@ -248,7 +249,7 @@ struct TokenBarSwitcherTimelineProvider: TimelineProvider {
         if selected != stored {
             WidgetSelectionStore.saveSelectedProvider(selected)
         }
-        return TokenBarSwitcherEntry(
+        return CodexBarSwitcherEntry(
             date: Date(),
             provider: selected,
             availableProviders: providers,
@@ -267,19 +268,19 @@ struct TokenBarSwitcherTimelineProvider: TimelineProvider {
     }
 }
 
-struct TokenBarCompactTimelineProvider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> TokenBarCompactEntry {
-        TokenBarCompactEntry(
+struct CodexBarCompactTimelineProvider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> CodexBarCompactEntry {
+        CodexBarCompactEntry(
             date: Date(),
             provider: .codex,
             metric: .credits,
             snapshot: WidgetPreviewData.snapshot())
     }
 
-    func snapshot(for configuration: CompactMetricSelectionIntent, in context: Context) async -> TokenBarCompactEntry {
+    func snapshot(for configuration: CompactMetricSelectionIntent, in context: Context) async -> CodexBarCompactEntry {
         let provider = configuration.provider.provider
         let metric = configuration.metric
-        return TokenBarCompactEntry(
+        return CodexBarCompactEntry(
             date: Date(),
             provider: provider,
             metric: metric,
@@ -288,12 +289,12 @@ struct TokenBarCompactTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(
         for configuration: CompactMetricSelectionIntent,
-        in context: Context) async -> Timeline<TokenBarCompactEntry>
+        in context: Context) async -> Timeline<CodexBarCompactEntry>
     {
         let provider = configuration.provider.provider
         let metric = configuration.metric
         let snapshot = WidgetSnapshotStore.load() ?? WidgetPreviewData.emptySnapshot()
-        let entry = TokenBarCompactEntry(
+        let entry = CodexBarCompactEntry(
             date: Date(),
             provider: provider,
             metric: metric,

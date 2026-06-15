@@ -5,7 +5,6 @@ import TokenBarCore
 @MainActor
 struct CostHistoryChartMenuView: View {
     typealias DailyEntry = CostUsageDailyReport.Entry
-    typealias ModelBreakdown = CostUsageDailyReport.ModelBreakdown
 
     private struct Point: Identifiable {
         let id: String
@@ -36,11 +35,6 @@ struct CostHistoryChartMenuView: View {
         let rows: [DetailRow]
     }
 
-    private enum BreakdownLoadState {
-        case loading
-        case unavailable
-    }
-
     private let provider: UsageProvider
     private let daily: [DailyEntry]
     private let totalCostUSD: Double?
@@ -48,10 +42,7 @@ struct CostHistoryChartMenuView: View {
     private let historyDays: Int
     private let windowLabel: String?
     private let width: CGFloat
-    private let loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)?
     @State private var selectedDateKey: String?
-    @State private var loadedBreakdownsByDateKey: [String: [ModelBreakdown]] = [:]
-    @State private var breakdownLoadStateByDateKey: [String: BreakdownLoadState] = [:]
 
     init(
         provider: UsageProvider,
@@ -60,8 +51,7 @@ struct CostHistoryChartMenuView: View {
         currencyCode: String = "USD",
         historyDays: Int = 30,
         windowLabel: String? = nil,
-        width: CGFloat,
-        loadModelBreakdowns: ((String) async -> [ModelBreakdown]?)? = nil)
+        width: CGFloat)
     {
         self.provider = provider
         self.daily = daily
@@ -70,14 +60,10 @@ struct CostHistoryChartMenuView: View {
         self.historyDays = max(1, min(365, historyDays))
         self.windowLabel = windowLabel
         self.width = width
-        self.loadModelBreakdowns = loadModelBreakdowns
     }
 
     var body: some View {
-        let model = Self.makeModel(
-            provider: self.provider,
-            daily: self.daily,
-            supportsOnDemandBreakdowns: self.loadModelBreakdowns != nil)
+        let model = Self.makeModel(provider: self.provider, daily: self.daily)
         VStack(alignment: .leading, spacing: 10) {
             if model.points.isEmpty {
                 Text(L("No cost history data."))
@@ -217,13 +203,10 @@ struct CostHistoryChartMenuView: View {
             }
 
             if let total = self.totalCostUSD {
-                let formattedTotal = UsageFormatter.currencyString(
-                    total,
-                    currencyCode: self.currencyCode)
                 Text(String(
                     format: L("Est. total (%@): %@"),
                     self.windowLabel ?? Self.windowLabel(days: self.historyDays),
-                    formattedTotal))
+                    self.costString(total)))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -280,11 +263,7 @@ struct CostHistoryChartMenuView: View {
         maxValue * 0.05
     }
 
-    private static func makeModel(
-        provider: UsageProvider,
-        daily: [DailyEntry],
-        supportsOnDemandBreakdowns: Bool = false) -> Model
-    {
+    private static func makeModel(provider: UsageProvider, daily: [DailyEntry]) -> Model {
         let sorted = daily.sorted { lhs, rhs in lhs.date < rhs.date }
         var points: [Point] = []
         points.reserveCapacity(sorted.count)
@@ -332,9 +311,6 @@ struct CostHistoryChartMenuView: View {
         }()
 
         let barColor = Self.barColor(for: provider)
-        if supportsOnDemandBreakdowns, !points.isEmpty {
-            maxRenderedBreakdownRows = max(maxRenderedBreakdownRows, Self.maxVisibleDetailLines)
-        }
         let maxDetailRowsHeight = detailRowMetrics.reduce(CGFloat(0)) { currentMax, metric in
             let fillerRows = max(maxRenderedBreakdownRows - metric.count, 0)
             let filledHeight = metric.height + (CGFloat(fillerRows) * Self.compactDetailRowHeight)
@@ -359,8 +335,7 @@ struct CostHistoryChartMenuView: View {
     }
 
     private static func dateFromDayKey(_ key: String) -> Date? {
-        let normalized = Self.normalizedDayKey(key)
-        let parts = normalized.split(separator: "-")
+        let parts = key.split(separator: "-")
         guard parts.count == 3,
               let year = Int(parts[0]),
               let month = Int(parts[1]),
@@ -374,22 +349,6 @@ struct CostHistoryChartMenuView: View {
         comps.day = day
         comps.hour = 12
         return comps.date
-    }
-
-    private static func normalizedDayKey(_ key: String) -> String {
-        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
-        let prefix = String(trimmed.prefix(10))
-        return self.isYYYYMMDD(prefix) ? prefix : trimmed
-    }
-
-    private static func isYYYYMMDD(_ value: String) -> Bool {
-        guard value.count == 10 else { return false }
-        let scalars = Array(value.unicodeScalars)
-        guard scalars[4] == "-", scalars[7] == "-" else { return false }
-        return scalars.enumerated().allSatisfy { index, scalar in
-            if index == 4 || index == 7 { return true }
-            return CharacterSet.decimalDigits.contains(scalar)
-        }
     }
 
     private static func peakPoint(model: Model) -> Point? {
@@ -486,33 +445,7 @@ struct CostHistoryChartMenuView: View {
 
         if self.selectedDateKey != nearest {
             self.selectedDateKey = nearest
-            self.loadBreakdownsIfNeeded(for: nearest, model: model)
         }
-    }
-
-    private func loadBreakdownsIfNeeded(for key: String, model: Model) {
-        guard let loadModelBreakdowns else { return }
-        guard let entry = model.entriesByDateKey[key] else { return }
-        if let existing = entry.modelBreakdowns, !existing.isEmpty { return }
-        if let loaded = self.loadedBreakdownsByDateKey[key], !loaded.isEmpty { return }
-        if self.breakdownLoadStateByDateKey[key] != nil { return }
-
-        self.breakdownLoadStateByDateKey[key] = .loading
-        Task { @MainActor in
-            let breakdowns = await loadModelBreakdowns(key)
-            if let breakdowns, !breakdowns.isEmpty {
-                self.loadedBreakdownsByDateKey[key] = breakdowns
-                self.breakdownLoadStateByDateKey.removeValue(forKey: key)
-            } else {
-                self.breakdownLoadStateByDateKey[key] = .unavailable
-            }
-        }
-    }
-
-    private func resolvedBreakdowns(for key: String, entry: DailyEntry) -> [ModelBreakdown]? {
-        if let breakdowns = entry.modelBreakdowns, !breakdowns.isEmpty { return breakdowns }
-        if let breakdowns = self.loadedBreakdownsByDateKey[key], !breakdowns.isEmpty { return breakdowns }
-        return nil
     }
 
     private func nearestDateKey(to date: Date, model: Model) -> String? {
@@ -552,26 +485,7 @@ struct CostHistoryChartMenuView: View {
 
     private func breakdownRows(key: String, model: Model) -> [DetailRow] {
         guard let entry = model.entriesByDateKey[key] else { return [] }
-        guard let breakdown = self.resolvedBreakdowns(for: key, entry: entry), !breakdown.isEmpty else {
-            switch self.breakdownLoadStateByDateKey[key] {
-            case .loading:
-                return [DetailRow(
-                    id: "loading-model-breakdown",
-                    title: "Loading model distribution…",
-                    subtitle: nil,
-                    modeSubtitle: nil,
-                    accentColor: model.barColor.opacity(0.55))]
-            case .unavailable:
-                return [DetailRow(
-                    id: "unavailable-model-breakdown",
-                    title: "Model distribution unavailable",
-                    subtitle: nil,
-                    modeSubtitle: nil,
-                    accentColor: Color(nsColor: .tertiaryLabelColor))]
-            case nil:
-                return []
-            }
-        }
+        guard let breakdown = entry.modelBreakdowns, !breakdown.isEmpty else { return [] }
 
         return Self.orderedBreakdownItems(breakdown)
             .enumerated()

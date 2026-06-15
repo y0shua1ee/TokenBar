@@ -85,7 +85,7 @@ struct FactoryStatusProbeFetchTests {
         let probe = FactoryStatusProbe(
             timeout: 1.0,
             browserDetection: BrowserDetection(
-                homeDirectory: "/tmp/codexbar-empty-browser-home",
+                homeDirectory: "/tmp/tokenbar-empty-browser-home",
                 cacheTTL: 0,
                 fileExists: { _ in false },
                 directoryContents: { _ in nil }),
@@ -203,7 +203,7 @@ struct FactoryStatusProbeFetchTests {
         let probe = FactoryStatusProbe(
             timeout: 1.0,
             browserDetection: BrowserDetection(
-                homeDirectory: "/tmp/codexbar-empty-browser-home",
+                homeDirectory: "/tmp/tokenbar-empty-browser-home",
                 cacheTTL: 0,
                 fileExists: { _ in false },
                 directoryContents: { _ in nil }),
@@ -720,7 +720,7 @@ struct FactoryStatusProbeFetchTests {
 
     private static func isolateFactorySessionStore() async throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("codexbar-factory-tests", isDirectory: true)
+            .appendingPathComponent("tokenbar-factory-tests", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let fileURL = directory.appendingPathComponent("\(UUID().uuidString).json")
         await FactorySessionStore.shared.useFileURLForTesting(fileURL)

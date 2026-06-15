@@ -62,7 +62,7 @@ struct ClaudeOAuthDelegatedRefreshRecoveryTests {
         let delegatedCounter = AsyncCounter()
         let usageResponse = try Self.makeOAuthUsageResponse()
         let tokenCapture = TokenCapture()
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
 
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             try await KeychainAccessGate.withTaskOverrideForTesting(false) {
@@ -168,7 +168,7 @@ struct ClaudeOAuthDelegatedRefreshRecoveryTests {
         let delegatedCounter = AsyncCounter()
         let usageResponse = try Self.makeOAuthUsageResponse()
         let tokenCapture = TokenCapture()
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
 
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             try await KeychainAccessGate.withTaskOverrideForTesting(false) {
@@ -283,7 +283,7 @@ struct ClaudeOAuthDelegatedRefreshRecoveryTests {
         async throws
     {
         let delegatedCounter = AsyncCounter()
-        let service = "com.y0shua1ee.tokenbar.cache.tests.\(UUID().uuidString)"
+        let service = "com.steipete.tokenbar.cache.tests.\(UUID().uuidString)"
 
         try await KeychainCacheStore.withServiceOverrideForTesting(service) {
             try await KeychainAccessGate.withTaskOverrideForTesting(false) {

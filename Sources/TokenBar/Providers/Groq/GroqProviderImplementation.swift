@@ -1,8 +1,6 @@
 import Foundation
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct GroqProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .groq
 

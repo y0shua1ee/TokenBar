@@ -28,7 +28,10 @@ enum MenuBarDisplayText {
         case .percent:
             return self.percentText(window: percentWindow, showUsed: showUsed)
         case .pace:
+            // Pace can be temporarily unavailable near a reset or when a provider omits window metadata.
+            // Keep the selected quota visible instead of collapsing the status item to an icon-only state.
             return self.paceText(pace: pace)
+                ?? self.percentText(window: percentWindow, showUsed: showUsed)
         case .both:
             guard let percent = percentText(window: percentWindow, showUsed: showUsed) else { return nil }
             // Fall back to percent-only when pace is unavailable (e.g. Copilot)

@@ -99,6 +99,8 @@
 "Could not start codex login" = "Не вдалося розпочати вхід до Codex";
 "Could not switch system account" = "Не вдалося змінити обліковий запис системи";
 "Credits" = "Кредити";
+"Individual credits" = "Особисті кредити";
+"Workspace" = "Робоча область";
 "Credits history" = "Кредитна історія";
 "Cursor login failed" = "Помилка входу в систему курсору";
 "Custom" = "Користувацький";
@@ -399,13 +401,18 @@
 "language_chinese_simplified" = "简体中文";
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_german" = "Deutsch";
 "language_swedish" = "Svenska";
 "language_french" = "Français";
 "language_dutch" = "Нідерландська";
 "language_ukrainian" = "Українська";
 "language_japanese" = "Японська";
 "language_korean" = "Корейська";
+"language_italian" = "Italiano";
 "language_vietnamese" = "В'єтнамська";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Індонезійська";
+"language_polish" = "Польська";
 "start_at_login_title" = "Почніть із входу";
 "start_at_login_subtitle" = "Автоматично відкриває TokenBar під час запуску Mac.";
 "show_cost_summary" = "Показати підсумок витрат";
@@ -499,7 +506,7 @@
 "show_quota_warning_markers_title" = "Показати маркери попередження про квоти";
 "show_quota_warning_markers_subtitle" = "Малюйте порогові позначки на панелях використання, коли налаштовано попередження про квоту.";
 "weekly_progress_work_days_title" = "Щотижневі робочі дні";
-"weekly_progress_work_days_subtitle" = "Позначте межі дня на смугах тижневого використання.";
+"weekly_progress_work_days_subtitle" = "Задайте робочі дні для позначок на смугах тижневого використання та розрахунків темпу.";
 "show_reset_time_as_clock_title" = "Показувати час скидання як годинник";
 "show_reset_time_as_clock_subtitle" = "Відображення часу скидання як абсолютних значень годинника замість зворотного відліку.";
 "show_provider_changelog_links_title" = "Показати посилання журналу змін провайдера";
@@ -1069,6 +1076,6 @@
 "Clear" = "ясно";
 "No matching providers" = "Немає відповідних постачальників";
 "Search providers" = "Пошук провайдерів";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Автоматично імпортує файли cookie браузера Chrome із Xiaomi MiMo.";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

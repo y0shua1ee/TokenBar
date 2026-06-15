@@ -41,7 +41,7 @@ read_when:
 swift build
 
 # Run tests
-swift test
+make test
 
 # Format code
 swiftformat Sources Tests
@@ -52,7 +52,7 @@ swiftlint --strict
 
 # Restart app after rebuild
 pkill -x TokenBar || pkill -f TokenBar.app || true
-cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app
+cd /Users/steipete/Projects/tokenbar && open -n /Users/steipete/Projects/tokenbar/TokenBar.app
 ```
 
 ### Release
@@ -120,21 +120,21 @@ git push origin feature/my-feature
 7. Push and create PR
 
 ### Debugging Augment Issues
-1. Enable debug logging: `export TOKENBAR_LOG_LEVEL=debug`
-2. Check Console.app for "com.y0shua1ee.tokenbar"
+1. Enable debug logging: `export CODEXBAR_LOG_LEVEL=debug`
+2. Check Console.app for "com.steipete.tokenbar"
 3. Use Settings → Debug → Augment → Show Debug Info
 4. Check `docs/augment.md` troubleshooting section
 
 ### Testing Changes
 ```bash
 # Run all tests
-swift test
+make test
 
 # Run specific test
 swift test --filter AugmentTests
 
 # Build and test together
-./Scripts/compile_and_run.sh
+./Scripts/compile_and_run.sh --test
 ```
 
 ### Updating Documentation
@@ -213,7 +213,7 @@ swiftlint --strict
 
 ### To Upstream
 1. Check if feature benefits all users
-2. Create PR to `y0shua1ee/TokenBar`
+2. Create PR to `steipete/CodexBar`
 3. Reference this fork if relevant
 4. Be patient with review process
 
@@ -228,7 +228,7 @@ See `docs/FORK_ROADMAP.md` for contribution strategy.
 - Email: [your-email]@topoffunnel.com
 
 ### Upstream Issues
-- GitHub Issues: https://github.com/y0shua1ee/TokenBar/issues
+- GitHub Issues: https://github.com/steipete/CodexBar/issues
 - Twitter: [@steipete](https://twitter.com/steipete)
 
 ---

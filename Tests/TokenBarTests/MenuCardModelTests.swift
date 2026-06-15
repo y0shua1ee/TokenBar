@@ -1,10 +1,8 @@
 import Foundation
 import SwiftUI
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
-
-// swiftlint:disable file_length type_body_length
 
 struct OverviewMenuCardVisibilityTests {
     @Test
@@ -734,7 +732,7 @@ struct MiniMaxMenuCardModelTests {
         #expect(model.metrics[1].cardStyle == false)
         #expect(model.providerCost?.title == "Credits")
         #expect(model.providerCost?.spendLine == "Balance: 14000")
-        #expect(model.usageNotes == ["Renews: May 18, 2027"])
+        #expect(model.usageNotes == [String(format: L("Renews: %@"), minimaxRenewDate(1_810_569_600))])
     }
 }
 
@@ -1593,178 +1591,4 @@ struct MenuCardModelTests {
         #expect(primary.detailText == "€1.2345 this month")
         #expect(primary.resetText?.hasPrefix("Resets") == true)
     }
-
-    @Test
-    func `deepseek model shows monthly spend and CNY token cost`() throws {
-        let now = Date(timeIntervalSince1970: 1_777_777_777)
-        let metadata = try #require(ProviderDefaults.metadata[.deepseek])
-        let snapshot = UsageSnapshot(
-            primary: RateWindow(
-                usedPercent: 0,
-                windowMinutes: nil,
-                resetsAt: nil,
-                resetDescription: "¥45.20 (Paid: ¥45.20 / Granted: ¥0.00)"),
-            secondary: nil,
-            tertiary: nil,
-            providerCost: ProviderCostSnapshot(
-                used: 12.32,
-                limit: 12.32,
-                currencyCode: "CNY",
-                period: "This month",
-                updatedAt: now),
-            updatedAt: now,
-            identity: ProviderIdentitySnapshot(
-                providerID: .deepseek,
-                accountEmail: nil,
-                accountOrganization: nil,
-                loginMethod: nil))
-        let tokenSnapshot = CostUsageTokenSnapshot(
-            sessionTokens: 40_118_189,
-            sessionCostUSD: 7.20,
-            last30DaysTokens: 65_118_189,
-            last30DaysCostUSD: 12.32,
-            last30DaysRequests: 660,
-            costCurrencyCode: "CNY",
-            daily: [],
-            updatedAt: now)
-
-        let model = UsageMenuCardView.Model.make(.init(
-            provider: .deepseek,
-            metadata: metadata,
-            snapshot: snapshot,
-            credits: nil,
-            creditsError: nil,
-            dashboard: nil,
-            dashboardError: nil,
-            tokenSnapshot: tokenSnapshot,
-            tokenError: nil,
-            account: AccountInfo(email: nil, plan: nil),
-            isRefreshing: false,
-            lastError: nil,
-            usageBarsShowUsed: false,
-            resetTimeDisplayStyle: .countdown,
-            tokenCostUsageEnabled: true,
-            showOptionalCreditsAndExtraUsage: true,
-            hidePersonalInfo: false,
-            now: now))
-
-        let costLine = try #require(model.providerCost?.spendLine)
-        let balance = try #require(model.metrics.first)
-        #expect(balance.title == "Recharge balance")
-        #expect(balance.statusText == "¥45.20 (Paid: ¥45.20 / Granted: ¥0.00)")
-        #expect(balance.detailText == nil)
-        #expect(balance.resetText == nil)
-        #expect(balance.percent == 0)
-        #expect(!balance.percentLabel.contains("100%"))
-        #expect(model.providerCost?.title == "Monthly spend")
-        #expect(model.providerCost?.percentUsed == nil)
-        #expect(costLine.contains("This month:"))
-        #expect(costLine.contains("12.32"))
-        #expect(!costLine.contains("57.52"))
-        #expect(!costLine.contains("/"))
-        #expect(!costLine.contains("%"))
-        #expect(costLine.contains("¥"))
-        #expect(!costLine.contains("$"))
-        #expect(model.tokenUsage?.sessionLine.contains("¥") == true)
-        #expect(model.tokenUsage?.monthLine.contains("This month:") == true)
-        #expect(model.tokenUsage?.monthLine.contains("660 requests") == true)
-        #expect(model.tokenUsage?.monthLine.contains("¥") == true)
-        #expect(model.tokenUsage?.sessionLine.contains("$") == false)
-        #expect(model.tokenUsage?.monthLine.contains("$") == false)
-    }
-
-    @Test
-    func `openrouter cost error renders without a token snapshot`() throws {
-        let now = Date(timeIntervalSince1970: 1_777_777_777)
-        let metadata = try #require(ProviderDefaults.metadata[.openrouter])
-        let error = [
-            "OpenRouter Activity API error: HTTP 403:",
-            "OpenRouter Activity requires a management key —",
-            "Only management keys can fetch activity for an account",
-        ].joined(separator: " ")
-
-        let model = UsageMenuCardView.Model.make(.init(
-            provider: .openrouter,
-            metadata: metadata,
-            snapshot: nil,
-            credits: nil,
-            creditsError: nil,
-            dashboard: nil,
-            dashboardError: nil,
-            tokenSnapshot: nil,
-            tokenError: error,
-            account: AccountInfo(email: nil, plan: nil),
-            isRefreshing: false,
-            lastError: nil,
-            usageBarsShowUsed: false,
-            resetTimeDisplayStyle: .countdown,
-            tokenCostUsageEnabled: true,
-            showOptionalCreditsAndExtraUsage: true,
-            hidePersonalInfo: false,
-            now: now))
-
-        let tokenUsage = try #require(model.tokenUsage)
-        #expect(tokenUsage.sessionLine == "Latest day: —")
-        #expect(tokenUsage.monthLine == "Last 30 completed days: —")
-        #expect(tokenUsage.errorLine == error)
-        #expect(tokenUsage.errorCopyText == error)
-    }
-
-    #if os(macOS)
-    @Test
-    func `krill model separates wallet elite credits and premium requests`() throws {
-        let now = Date()
-        let identity = ProviderIdentitySnapshot(
-            providerID: .krill,
-            accountEmail: nil,
-            accountOrganization: nil,
-            loginMethod: "Wallet: $16.55\nKrill · Elite quota $297.37/$439.99")
-        let snapshot = UsageSnapshot(
-            primary: RateWindow(
-                usedPercent: 67.59,
-                windowMinutes: nil,
-                resetsAt: nil,
-                resetDescription: "Elite 14261/43999 credits remaining"),
-            secondary: RateWindow(
-                usedPercent: 0.945,
-                windowMinutes: nil,
-                resetsAt: nil,
-                resetDescription: "尊享月卡 1890/200000 requests this month"),
-            tertiary: nil,
-            updatedAt: now,
-            identity: identity)
-        let metadata = try #require(ProviderDefaults.metadata[.krill])
-
-        let model = UsageMenuCardView.Model.make(.init(
-            provider: .krill,
-            metadata: metadata,
-            snapshot: snapshot,
-            credits: nil,
-            creditsError: nil,
-            dashboard: nil,
-            dashboardError: nil,
-            tokenSnapshot: nil,
-            tokenError: nil,
-            account: AccountInfo(email: nil, plan: nil),
-            isRefreshing: false,
-            lastError: nil,
-            usageBarsShowUsed: false,
-            resetTimeDisplayStyle: .countdown,
-            tokenCostUsageEnabled: false,
-            showOptionalCreditsAndExtraUsage: true,
-            hidePersonalInfo: false,
-            now: now))
-
-        #expect(model.metrics.map(\.title) == ["Elite Credits", "尊享月卡 Requests"])
-        #expect(abs(model.metrics[0].percent - 32.41) < 0.001)
-        #expect(model.metrics[0].resetText == nil)
-        #expect(model.metrics[0].detailText == "Elite 14261/43999 credits remaining")
-        #expect(model.metrics[1].resetText == nil)
-        #expect(model.metrics[1].detailText == "尊享月卡 1890/200000 requests this month")
-        #expect(model.planText?.contains("Wallet: $16.55") == true)
-        #expect(model.planText?.contains("Elite today") == false)
-    }
-    #endif
 }
-
-// swiftlint:enable type_body_length

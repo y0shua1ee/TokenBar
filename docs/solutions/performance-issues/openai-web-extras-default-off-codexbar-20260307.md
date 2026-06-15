@@ -10,7 +10,7 @@ symptoms:
 root_cause: wrong_api
 resolution_type: config_change
 severity: high
-tags: [codexbar, battery-drain, openai-web, webview, chatgpt, defaults]
+tags: [tokenbar, battery-drain, openai-web, webview, chatgpt, defaults]
 ---
 
 # Troubleshooting: Default OpenAI Web Extras Off

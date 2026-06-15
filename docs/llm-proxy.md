@@ -7,7 +7,7 @@ read_when:
 
 # LLM Proxy
 
-CodexBar reads aggregate usage from an LLM-API-Key-Proxy compatible `/v1/quota-stats` endpoint.
+TokenBar reads aggregate usage from an LLM-API-Key-Proxy compatible `/v1/quota-stats` endpoint.
 
 ## Setup
 
@@ -28,7 +28,7 @@ Set the base URL with `LLM_PROXY_BASE_URL`, or add `enterpriseHost` to the provi
 }
 ```
 
-The base URL may point at either the service root or `/v1`; CodexBar normalizes both to `/v1/quota-stats`.
+The base URL may point at either the service root or `/v1`; TokenBar normalizes both to `/v1/quota-stats`.
 
 ## Menu display
 
@@ -38,4 +38,4 @@ The base URL may point at either the service root or `/v1`; CodexBar normalizes 
 - Extra rows: top provider summaries by request count.
 - Cost: approximate spend when the proxy reports `approx_cost`.
 
-`quota_groups` may be either an array or a keyed object; CodexBar accepts both shapes.
+`quota_groups` may be either an array or a keyed object; TokenBar accepts both shapes.

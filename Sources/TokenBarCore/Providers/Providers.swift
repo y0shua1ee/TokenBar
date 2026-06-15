@@ -53,6 +53,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case grok
     case groq
     case llmproxy
+    case litellm
     case deepgram
 }
 
@@ -107,6 +108,7 @@ public enum IconStyle: String, Sendable, CaseIterable {
     case grok
     case groq
     case llmproxy
+    case litellm
     case deepgram
     case combined
 }
@@ -241,6 +243,15 @@ public enum ProviderBrowserCookieDefaults {
     /// Devin sessions are normally in Chrome. Keep automatic import narrow so live probes do not
     /// touch unrelated browser keychains; users can select another browser explicitly.
     public static var devinCookieImportOrder: BrowserCookieImportOrder? {
+        #if os(macOS)
+        [.chrome]
+        #else
+        nil
+        #endif
+    }
+
+    /// Copilot budget imports should stay Chrome-only by default to avoid prompting unrelated browsers.
+    public static var copilotCookieImportOrder: BrowserCookieImportOrder? {
         #if os(macOS)
         [.chrome]
         #else

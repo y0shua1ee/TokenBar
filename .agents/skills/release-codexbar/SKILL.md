@@ -1,9 +1,9 @@
 ---
-name: release-codexbar
-description: "CodexBar release: versioning, notarization, appcast, Homebrew, post-release bump."
+name: release-tokenbar
+description: "TokenBar release: versioning, notarization, appcast, Homebrew, post-release bump."
 ---
 
-# CodexBar Release
+# TokenBar Release
 
 Use for releasing signed/notarized macOS apps, especially repos with Sparkle appcasts and Homebrew casks.
 
@@ -42,43 +42,43 @@ SPARKLE_PRIVATE_KEY_FILE=<path from release-private>
 
 Run with `op run --account my.1password.com --env-file <file> -- <script>`, then delete the temp env file.
 
-## CodexBar
+## TokenBar
 
 Paths:
 
-- repo: `~/Projects/codexbar`
+- repo: `~/Projects/tokenbar`
 - release script: `Scripts/release.sh`
 - signing/notarization: `Scripts/sign-and-notarize.sh`
 - appcast: `Scripts/make_appcast.sh`, `appcast.xml`
-- release assets: `CodexBar-macos-universal-<version>.zip`, `CodexBar-macos-universal-<version>.dSYM.zip`
-- packaged app: `CodexBar.app`
+- release assets: `TokenBar-macos-universal-<version>.zip`, `TokenBar-macos-universal-<version>.dSYM.zip`
+- packaged app: `TokenBar.app`
 - version file: `version.env`
 - changelog: `CHANGELOG.md`
 - Homebrew tap: `~/Projects/homebrew-tap`
-- cask: `~/Projects/homebrew-tap/Casks/codexbar.rb`
-- formula: `~/Projects/homebrew-tap/Formula/codexbar.rb`
+- cask: `~/Projects/homebrew-tap/Casks/tokenbar.rb`
+- formula: `~/Projects/homebrew-tap/Formula/tokenbar.rb`
 - CLI release workflow: `.github/workflows/release-cli.yml`
 
 Normal release:
 
 ```bash
-tmux new-session -d -s codexbar-release 'op run --account my.1password.com --env-file /tmp/codexbar-release-op.env -- Scripts/release.sh'
-tmux attach -t codexbar-release
+tmux new-session -d -s tokenbar-release 'op run --account my.1password.com --env-file /tmp/tokenbar-release-op.env -- Scripts/release.sh'
+tmux attach -t tokenbar-release
 ```
 
 If notarization fails with `401 Unauthenticated`, rerun using all three App Store Connect fields from the 1Password item above. Mismatched `key_id` / `issuer_id` from `~/.profile` can cause this.
 
 If widget metadata generation times out, `CODEXBAR_WIDGET_METADATA_TIMEOUT_SECONDS=600` is a known-good floor.
 
-CodexBar CLI tarballs are not produced by `Scripts/release.sh` itself. The GitHub release event triggers `.github/workflows/release-cli.yml`, which builds and uploads:
+TokenBar CLI tarballs are not produced by `Scripts/release.sh` itself. The GitHub release event triggers `.github/workflows/release-cli.yml`, which builds and uploads:
 
-- `CodexBarCLI-v<version>-macos-arm64.tar.gz`
-- `CodexBarCLI-v<version>-macos-x86_64.tar.gz`
-- `CodexBarCLI-v<version>-linux-aarch64.tar.gz`
-- `CodexBarCLI-v<version>-linux-x86_64.tar.gz`
+- `TokenBarCLI-v<version>-macos-arm64.tar.gz`
+- `TokenBarCLI-v<version>-macos-x86_64.tar.gz`
+- `TokenBarCLI-v<version>-linux-aarch64.tar.gz`
+- `TokenBarCLI-v<version>-linux-x86_64.tar.gz`
 - matching `.sha256` files
 
-If the workflow fails only in `update-homebrew-tap` with GitHub API rate limiting, the CLI assets may already be uploaded. Verify assets live, then update `Formula/codexbar.rb` manually from the tarball checksums.
+If the workflow fails only in `update-homebrew-tap` with GitHub API rate limiting, the CLI assets may already be uploaded. Verify assets live, then update `Formula/tokenbar.rb` manually from the tarball checksums.
 
 ## Verify
 
@@ -100,18 +100,18 @@ print(enc.attrib.get('url'))
 print(enc.attrib.get('length'))
 print(bool(enc.attrib.get('{http://www.andymatuschak.org/xml-namespaces/sparkle}edSignature')))
 PY
-codesign --verify --deep --strict --verbose=2 CodexBar.app
-spctl --assess --type execute --verbose CodexBar.app
+codesign --verify --deep --strict --verbose=2 TokenBar.app
+spctl --assess --type execute --verbose TokenBar.app
 ```
 
 For Homebrew:
 
 ```bash
-shasum -a 256 CodexBar-macos-universal-<VERSION>.zip
+shasum -a 256 TokenBar-macos-universal-<VERSION>.zip
 cd /Users/steipete/Projects/homebrew-tap
-python3 .github/scripts/update_formula.py --formula codexbar --tag v<VERSION> --repository steipete/CodexBar --artifact-template 'CodexBarCLI-{tag}-{target}.tar.gz' --target-aliases 'darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64'
-brew fetch --cask --force --retry codexbar
-brew fetch --formula --force --retry steipete/tap/codexbar
+python3 .github/scripts/update_formula.py --formula tokenbar --tag v<VERSION> --repository steipete/CodexBar --artifact-template 'TokenBarCLI-{tag}-{target}.tar.gz' --target-aliases 'darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64'
+brew fetch --cask --force --retry tokenbar
+brew fetch --formula --force --retry steipete/tap/tokenbar
 ```
 
 Update the cask when app zip assets exist. Update the formula only when standalone CLI tarballs for that version exist.
@@ -130,12 +130,12 @@ Tap audit can be noisy from unrelated formulae; keep evidence specific to the ap
 6. Restart the local app from the packaged bundle and verify the running bundle version.
 7. Check no release/notary/op temp sessions or temp env files remain.
 
-CodexBar restart:
+TokenBar restart:
 
 ```bash
-pkill -x CodexBar || pkill -f CodexBar.app || true
+pkill -x TokenBar || pkill -f TokenBar.app || true
 cd "$(git rev-parse --show-toplevel)"
-open -n CodexBar.app
-/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' CodexBar.app/Contents/Info.plist
-/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' CodexBar.app/Contents/Info.plist
+open -n TokenBar.app
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' TokenBar.app/Contents/Info.plist
+/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' TokenBar.app/Contents/Info.plist
 ```

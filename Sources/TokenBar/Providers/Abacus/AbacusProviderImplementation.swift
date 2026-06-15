@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct AbacusProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .abacus
 
@@ -64,7 +62,7 @@ struct AbacusProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .abacus) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .abacus) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

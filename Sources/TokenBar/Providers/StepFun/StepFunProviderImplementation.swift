@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct StepFunProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .stepfun
 
@@ -96,7 +94,7 @@ struct StepFunProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .stepfun) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .stepfun) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

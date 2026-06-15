@@ -95,6 +95,9 @@ struct ProviderDetailView<SupplementaryContent: View>: View {
                 return (label: L("Balance"), value: trimmedValue)
             }
         }
+        if provider == .mimo {
+            return (label: L("Plan"), value: rawPlan)
+        }
         return (label: L("Balance"), value: rawPlan)
     }
 
@@ -292,7 +295,7 @@ private struct ProviderDetailBrandIcon: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
         } else {
-            Image(systemName: ProviderBrandIcon.fallbackSymbolName(for: self.provider))
+            Image(systemName: "circle.dotted")
                 .font(.system(size: 24, weight: .regular))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)

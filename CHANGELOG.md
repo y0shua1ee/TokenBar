@@ -1,26 +1,86 @@
 # Changelog
 
-## 0.33.2 — 2026-06-13
+## 0.35.1 — Unreleased
 
-### Fixed
-- Menu bar: open the merged TokenBar dropdown to the right when screen space allows, with the existing edge-safe trailing fallback near the screen boundary.
-
-## 0.33.1 — 2026-06-12
+- Ollama: replace the bundled provider icon with the cleaner official mark while preserving native template tinting. Thanks @mattab178!
+- Menu bar: avoid a one-time visible menu rebuild after first-open background data arrives.
+- Settings: use high-contrast selected-content colors for provider sidebar text and icons.
+- Localization: align the app and website on the same 21-language catalog, adding Italian (#1248), Indonesian (#1513), Polish (#1253), Arabic, Persian, and Thai as selectable app languages, plus automatic website detection, persistent pickers, and right-to-left layouts for Arabic and Persian. Thanks @Yuxin-Qiao and @StevanusPangau!
+- Website: replace the remaining provider letter tiles with the canonical Devin, LiteLLM, and T3 Chat logos.
 
 ### Added
+- LiteLLM: add personal and team budget tracking from a configured virtual key and proxy URL (#1542). Thanks @hololee!
+
+### Changed
+- Antigravity: prefer app and `agy` quota summaries, group usage into Gemini and Claude + GPT session/weekly pools, and preserve IDE and OAuth fallbacks. Thanks @Zihao-Qi!
+
+### Fixed
+- Antigravity: retry transient `Text file busy` launch failures while the CLI executable is being replaced.
+- Antigravity: fall back to loopback HTTP for local CLI and language-server probes on Linux, where self-signed localhost TLS cannot be trusted (fixes #1508). Thanks @zodiacfireworks!
+- Codebuff: enforce the optional subscription grace period even when the transport ignores cancellation.
+- Copilot: show the shared quota reset date for limited premium and chat usage windows. Thanks @Zihao-Qi!
+- Codex: keep managed login timeouts bounded while preserving captured output when detached helpers retain stdout or stderr.
+- Claude: keep segmented multi-account menus scoped to the selected account while its refresh is in flight (fixes #1527).
+- Command Code: keep showing available credits after the bounded optional subscription grace, including when the transport ignores cancellation (fixes #1131).
+- DeepSeek: keep balance refreshes responsive when optional usage-summary work ignores cancellation.
+- OpenRouter: keep credit refreshes responsive when optional key-quota enrichment ignores cancellation.
+- Provider probes: stop waiting indefinitely for inherited output pipes after subprocesses or CLI version checks exit (fixes #1531).
+- Menu bar: update visible usage values in place when a manual refresh completes instead of leaving the open provider card stale until the menu is reopened (fixes #1516).
+- Gemini: recognize the current `gemini-api-key` CLI auth setting so API-key sessions show the supported OAuth guidance instead of a misleading not-logged-in error (fixes #1511).
+- Kiro: keep usage refreshes bounded when CLI helpers retain output pipes, ignore termination, or are cancelled (fixes #1533). Thanks @kiranmagic7!
+- Gemini: keep fnm package discovery bounded when helper descendants retain output pipes or ignore termination (fixes #1534). Thanks @kiranmagic7!
+- Xiaomi MiMo: cancel optional token-plan requests when the required balance request fails instead of delaying the error for up to 30 seconds.
+- Settings: make the cost history window directly editable by keyboard while preserving the existing stepper and 1–365 day bounds (fixes #1499). Thanks @kiranmagic7!
+- OpenCode Go: show Zen balances for accounts without subscription usage windows, including when the balance request takes longer than optional enrichment (fixes #1476). Thanks @kiranmagic7!
+
+## 0.35.0 — 2026-06-14
+
+### Added
+- Kimi: add usage fetching from the official Code API key flow, with optional compatible HTTPS proxy support (#1424). Thanks @kiranmagic7!
+- Xiaomi MiMo: show paid and granted balance components alongside token-plan usage without requiring a duplicate provider (#1309). Thanks @AdrianSimionov!
+- Xiaomi MiMo: add an opt-in local session-log fallback for token accounting when browser quota authentication is unavailable (#1284). Thanks @LeoLin990405!
+- Weekly pace: use configured work days for standard weekly pace calculations while leaving historical Codex pacing unchanged (#1451, fixes #1356). Thanks @pstanton237!
+
+### Fixed
+- Security: prevent test and infrastructure cookie-import paths from accessing real browser profiles, SQLite stores, or Keychain data unless explicitly enabled (#1491).
+- Menu bar: stop the provider-switcher shortcut monitor from killing the menu's event tracking session. Its event-queue peek re-entered the run loop in tracking mode, which could leave a zombie menu on screen that ignored clicks for tens of seconds (beach ball) — most often right after opening the menu or after rapid Cmd-number provider switching, with Settings… the usual victim. Peeks now run in a barren private run-loop mode, start only once the tracking session is pumping, and no longer touch mouse events. Thanks @ProspectOre!
+- Menu bar: rebuild merged provider content inside AppKit's active tracking run loop so provider switches no longer wait for the menu to close or the default run loop to resume.
+- Menu bar: keep cached provider content visible while switching merged tabs so the open menu no longer flickers through an empty state.
+- Menu bar: restore native macOS positioning for merged provider dropdowns while preparing current content before AppKit lays out the menu.
+- Menu bar: avoid starting a duplicate background provider refresh when the menu closes while its initial missing-data refresh is still in flight.
+- Menu bar: pin the status-item dropdown to the current system appearance so it follows the Light/Dark setting instead of inheriting the menu bar's vibrant appearance, which rendered the menu dark in Light mode whenever a dark or strongly-colored window or wallpaper sat behind the menu bar (#1490). Thanks @npapridonu!
+- Menu bar: handle the global open-menu shortcut synchronously so repeated presses close the tracked menu instead of queueing a delayed reopen (#1470). Thanks @Zihao-Qi!
+- Menu bar: keep the selected quota percentage visible in Pace mode when pace is temporarily unavailable instead of collapsing to an icon-only status item (fixes #1462).
+- Settings: memoize cookie cache lookups behind the "Cached: …" picker labels so opening Settings and switching panes no longer pays a synchronous Keychain read per SwiftUI body evaluation, which froze the Providers pane for seconds (#1471). Thanks @ProspectOre!
+- Settings: keep the native tab toolbar in sync when macOS switches appearance while the window is open (#1484). Thanks @hhh2210!
+- Launch at Login: remove pending registrations when disabled without re-registering entries awaiting user approval (#1469). Thanks @AmrMohamad!
+- Diagnostics: enforce probe timeouts even when an underlying provider operation ignores Swift task cancellation.
+
+## 0.34.0 — 2026-06-12
+
+### Added
+- Copilot: optionally import GitHub billing budget windows, bind them to the active account, and expose budget metrics in cards and menu bar icons (#1273). Thanks @Quicksaver!
 - Localization: add native Korean language support across the app and language picker (#1460). Thanks @soohanpark!
+- Localization: add German as a selectable app language (#1245). Thanks @Yuxin-Qiao!
+- Localization: add Turkish as a selectable app language (#1232). Thanks @ykarateke!
 - Devin: add daily and weekly quota tracking from the signed-in Chrome session or a manual Bearer token (#1264, fixes #800). Thanks @coygeek!
+- Amp: add local `amp usage` support, including account identity and individual and workspace credit balances (fixes #1317). Thanks @3kh0!
 - Menu bar: add an optional reset-time display for the selected quota metric, with percent fallback when reset metadata is unavailable (#1223, fixes #1185). Thanks @Yuxin-Qiao!
 - Cursor: include application data, extensions, settings, and caches in optional local storage tracking (fixes #1403). Thanks @dhruv-anand-aintech!
 - Menu bar: move the highlighted Overview provider with trackpad or mouse-wheel scrolling while preserving native submenu and keyboard behavior (#1436). Thanks @joshuavial!
 
 ### Fixed
+- CLI: keep Ollama API credentials scoped to Ollama when deciding whether another provider requires macOS web support (#1466). Thanks @WadydX!
+- Provider switcher: keep localized tab titles visible by tightening outer insets only when equal-width segments would otherwise truncate.
+- OpenAI API: follow Admin usage pagination for costs and completions so multi-page organization usage totals are not undercounted (#1465). Thanks @rohitjavvadi!
 - Settings: slightly increase the window height so standard panes fit without clipping their final controls or helper text.
 - Menu bar: show immediate in-place feedback for manual refreshes, keep tracked-menu geometry stable, and coalesce repeated clicks until the active refresh succeeds or fails (#1458). Thanks @hhh2210!
 - Grok: recover web billing from status-7 credential failures by combining current browser sessions with non-expired CLI auth, accept raw protobuf responses, and render current zero-use periods (#1452). Thanks @bcharleson!
+- Amp: restore usage fetching with access-token authentication for the current balance endpoint and retain browser-cookie settings parsing as a fallback. Thanks @3kh0!
 - Antigravity: detect current hyphenated IDE language-server processes inside Antigravity app bundles so local quota refreshes no longer report the IDE as unavailable (#1405). Thanks @lfmundim!
 - Menu bar: avoid republishing unchanged provider storage footprints so background scans no longer trigger unnecessary menu observation work (#1416). Thanks @soohanpark!
 - Cursor: show capped team Extra usage when no individual cap exists, and honor percent used/remaining menu bar display settings instead of always showing currency spend (#1426). Thanks @lpc-eol!
+- Cursor: derive a first-party web session from the signed-in Cursor.app as a final fallback, preserving account precedence and legacy request quotas (#1295). Thanks @Jackie-Qin!
 - Claude: explain that an unauthorized Web session requires signing in at claude.ai or refreshing imported cookies (#1287). Thanks @LeoLin990405!
 - CLI server: reload provider config for every usage and cost request, invalidate config-dependent cache entries, and prune expired config variants without restarting `tokenbar serve`. Thanks @enieuwy!
 - Menu bar: reserve quota-bar space consistently across Overview and provider switcher segments so selection no longer changes segment height (#1445). Thanks @Zihao-Qi!
@@ -69,16 +129,6 @@
 - Menu bar: defer data-refresh rebuilds until the tracked menu closes, avoiding multi-second WindowServer stalls with slower providers such as Grok (#1376). Thanks @jangisaac-dev!
 - OpenAI Web: evict cached dashboard WebViews after their idle timeout even when no later cache activity occurs, releasing hidden WebKit helper processes (#1386). Thanks @naoterumaker!
 - Xiaomi MiMo: import automatic session cookies from Safari, Chrome variants, Firefox, and Edge instead of limiting discovery to Chrome (#1304). Thanks @Yuxin-Qiao!
-
-## 0.32.6 — 2026-06-10
-
-### Fixed
-- Menu bar: keep merged-menu provider switching responsive by reusing switcher content and preserving menu item identity across refreshes.
-- Menu bar: keep transient provider-tab selection out of general menu observation so switching tabs no longer clears menu caches and rebuilds the dropdown on the main thread.
-- Menu bar: cache hosted menu widths and defer avoidable open-menu work so hovering and opening the merged dropdown stays responsive with many providers enabled.
-- DeepSeek: fix Today cost rows when local date lookup or UTC day boundaries would otherwise show zero usage.
-- Release: default TokenBar packaging to adhoc signing for local fork releases.
-- Tests: stabilize headless CI timing for menu keyboard navigation.
 
 ## 0.32.5 — 2026-06-09
 

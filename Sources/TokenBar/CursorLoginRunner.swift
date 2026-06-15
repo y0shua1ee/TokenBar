@@ -1,7 +1,6 @@
 import AppKit
 import Foundation
 import TokenBarCore
-import WebKit
 
 /// Opens Cursor in the user's browser and waits until the normal browser-cookie importer can read a session.
 @MainActor
@@ -57,7 +56,9 @@ final class CursorLoginRunner {
         self.resetSessionCache = resetSessionCache
         self.loadSnapshot = loadSnapshot ?? {
             let probe = CursorStatusProbe(browserDetection: browserDetection)
-            return try await probe.fetch(allowCachedSessions: false)
+            return try await probe.fetch(
+                allowCachedSessions: false,
+                allowAppAuthFallback: false)
         }
     }
 

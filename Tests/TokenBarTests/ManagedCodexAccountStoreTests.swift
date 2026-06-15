@@ -1,12 +1,12 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
-@testable import TokenBarCore
 
 @Test
 func `FileManagedCodexAccountStore round trip`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let firstID = UUID()
@@ -52,7 +52,7 @@ func `FileManagedCodexAccountStore round trip`() throws {
 @Test
 func `FileManagedCodexAccountStore missing file loads empty set`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-nil-active-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-nil-active-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
     try? FileManager.default.removeItem(at: fileURL)
 
@@ -84,7 +84,7 @@ func `FileManagedCodexAccountStore missing file loads empty set`() throws {
 @Test
 func `FileManagedCodexAccountStore canonicalizes decoded emails`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-decode-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-decode-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let accountID = UUID()
@@ -117,7 +117,7 @@ func `FileManagedCodexAccountStore canonicalizes decoded emails`() throws {
 @Test
 func `FileManagedCodexAccountStore drops duplicate canonical emails on load`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-duplicate-email-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-duplicate-email-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let firstID = UUID()
@@ -278,7 +278,7 @@ func `FileManagedCodexAccountStore hydrates provider account I D from id token w
 @Test
 func `FileManagedCodexAccountStore drops duplicate IDs on load`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-duplicate-id-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-duplicate-id-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let sharedID = UUID()
@@ -356,7 +356,7 @@ func `FileManagedCodexAccountStore v1 upgrade keeps deleted home row with nil pr
 @Test
 func `FileManagedCodexAccountStore ignores legacy active account key on load`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-legacy-active-key-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-legacy-active-key-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let accountID = UUID()
@@ -444,7 +444,7 @@ func `FileManagedCodexAccountStore upgrades v1 rows and writes readable v2 file 
 @Test
 func `FileManagedCodexAccountStore rejects unsupported on disk versions`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-unsupported-version-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-unsupported-version-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let accountID = UUID()
@@ -476,7 +476,7 @@ func `FileManagedCodexAccountStore rejects unsupported on disk versions`() throw
 @Test
 func `FileManagedCodexAccountStore normalizes stored version to current schema`() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let fileURL = tempDir.appendingPathComponent("codexbar-managed-codex-accounts-version-normalization-test.json")
+    let fileURL = tempDir.appendingPathComponent("tokenbar-managed-codex-accounts-version-normalization-test.json")
     defer { try? FileManager.default.removeItem(at: fileURL) }
 
     let accountID = UUID()

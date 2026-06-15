@@ -1,4 +1,3 @@
-import Foundation
 import TokenBarCore
 
 typealias CodexVisibleAccount = TokenBarCore.CodexVisibleAccount

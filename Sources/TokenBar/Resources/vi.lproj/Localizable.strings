@@ -99,6 +99,8 @@
 "Could not start codex login" = "Không thể bắt đầu đăng nhập codex";
 "Could not switch system account" = "Không thể không chuyển đổi tài khoản hệ thống";
 "Credits" = "Tín dụng";
+"Individual credits" = "Tín dụng cá nhân";
+"Workspace" = "Không gian làm việc";
 "Credits history" = "Lịch sử tín dụng";
 "Cursor login failed" = "Đăng nhập con trỏ không thành công";
 "Custom" = "Tùy chỉnh";
@@ -399,12 +401,14 @@
 "language_chinese_simplified" = "简体中文";
 "language_chinese_traditional" = "繁體中文";
 "language_portuguese_brazilian" = "Português (Brasil)";
+"language_german" = "Deutsch";
 "language_swedish" = "Svenska";
 "language_french" = "Tiếng Pháp";
 "language_dutch" = "Tiếng Hà Lan";
 "language_ukrainian" = "Tiếng Ukraina";
 "language_japanese" = "Tiếng Nhật";
 "language_korean" = "Tiếng Hàn";
+"language_italian" = "Italiano";
 "start_at_login_title" = "Bắt đầu khi đăng nhập";
 "start_at_login_subtitle" = "Tự động mở TokenBar khi bạn khởi động máy Mac.";
 "show_cost_summary" = "Hiển thị tóm tắt chi phí";
@@ -498,7 +502,7 @@
 "show_quota_warning_markers_title" = "Hiển thị Hạn mức dấu cảnh báo";
 "show_quota_warning_markers_subtitle" = "Vẽ dấu kiểm ngưỡng trên thanh Mức sử dụng khi cảnh báo Hạn mức được định cấu hình.";
 "weekly_progress_work_days_title" = "Tiến độ ngày làm việc hàng tuần";
-"weekly_progress_work_days_subtitle" = "Vẽ các dấu kiểm ranh giới ngày trên các thanh Mức sử dụng hàng tuần.";
+"weekly_progress_work_days_subtitle" = "Đặt ngày làm việc cho các vạch trên thanh sử dụng hằng tuần và phép tính nhịp độ.";
 "show_reset_time_as_clock_title" = "Hiển thị Đặt lại thời gian dưới dạng đồng hồ";
 "show_reset_time_as_clock_subtitle" = "Hiển thị Đặt lại thời gian dưới dạng giá trị đồng hồ tuyệt đối thay vì đếm ngược.";
 "show_provider_changelog_links_title" = "Hiển thị Nhà cung cấp liên kết nhật ký thay đổi";
@@ -1070,6 +1074,9 @@
 "Search providers" = "Tìm kiếm nhà cung cấp";
 
 "language_vietnamese" = "Tiếng Việt";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Tự động nhập cookie trình duyệt Chrome từ Xiaomi MiMo.";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Tiếng Indonesia";
+"language_polish" = "Tiếng Ba Lan";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

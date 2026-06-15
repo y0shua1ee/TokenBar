@@ -18,7 +18,7 @@ struct UsageCommandContext {
     let fetcher: UsageFetcher
     let claudeFetcher: ClaudeUsageFetcher
     let browserDetection: BrowserDetection
-    /// True for long-lived hosts (`codexbar serve`) that keep warm provider
+    /// True for long-lived hosts (`tokenbar serve`) that keep warm provider
     /// helper sessions (such as the managed Antigravity `agy` process) alive
     /// between fetches instead of resetting after each one-shot fetch.
     var persistCLISessions: Bool = false
@@ -545,13 +545,29 @@ extension TokenBarCLI {
         environment: [String: String]? = nil,
         settings: ProviderSettingsSnapshot? = nil) -> Bool
     {
-        guard provider != .grok else {
+        guard provider != .grok, provider != .amp else {
             return false
         }
         if provider == .ollama,
+           sourceMode == .auto
+        {
+            let hasEnvironmentToken = environment.map {
+                ProviderTokenResolver.ollamaToken(environment: $0) != nil
+            } == true
+            if settings?.ollama?.cookieSource == .off || hasEnvironmentToken {
+                return false
+            }
+        }
+        if provider == .kimi,
            sourceMode == .auto,
-           settings?.ollama?.cookieSource == .off
-           || environment.map({ ProviderTokenResolver.ollamaToken(environment: $0) != nil }) == true
+           environment.map({ ProviderTokenResolver.kimiAPIToken(environment: $0) != nil }) == true
+        {
+            return false
+        }
+        if provider == .mimo,
+           sourceMode == .auto,
+           let environment,
+           MiMoLocalUsageFallback.cacheExists(environment: environment)
         {
             return false
         }

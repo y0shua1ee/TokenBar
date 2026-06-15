@@ -99,6 +99,8 @@
 "Could not start codex login" = "Impossible de démarrer la connexion à Codex";
 "Could not switch system account" = "Impossible de changer de compte système";
 "Credits" = "Crédits";
+"Individual credits" = "Crédits individuels";
+"Workspace" = "Espace de travail";
 "Credits history" = "Historique des crédits";
 "Cursor login failed" = "La connexion au curseur a échoué";
 "Custom" = "Personnalisé";
@@ -399,13 +401,18 @@
 "language_chinese_simplified" = "Chinois simplifié";
 "language_chinese_traditional" = "Chinois traditionnel";
 "language_portuguese_brazilian" = "Portugais (Brésil)";
+"language_german" = "Allemand";
 "language_swedish" = "Suédois";
 "language_french" = "Français";
 "language_dutch" = "Néerlandais";
 "language_ukrainian" = "Ukrainien";
 "language_japanese" = "Japonais";
 "language_korean" = "Coréen";
+"language_italian" = "Italiano";
 "language_vietnamese" = "Vietnamien";
+"language_turkish" = "Türkçe";
+"language_indonesian" = "Indonésien";
+"language_polish" = "Polonais";
 "start_at_login_title" = "Lancer à l'ouverture de session";
 "start_at_login_subtitle" = "Ouvre automatiquement TokenBar au démarrage de votre Mac.";
 "show_cost_summary" = "Afficher le récapitulatif des coûts";
@@ -499,7 +506,7 @@
 "show_quota_warning_markers_title" = "Afficher les marqueurs d'avertissement de quota";
 "show_quota_warning_markers_subtitle" = "Dessinez des coches de seuil sur les barres d’utilisation lorsque des avertissements de quota sont configurés.";
 "weekly_progress_work_days_title" = "Jours de travail hebdomadaires";
-"weekly_progress_work_days_subtitle" = "Dessinez des graduations journalières sur les barres d’utilisation hebdomadaire.";
+"weekly_progress_work_days_subtitle" = "Définit les jours ouvrés pour les repères des barres d’utilisation hebdomadaire et le calcul du rythme.";
 "show_reset_time_as_clock_title" = "Afficher l'heure de réinitialisation sous forme d'horloge";
 "show_reset_time_as_clock_subtitle" = "Affichez les temps de réinitialisation sous forme de valeurs d'horloge absolues au lieu de comptes à rebours.";
 "show_provider_changelog_links_title" = "Afficher les liens du journal des modifications du fournisseur";
@@ -1069,6 +1076,6 @@
 "Clear" = "Effacer";
 "No matching providers" = "Aucun fournisseur correspondant";
 "Search providers" = "Fournisseurs de recherche";
-
-/* TokenBar fork additions */
-"Automatic imports Chrome browser cookies from Xiaomi MiMo." = "Importe automatiquement les cookies du navigateur Chrome de Xiaomi MiMo.";
+"language_arabic" = "العربية";
+"language_persian" = "فارسی";
+"language_thai" = "ไทย";

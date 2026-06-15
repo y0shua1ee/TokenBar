@@ -1,6 +1,6 @@
-@testable import TokenBarCore
 import Foundation
 import Testing
+import TokenBarCore
 
 /// Regression tests for a copy-pasted quote-unwrap helper that traps on length-1 input.
 ///

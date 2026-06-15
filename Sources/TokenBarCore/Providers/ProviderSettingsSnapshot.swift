@@ -1,5 +1,12 @@
 import Foundation
 
+public protocol ProviderCookieSettings: Sendable {
+    var cookieSource: ProviderCookieSource { get }
+    var manualCookieHeader: String? { get }
+
+    init(cookieSource: ProviderCookieSource, manualCookieHeader: String?)
+}
+
 public struct ProviderSettingsSnapshot: Sendable {
     public static func make(
         debugMenuEnabled: Bool = false,
@@ -111,7 +118,17 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct CursorProviderSettings: Sendable {
+    public struct CookieProviderSettings: ProviderCookieSettings {
+        public let cookieSource: ProviderCookieSource
+        public let manualCookieHeader: String?
+
+        public init(cookieSource: ProviderCookieSource = .auto, manualCookieHeader: String? = nil) {
+            self.cookieSource = cookieSource
+            self.manualCookieHeader = manualCookieHeader
+        }
+    }
+
+    public struct CursorProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -149,7 +166,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct AlibabaTokenPlanProviderSettings: Sendable {
+    public struct AlibabaTokenPlanProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -159,7 +176,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct FactoryProviderSettings: Sendable {
+    public struct FactoryProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -185,7 +202,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct ManusProviderSettings: Sendable {
+    public struct ManusProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -206,10 +223,25 @@ public struct ProviderSettingsSnapshot: Sendable {
     public struct CopilotProviderSettings: Sendable {
         public let apiToken: String?
         public let enterpriseHost: String?
+        public let selectedAccountExternalIdentifier: String?
+        public let budgetExtrasEnabled: Bool
+        public let budgetCookieSource: ProviderCookieSource
+        public let manualBudgetCookieHeader: String?
 
-        public init(apiToken: String? = nil, enterpriseHost: String? = nil) {
+        public init(
+            apiToken: String? = nil,
+            enterpriseHost: String? = nil,
+            selectedAccountExternalIdentifier: String? = nil,
+            budgetExtrasEnabled: Bool = false,
+            budgetCookieSource: ProviderCookieSource = .auto,
+            manualBudgetCookieHeader: String? = nil)
+        {
             self.apiToken = apiToken
             self.enterpriseHost = enterpriseHost
+            self.selectedAccountExternalIdentifier = selectedAccountExternalIdentifier
+            self.budgetExtrasEnabled = budgetExtrasEnabled
+            self.budgetCookieSource = budgetCookieSource
+            self.manualBudgetCookieHeader = manualBudgetCookieHeader
         }
     }
 
@@ -223,7 +255,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct KimiProviderSettings: Sendable {
+    public struct KimiProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -233,7 +265,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct AugmentProviderSettings: Sendable {
+    public struct AugmentProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -259,7 +291,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct AmpProviderSettings: Sendable {
+    public struct AmpProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -269,7 +301,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct T3ChatProviderSettings: Sendable {
+    public struct T3ChatProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -291,7 +323,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct CommandCodeProviderSettings: Sendable {
+    public struct CommandCodeProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -301,7 +333,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct OllamaProviderSettings: Sendable {
+    public struct OllamaProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -327,7 +359,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct PerplexityProviderSettings: Sendable {
+    public struct PerplexityProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -337,7 +369,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct MiMoProviderSettings: Sendable {
+    public struct MiMoProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -347,7 +379,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct AbacusProviderSettings: Sendable {
+    public struct AbacusProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 
@@ -357,7 +389,7 @@ public struct ProviderSettingsSnapshot: Sendable {
         }
     }
 
-    public struct MistralProviderSettings: Sendable {
+    public struct MistralProviderSettings: ProviderCookieSettings {
         public let cookieSource: ProviderCookieSource
         public let manualCookieHeader: String?
 

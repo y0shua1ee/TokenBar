@@ -2,9 +2,7 @@ import AppKit
 import Foundation
 import SwiftUI
 import TokenBarCore
-import TokenBarMacroSupport
 
-@ProviderImplementationRegistration
 struct MiniMaxProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .minimax
 
@@ -89,7 +87,7 @@ struct MiniMaxProviderImplementation: ProviderImplementation {
                 isVisible: { authMode().allowsCookies },
                 onChange: nil,
                 trailingText: {
-                    guard let entry = CookieHeaderCache.load(provider: .minimax) else { return nil }
+                    guard let entry = CookieHeaderCache.loadForDisplay(provider: .minimax) else { return nil }
                     let when = entry.storedAt.relativeDescription()
                     return "Cached: \(entry.sourceLabel) • \(when)"
                 }),

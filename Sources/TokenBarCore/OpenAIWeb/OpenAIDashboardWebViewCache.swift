@@ -132,9 +132,9 @@ final class OpenAIDashboardWebViewCache {
     private let reusablePageResetScript = """
     (() => {
       try {
-        delete window.__tokenbarDidScrollToCredits;
-        delete window.__tokenbarUsageBreakdownJSON;
-        delete window.__tokenbarUsageBreakdownDebug;
+        delete window.__codexbarDidScrollToCredits;
+        delete window.__codexbarUsageBreakdownJSON;
+        delete window.__codexbarUsageBreakdownDebug;
         return true;
       } catch {
         return false;

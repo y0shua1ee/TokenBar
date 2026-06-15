@@ -628,6 +628,32 @@ struct AntigravityCLISessionTests {
     }
 
     @Test
+    func `pty launcher retries transient text busy spawn errors`() {
+        var attempts = 0
+
+        let result = AntigravityPTYProcessLauncher.spawnWithTextBusyRetry(retryDelay: 0) {
+            attempts += 1
+            return attempts < 3 ? ETXTBSY : 0
+        }
+
+        #expect(result == 0)
+        #expect(attempts == 3)
+    }
+
+    @Test
+    func `pty launcher does not retry other spawn errors`() {
+        var attempts = 0
+
+        let result = AntigravityPTYProcessLauncher.spawnWithTextBusyRetry(retryDelay: 0) {
+            attempts += 1
+            return EACCES
+        }
+
+        #expect(result == EACCES)
+        #expect(attempts == 1)
+    }
+
+    @Test
     func `pty launcher uses home and closes unrelated descriptors`() throws {
         let tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("antigravity-spawn-\(UUID().uuidString)", isDirectory: true)
@@ -658,7 +684,8 @@ struct AntigravityCLISessionTests {
           echo closed >> \(outputURL.path)
         fi
         """
-        try script.write(to: scriptURL, atomically: true, encoding: .utf8)
+        // Direct writes close the executable before spawn; atomic replacement can race with exec on Linux.
+        try Data(script.utf8).write(to: scriptURL)
         #expect(chmod(scriptURL.path, 0o700) == 0)
 
         let handle = try AntigravityPTYProcessLauncher().launch(binary: scriptURL.path)
@@ -718,7 +745,7 @@ struct AntigravityCLISessionTests {
         let handle = try #require(fixture.launcher.handleSnapshot().first)
         handle.enqueueDrainOutput(Data([0xE2, 0x96]))
         let first = await fixture.session.drainOutput()
-        handle.enqueueDrainOutput(Data([0x84]) + Data("You are currently not signed in".utf8))
+        handle.enqueueDrainOutput(Data([0x84]) + Data("Select login method:".utf8))
         let second = await fixture.session.drainOutput()
         let third = await fixture.session.drainOutput()
 
@@ -731,13 +758,23 @@ struct AntigravityCLISessionTests {
     }
 
     @Test
+    func `authentication prompt matcher tolerates prompt casing and spacing`() {
+        #expect(AntigravityCLIHTTPSFetchStrategy.containsAuthenticationPrompt(
+            Data("select  LOGIN\nmethod :".utf8)))
+        #expect(AntigravityCLIHTTPSFetchStrategy.containsAuthenticationPrompt(
+            Data("Select login method:".utf8)))
+        #expect(!AntigravityCLIHTTPSFetchStrategy.containsAuthenticationPrompt(
+            Data("You are currently not signed in".utf8)))
+    }
+
+    @Test
     func `session returns complete new output before retaining only its tail`() async throws {
         let fixture = self.makeFixture()
         fixture.identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
 
         _ = try await fixture.session.beginProbe(binary: "/bin/agy")
         let handle = try #require(fixture.launcher.handleSnapshot().first)
-        let prompt = Data("You are currently not signed in".utf8)
+        let prompt = Data("Select login method:".utf8)
         let oversizedRedraw = prompt + Data(repeating: 0x20, count: 8192)
         handle.enqueueDrainOutput(oversizedRedraw)
 
@@ -882,13 +919,13 @@ struct AntigravityCLISessionTests {
             startEpoch: 42,
             processGroup: 777,
             ownerPID: 900,
-            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             ownerStartEpoch: 10))
         let fixture = self.makeFixture(store: store, currentProcessID: 901)
         fixture.identity.setIdentity(pid: 777, executablePath: "/bin/agy", startEpoch: 42)
         fixture.identity.setIdentity(
             pid: 900,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 10)
 
         await fixture.session.reset()
@@ -906,17 +943,17 @@ struct AntigravityCLISessionTests {
             startEpoch: 42,
             processGroup: 777,
             ownerPID: 900,
-            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             ownerStartEpoch: 10)
         let store = MemoryAntigravitySessionRecordStore(record: protectedRecord)
         let fixture = self.makeFixture(store: store, currentProcessID: 901)
         fixture.identity.setIdentity(pid: 777, executablePath: "/bin/agy", startEpoch: 42)
         fixture.identity.setIdentity(
             pid: 900,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 10)
         fixture.identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
-        fixture.identity.setIdentity(pid: 901, executablePath: "/app/codexbar", startEpoch: 20)
+        fixture.identity.setIdentity(pid: 901, executablePath: "/app/tokenbar", startEpoch: 20)
 
         _ = try await fixture.session.beginProbe(binary: "/bin/agy")
 
@@ -938,17 +975,17 @@ struct AntigravityCLISessionTests {
             startEpoch: 42,
             processGroup: 777,
             ownerPID: 900,
-            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             ownerStartEpoch: 10)
         let store = MemoryAntigravitySessionRecordStore(record: protectedRecord)
         let fixture = self.makeFixture(store: store, currentProcessID: 901)
         fixture.identity.setIdentity(pid: 777, executablePath: "/bin/agy", startEpoch: 42)
         fixture.identity.setIdentity(
             pid: 900,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 10)
         fixture.identity.setIdentity(pid: 10, executablePath: "/new/agy", startEpoch: 100)
-        fixture.identity.setIdentity(pid: 901, executablePath: "/app/codexbar", startEpoch: 20)
+        fixture.identity.setIdentity(pid: 901, executablePath: "/app/tokenbar", startEpoch: 20)
 
         _ = try await fixture.session.beginProbe(binary: "/new/agy")
 
@@ -969,8 +1006,8 @@ struct AntigravityCLISessionTests {
         let secondLauncher = FakeAntigravityProcessLauncher(nextPID: 20)
         identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
         identity.setIdentity(pid: 20, executablePath: "/bin/agy", startEpoch: 200)
-        identity.setIdentity(pid: 900, executablePath: "/app/CodexBar", startEpoch: 1)
-        identity.setIdentity(pid: 901, executablePath: "/app/codexbar", startEpoch: 2)
+        identity.setIdentity(pid: 900, executablePath: "/app/TokenBar", startEpoch: 1)
+        identity.setIdentity(pid: 901, executablePath: "/app/tokenbar", startEpoch: 2)
         let first = self.makeFixture(
             launcher: firstLauncher,
             identity: identity,
@@ -1008,8 +1045,8 @@ extension AntigravityCLISessionTests {
         let secondLauncher = FakeAntigravityProcessLauncher(nextPID: 20)
         identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
         identity.setIdentity(pid: 20, executablePath: "/bin/agy", startEpoch: 200)
-        identity.setIdentity(pid: 900, executablePath: "/app/CodexBar", startEpoch: 1)
-        identity.setIdentity(pid: 901, executablePath: "/app/codexbar", startEpoch: 2)
+        identity.setIdentity(pid: 900, executablePath: "/app/TokenBar", startEpoch: 1)
+        identity.setIdentity(pid: 901, executablePath: "/app/tokenbar", startEpoch: 2)
         let first = self.makeFixture(
             launcher: firstLauncher,
             identity: identity,
@@ -1051,7 +1088,7 @@ extension AntigravityCLISessionTests {
             startEpoch: 100,
             processGroup: 10,
             ownerPID: 900,
-            ownerExecutablePath: "/app/CodexBar",
+            ownerExecutablePath: "/app/TokenBar",
             ownerStartEpoch: 1)
         try JSONEncoder().encode(legacy).write(to: fileURL)
         let store = AntigravityFileCLISessionRecordStore(fileURL: fileURL)
@@ -1064,7 +1101,7 @@ extension AntigravityCLISessionTests {
             startEpoch: 200,
             processGroup: 20,
             ownerPID: 901,
-            ownerExecutablePath: "/app/codexbar",
+            ownerExecutablePath: "/app/tokenbar",
             ownerStartEpoch: 2)
         try store.save(second)
         #expect(try Set(store.load().map(\.pid)) == [10, 20])
@@ -1086,18 +1123,18 @@ extension AntigravityCLISessionTests {
             startEpoch: 42,
             processGroup: 777,
             ownerPID: 900,
-            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             ownerStartEpoch: 10)
         let store = MemoryAntigravitySessionRecordStore(record: protectedRecord)
         let fixture = self.makeFixture(store: store, currentProcessID: 901)
         fixture.identity.setIdentity(pid: 777, executablePath: "/bin/agy", startEpoch: 42)
         fixture.identity.setIdentity(
             pid: 900,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 10)
         fixture.identity.setIdentity(
             pid: 901,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 20)
         fixture.identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
 
@@ -1122,13 +1159,13 @@ extension AntigravityCLISessionTests {
             startEpoch: 42,
             processGroup: 777,
             ownerPID: 900,
-            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            ownerExecutablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             ownerStartEpoch: 10))
         let fixture = self.makeFixture(store: store, currentProcessID: 901)
         fixture.identity.setIdentity(pid: 777, executablePath: "/bin/agy", startEpoch: 42)
         fixture.identity.setIdentity(
             pid: 900,
-            executablePath: "/Applications/TokenBar.app/Contents/MacOS/CodexBar",
+            executablePath: "/Applications/TokenBar.app/Contents/MacOS/TokenBar",
             startEpoch: 10)
 
         await fixture.session.reset()
@@ -1163,7 +1200,7 @@ extension AntigravityCLISessionTests {
     func `force killed process is polled again so the child can be reaped`() async throws {
         let fixture = self.makeFixture(terminateRootStopsProcess: false)
         fixture.identity.setIdentity(pid: 10, executablePath: "/bin/agy", startEpoch: 100)
-        fixture.identity.setIdentity(pid: 900, executablePath: "/app/CodexBar", startEpoch: 1)
+        fixture.identity.setIdentity(pid: 900, executablePath: "/app/TokenBar", startEpoch: 1)
 
         _ = try await fixture.session.beginProbe(binary: "/bin/agy")
         await fixture.session.finishProbe(success: true, resetAfterFetch: true)

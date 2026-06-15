@@ -200,7 +200,7 @@ public struct OpenRouterActivityUsageReport: Sendable, Equatable {
             last30DaysTokens: snapshot.last30DaysTokens,
             last30DaysCostUSD: snapshot.last30DaysCostUSD,
             last30DaysRequests: self.totalRequests,
-            costCurrencyCode: "USD",
+            currencyCode: "USD",
             daily: snapshot.daily,
             updatedAt: snapshot.updatedAt)
     }

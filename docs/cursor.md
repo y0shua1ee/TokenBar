@@ -8,13 +8,13 @@ read_when:
 
 # Cursor provider
 
-Cursor is web-only. Usage is fetched via browser cookies or a stored WebKit session.
+Cursor is primarily web-backed. Usage is fetched via browser cookies or a stored WebKit session, with Cursor.app local auth as a final fallback.
 
 ## Data sources + fallback order
 
 1) **Cached cookie header** (preferred)
    - Stored after successful browser import.
-   - Keychain cache: `com.y0shua1ee.tokenbar.cache` (account `cookie.cursor`).
+   - Keychain cache: `com.steipete.tokenbar.cache` (account `cookie.cursor`).
 
 2) **Browser cookie import**
    - Cookie order from provider metadata (default: Safari → Chrome → Firefox).
@@ -28,6 +28,13 @@ Cursor is web-only. Usage is fetched via browser cookies or a stored WebKit sess
    - Captured by the "Add Account" WebKit login flow.
    - Login teardown uses `WebKitTeardown` to avoid Intel WebKit crashes.
    - Stored at: `~/Library/Application Support/TokenBar/cursor-session.json`.
+
+4) **Cursor.app local auth** (last fallback)
+   - Reads Cursor.app's VS Code-style global state DB for the local app bearer token.
+   - File: `~/Library/Application Support/Cursor/User/globalStorage/state.vscdb`.
+   - Used only after cookie/session sources fail so existing account-selection precedence stays stable.
+   - Derives Cursor's first-party web-session cookie, then uses the same usage and account endpoints as browser sessions.
+   - Account identity comes from that authenticated session; cached app profile fields are not mixed across accounts.
 
 Manual option:
 - Preferences → Providers → Cursor → Cookie source → Manual.
@@ -47,7 +54,7 @@ Manual option:
 - Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
 
 ## Local storage footprint
-When **Settings → Advanced → Track provider local storage** is enabled, CodexBar measures:
+When **Settings → Advanced → Track provider local storage** is enabled, TokenBar measures:
 - `~/Library/Application Support/Cursor`
 - `~/Library/Application Support/Caches/cursor-updater`
 - `~/.cursor`
@@ -57,7 +64,7 @@ When **Settings → Advanced → Track provider local storage** is enabled, Code
 - `~/Library/Caches/cursor-compile-cache`
 - `~/Library/HTTPStorages/com.todesktop.230313mzl4w4u92`
 
-The storage detail lists measured paths and their sizes. CodexBar does not delete Cursor data.
+The storage detail lists measured paths and their sizes. TokenBar does not delete Cursor data.
 
 ## Snapshot mapping
 - Primary: plan usage percent (included plan).

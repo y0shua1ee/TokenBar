@@ -40,7 +40,7 @@ struct UserFacingLocalizationCoverageTests {
                 "return \"Re-auth\"",
                 "ProviderSettingsSection(title: \"Accounts\")",
                 "Text(\"Active\")",
-                "Text(\"Choose which Codex account CodexBar should follow.\")",
+                "Text(\"Choose which Codex account TokenBar should follow.\")",
                 "Text(\"Account\")",
                 "Text(\"No Codex accounts detected yet.\")",
                 "Text(\"System\")",
