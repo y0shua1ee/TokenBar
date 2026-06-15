@@ -52,7 +52,7 @@ swiftlint --strict
 
 # Restart app after rebuild
 pkill -x TokenBar || pkill -f TokenBar.app || true
-cd /Users/steipete/Projects/tokenbar && open -n /Users/steipete/Projects/tokenbar/TokenBar.app
+cd /Users/areslee/Documents/dev/active/TokenBar && open -n /Users/areslee/Documents/dev/active/TokenBar/TokenBar.app
 ```
 
 ### Release

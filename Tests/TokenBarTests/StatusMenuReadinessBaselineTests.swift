@@ -129,7 +129,7 @@ extension StatusMenuTests {
     }
 
     @Test
-    func `native merged menu preparation during in flight refresh preserves stale menu freshness`() throws {
+    func `native merged menu preparation during in flight refresh preserves stale menu freshness`() {
         self.disableMenuCardsForTesting()
         let settings = self.makeSettings()
         settings.statusChecksEnabled = false
@@ -166,9 +166,8 @@ extension StatusMenuTests {
         defer { controller.releaseStatusItemsForTesting() }
         controller.menuRefreshEnabledOverrideForTesting = true
 
-        let menu = try #require(controller.statusItem.menu)
+        let menu = controller.prepareMergedMenuForPresentation()
         #expect(menu === controller.mergedMenu)
-        controller.menuNeedsUpdate(menu)
         let key = ObjectIdentifier(menu)
         let preparedVersion = controller.menuVersions[key]
 

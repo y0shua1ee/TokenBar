@@ -8,7 +8,7 @@ const docsDir = path.join(repoRoot, "docs");
 const cname = fs.readFileSync(path.join(docsDir, "CNAME"), "utf8").trim();
 const origin = "https://" + cname;
 const productName = "TokenBar";
-const source = "https://github.com/steipete/CodexBar";
+const source = "https://github.com/y0shua1ee/TokenBar";
 
 const pages = allHtml(docsDir)
   .map((file) => {

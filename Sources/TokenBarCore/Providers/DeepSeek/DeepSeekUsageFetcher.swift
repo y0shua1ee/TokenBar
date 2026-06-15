@@ -121,6 +121,25 @@ public enum DeepSeekUsageError: LocalizedError, Sendable {
     }
 }
 
+private enum DeepSeekOptionalSummaryResult: Sendable {
+    case success(DeepSeekUsageSummary)
+    case cancelled
+    case failed
+}
+
+private actor DeepSeekOptionalSummaryResultBox {
+    private var result: DeepSeekOptionalSummaryResult?
+
+    func store(_ result: DeepSeekOptionalSummaryResult) {
+        guard self.result == nil else { return }
+        self.result = result
+    }
+
+    func current() -> DeepSeekOptionalSummaryResult? {
+        self.result
+    }
+}
+
 // MARK: - Fetcher
 
 public struct DeepSeekUsageFetcher: Sendable {
@@ -189,9 +208,28 @@ public struct DeepSeekUsageFetcher: Sendable {
             nil
         }
 
+        return try await withTaskCancellationHandler {
+            try await self.fetchUsage(
+                apiKey: apiKey,
+                optionalSummaryJoinGrace: optionalSummaryJoinGrace,
+                fetchBalanceData: fetchBalanceData,
+                summaryTask: summaryTask)
+        } onCancel: {
+            summaryTask?.cancel()
+        }
+    }
+
+    private static func fetchUsage(
+        apiKey: String,
+        optionalSummaryJoinGrace: Duration,
+        fetchBalanceData: @escaping @Sendable (String) async throws -> Data,
+        summaryTask: Task<DeepSeekUsageSummary, Error>?)
+        async throws -> DeepSeekUsageSnapshot
+    {
         let balanceData: Data
         do {
             balanceData = try await fetchBalanceData(apiKey)
+            try Task.checkCancellation()
         } catch {
             summaryTask?.cancel()
             throw error
@@ -245,25 +283,44 @@ public struct DeepSeekUsageFetcher: Sendable {
         joinGrace: Duration) async throws -> DeepSeekUsageSummary?
     {
         try await withTaskCancellationHandler {
-            do {
-                return try await withThrowingTaskGroup(of: DeepSeekUsageSummary?.self) { group in
-                    group.addTask {
-                        try await task.value
-                    }
-                    group.addTask {
-                        if joinGrace > .zero {
-                            try await Task.sleep(for: joinGrace)
-                        }
-                        return nil
-                    }
-
-                    let result = try await group.next().flatMap(\.self)
-                    if result == nil {
-                        task.cancel()
-                    }
-                    group.cancelAll()
-                    return result
+            let resultBox = DeepSeekOptionalSummaryResultBox()
+            let waiter = Task {
+                do {
+                    let summary = try await task.value
+                    await resultBox.store(.success(summary))
+                } catch is CancellationError {
+                    await resultBox.store(.cancelled)
+                } catch {
+                    await resultBox.store(.failed)
                 }
+            }
+            defer { waiter.cancel() }
+
+            do {
+                guard joinGrace > .zero else {
+                    try Task.checkCancellation()
+                    if let result = await resultBox.current() {
+                        return self.optionalSummary(from: result)
+                    }
+                    task.cancel()
+                    return nil
+                }
+
+                let clock = ContinuousClock()
+                let deadline = clock.now.advanced(by: joinGrace)
+                while clock.now < deadline {
+                    try Task.checkCancellation()
+                    if let result = await resultBox.current() {
+                        return self.optionalSummary(from: result)
+                    }
+                    try await Task.sleep(for: .milliseconds(5))
+                }
+
+                if let result = await resultBox.current() {
+                    return self.optionalSummary(from: result)
+                }
+                task.cancel()
+                return nil
             } catch {
                 task.cancel()
                 if Task.isCancelled {
@@ -273,6 +330,15 @@ public struct DeepSeekUsageFetcher: Sendable {
             }
         } onCancel: {
             task.cancel()
+        }
+    }
+
+    private static func optionalSummary(from result: DeepSeekOptionalSummaryResult) -> DeepSeekUsageSummary? {
+        switch result {
+        case let .success(summary):
+            summary
+        case .cancelled, .failed:
+            nil
         }
     }
 

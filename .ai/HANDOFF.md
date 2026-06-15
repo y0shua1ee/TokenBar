@@ -6,6 +6,9 @@ Merge latest upstream `steipete/CodexBar` into TokenBar on branch `codex/merge-u
 
 Follow-up goal: fix the main-thread review findings before this merge branch is considered ready to merge.
 
+Current state: second review and integration validation are complete. The branch has one follow-up commit after the
+upstream merge review-fix commit, and the final targeted validation listed below passes.
+
 ## Upstream Source
 
 - Remote: `upstream https://github.com/steipete/CodexBar.git`
@@ -39,6 +42,16 @@ Follow-up goal: fix the main-thread review findings before this merge branch is 
 - Cleared trailing whitespace introduced by `docs/UPSTREAM_STRATEGY.md`.
 - Added focused regression tests for the CLI defaults domain and DeepSeek dashboard login capability.
 
+## Second Review Fixes Applied
+
+- Restored remaining fork-local paths and release URLs in `AGENTS.md`, `Makefile`, `Scripts/generate-llms.mjs`, `Scripts/test_live_update.sh`, `docs/FORK_QUICK_START.md`, and regenerated `docs/llms.txt`.
+- Updated the Kimi K2 settings documentation action to open `https://github.com/y0shua1ee/TokenBar/blob/main/docs/kimi-k2.md`.
+- Added missing `custom` and `krill` provider IDs to `docs/configuration.md`.
+- Fixed Krill menu descriptor rendering so quota details remain plain secondary rows instead of being rendered as `Resets ...` lines.
+- Fixed DeepSeek optional usage summary handling so a slow or cancellation-ignoring optional summary cannot delay the required balance result, and parent cancellation cancels the optional summary promptly even if balance transport ignores cancellation.
+- Aligned the merged-menu readiness test with current detached merged-menu presentation (`prepareMergedMenuForPresentation()` instead of `statusItem.menu`).
+- Fixed merged provider switching so the first switch into an uncached tab keeps live menu row shells visible and caches displaced content instead of replacing rows.
+
 ## Validation
 
 - `swift build --disable-sandbox` in the temporary resolved tree: passed.
@@ -50,15 +63,27 @@ Follow-up goal: fix the main-thread review findings before this merge branch is 
   - `git diff --check`: passed.
   - `swift test --disable-sandbox --filter 'ProviderSettingsDescriptorTests|CLIEntryTests'`: passed, 42 selected tests.
   - `make check`: passed.
+- Second review validation:
+  - `node Scripts/generate-llms.mjs`: passed, regenerated `docs/llms.txt`.
+  - Static fork identity scan over `Sources/TokenBar`, `Sources/TokenBarCore`, `Scripts`, `docs`, `AGENTS.md`, `Makefile`, `.github`, `CHANGELOG.md`, and `appcast.xml`: only historical `appcast.xml` 0.29.1 CodexBar entry and historical `CHANGELOG.md` Homebrew text remain.
+  - `git diff --check`: passed.
+  - `make check`: passed.
+  - `swift test --disable-sandbox --filter ConfigurationDocsProviderIDTests`: passed.
+  - `swift test --disable-sandbox --filter MenuDescriptorKrillTests`: passed.
+  - `swift test --disable-sandbox --filter DeepSeekUsageFetcherTests`: passed.
+  - `swift test --disable-sandbox --filter StatusMenuReadinessBaselineTests`: passed.
+  - `swift test --disable-sandbox --filter StatusMenuSwitcherRefreshTests`: passed.
+  - `swift test --disable-sandbox --parallel --num-workers 1 --filter 'ProviderRegistryTests|ProviderSettingsDescriptorTests|DocumentationLinkTests|ProviderConfigEnvironmentTests|StatusMenuReadinessBaselineTests|StatusMenuSwitcherRefreshTests|MenuDescriptorKrillTests|DeepSeekDashboardUsageFetcherTests|DeepSeekUsageFetcherTests|OpenRouterUsageStatsTests|KimiK2UsageFetcherTests|KrillCostUsageFetcherTests|CLIEntryTests|CLIProviderSelectionTests|CLIArgumentParsingTests|ConfigurationDocsProviderIDTests|ProviderChangelogLinkTests'`: passed, 152 Swift tests.
 
 ## Not Run
 
 - No live provider probes, browser-cookie imports, real `tokenbar usage` calls, or app-bundle relaunch validation were run, to avoid macOS Keychain prompts and live account access.
 - Full unfiltered `swift test` was not run; the focused provider config tests were used after the final targeted refactor.
 - Follow-up fixes also did not run live DeepSeek dashboard login, because that opens a WebView and may touch real account state. The regression test verifies the UI capability/menu path without triggering the login flow.
+- The second review did not package/relaunch the app bundle; validation stayed in parser/provider/menu model tests and project checks.
 
 ## Remaining Risk
 
 - This is a large upstream sync, so UI/runtime behavior should still be smoke-tested from a freshly packaged app before release.
 - The top historical `appcast.xml` item already contains an upstream CodexBar 0.29.1 entry from the branch baseline; this merge did not add a new release entry or regenerate appcast.
-- Full unfiltered `swift test` remains not run on this branch; current evidence is focused tests plus `make check`.
+- Full unfiltered `swift test` remains not run on this branch; current evidence is focused integration tests plus `make check`.

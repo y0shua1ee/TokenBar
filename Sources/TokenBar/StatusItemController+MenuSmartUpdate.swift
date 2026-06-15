@@ -69,6 +69,39 @@ extension StatusItemController {
                 return
             }
 
+            if isSelectionSwitch, let outgoingSelection {
+                let outgoingCodexAccountDisplay = self.lastCodexAccountMenuDisplay
+                let outgoingTokenAccountDisplay = self.lastTokenAccountMenuDisplay
+                self.rememberMergedSwitcherState(enabledProviders, context.switcherSelection)
+                let scratch = NSMenu()
+                scratch.autoenablesItems = false
+                self.addSwitcherScopedMenuContent(into: scratch, captureMenu: menu, context: context)
+                let newItems = scratch.items
+                scratch.removeAllItems()
+                let displacedItems = self.replaceMenuContentKeepingRowsVisible(
+                    menu,
+                    fromIndex: contentStartIndex,
+                    with: newItems)
+                self.cacheMergedSwitcherContent(
+                    displacedItems,
+                    in: menu,
+                    selection: outgoingSelection,
+                    context: MergedSwitcherContentCacheContext(
+                        menuWidth: context.menuWidth,
+                        codexAccountDisplay: outgoingCodexAccountDisplay,
+                        tokenAccountDisplay: outgoingTokenAccountDisplay,
+                        contentVersion: nil))
+                self.lastCodexAccountMenuDisplay = context.codexAccountDisplay
+                self.lastTokenAccountMenuDisplay = context.tokenAccountDisplay
+                self.cacheVisibleMergedSwitcherContent(
+                    in: menu,
+                    selection: context.switcherSelection,
+                    contentStartIndex: contentStartIndex,
+                    menuWidth: context.menuWidth,
+                    contentVersion: self.menuSession.contentVersion)
+                return
+            }
+
             // Rebuild path (data tick, or switch whose incoming tab must be built): recycle
             // the outgoing hosting views and reconcile in place when the row skeleton is
             // unchanged, so an open tracked menu sees content mutations instead of item

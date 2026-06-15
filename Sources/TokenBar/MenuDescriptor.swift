@@ -152,7 +152,7 @@ struct MenuDescriptor {
             if let primary = snap.primary {
                 let primaryDetail = primary.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines)
                 let primaryDescriptionIsDetail = provider == .warp || provider == .kilo || provider == .abacus ||
-                    provider == .deepseek || provider == .azureopenai || provider == .mimo
+                    provider == .deepseek || provider == .azureopenai || provider == .mimo || provider == .krill
                 let primaryWindow = if primaryDescriptionIsDetail {
                     // Some providers use resetDescription for non-reset detail
                     // (e.g., "Unlimited", "X/Y credits"). Avoid rendering it as a "Resets ..." line.
@@ -194,7 +194,19 @@ struct MenuDescriptor {
                 }
             }
             if let weekly = snap.secondary {
+                let weeklyDetail = weekly.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines)
+                let weeklyDescriptionIsDetail = provider == .krill
+                let weeklyWindow = if weeklyDescriptionIsDetail {
+                    RateWindow(
+                        usedPercent: weekly.usedPercent,
+                        windowMinutes: weekly.windowMinutes,
+                        resetsAt: weekly.resetsAt,
+                        resetDescription: nil)
+                } else {
+                    weekly
+                }
                 let weeklyResetOverride: String? = {
+                    guard !weeklyDescriptionIsDetail else { return nil }
                     guard provider == .warp || provider == .kilo || provider == .perplexity || provider == .crof
                     else { return nil }
                     let detail = weekly.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -207,10 +219,16 @@ struct MenuDescriptor {
                 Self.appendRateWindow(
                     entries: &entries,
                     title: labels.secondary,
-                    window: weekly,
+                    window: weeklyWindow,
                     resetStyle: resetStyle,
                     showUsed: settings.usageBarsShowUsed,
                     resetOverride: weeklyResetOverride)
+                if weeklyDescriptionIsDetail,
+                   let weeklyDetail,
+                   !weeklyDetail.isEmpty
+                {
+                    entries.append(.text(weeklyDetail, .secondary))
+                }
                 if provider == .kilo,
                    weekly.resetsAt != nil,
                    let detail = weekly.resetDescription?.trimmingCharacters(in: .whitespacesAndNewlines),
