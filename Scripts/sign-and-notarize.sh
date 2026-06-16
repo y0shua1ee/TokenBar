@@ -19,20 +19,6 @@ if [[ -z "${APP_STORE_CONNECT_API_KEY_P8:-}" || -z "${APP_STORE_CONNECT_KEY_ID:-
   echo "Missing APP_STORE_CONNECT_* env vars (API key, key id, issuer id)." >&2
   exit 1
 fi
-if [[ -z "${SPARKLE_PRIVATE_KEY_FILE:-}" ]]; then
-  echo "SPARKLE_PRIVATE_KEY_FILE is required for release signing/verification." >&2
-  exit 1
-fi
-if [[ ! -f "$SPARKLE_PRIVATE_KEY_FILE" ]]; then
-  echo "Sparkle key file not found: $SPARKLE_PRIVATE_KEY_FILE" >&2
-  exit 1
-fi
-key_lines=$(grep -v '^[[:space:]]*#' "$SPARKLE_PRIVATE_KEY_FILE" | sed '/^[[:space:]]*$/d')
-if [[ $(printf "%s\n" "$key_lines" | wc -l) -ne 1 ]]; then
-  echo "Sparkle key file must contain exactly one base64 line (no comments/blank lines)." >&2
-  exit 1
-fi
-
 NOTARIZATION_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/tokenbar-notarize.XXXXXX")
 chmod 700 "$NOTARIZATION_TEMP_DIR"
 API_KEY_PATH="$NOTARIZATION_TEMP_DIR/tokenbar-api-key.p8"
