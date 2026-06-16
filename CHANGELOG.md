@@ -18,6 +18,7 @@
 - Menu bar: avoid a one-time visible menu rebuild after first-open background data arrives.
 - Settings: use high-contrast selected-content colors for provider sidebar text and icons.
 - Release: allow signing/notarization to use the shared Sparkle Keychain path instead of requiring a local private-key file.
+- Release: require an explicit TokenBar Developer ID signing identity instead of falling back to an upstream CodexBar certificate.
 - Antigravity: retry transient `Text file busy` launch failures while the CLI executable is being replaced.
 - Antigravity: fall back to loopback HTTP for local CLI and language-server probes on Linux, where self-signed localhost TLS cannot be trusted (fixes #1508). Thanks @zodiacfireworks!
 - Codebuff: enforce the optional subscription grace period even when the transport ignores cancellation.

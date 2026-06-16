@@ -25,7 +25,9 @@ SwiftPM-only; package/sign/notarize manually (no Xcode project). Sparkle feed is
 
 ## Prereqs
 - Xcode 26+ installed at `/Applications/Xcode.app` (for ictool/iconutil and SDKs).
-- Developer ID Application cert installed: `Developer ID Application: Peter Steinberger (Y5PE65HELJ)`.
+- Developer ID Application cert installed for this fork and exported through `APP_IDENTITY`
+  (for example, `Developer ID Application: Your Name (TEAMID)`). Do not release TokenBar
+  with an upstream CodexBar signing identity.
 - ASC API creds in env: `APP_STORE_CONNECT_API_KEY_P8`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`.
 - Sparkle keys: public key expectation is in `.mac-release.env`; TokenBar still uses the older shared AGCY key, so the manifest includes the local Dropbox fallback path. `SPARKLE_PRIVATE_KEY_FILE` overrides it.
 - Ensure shell has release env vars loaded (usually `source ~/.profile`) before running `Scripts/release.sh`.

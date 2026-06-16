@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="TokenBar"
-APP_IDENTITY="Developer ID Application: Peter Steinberger (Y5PE65HELJ)"
+APP_IDENTITY="${APP_IDENTITY:-}"
 APP_BUNDLE="TokenBar.app"
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 source "$ROOT/version.env"
@@ -19,6 +19,30 @@ if [[ -z "${APP_STORE_CONNECT_API_KEY_P8:-}" || -z "${APP_STORE_CONNECT_KEY_ID:-
   echo "Missing APP_STORE_CONNECT_* env vars (API key, key id, issuer id)." >&2
   exit 1
 fi
+if [[ -z "$APP_IDENTITY" ]]; then
+  echo "APP_IDENTITY is required for Developer ID release signing." >&2
+  echo "Example: APP_IDENTITY='Developer ID Application: Your Name (TEAMID)' Scripts/release.sh" >&2
+  exit 1
+fi
+case "$APP_IDENTITY" in
+  "Developer ID Application:"*) ;;
+  *)
+    echo "APP_IDENTITY must be a Developer ID Application certificate for notarized releases: $APP_IDENTITY" >&2
+    exit 1
+    ;;
+esac
+if ! security find-identity -p codesigning -v 2>/dev/null | grep -F "\"$APP_IDENTITY\"" >/dev/null 2>&1; then
+  echo "APP_IDENTITY not found in Keychain: $APP_IDENTITY" >&2
+  exit 1
+fi
+if [[ -z "${APP_TEAM_ID:-}" && "$APP_IDENTITY" =~ \(([A-Z0-9]{10})\)$ ]]; then
+  APP_TEAM_ID="${BASH_REMATCH[1]}"
+  export APP_TEAM_ID
+fi
+if [[ -z "${APP_TEAM_ID:-}" ]]; then
+  echo "APP_TEAM_ID is required for release entitlements and could not be derived from APP_IDENTITY." >&2
+  exit 1
+fi
 NOTARIZATION_TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/tokenbar-notarize.XXXXXX")
 chmod 700 "$NOTARIZATION_TEMP_DIR"
 API_KEY_PATH="$NOTARIZATION_TEMP_DIR/tokenbar-api-key.p8"
@@ -32,7 +56,8 @@ trap 'rm -rf "$NOTARIZATION_TEMP_DIR"' EXIT
 chmod 600 "$API_KEY_PATH"
 
 ARCH_LIST=( ${ARCHES_VALUE} )
-ARCHES="${ARCHES_VALUE}" ./Scripts/package_app.sh release
+APP_IDENTITY="$APP_IDENTITY" APP_TEAM_ID="$APP_TEAM_ID" TOKENBAR_SIGNING=identity \
+  ARCHES="${ARCHES_VALUE}" ./Scripts/package_app.sh release
 
 ENTITLEMENTS_DIR="$ROOT/.build/entitlements"
 APP_ENTITLEMENTS="${ENTITLEMENTS_DIR}/TokenBar.entitlements"

@@ -4,7 +4,7 @@ import Security
 #endif
 
 public enum AppGroupSupport {
-    public static let defaultTeamID = "Y5PE65HELJ"
+    public static let defaultTeamID = ""
     public static let teamIDInfoKey = "TokenBarTeamID"
     public static let legacyReleaseGroupID = "group.com.y0shua1ee.tokenbar"
     public static let legacyDebugGroupID = "group.com.y0shua1ee.tokenbar.debug"
@@ -40,6 +40,9 @@ public enum AppGroupSupport {
     }
 
     static func currentGroupID(teamID: String, bundleID: String?) -> String {
+        guard !teamID.isEmpty else {
+            return self.legacyGroupID(for: bundleID)
+        }
         let base = "\(teamID).com.y0shua1ee.tokenbar"
         return self.isDebugBundleID(bundleID) ? "\(base).debug" : base
     }

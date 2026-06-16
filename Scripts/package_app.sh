@@ -14,6 +14,21 @@ case "$LOWER_CONF" in
     ;;
 esac
 
+if [[ -z "${APP_TEAM_ID:-}" && "${APP_IDENTITY:-}" =~ \(([A-Z0-9]{10})\)$ ]]; then
+  APP_TEAM_ID="${BASH_REMATCH[1]}"
+  export APP_TEAM_ID
+fi
+if [[ "$SIGNING_MODE" != "adhoc" && "$ALLOW_LLDB" != "1" ]]; then
+  if [[ -z "${APP_IDENTITY:-}" ]]; then
+    echo "ERROR: APP_IDENTITY is required when TOKENBAR_SIGNING=${SIGNING_MODE}." >&2
+    exit 1
+  fi
+  if [[ -z "${APP_TEAM_ID:-}" ]]; then
+    echo "ERROR: APP_TEAM_ID is required when TOKENBAR_SIGNING=${SIGNING_MODE}." >&2
+    exit 1
+  fi
+fi
+
 # Load version info
 source "$ROOT/version.env"
 source "$ROOT/Scripts/package_product_paths.sh"
@@ -196,10 +211,16 @@ if [[ "$SIGNING_MODE" == "adhoc" ]]; then
   AUTO_CHECKS=false
 fi
 WIDGET_BUNDLE_ID="${BUNDLE_ID}.widget"
-APP_TEAM_ID="${APP_TEAM_ID:-Y5PE65HELJ}"
-APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar"
-if [[ "$BUNDLE_ID" == *".debug"* ]]; then
-  APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar.debug"
+APP_TEAM_ID="${APP_TEAM_ID:-}"
+if [[ -n "$APP_TEAM_ID" ]]; then
+  APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar"
+  if [[ "$BUNDLE_ID" == *".debug"* ]]; then
+    APP_GROUP_ID="${APP_TEAM_ID}.com.y0shua1ee.tokenbar.debug"
+  fi
+elif [[ "$BUNDLE_ID" == *".debug"* ]]; then
+  APP_GROUP_ID="group.com.y0shua1ee.tokenbar.debug"
+else
+  APP_GROUP_ID="group.com.y0shua1ee.tokenbar"
 fi
 ENTITLEMENTS_DIR="$ROOT/.build/entitlements"
 APP_ENTITLEMENTS="${ENTITLEMENTS_DIR}/TokenBar.entitlements"
@@ -431,7 +452,7 @@ elif [[ "$ALLOW_LLDB" == "1" ]]; then
   CODESIGN_ID="-"
   CODESIGN_ARGS=(--force --sign "$CODESIGN_ID")
 else
-  CODESIGN_ID="${APP_IDENTITY:-Developer ID Application: Peter Steinberger (Y5PE65HELJ)}"
+  CODESIGN_ID="$APP_IDENTITY"
   CODESIGN_ARGS=(--force --timestamp --options runtime --sign "$CODESIGN_ID")
 fi
 function resign() { codesign "${CODESIGN_ARGS[@]}" "$1"; }

@@ -122,10 +122,7 @@ resolve_signing_mode() {
   fi
 
   local candidate=""
-  for candidate in \
-    "Developer ID Application: Peter Steinberger (Y5PE65HELJ)" \
-    "TokenBar Development"
-  do
+  for candidate in "TokenBar Development"; do
     if has_signing_identity "${candidate}"; then
       APP_IDENTITY="${candidate}"
       export APP_IDENTITY
