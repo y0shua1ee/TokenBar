@@ -48,11 +48,11 @@ extension StatusItemController {
         }
     }
 
-    /// Syncs every live persistent Refresh row's spinner to the refresh lifecycle. This is
+    /// Syncs every live persistent Refresh row's spinner to the manual refresh lifecycle. This is
     /// an in-place AppKit mutation on the existing row views — it never rebuilds the menu, so it
     /// is safe to call during NSMenu tracking.
     func updatePersistentRefreshRowsInProgress() {
-        let inProgress = self.manualRefreshTask != nil || self.store.isRefreshing
+        let inProgress = self.manualRefreshTask != nil
         for row in self.persistentRefreshRows.allObjects {
             row.setInProgress(inProgress)
         }

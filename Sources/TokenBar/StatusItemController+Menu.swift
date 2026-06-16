@@ -869,7 +869,7 @@ extension StatusItemController {
             })
 
         if action == .refresh {
-            row.setInProgress(self.manualRefreshTask != nil || self.store.isRefreshing)
+            row.setInProgress(self.manualRefreshTask != nil)
             self.persistentRefreshRows.add(row)
         }
 

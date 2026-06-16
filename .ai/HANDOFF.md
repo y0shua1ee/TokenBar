@@ -7,8 +7,9 @@ Merge latest upstream `steipete/CodexBar` into TokenBar on branch `codex/merge-u
 Follow-up goal: fix the main-thread review findings before this merge branch is considered ready to merge.
 
 Current state: second review and integration validation are complete. A post-live-test menu-card fix for
-OpenRouter/Krill cost-history displays has been applied and validated. The latest packaged worktree app is running
-from `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
+OpenRouter/Krill cost-history displays has been applied and validated. A follow-up persistent Refresh spinner fix has
+also been applied and validated. The latest packaged worktree app is running from
+`/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
 
 ## Upstream Source
 
@@ -62,6 +63,9 @@ from `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
   still surface actionable failures.
 - Moved shared menu-card subtitle calculation into `MenuCardView+ModelHelpers.swift` to stay under the SwiftLint
   `file_length` limit.
+- Fixed the persistent bottom `Refresh` row so its spinner reflects only an explicit manual refresh click, not the
+  global/background `UsageStore.isRefreshing` state. Background provider refreshes can still update provider subtitles,
+  but they no longer make every provider tab's bottom action row look busy.
 
 ## Validation
 
@@ -87,6 +91,11 @@ from `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
   - `swift test --disable-sandbox --parallel --num-workers 1 --filter 'ProviderRegistryTests|ProviderSettingsDescriptorTests|DocumentationLinkTests|ProviderConfigEnvironmentTests|StatusMenuReadinessBaselineTests|StatusMenuSwitcherRefreshTests|MenuDescriptorKrillTests|DeepSeekDashboardUsageFetcherTests|DeepSeekUsageFetcherTests|OpenRouterUsageStatsTests|KimiK2UsageFetcherTests|KrillCostUsageFetcherTests|CLIEntryTests|CLIProviderSelectionTests|CLIArgumentParsingTests|ConfigurationDocsProviderIDTests|ProviderChangelogLinkTests'`: passed, 152 Swift tests.
 - Post-live-test validation:
   - `swift test --disable-sandbox --filter MenuCardCostHintTests`: passed, 5 Swift tests.
+  - `make check`: passed.
+  - `./Scripts/package_app.sh`: passed, created `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
+  - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.
+- Persistent Refresh spinner validation:
+  - `swift test --disable-sandbox --filter StatusMenuPersistentRefreshTests`: passed, 20 Swift tests.
   - `make check`: passed.
   - `./Scripts/package_app.sh`: passed, created `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
   - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.

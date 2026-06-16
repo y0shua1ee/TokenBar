@@ -232,7 +232,7 @@ struct StatusMenuPersistentRefreshTests {
     }
 
     @Test
-    func `persistent refresh rows reflect store refresh state in place`() {
+    func `persistent refresh rows reflect manual refresh state in place`() {
         let settings = self.makeSettings()
         settings.refreshFrequency = .manual
         settings.mergeIcons = false
@@ -255,10 +255,28 @@ struct StatusMenuPersistentRefreshTests {
         controller.updatePersistentRefreshRowsInProgress()
         #expect(row?.isInProgressForTesting == false)
 
-        // And a live refresh flag is mirrored onto the row.
+        // Background refresh is global; the persistent action row only reflects explicit clicks.
         controller.store.isRefreshing = true
         controller.updatePersistentRefreshRowsInProgress()
-        #expect(row?.isInProgressForTesting == true)
+        #expect(row?.isInProgressForTesting == false)
+    }
+
+    @Test
+    func `persistent refresh row ignores background refresh when menu opens`() {
+        let settings = self.makeSettings()
+        settings.refreshFrequency = .manual
+        settings.mergeIcons = false
+
+        let controller = self.makeController(settings: settings)
+        controller.store.isRefreshing = true
+
+        let menu = controller.makeMenu(for: .codex)
+        controller.menuWillOpen(menu)
+
+        let refreshItem = menu.items.first { $0.title == "Refresh" }
+        let row = refreshItem?.view as? PersistentMenuActionItemView
+        #expect(row != nil)
+        #expect(row?.isInProgressForTesting == false)
     }
 
     @Test
