@@ -6,8 +6,9 @@ Merge latest upstream `steipete/CodexBar` into TokenBar on branch `codex/merge-u
 
 Follow-up goal: fix the main-thread review findings before this merge branch is considered ready to merge.
 
-Current state: second review and integration validation are complete. The branch has one follow-up commit after the
-upstream merge review-fix commit, and the final targeted validation listed below passes.
+Current state: second review and integration validation are complete. A post-live-test menu-card fix for
+OpenRouter/Krill cost-history displays has been applied and validated. The latest packaged worktree app is running
+from `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
 
 ## Upstream Source
 
@@ -52,6 +53,16 @@ upstream merge review-fix commit, and the final targeted validation listed below
 - Aligned the merged-menu readiness test with current detached merged-menu presentation (`prepareMergedMenuForPresentation()` instead of `statusItem.menu`).
 - Fixed merged provider switching so the first switch into an uncached tab keeps live menu row shells visible and caches displaced content instead of replacing rows.
 
+## Post-Live-Test Fixes Applied
+
+- Fixed OpenRouter and Krill menu cards so provider usage/quota fetch errors are suppressed in the header when a
+  displayable cost-history snapshot is already available. The header now shows the cost snapshot freshness instead of a
+  red `No available fetch strategy for openrouter.` or `Krill API HTTP 400` line.
+- Kept the error visible when no cost history is available, so genuinely empty/misconfigured OpenRouter and Krill states
+  still surface actionable failures.
+- Moved shared menu-card subtitle calculation into `MenuCardView+ModelHelpers.swift` to stay under the SwiftLint
+  `file_length` limit.
+
 ## Validation
 
 - `swift build --disable-sandbox` in the temporary resolved tree: passed.
@@ -74,13 +85,19 @@ upstream merge review-fix commit, and the final targeted validation listed below
   - `swift test --disable-sandbox --filter StatusMenuReadinessBaselineTests`: passed.
   - `swift test --disable-sandbox --filter StatusMenuSwitcherRefreshTests`: passed.
   - `swift test --disable-sandbox --parallel --num-workers 1 --filter 'ProviderRegistryTests|ProviderSettingsDescriptorTests|DocumentationLinkTests|ProviderConfigEnvironmentTests|StatusMenuReadinessBaselineTests|StatusMenuSwitcherRefreshTests|MenuDescriptorKrillTests|DeepSeekDashboardUsageFetcherTests|DeepSeekUsageFetcherTests|OpenRouterUsageStatsTests|KimiK2UsageFetcherTests|KrillCostUsageFetcherTests|CLIEntryTests|CLIProviderSelectionTests|CLIArgumentParsingTests|ConfigurationDocsProviderIDTests|ProviderChangelogLinkTests'`: passed, 152 Swift tests.
+- Post-live-test validation:
+  - `swift test --disable-sandbox --filter MenuCardCostHintTests`: passed, 5 Swift tests.
+  - `make check`: passed.
+  - `./Scripts/package_app.sh`: passed, created `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
+  - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.
 
 ## Not Run
 
-- No live provider probes, browser-cookie imports, real `tokenbar usage` calls, or app-bundle relaunch validation were run, to avoid macOS Keychain prompts and live account access.
+- No live provider probes, browser-cookie imports, or real `tokenbar usage` calls were run, to avoid macOS Keychain prompts and live account access.
 - Full unfiltered `swift test` was not run; the focused provider config tests were used after the final targeted refactor.
 - Follow-up fixes also did not run live DeepSeek dashboard login, because that opens a WebView and may touch real account state. The regression test verifies the UI capability/menu path without triggering the login flow.
-- The second review did not package/relaunch the app bundle; validation stayed in parser/provider/menu model tests and project checks.
+- The second review did not package/relaunch the app bundle, but the post-live-test menu-card fix did package and
+  relaunch the worktree app for manual menu verification.
 
 ## Remaining Risk
 

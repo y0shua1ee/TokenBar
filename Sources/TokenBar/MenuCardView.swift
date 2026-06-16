@@ -900,10 +900,14 @@ extension UsageMenuCardView.Model {
             enabled: input.tokenCostUsageEnabled,
             snapshot: tokenUsageSnapshot,
             error: input.tokenError)
+        let displayLastError = Self.lastError(input: input)
         let subtitle = Self.subtitle(
             snapshot: input.snapshot,
             isRefreshing: input.isRefreshing,
-            lastError: Self.lastError(input: input),
+            lastError: displayLastError,
+            fallbackUpdatedAt: displayLastError == nil && Self.shouldPreferTokenUsageOverProviderError(input: input)
+                ? tokenUsageSnapshot?.updatedAt
+                : nil,
             now: input.now)
         let redacted = Self.redactedText(input: input, subtitle: subtitle)
         let placeholder = Self.placeholder(input: input)
@@ -1120,27 +1124,6 @@ extension UsageMenuCardView.Model {
     private static func isKiloActivitySegment(_ text: String) -> Bool {
         let normalized = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         return normalized.hasPrefix("auto top-up:")
-    }
-
-    private static func subtitle(
-        snapshot: UsageSnapshot?,
-        isRefreshing: Bool,
-        lastError: String?,
-        now: Date) -> (text: String, style: SubtitleStyle)
-    {
-        if let lastError, !lastError.isEmpty {
-            return (lastError.trimmingCharacters(in: .whitespacesAndNewlines), .error)
-        }
-
-        if isRefreshing {
-            return ("\(L("Refreshing"))…", .loading)
-        }
-
-        if let updated = snapshot?.updatedAt {
-            return (UsageFormatter.updatedString(from: updated, now: now), .info)
-        }
-
-        return (L("Not fetched yet"), .info)
     }
 
     private struct RedactedText {

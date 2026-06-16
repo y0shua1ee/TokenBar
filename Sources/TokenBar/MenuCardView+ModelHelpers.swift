@@ -150,6 +150,32 @@ extension UsageMenuCardView.Model {
         return Color(red: color.red, green: color.green, blue: color.blue)
     }
 
+    static func subtitle(
+        snapshot: UsageSnapshot?,
+        isRefreshing: Bool,
+        lastError: String?,
+        fallbackUpdatedAt: Date? = nil,
+        now: Date) -> (text: String, style: SubtitleStyle)
+    {
+        if let lastError, !lastError.isEmpty {
+            return (lastError.trimmingCharacters(in: .whitespacesAndNewlines), .error)
+        }
+
+        if isRefreshing {
+            return ("\(L("Refreshing"))…", .loading)
+        }
+
+        if let updated = snapshot?.updatedAt {
+            return (UsageFormatter.updatedString(from: updated, now: now), .info)
+        }
+
+        if let updated = fallbackUpdatedAt {
+            return (UsageFormatter.updatedString(from: updated, now: now), .info)
+        }
+
+        return (L("Not fetched yet"), .info)
+    }
+
     static func rateWindowLabels(
         input: Input,
         snapshot: UsageSnapshot) -> (primary: String, secondary: String, tertiary: String, showsTertiary: Bool)
@@ -198,6 +224,9 @@ extension UsageMenuCardView.Model {
         else {
             return nil
         }
+        if self.shouldPreferTokenUsageOverProviderError(input: input) {
+            return nil
+        }
         if self.shouldShowRateLimitsUnavailablePlaceholder(input: input, lastError: lastError) {
             return nil
         }
@@ -224,6 +253,19 @@ extension UsageMenuCardView.Model {
         input.provider == .codex &&
             input.tokenCostUsageEnabled &&
             self.tokenUsageSnapshot(input: input) != nil
+    }
+
+    static func shouldPreferTokenUsageOverProviderError(input: Input) -> Bool {
+        guard input.provider == .openrouter || input.provider == .krill else { return false }
+        guard input.tokenCostUsageEnabled else { return false }
+        guard let snapshot = self.tokenUsageSnapshot(input: input) else { return false }
+        return !snapshot.daily.isEmpty ||
+            snapshot.sessionTokens != nil ||
+            snapshot.sessionCostUSD != nil ||
+            snapshot.sessionRequests != nil ||
+            snapshot.last30DaysTokens != nil ||
+            snapshot.last30DaysCostUSD != nil ||
+            snapshot.last30DaysRequests != nil
     }
 
     private static func shouldShowRateLimitsUnavailablePlaceholder(input: Input, lastError: String? = nil) -> Bool {
