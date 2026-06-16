@@ -16,6 +16,29 @@ extension StatusItemController {
         menu.popUp(positioning: nil, at: popupPoint, in: sender)
     }
 
+    func scheduleOpenMergedMenuRealignmentIfNeeded(_ menu: NSMenu) {
+        self.realignOpenMergedMenuWindowIfNeeded(menu)
+        DispatchQueue.main.async { [weak self, weak menu] in
+            guard let self, let menu else { return }
+            self.realignOpenMergedMenuWindowIfNeeded(menu)
+        }
+    }
+
+    private func realignOpenMergedMenuWindowIfNeeded(_ menu: NSMenu) {
+        guard menu === self.mergedMenu else { return }
+        guard self.openMenus[ObjectIdentifier(menu)] != nil else { return }
+        guard let sender = self.statusItem.button else { return }
+        guard let window = menu.items.lazy.compactMap({ $0.view?.window }).first else { return }
+        guard window.frame.width > 0, window.frame.height > 0 else { return }
+
+        let alignedFrame = Self.alignedMergedMenuWindowFrame(
+            currentFrame: window.frame,
+            statusButtonScreenFrame: Self.statusButtonScreenFrame(for: sender),
+            screenVisibleFrame: sender.window?.screen?.visibleFrame ?? window.screen?.visibleFrame)
+        guard !alignedFrame.equalTo(window.frame) else { return }
+        window.setFrame(alignedFrame, display: true, animate: false)
+    }
+
     func prepareMergedMenuForPresentation() -> NSMenu {
         let menu = self.mergedMenu ?? self.makeMenu()
         self.mergedMenu = menu
@@ -82,6 +105,53 @@ extension StatusItemController {
         } else {
             statusButtonBounds.minY - self.mergedMenuVerticalClearance
         }
+    }
+
+    static func alignedMergedMenuWindowFrame(
+        currentFrame: NSRect,
+        statusButtonScreenFrame: NSRect?,
+        screenVisibleFrame: NSRect?)
+        -> NSRect
+    {
+        guard let statusButtonScreenFrame,
+              currentFrame.width > 0,
+              currentFrame.height > 0
+        else {
+            return currentFrame
+        }
+
+        var frame = currentFrame
+        let opensRight = screenVisibleFrame.map {
+            statusButtonScreenFrame.maxX + currentFrame.width <= $0.maxX
+        } ?? false
+        frame.origin.x = opensRight
+            ? statusButtonScreenFrame.maxX
+            : statusButtonScreenFrame.maxX - currentFrame.width
+
+        let preferredTop = statusButtonScreenFrame.minY - self.mergedMenuVerticalClearance
+        frame.origin.y = preferredTop - currentFrame.height
+
+        if let screenVisibleFrame {
+            if currentFrame.width <= screenVisibleFrame.width {
+                frame.origin.x = min(
+                    max(frame.origin.x, screenVisibleFrame.minX),
+                    screenVisibleFrame.maxX - currentFrame.width)
+            } else {
+                frame.origin.x = screenVisibleFrame.minX
+            }
+
+            if currentFrame.height <= screenVisibleFrame.height {
+                frame.origin.y = min(
+                    max(frame.origin.y, screenVisibleFrame.minY),
+                    screenVisibleFrame.maxY - currentFrame.height)
+            } else {
+                frame.origin.y = screenVisibleFrame.minY
+            }
+        }
+
+        frame.origin.x = floor(frame.origin.x)
+        frame.origin.y = floor(frame.origin.y)
+        return frame
     }
 
     private static func statusButtonScreenFrame(for sender: NSStatusBarButton) -> NSRect? {

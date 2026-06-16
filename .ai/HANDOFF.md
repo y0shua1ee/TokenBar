@@ -66,6 +66,9 @@ also been applied and validated. The latest packaged worktree app is running fro
 - Fixed the persistent bottom `Refresh` row so its spinner reflects only an explicit manual refresh click, not the
   global/background `UsageStore.isRefreshing` state. Background provider refreshes can still update provider subtitles,
   but they no longer make every provider tab's bottom action row look busy.
+- Fixed merged-menu window drift after provider tab switches by realigning the open detached menu window to the status
+  item anchor after content/height changes. This targets cases where switching providers leaves the panel floating in
+  the middle/lower part of the screen instead of under the menu bar.
 
 ## Validation
 
@@ -96,6 +99,11 @@ also been applied and validated. The latest packaged worktree app is running fro
   - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.
 - Persistent Refresh spinner validation:
   - `swift test --disable-sandbox --filter StatusMenuPersistentRefreshTests`: passed, 20 Swift tests.
+  - `make check`: passed.
+  - `./Scripts/package_app.sh`: passed, created `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
+  - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.
+- Merged-menu positioning validation:
+  - `swift test --disable-sandbox --filter 'MergedMenuPositioningTests|StatusMenuSwitcherRefreshTests'`: passed, 16 Swift tests.
   - `make check`: passed.
   - `./Scripts/package_app.sh`: passed, created `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app`.
   - Relaunched packaged worktree app; current process path is `/Users/areslee/.codex/worktrees/987e/TokenBar/TokenBar.app/Contents/MacOS/TokenBar`.

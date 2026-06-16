@@ -74,4 +74,40 @@ struct MergedMenuPositioningTests {
         #expect(point.x == -296)
         #expect(point.y == 30)
     }
+
+    @Test
+    func `realigned menu window returns to status item anchor after drifting down`() {
+        let frame = StatusItemController.alignedMergedMenuWindowFrame(
+            currentFrame: NSRect(x: 460, y: 10, width: 620, height: 740),
+            statusButtonScreenFrame: NSRect(x: 1080, y: 878, width: 44, height: 22),
+            screenVisibleFrame: NSRect(x: 0, y: 0, width: 1200, height: 872))
+
+        #expect(frame.origin.x == 504)
+        #expect(frame.origin.y == 130)
+        #expect(frame.maxX == 1124)
+        #expect(frame.maxY == 870)
+    }
+
+    @Test
+    func `realigned menu window opens right when status item has room`() {
+        let frame = StatusItemController.alignedMergedMenuWindowFrame(
+            currentFrame: NSRect(x: 0, y: 0, width: 320, height: 420),
+            statusButtonScreenFrame: NSRect(x: 700, y: 878, width: 24, height: 22),
+            screenVisibleFrame: NSRect(x: 0, y: 0, width: 1200, height: 872))
+
+        #expect(frame.origin.x == 724)
+        #expect(frame.origin.y == 450)
+        #expect(frame.maxY == 870)
+    }
+
+    @Test
+    func `realigned menu window clamps inside visible screen`() {
+        let frame = StatusItemController.alignedMergedMenuWindowFrame(
+            currentFrame: NSRect(x: 0, y: 0, width: 1300, height: 1000),
+            statusButtonScreenFrame: NSRect(x: 1180, y: 878, width: 20, height: 22),
+            screenVisibleFrame: NSRect(x: 0, y: 0, width: 1200, height: 872))
+
+        #expect(frame.origin.x == 0)
+        #expect(frame.origin.y == 0)
+    }
 }
