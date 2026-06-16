@@ -1,20 +1,22 @@
 # Changelog
 
-## 0.35.1 — Unreleased
-
-- Ollama: replace the bundled provider icon with the cleaner official mark while preserving native template tinting. Thanks @mattab178!
-- Menu bar: avoid a one-time visible menu rebuild after first-open background data arrives.
-- Settings: use high-contrast selected-content colors for provider sidebar text and icons.
-- Localization: align the app and website on the same 21-language catalog, adding Italian (#1248), Indonesian (#1513), Polish (#1253), Arabic, Persian, and Thai as selectable app languages, plus automatic website detection, persistent pickers, and right-to-left layouts for Arabic and Persian. Thanks @Yuxin-Qiao and @StevanusPangau!
-- Website: replace the remaining provider letter tiles with the canonical Devin, LiteLLM, and T3 Chat logos.
+## 0.35.1 — 2026-06-16
 
 ### Added
+- Localization: align the app and website on the same 21-language catalog, adding Italian (#1248), Indonesian (#1513), Polish (#1253), Arabic, Persian, and Thai as selectable app languages, plus automatic website detection, persistent pickers, and right-to-left layouts for Arabic and Persian. Thanks @Yuxin-Qiao and @StevanusPangau!
 - LiteLLM: add personal and team budget tracking from a configured virtual key and proxy URL (#1542). Thanks @hololee!
 
 ### Changed
 - Antigravity: prefer app and `agy` quota summaries, group usage into Gemini and Claude + GPT session/weekly pools, and preserve IDE and OAuth fallbacks. Thanks @Zihao-Qi!
+- Ollama: replace the bundled provider icon with the cleaner official mark while preserving native template tinting. Thanks @mattab178!
+- Website: replace the remaining provider letter tiles with the canonical Devin, LiteLLM, and T3 Chat logos.
 
 ### Fixed
+- Menu bar: keep merged provider menus anchored under the status item while switching tabs, even when provider content changes height.
+- Menu bar: keep the persistent Refresh row idle during background provider refreshes and show progress only for explicit manual refresh clicks.
+- OpenRouter and Krill: show usable cost-history snapshots without replacing the header with transient usage/quota fetch errors.
+- Menu bar: avoid a one-time visible menu rebuild after first-open background data arrives.
+- Settings: use high-contrast selected-content colors for provider sidebar text and icons.
 - Antigravity: retry transient `Text file busy` launch failures while the CLI executable is being replaced.
 - Antigravity: fall back to loopback HTTP for local CLI and language-server probes on Linux, where self-signed localhost TLS cannot be trusted (fixes #1508). Thanks @zodiacfireworks!
 - Codebuff: enforce the optional subscription grace period even when the transport ignores cancellation.
