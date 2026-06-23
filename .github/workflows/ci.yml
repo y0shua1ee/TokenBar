@@ -9,10 +9,90 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  SWIFT_VERSION: 6.2.1
+
 jobs:
-  lint-build-test:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      macos-tests: ${{ steps.macos-tests.outputs.macos-tests }}
+      macos-tests-reason: ${{ steps.macos-tests.outputs.macos-tests-reason }}
+      changed-path-count: ${{ steps.macos-tests.outputs.changed-path-count }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect macOS test impact
+        id: macos-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+          else
+            base_sha="${{ github.event.before }}"
+          fi
+
+          changed_paths="${RUNNER_TEMP}/changed-paths.txt"
+          if [[ -z "$base_sha" || "$base_sha" =~ ^0+$ ]]; then
+            git ls-files | awk '{ print "A\t" $0 }' > "$changed_paths"
+          elif ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
+            echo "Base commit ${base_sha} is unavailable; running macOS tests conservatively."
+            git ls-files | awk '{ print "A\t" $0 }' > "$changed_paths"
+          else
+            git diff --name-status "$base_sha" "$GITHUB_SHA" > "$changed_paths"
+          fi
+
+          printf 'Changed paths:\n'
+          sed 's/^/- /' "$changed_paths"
+          ./Scripts/ci_macos_test_gate.sh "$changed_paths"
+
+      - name: Summarize macOS test gate
+        if: ${{ always() }}
+        shell: bash
+        env:
+          MACOS_TESTS: ${{ steps.macos-tests.outputs.macos-tests }}
+          MACOS_TESTS_REASON: ${{ steps.macos-tests.outputs.macos-tests-reason }}
+          CHANGED_PATH_COUNT: ${{ steps.macos-tests.outputs.changed-path-count }}
+        run: |
+          set -euo pipefail
+          reason="${MACOS_TESTS_REASON:-<unset>}"
+          reason="${reason//|/\\|}"
+          {
+            printf '### macOS test gate\n\n'
+            printf '| Field | Value |\n'
+            printf '| --- | --- |\n'
+            printf '| macOS Swift tests required | `%s` |\n' "${MACOS_TESTS:-<unset>}"
+            printf '| Reason | %s |\n' "$reason"
+            printf '| Changed path entries | `%s` |\n' "${CHANGED_PATH_COUNT:-<unset>}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install lint tools
+        run: ./Scripts/install_lint_tools.sh swiftlint
+
+      - name: Lint
+        run: ./Scripts/lint.sh lint-linux
+
+  swift-test-macos:
+    needs: changes
+    if: ${{ needs.changes.outputs.macos-tests == 'true' }}
     runs-on: macos-15-intel
-    timeout-minutes: 70
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard-index: [0, 1, 2, 3]
+        shard-count: [4]
     steps:
       - uses: actions/checkout@v6
 
@@ -34,16 +114,81 @@ jobs:
           swift --version
           swift package --version
 
-      - name: Install lint tools
-        run: ./Scripts/install_lint_tools.sh
-
-      - name: Lint
-        run: ./Scripts/lint.sh lint
+      - name: Check app locales and Swift formatting
+        if: ${{ matrix.shard-index == 0 }}
+        run: ./Scripts/lint.sh lint-macos
 
       - name: Swift Test
-        timeout-minutes: 60
+        timeout-minutes: 35
         run: |
-          CODEXBAR_TEST_GROUP_SIZE=1 CODEXBAR_TEST_SUITE_TIMEOUT=120 ./Scripts/test.sh
+          CODEXBAR_TEST_GROUP_SIZE=1 \
+            CODEXBAR_TEST_SUITE_TIMEOUT=120 \
+            CODEXBAR_TEST_SHARD_INDEX=${{ matrix.shard-index }} \
+            CODEXBAR_TEST_SHARD_COUNT=${{ matrix.shard-count }} \
+            ./Scripts/test.sh
+
+      - name: Summarize macOS shard
+        if: ${{ always() }}
+        shell: bash
+        env:
+          SHARD_INDEX: ${{ matrix.shard-index }}
+          SHARD_COUNT: ${{ matrix.shard-count }}
+          RUNS_LINT_MACOS: ${{ matrix.shard-index == 0 }}
+        run: |
+          set -euo pipefail
+          xcode_version="$(/usr/bin/xcodebuild -version 2>/dev/null | tr '\n' ' ' || true)"
+          {
+            printf '### macOS Swift shard\n\n'
+            printf '| Field | Value |\n'
+            printf '| --- | --- |\n'
+            printf '| Shard | `%s / %s` |\n' "$SHARD_INDEX" "$SHARD_COUNT"
+            printf '| Runner | `%s` |\n' "${RUNNER_NAME:-unknown}"
+            printf '| Xcode | `%s` |\n' "${xcode_version:-unknown}"
+            printf '| Runs lint-macos | `%s` |\n' "$RUNS_LINT_MACOS"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  lint-build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+      - changes
+      - lint
+      - swift-test-macos
+    if: ${{ always() && !cancelled() }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Verify lint and macOS test jobs
+        run: |
+          ./Scripts/ci_verify_test_jobs.sh \
+            "${{ needs.lint.result }}" \
+            "${{ needs.changes.result }}" \
+            "${{ needs.changes.outputs.macos-tests }}" \
+            "${{ needs.swift-test-macos.result }}"
+
+      - name: Summarize aggregate CI gate
+        if: ${{ always() }}
+        shell: bash
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          MACOS_TESTS: ${{ needs.changes.outputs.macos-tests }}
+          MACOS_TESTS_REASON: ${{ needs.changes.outputs.macos-tests-reason }}
+          MACOS_RESULT: ${{ needs.swift-test-macos.result }}
+        run: |
+          set -euo pipefail
+          reason="${MACOS_TESTS_REASON:-<unset>}"
+          reason="${reason//|/\\|}"
+          {
+            printf '### Aggregate CI gate\n\n'
+            printf '| Field | Value |\n'
+            printf '| --- | --- |\n'
+            printf '| lint result | `%s` |\n' "$LINT_RESULT"
+            printf '| changes result | `%s` |\n' "$CHANGES_RESULT"
+            printf '| macOS Swift tests required | `%s` |\n' "${MACOS_TESTS:-<unset>}"
+            printf '| macOS gate reason | %s |\n' "$reason"
+            printf '| swift-test-macos result | `%s` |\n' "$MACOS_RESULT"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-linux-cli:
     timeout-minutes: 20
@@ -65,14 +210,27 @@ jobs:
           uname -a
           uname -m
 
-      - name: Install Swift 6.2.1 via swiftly
+      - name: Restore Swift toolchain cache
+        id: swift-toolchain-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/swiftly
+          key: swift-${{ runner.os }}-${{ runner.arch }}-${{ env.SWIFT_VERSION }}-v2
+
+      - name: Install Swift ${{ env.SWIFT_VERSION }} via swiftly
         shell: bash
         run: |
           set -euo pipefail
 
-          if ! command -v gpg >/dev/null 2>&1; then
+          missing_packages=()
+          for package in ca-certificates gpg libcurl4-openssl-dev; do
+            if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q "install ok installed"; then
+              missing_packages+=("$package")
+            fi
+          done
+          if [[ "${#missing_packages[@]}" -gt 0 ]]; then
             sudo apt-get update
-            sudo apt-get install -y ca-certificates gpg
+            sudo apt-get install -y "${missing_packages[@]}"
           fi
 
           SWIFTLY_ARCH="$(uname -m)"
@@ -81,6 +239,7 @@ jobs:
           POST_INSTALL_SCRIPT="$(mktemp)"
 
           mkdir -p "$SWIFTLY_BIN_DIR"
+          echo "Swift toolchain cache hit: ${{ steps.swift-toolchain-cache.outputs.cache-hit }}"
           curl -fsSL "https://download.swift.org/swiftly/linux/swiftly-${SWIFTLY_ARCH}.tar.gz" -o /tmp/swiftly.tar.gz
           tar -xzf /tmp/swiftly.tar.gz -C /tmp
           /tmp/swiftly init --assume-yes --skip-install
@@ -90,7 +249,7 @@ jobs:
           echo "SWIFTLY_HOME_DIR=$SWIFTLY_HOME_DIR" >> "$GITHUB_ENV"
           echo "SWIFTLY_BIN_DIR=$SWIFTLY_BIN_DIR" >> "$GITHUB_ENV"
 
-          swiftly install 6.2.1 --use --assume-yes --post-install-file "$POST_INSTALL_SCRIPT"
+          swiftly install "$SWIFT_VERSION" --use --assume-yes --post-install-file "$POST_INSTALL_SCRIPT"
           if [[ -s "$POST_INSTALL_SCRIPT" ]]; then
             sudo apt-get update
             sudo bash "$POST_INSTALL_SCRIPT"
@@ -119,3 +278,22 @@ jobs:
           fi
           "$BIN" usage --provider codex --web 2>&1 | tee /tmp/codexbarcli-stderr.txt >/dev/null || true
           grep -q "macOS" /tmp/codexbarcli-stderr.txt
+
+      - name: Summarize Linux CLI build
+        if: ${{ always() }}
+        shell: bash
+        env:
+          MATRIX_NAME: ${{ matrix.name }}
+          MATRIX_RUNS_ON: ${{ matrix.runs-on }}
+          SWIFT_CACHE_HIT: ${{ steps.swift-toolchain-cache.outputs.cache-hit }}
+        run: |
+          set -euo pipefail
+          {
+            printf '### Linux CLI build\n\n'
+            printf '| Field | Value |\n'
+            printf '| --- | --- |\n'
+            printf '| Matrix | `%s` |\n' "$MATRIX_NAME"
+            printf '| Runner label | `%s` |\n' "$MATRIX_RUNS_ON"
+            printf '| Swift version | `%s` |\n' "$SWIFT_VERSION"
+            printf '| Swift toolchain cache hit | `%s` |\n' "${SWIFT_CACHE_HIT:-false}"
+          } >> "$GITHUB_STEP_SUMMARY"

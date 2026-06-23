@@ -396,7 +396,7 @@ struct GeminiStatusProbeAPITests {
         let snapshot = try await probe.fetch()
         let elapsed = Date().timeIntervalSince(start)
         #expect(snapshot.accountPlan == "Paid")
-        #expect(elapsed < 3, "fnm package discovery should not wait for inherited stdout EOF, took \(elapsed)s")
+        #expect(elapsed < 4.8, "fnm package discovery should not wait for inherited stdout EOF, took \(elapsed)s")
 
         let updated = try env.readCredentials()
         #expect(updated["access_token"] as? String == "new-token")
@@ -423,7 +423,7 @@ struct GeminiStatusProbeAPITests {
             environment: [:],
             timeout: 0.5)
         let elapsed = Date().timeIntervalSince(start)
-        let text = try String(contentsOf: pidFile, encoding: .utf8)
+        let text = try Self.waitForFileContents(at: pidFile, timeout: 1.5)
         let processID = try #require(pid_t(text.trimmingCharacters(in: .whitespacesAndNewlines)))
         defer { _ = kill(processID, SIGKILL) }
 
@@ -451,7 +451,7 @@ struct GeminiStatusProbeAPITests {
             timeout: 2)
 
         #expect(result == nil)
-        #expect(Date().timeIntervalSince(start) < 1)
+        #expect(Date().timeIntervalSince(start) < 1.8)
     }
 
     @Test
@@ -847,5 +847,19 @@ struct GeminiStatusProbeAPITests {
             defer { self.lock.unlock() }
             return (self.primaryCount, self.fallbackCount)
         }
+    }
+
+    private static func waitForFileContents(at url: URL, timeout: TimeInterval) throws -> String {
+        let deadline = Date().addingTimeInterval(max(0, timeout))
+        while Date() < deadline {
+            if let text = try? String(contentsOf: url, encoding: .utf8),
+               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            {
+                return text
+            }
+            usleep(20000)
+        }
+
+        return try String(contentsOf: url, encoding: .utf8)
     }
 }

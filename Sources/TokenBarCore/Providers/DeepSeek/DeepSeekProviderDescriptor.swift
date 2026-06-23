@@ -9,7 +9,7 @@ public enum DeepSeekProviderDescriptor {
             metadata: ProviderMetadata(
                 id: .deepseek,
                 displayName: "DeepSeek",
-                sessionLabel: "Recharge balance",
+                sessionLabel: "Balance",
                 weeklyLabel: "Balance",
                 opusLabel: nil,
                 supportsOpus: false,

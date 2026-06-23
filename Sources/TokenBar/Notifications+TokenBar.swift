@@ -4,6 +4,10 @@ import TokenBarCore
 extension Notification.Name {
     static let tokenbarOpenSettings = Notification.Name("tokenbarOpenSettings")
     static let tokenbarDebugBlinkNow = Notification.Name("tokenbarDebugBlinkNow")
+    #if DEBUG
+    static let tokenbarDebugSimulateMemoryPressure =
+        Notification.Name("com.y0shua1ee.tokenbar.debug.simulateMemoryPressure")
+    #endif
     static let tokenbarWeeklyLimitReset = Notification.Name("tokenbarWeeklyLimitReset")
     static let tokenbarProviderConfigDidChange = Notification.Name("tokenbarProviderConfigDidChange")
     static let tokenbarQuotaWarningDidPost = Notification.Name("tokenbarQuotaWarningDidPost")

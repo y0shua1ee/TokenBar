@@ -1,7 +1,9 @@
 #if canImport(Darwin)
 import Darwin
-#else
+#elseif canImport(Glibc)
 import Glibc
+#elseif canImport(Musl)
+import Musl
 #endif
 import Foundation
 
@@ -847,6 +849,10 @@ struct AntigravityPTYProcessLauncher: AntigravityCLIProcessLaunching {
     }
 
     func launch(binary: String) throws -> any AntigravityCLIProcessHandle {
+        try self.launch(binary: binary, arguments: [])
+    }
+
+    func launch(binary: String, arguments: [String]) throws -> any AntigravityCLIProcessHandle {
         var primaryFD: Int32 = -1
         var secondaryFD: Int32 = -1
         var win = winsize(ws_row: 50, ws_col: 160, ws_xpixel: 0, ws_ypixel: 0)
@@ -880,8 +886,14 @@ struct AntigravityPTYProcessLauncher: AntigravityCLIProcessLaunching {
         _ = homeDirectory.withCString { path in
             posix_spawn_file_actions_addchdir_np(&fileActions, path)
         }
-        #if !canImport(Darwin)
-        posix_spawn_file_actions_addclosefrom_np(&fileActions, 3)
+        #if canImport(Glibc) || canImport(Musl)
+        do {
+            try PosixSpawnFileActionsCloseFrom.addCloseFrom(&fileActions, startingAt: 3)
+        } catch {
+            try? primaryHandle.close()
+            try? secondaryHandle.close()
+            throw AntigravityCLISession.SessionError.launchFailed(error.localizedDescription)
+        }
         #endif
 
         #if canImport(Darwin)
@@ -909,7 +921,8 @@ struct AntigravityPTYProcessLauncher: AntigravityCLIProcessLaunching {
         env["PWD"] = NSHomeDirectory()
         env["TERM"] = "xterm-256color"
 
-        let cArgs: [UnsafeMutablePointer<CChar>?] = [strdup(binary), nil]
+        var cArgs = ([binary] + arguments).map { strdup($0) as UnsafeMutablePointer<CChar>? }
+        cArgs.append(nil)
         defer {
             for arg in cArgs {
                 if let arg {

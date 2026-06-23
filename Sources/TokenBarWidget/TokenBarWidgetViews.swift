@@ -315,6 +315,9 @@ private struct ProviderSwitchChip: View {
         case .llmproxy: "LLM Proxy"
         case .litellm: "LiteLLM"
         case .deepgram: "Deepgram"
+        case .poe: "Poe"
+        case .chutes: "Chutes"
+        case .zed: "Zed"
         }
     }
 }
@@ -520,6 +523,11 @@ struct WidgetUsageRow: Identifiable, Equatable {
     let title: String
     let percentLeft: Double?
 
+    private enum AntigravityQuotaFamily {
+        case gemini
+        case claudeGPT
+    }
+
     static func smallWidgetRowLimit(for entry: WidgetSnapshot.ProviderEntry) -> Int? {
         self.antigravityQuotaSummaryRowLimit(for: entry, limit: 2)
     }
@@ -573,21 +581,10 @@ struct WidgetUsageRow: Identifiable, Equatable {
            limit >= 2,
            rows.contains(where: { $0.id.hasPrefix("antigravity-quota-summary-") })
         {
-            var selected = ["Gemini ", "Claude + GPT "].compactMap { titlePrefix in
+            var selected = [AntigravityQuotaFamily.gemini, .claudeGPT].compactMap { family in
                 rows
-                    .filter { $0.title.hasPrefix(titlePrefix) }
-                    .min { lhs, rhs in
-                        switch (lhs.percentLeft, rhs.percentLeft) {
-                        case let (.some(left), .some(right)):
-                            left < right
-                        case (.some, .none):
-                            true
-                        case (.none, .some):
-                            false
-                        case (.none, .none):
-                            false
-                        }
-                    }
+                    .filter { self.antigravityQuotaFamily(for: $0) == family }
+                    .min(by: self.isMoreConstrained)
             }
             let selectedIDs = Set(selected.map(\.id))
             let fallbackRows = rows.enumerated()
@@ -609,6 +606,39 @@ struct WidgetUsageRow: Identifiable, Equatable {
             return selected
         }
         return Array(rows.prefix(max(0, limit)))
+    }
+
+    private static func antigravityQuotaFamily(for row: WidgetUsageRow) -> AntigravityQuotaFamily? {
+        guard row.id.hasPrefix("antigravity-quota-summary-") else { return nil }
+        let id = row.id.lowercased()
+        if id.contains("gemini") {
+            return .gemini
+        }
+        if id.contains("3p") || id.contains("third-party") {
+            return .claudeGPT
+        }
+
+        let title = row.title.lowercased()
+        if title.contains("gemini") {
+            return .gemini
+        }
+        if title.contains("claude") || title.contains("gpt") {
+            return .claudeGPT
+        }
+        return nil
+    }
+
+    private static func isMoreConstrained(_ lhs: WidgetUsageRow, than rhs: WidgetUsageRow) -> Bool {
+        switch (lhs.percentLeft, rhs.percentLeft) {
+        case let (.some(left), .some(right)):
+            left < right
+        case (.some, .none):
+            true
+        case (.none, .some):
+            false
+        case (.none, .none):
+            false
+        }
     }
 }
 
@@ -829,6 +859,12 @@ enum WidgetColors {
             Color(red: 76 / 255, green: 137 / 255, blue: 240 / 255)
         case .deepgram:
             Color(red: 10 / 255, green: 18 / 255, blue: 27 / 255)
+        case .poe:
+            Color(red: 0.15, green: 0.68, blue: 0.38)
+        case .chutes:
+            Color(red: 24 / 255, green: 160 / 255, blue: 88 / 255)
+        case .zed:
+            Color(red: 64 / 255, green: 156 / 255, blue: 255 / 255)
         }
     }
 }

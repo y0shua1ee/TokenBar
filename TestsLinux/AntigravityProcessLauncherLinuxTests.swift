@@ -1,6 +1,10 @@
-#if canImport(Glibc)
+#if canImport(Glibc) || canImport(Musl)
 import Foundation
+#if canImport(Glibc)
 import Glibc
+#elseif canImport(Musl)
+import Musl
+#endif
 import Testing
 @testable import TokenBarCore
 

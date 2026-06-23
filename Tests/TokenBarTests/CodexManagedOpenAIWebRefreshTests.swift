@@ -33,11 +33,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.openAIWebAccessEnabled = false
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingManagedOpenAIDashboardLoader()
         let completion = RefreshCompletionProbe()
         store._test_providerRefreshOverride = { _ in }
@@ -128,11 +124,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingCreditsLoader()
         let completion = RefreshCompletionProbe()
         store._test_providerRefreshOverride = { _ in }
@@ -184,11 +176,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         store.snapshots[.codex] = Self.codexSnapshot(email: managedAccount.email, usedPercent: 18)
 
         let creditsBlocker = BlockingCreditsLoader()
@@ -258,11 +246,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.openAIWebAccessEnabled = false
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
 
         let dashboardBlocker = BlockingManagedOpenAIDashboardLoader()
         let saver = RecordingWidgetSnapshotSaver()
@@ -346,11 +330,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingManagedOpenAIDashboardLoader()
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
             try await blocker.awaitResult()
@@ -419,11 +399,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         store.openAIDashboardCookieImportStatus =
             "OpenAI cookies are for other@example.com, not managed@example.com."
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
@@ -451,11 +427,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingManagedOpenAIDashboardLoader()
         let importTracker = OpenAIDashboardImportCallTracker()
         var allowNavigationTimeoutRetries: [Bool] = []
@@ -517,11 +489,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingManagedOpenAIDashboardLoader()
         let importTracker = OpenAIDashboardImportCallTracker()
         var allowNavigationTimeoutRetries: [Bool] = []
@@ -570,11 +538,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         let blocker = BlockingManagedOpenAIDashboardLoader()
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
             try await blocker.awaitResult()
@@ -621,11 +585,7 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.codexActiveSource = .managedAccount(id: managedAccount.id)
         defer { settings._test_activeManagedCodexAccount = nil }
 
-        let store = UsageStore(
-            fetcher: UsageFetcher(environment: [:]),
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            settings: settings,
-            startupBehavior: .testing)
+        let store = self.makeUsageStore(settings: settings)
         store.openAIDashboardCookieImportStatus =
             "OpenAI cookies are for other@example.com, not managed@example.com."
         store._test_openAIDashboardLoaderOverride = { _, _, _, _ in
@@ -663,6 +623,16 @@ struct CodexManagedOpenAIWebRefreshTests {
         settings.openAIWebAccessEnabled = true
         settings.codexCookieSource = .auto
         return settings
+    }
+
+    private func makeUsageStore(settings: SettingsStore) -> UsageStore {
+        let store = UsageStore(
+            fetcher: UsageFetcher(environment: [:]),
+            browserDetection: BrowserDetection(cacheTTL: 0),
+            settings: settings,
+            startupBehavior: .testing)
+        store._test_widgetSnapshotSaveOverride = { _ in }
+        return store
     }
 
     private static func writeCodexAuthFile(homeURL: URL, email: String, plan: String, accountId: String? = nil) throws {

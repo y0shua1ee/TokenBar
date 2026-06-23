@@ -60,6 +60,9 @@ const providerCards = [...indexHtml.matchAll(/<a class="provider([^"]*)"[^>]*>([
 for (const [, classes, body] of providerCards) {
   if (!classes.split(/\s+/).includes("add")) {
     assert(body.includes('class="chip-logo'), "provider cards must use logo assets instead of text placeholders");
+    for (const match of body.matchAll(/(?:src|data-dark-src)="\.\/([^"]+)"/g)) {
+      assert(fs.existsSync(path.join(repoRoot, "docs", match[1])), `missing provider logo asset ${match[1]}`);
+    }
   }
 }
 

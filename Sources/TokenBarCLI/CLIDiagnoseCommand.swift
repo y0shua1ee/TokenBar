@@ -33,6 +33,7 @@ extension TokenBarCLI {
         let providers = providerSelection.asList
         let pretty = values.flags.contains("pretty")
         let verbose = values.flags.contains("verbose")
+        let outputPath = values.options["output"]?.last
         let browserDetection = BrowserDetection()
         let baseFetcher = UsageFetcher()
 
@@ -72,7 +73,11 @@ extension TokenBarCLI {
             }
             var jsonString = String(data: data, encoding: .utf8) ?? "{}"
             jsonString = LogRedactor.redact(jsonString)
-            print(jsonString)
+            if let outputPath, !outputPath.isEmpty {
+                try Self.writeDiagnosticExport(jsonString, to: outputPath)
+            } else {
+                print(jsonString)
+            }
         } catch {
             Self.exit(
                 code: .failure,
@@ -82,6 +87,17 @@ extension TokenBarCLI {
         }
 
         Self.exit(code: .success, output: output, kind: .runtime)
+    }
+
+    static func writeDiagnosticExport(_ jsonString: String, to path: String) throws {
+        let url = URL(fileURLWithPath: path)
+        let parent = url.deletingLastPathComponent()
+        if !parent.path.isEmpty {
+            try FileManager.default.createDirectory(
+                at: parent,
+                withIntermediateDirectories: true)
+        }
+        try jsonString.write(to: url, atomically: true, encoding: .utf8)
     }
 }
 
@@ -138,7 +154,8 @@ extension TokenBarCLI {
                 account: account,
                 config: tokenContext.config.providerConfig(for: provider),
                 environment: env,
-                settings: settings)))
+                settings: settings),
+            appVersion: Self.currentVersion()))
     }
 
     static func diagnosticAuthSummary(
@@ -204,6 +221,8 @@ extension TokenBarCLI {
             ClaudeAdminAPISettingsReader.apiKey(environment: environment) != nil
         case .codebuff:
             CodebuffSettingsReader.apiKey(environment: environment) != nil
+        case .chutes:
+            ChutesSettingsReader.apiKey(environment: environment) != nil
         case .crof:
             CrofSettingsReader.apiKey(environment: environment) != nil
         case .deepgram:

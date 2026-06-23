@@ -46,7 +46,8 @@ struct StatusItemControllerShutdownTests {
 
         #expect(controller.openMenus[key] === menu)
         #expect(controller.mergedMenu != nil)
-        #expect(controller.statusItem.menu === controller.mergedMenu)
+        #expect(controller.statusItem.menu == nil)
+        #expect(controller.statusItem.button?.action == #selector(StatusItemController.showMergedMenu(_:)))
 
         controller.prepareForAppShutdown()
         controller.prepareForAppShutdown()

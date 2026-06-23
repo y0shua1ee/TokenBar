@@ -208,6 +208,7 @@ struct CodexAccountMenuDisplaySnapshotTests {
             fetcher: UsageFetcher(),
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: settings)
+        store._test_widgetSnapshotSaveOverride = { _ in }
         let controller = StatusItemController(
             store: store,
             settings: settings,

@@ -6,13 +6,16 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/tokenbar-test-sharding.XXXXXX")"
 trap 'rm -rf "${TEMP_DIR}"' EXIT
 
-mkdir -p "${TEMP_DIR}/bin"
-cat > "${TEMP_DIR}/bin/swift" <<'EOF'
-#!/usr/bin/env bash
+IFS= read -r -d '' FAKE_SWIFT_SCRIPT <<'EOF' || true
 set -euo pipefail
 
 printf '%s\n' "$*" >> "${FAKE_SWIFT_LOG}"
 if [[ "$*" == "test list" ]]; then
+  if [[ "${FAKE_SWIFT_LIST_FAIL:-0}" == "1" ]]; then
+    printf 'test-list stdout marker\n'
+    printf 'test-list stderr marker\n' >&2
+    exit 42
+  fi
   printf '%s\n' \
     "TokenBarTests.Alpha/test_one()" \
     "TokenBarTests.Alpha/test_two(argument:)" \
@@ -28,12 +31,16 @@ if [[ "$*" == *"|"* ]]; then
   fi
 fi
 EOF
-chmod +x "${TEMP_DIR}/bin/swift"
 
-export PATH="${TEMP_DIR}/bin:${PATH}"
 export FAKE_SWIFT_LOG="${TEMP_DIR}/swift.log"
 
-python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" --group-size 4 --timeout 10 \
+python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+  --group-size 4 \
+  --timeout 10 \
+  --swift-command /bin/bash \
+  --swift-command-arg=-c \
+  --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+  --swift-command-arg=fake-swift \
   >"${TEMP_DIR}/retry.log"
 grep -Fq "failed with exit code 1; retrying shard once" "${TEMP_DIR}/retry.log"
 grep -Fq "TokenBarTests\\.Alpha" "${FAKE_SWIFT_LOG}"
@@ -42,11 +49,72 @@ grep -Fq "TokenBarTests\\..*top\\ level\\ works" "${FAKE_SWIFT_LOG}"
 grep -Fq "TokenBarTests\\..*top/level\\ slash\\ works" "${FAKE_SWIFT_LOG}"
 [[ "$(wc -l < "${FAKE_SWIFT_LOG}")" -eq 3 ]]
 
+python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+  --group-size 1 \
+  --timeout 10 \
+  --shard-index 0 \
+  --shard-count 2 \
+  --list-only \
+  --swift-command /bin/bash \
+  --swift-command-arg=-c \
+  --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+  --swift-command-arg=fake-swift \
+  >"${TEMP_DIR}/shard-0.log"
+
+python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+  --group-size 1 \
+  --timeout 10 \
+  --shard-index 1 \
+  --shard-count 2 \
+  --list-only \
+  --swift-command /bin/bash \
+  --swift-command-arg=-c \
+  --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+  --swift-command-arg=fake-swift \
+  >"${TEMP_DIR}/shard-1.log"
+
+cat "${TEMP_DIR}/shard-0.log" "${TEMP_DIR}/shard-1.log" \
+  | grep -v '^Discovered ' \
+  | sort >"${TEMP_DIR}/shards-combined.log"
+python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+  --group-size 1 \
+  --timeout 10 \
+  --list-only \
+  --swift-command /bin/bash \
+  --swift-command-arg=-c \
+  --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+  --swift-command-arg=fake-swift \
+  | grep -v '^Discovered ' \
+  | sort >"${TEMP_DIR}/shards-expected.log"
+diff -u "${TEMP_DIR}/shards-expected.log" "${TEMP_DIR}/shards-combined.log"
+
 if FAKE_SWIFT_GROUP_ALWAYS_FAIL=1 \
-  python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" --group-size 4 --timeout 10 \
+  python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+    --group-size 4 \
+    --timeout 10 \
+    --swift-command /bin/bash \
+    --swift-command-arg=-c \
+    --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+    --swift-command-arg=fake-swift \
     >"${TEMP_DIR}/failure.log" 2>&1; then
   echo "ERROR: Repeated shard failure was masked." >&2
   exit 1
 fi
+
+if FAKE_SWIFT_LIST_FAIL=1 \
+  python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+    --group-size 1 \
+    --timeout 10 \
+    --list-only \
+    --swift-command /bin/bash \
+    --swift-command-arg=-c \
+    --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+    --swift-command-arg=fake-swift \
+    >"${TEMP_DIR}/list-failure.log" 2>&1; then
+  echo "ERROR: Failed test discovery was masked." >&2
+  exit 1
+fi
+grep -Fq "test-list stdout marker" "${TEMP_DIR}/list-failure.log"
+grep -Fq "test-list stderr marker" "${TEMP_DIR}/list-failure.log"
 
 echo "Swift test sharding tests passed."

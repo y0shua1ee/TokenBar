@@ -66,6 +66,14 @@ struct DeepSeekUsageFetcherTests {
         }
     }
 
+    private static func waitForCancellation(_ probe: SummaryCancellationProbe) async -> Bool {
+        for _ in 0..<100 {
+            if await probe.wasCancelled() { return true }
+            try? await Task.sleep(for: .milliseconds(20))
+        }
+        return await probe.wasCancelled()
+    }
+
     private static let sampleBalanceJSON = """
     {
       "is_available": true,
@@ -377,7 +385,7 @@ struct DeepSeekUsageFetcherTests {
 
         #expect(snapshot.totalBalance == 50.0)
         #expect(snapshot.usageSummary == nil)
-        #expect(await probe.wasCancelled())
+        #expect(await Self.waitForCancellation(probe))
     }
 
     @Test
@@ -449,8 +457,7 @@ struct DeepSeekUsageFetcherTests {
                 })
             Issue.record("Expected balance failure")
         } catch DeepSeekUsageError.networkError {
-            try await Task.sleep(for: .milliseconds(100))
-            #expect(await probe.wasCancelled())
+            #expect(await Self.waitForCancellation(probe))
         }
     }
 
@@ -479,8 +486,7 @@ struct DeepSeekUsageFetcherTests {
                 })
             Issue.record("Expected balance parse failure")
         } catch DeepSeekUsageError.parseFailed {
-            try await Task.sleep(for: .milliseconds(100))
-            #expect(await probe.wasCancelled())
+            #expect(await Self.waitForCancellation(probe))
         }
     }
 
@@ -516,7 +522,7 @@ struct DeepSeekUsageFetcherTests {
             }
             Issue.record("Expected cancellation")
         } catch is CancellationError {
-            #expect(await probe.wasCancelled())
+            #expect(await Self.waitForCancellation(probe))
         }
     }
 

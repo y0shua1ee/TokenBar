@@ -61,6 +61,7 @@ final class CodexAccountPromotionTestContainer {
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: self.settings,
             startupBehavior: .testing)
+        self.usageStore._test_widgetSnapshotSaveOverride = { _ in }
         self.installDynamicCodexUsageLoader()
         self.usageStore._test_codexCreditsLoaderOverride = {
             CreditsSnapshot(remaining: 17, events: [], updatedAt: Date())

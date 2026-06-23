@@ -330,11 +330,13 @@ struct CodexAccountsSettingsSectionTests {
     }
 
     private static func makeUsageStore(settings: SettingsStore) -> UsageStore {
-        UsageStore(
+        let store = UsageStore(
             fetcher: UsageFetcher(environment: [:]),
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: settings,
             startupBehavior: .testing)
+        store._test_widgetSnapshotSaveOverride = { _ in }
+        return store
     }
 }
 

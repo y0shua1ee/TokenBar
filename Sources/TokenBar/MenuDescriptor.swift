@@ -29,6 +29,7 @@ struct MenuDescriptor {
     }
 
     enum MenuActionSystemImage: String {
+        case installUpdate = "arrow.down.circle"
         case refresh = "arrow.clockwise"
         case dashboard = "chart.bar"
         case statusPage = "waveform.path.ecg"
@@ -256,6 +257,9 @@ struct MenuDescriptor {
             }
 
             Self.appendProviderUsageSummaries(entries: &entries, snapshot: snap)
+            if snap.rateLimitsUnavailable(for: provider) {
+                entries.append(.text(L("Limits not available"), .secondary))
+            }
         } else {
             entries.append(.text(L("No usage yet"), .secondary))
         }
@@ -291,6 +295,9 @@ struct MenuDescriptor {
         }
         if let openRouterUsage = snapshot.openRouterUsage {
             Self.appendOpenRouterUsageSummary(entries: &entries, usage: openRouterUsage)
+        }
+        if let poeUsage = snapshot.poeUsage, !poeUsage.daily.isEmpty {
+            Self.appendPoeUsageSummary(entries: &entries, usage: poeUsage)
         }
         if let mistralUsage = snapshot.mistralUsage, !mistralUsage.daily.isEmpty {
             Self.appendMistralUsageSummary(entries: &entries, usage: mistralUsage)
@@ -400,6 +407,69 @@ struct MenuDescriptor {
         }?.key
     }
 
+    private static func appendPoeUsageSummary(
+        entries: inout [Entry],
+        usage: PoeUsageHistorySnapshot)
+    {
+        let today = usage.latestDay
+        let week = usage.last7Days
+        let month = usage.last30Days
+        let todayCostSuffix = today.costUSD.map { " · \(UsageFormatter.usdString($0))" } ?? ""
+        let weekCostSuffix = week.costUSD.map { " · \(UsageFormatter.usdString($0))" } ?? ""
+        let monthCostSuffix = month.costUSD.map { " · \(UsageFormatter.usdString($0))" } ?? ""
+        entries.append(.text(
+            "\(L("Today")): \(Self.pointsString(today.points)) · " +
+                "\(UsageFormatter.tokenCountString(today.requests)) \(L("requests"))\(todayCostSuffix)",
+            .secondary))
+        entries.append(.text(
+            "7d: \(Self.pointsString(week.points)) · " +
+                "\(UsageFormatter.tokenCountString(week.requests)) \(L("requests"))\(weekCostSuffix)",
+            .secondary))
+        entries.append(.text(
+            "30d: \(Self.pointsString(month.points)) · " +
+                "\(UsageFormatter.tokenCountString(month.requests)) \(L("requests"))\(monthCostSuffix)",
+            .secondary))
+        if let topModel = usage.topModels.first {
+            entries.append(
+                .text(
+                    "\(L("Top model")): \(topModel.name) (\(Self.pointsString(topModel.points)))",
+                    .secondary))
+        }
+        if !usage.topUsageTypes.isEmpty {
+            let summary = usage.topUsageTypes
+                .prefix(2)
+                .map { "\($0.name): \(Self.pointsString($0.points))" }
+                .joined(separator: " · ")
+            entries.append(.text("Usage mix: \(summary)", .secondary))
+        }
+        let recent = usage.recentEntries(limit: 3)
+        if !recent.isEmpty {
+            entries.append(.text("Recent activity:", .secondary))
+            for entry in recent {
+                let stamp = Self.poeTimeString(entry.createdAt)
+                entries.append(.text(
+                    "\(stamp) · \(entry.model) · \(Self.pointsString(entry.points))",
+                    .secondary))
+            }
+        }
+    }
+
+    private static func pointsString(_ points: Double) -> String {
+        let value = max(0, points)
+        if value.rounded() == value {
+            return "\(UsageFormatter.tokenCountString(Int(value))) points"
+        }
+        return "\(String(format: "%.1f", value)) points"
+    }
+
+    private static func poeTimeString(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .current
+        formatter.dateFormat = "MM-dd HH:mm"
+        return formatter.string(from: date)
+    }
+
     private static func accountSection(
         for provider: UsageProvider,
         store: UsageStore,
@@ -458,7 +528,7 @@ struct MenuDescriptor {
                 entries.append(.text("\(L("Activity")): \(detail)", .secondary))
             }
         } else if let loginMethodText, !loginMethodText.isEmpty {
-            if provider == .openrouter || provider == .mimo,
+            if provider == .openrouter || provider == .mimo || provider == .poe,
                loginMethodText.localizedCaseInsensitiveContains("balance:")
             {
                 let balanceValue = loginMethodText
@@ -712,8 +782,10 @@ private enum AccountFormatter {
 extension MenuDescriptor.MenuAction {
     var systemImageName: String? {
         switch self {
-        case .installUpdate, .settings, .about, .quit:
-            nil
+        case .installUpdate: MenuDescriptor.MenuActionSystemImage.installUpdate.rawValue
+        case .settings: MenuDescriptor.MenuActionSystemImage.settings.rawValue
+        case .about: MenuDescriptor.MenuActionSystemImage.about.rawValue
+        case .quit: MenuDescriptor.MenuActionSystemImage.quit.rawValue
         case .refresh: MenuDescriptor.MenuActionSystemImage.refresh.rawValue
         case .refreshAugmentSession: MenuDescriptor.MenuActionSystemImage.refresh.rawValue
         case .dashboard: MenuDescriptor.MenuActionSystemImage.dashboard.rawValue

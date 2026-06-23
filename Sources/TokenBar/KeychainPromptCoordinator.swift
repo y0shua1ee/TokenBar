@@ -70,6 +70,7 @@ enum KeychainPromptCoordinator {
 
     private static let unbundledExecutableCheckLock = NSLock()
     private nonisolated(unsafe) static var didCheckUnbundledExecutable = false
+    private static let unbundledExecutableNames: Set<String> = ["TokenBar", "CodexBar"]
 
     static func disableKeychainForUnbundledExecutableIfNeeded() {
         self.unbundledExecutableCheckLock.lock()
@@ -84,14 +85,14 @@ enum KeychainPromptCoordinator {
         guard Self.isUnbundledCodexBarExecutable(executablePath) else { return }
         KeychainAccessGate.forceDisabledForProcess(reason: "unbundled-executable")
         Self.log.warning(
-            "Unbundled CodexBar executable detected; disabling keychain access to avoid repeated prompts",
+            "Unbundled TokenBar executable detected; disabling keychain access to avoid repeated prompts",
             metadata: ["doc": "docs/DEVELOPMENT_SETUP.md"])
     }
 
     static func isUnbundledCodexBarExecutable(_ executablePath: String) -> Bool {
         guard executablePath.hasPrefix("/") else { return false }
         let executableURL = URL(fileURLWithPath: executablePath).standardizedFileURL
-        return executableURL.lastPathComponent == "CodexBar"
+        return Self.unbundledExecutableNames.contains(executableURL.lastPathComponent)
             && !executableURL.pathComponents.contains(where: { $0.hasSuffix(".app") })
     }
 

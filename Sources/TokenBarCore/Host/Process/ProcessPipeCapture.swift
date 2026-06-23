@@ -1,17 +1,26 @@
 import Foundation
 
 package final class ProcessPipeCapture: @unchecked Sendable {
+    package static let defaultMaxBytes = 1 * 1024 * 1024
+
     private let handle: FileHandle
     private let onData: (@Sendable () -> Void)?
+    private let maxBytes: Int
     private let condition = NSCondition()
     private var data = Data()
     private var activeCallbacks = 0
     private var isFinished = false
+    private var didReachEOF = false
     private var isStopping = false
     private var continuation: CheckedContinuation<Void, Never>?
 
-    package init(pipe: Pipe, onData: (@Sendable () -> Void)? = nil) {
+    package init(
+        pipe: Pipe,
+        maxBytes: Int = ProcessPipeCapture.defaultMaxBytes,
+        onData: (@Sendable () -> Void)? = nil)
+    {
         self.handle = pipe.fileHandleForReading
+        self.maxBytes = max(0, maxBytes)
         self.onData = onData
     }
 
@@ -44,6 +53,18 @@ package final class ProcessPipeCapture: @unchecked Sendable {
         _ = self.stopAndSnapshot()
     }
 
+    package var reachedEOF: Bool {
+        self.condition.lock()
+        defer { self.condition.unlock() }
+        return self.didReachEOF
+    }
+
+    package static func decodeUTF8(_ data: Data) -> String {
+        // A byte cap can split the final scalar; lossy decoding preserves the valid captured prefix.
+        // swiftlint:disable:next optional_data_string_conversion
+        String(decoding: data, as: UTF8.self)
+    }
+
     private func handleReadableData(from handle: FileHandle) {
         self.condition.lock()
         guard !self.isStopping else {
@@ -59,10 +80,14 @@ package final class ProcessPipeCapture: @unchecked Sendable {
         self.condition.lock()
         if chunk.isEmpty {
             self.isFinished = true
+            self.didReachEOF = true
             continuation = self.continuation
             self.continuation = nil
         } else {
-            self.data.append(chunk)
+            let remainingBytes = max(0, self.maxBytes - self.data.count)
+            if remainingBytes > 0 {
+                self.data.append(chunk.prefix(remainingBytes))
+            }
         }
         self.activeCallbacks -= 1
         if self.activeCallbacks == 0 {

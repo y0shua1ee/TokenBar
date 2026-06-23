@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import TokenBarCore
 @testable import TokenBar
 
 struct StatusItemPurchaseURLTests {
@@ -45,5 +46,18 @@ struct StatusItemPurchaseURLTests {
             StatusItemController.sanitizedCreditsPurchaseURL("https://chatgpt.com/backend-api/settings-token")
                 == nil)
         #expect(StatusItemController.sanitizedCreditsPurchaseURL("not a url") == nil)
+    }
+
+    @Test
+    @MainActor
+    func `scoped purchase window requires an account email`() {
+        let scope = CookieHeaderCache.Scope.profileHome("/tmp/codex-profile")
+
+        #expect(!OpenAICreditsPurchaseWindowController.canOpenPurchaseWindow(accountEmail: nil, cacheScope: scope))
+        #expect(!OpenAICreditsPurchaseWindowController.canOpenPurchaseWindow(accountEmail: "  ", cacheScope: scope))
+        #expect(OpenAICreditsPurchaseWindowController.canOpenPurchaseWindow(
+            accountEmail: " owner@example.com ",
+            cacheScope: scope))
+        #expect(OpenAICreditsPurchaseWindowController.canOpenPurchaseWindow(accountEmail: nil, cacheScope: nil))
     }
 }

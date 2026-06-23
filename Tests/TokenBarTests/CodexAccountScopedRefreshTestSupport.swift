@@ -68,12 +68,14 @@ extension CodexAccountScopedRefreshTests {
     }
 
     func makeUsageStore(settings: SettingsStore, environmentBase: [String: String] = [:]) -> UsageStore {
-        UsageStore(
+        let store = UsageStore(
             fetcher: UsageFetcher(environment: [:]),
             browserDetection: BrowserDetection(cacheTTL: 0),
             settings: settings,
             startupBehavior: .testing,
             environmentBase: environmentBase)
+        store._test_widgetSnapshotSaveOverride = { _ in }
+        return store
     }
 
     func liveAccount(email: String, identity: CodexIdentity = .unresolved) -> ObservedSystemCodexAccount {
@@ -171,6 +173,7 @@ extension CodexAccountScopedRefreshTests {
             settings: settings,
             codexAccountUsageSnapshotStore: snapshotStore,
             startupBehavior: .testing)
+        store._test_widgetSnapshotSaveOverride = { _ in }
         self.installFailingCodexProvider(
             on: store,
             error: TestRefreshError(message: errorMessage))

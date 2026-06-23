@@ -39,27 +39,9 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertTrue(header.contains("cli"))
     }
 
-    func test_resetTimeDisplayStyleReadsTokenBarDefaultsDomain() throws {
-        let releaseDomain = "com.y0shua1ee.tokenbar"
-        let debugDomain = "com.y0shua1ee.tokenbar.debug"
-        for domain in [releaseDomain, debugDomain] {
-            UserDefaults(suiteName: domain)?.removeObject(forKey: "resetTimesShowAbsolute")
-        }
-        defer {
-            for domain in [releaseDomain, debugDomain] {
-                UserDefaults(suiteName: domain)?.removeObject(forKey: "resetTimesShowAbsolute")
-            }
-        }
-
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: debugDomain))
-        defaults.set(true, forKey: "resetTimesShowAbsolute")
-
-        XCTAssertEqual(TokenBarCLI.resetTimeDisplayStyleFromDefaults(), .absolute)
-    }
-
     func test_cliVersionFallsBackToContainingAppBundle() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-cli-version-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
@@ -80,7 +62,7 @@ final class CLIEntryTests: XCTestCase {
 
     func test_cliVersionFollowsSymlinkedHelper() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-symlink-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-cli-version-symlink-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         let appURL = root.appendingPathComponent("TokenBar.app", isDirectory: true)
@@ -98,7 +80,7 @@ final class CLIEntryTests: XCTestCase {
         let helperURL = helpersURL.appendingPathComponent("TokenBarCLI")
         try Data().write(to: helperURL)
 
-        let symlinkURL = binURL.appendingPathComponent("tokenbar")
+        let symlinkURL = binURL.appendingPathComponent("codexbar")
         try FileManager.default.createSymbolicLink(at: symlinkURL, withDestinationURL: helperURL)
 
         XCTAssertEqual(TokenBarCLI.currentVersion(bundleVersion: nil, executablePath: symlinkURL.path), "2.4.6")
@@ -112,7 +94,7 @@ final class CLIEntryTests: XCTestCase {
 
     func test_cliVersionPrefersAdjacentVersionOverStandaloneBundleName() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-bundle-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-cli-version-bundle-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
@@ -132,7 +114,7 @@ final class CLIEntryTests: XCTestCase {
 
     private func expectAdjacentVersionFile(raw: String, expected: String) throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tokenbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("codexbar-cli-version-file-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         let binURL = root.appendingPathComponent("bin", isDirectory: true)
@@ -336,7 +318,7 @@ final class CLIEntryTests: XCTestCase {
         try Data("{}".utf8).write(to: invalidMiMoCache)
 
         XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(.web, provider: .kilo))
-        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .codex))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .codex))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .kilo))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.auto, provider: .grok))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.web, provider: .grok))
@@ -344,9 +326,70 @@ final class CLIEntryTests: XCTestCase {
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(.api, provider: .kilo))
         XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
             .auto,
+            provider: .opencodego,
+            settings: ProviderSettingsSnapshot.make(
+                opencodego: .init(
+                    cookieSource: .manual,
+                    manualCookieHeader: "auth=manual",
+                    workspaceID: nil))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .web,
+            provider: .opencodego,
+            settings: ProviderSettingsSnapshot.make(
+                opencodego: .init(
+                    cookieSource: .manual,
+                    manualCookieHeader: "auth=manual",
+                    workspaceID: nil))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .opencodego,
+            settings: ProviderSettingsSnapshot.make(
+                opencodego: .init(
+                    cookieSource: .auto,
+                    manualCookieHeader: nil,
+                    workspaceID: nil))))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .web,
+            provider: .opencodego,
+            settings: ProviderSettingsSnapshot.make(
+                opencodego: .init(
+                    cookieSource: .auto,
+                    manualCookieHeader: nil,
+                    workspaceID: nil))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .commandcode,
+            settings: ProviderSettingsSnapshot.make(
+                commandcode: .init(
+                    cookieSource: .manual,
+                    manualCookieHeader: "session=manual"))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .web,
+            provider: .commandcode,
+            settings: ProviderSettingsSnapshot.make(
+                commandcode: .init(
+                    cookieSource: .manual,
+                    manualCookieHeader: "session=manual"))))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .commandcode,
+            settings: ProviderSettingsSnapshot.make(
+                commandcode: .init(
+                    cookieSource: .auto,
+                    manualCookieHeader: nil))))
+        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
+            provider: .opencode,
+            settings: ProviderSettingsSnapshot.make(
+                opencode: .init(
+                    cookieSource: .manual,
+                    manualCookieHeader: "auth=manual",
+                    workspaceID: nil))))
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
+            .auto,
             provider: .ollama,
             environment: ["OLLAMA_API_KEY": "ollama-test"]))
-        XCTAssertTrue(TokenBarCLI.sourceModeRequiresWebSupport(
+        XCTAssertFalse(TokenBarCLI.sourceModeRequiresWebSupport(
             .auto,
             provider: .codex,
             environment: ["OLLAMA_API_KEY": "ollama-test"]))

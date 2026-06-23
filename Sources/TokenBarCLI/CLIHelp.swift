@@ -26,7 +26,7 @@ extension TokenBarCLI {
             Auto falls back to Claude CLI only when cookies are missing.
           - Kilo: app.kilo.ai API.
             Auto falls back to Kilo CLI when API credentials are missing or unauthorized.
-          Token accounts are loaded from ~/.tokenbar/config.json.
+          Token accounts are loaded from the resolved TokenBar config file.
           Use --account or --account-index to select a specific token account.
           Use --all-accounts to fetch every token account, or every visible Codex account for Codex.
           Account selection requires a single provider.
@@ -129,7 +129,7 @@ extension TokenBarCLI {
           Validate or print the TokenBar config file (default: validate).
           providers lists persistent provider enablement.
           enable/disable updates the same provider toggle used by Settings.
-          set-api-key stores a provider API key in ~/.tokenbar/config.json and enables that provider by default.
+          set-api-key stores a provider API key in the resolved config file and enables that provider by default.
 
         Examples:
           tokenbar config validate --format json --pretty
@@ -177,6 +177,7 @@ extension TokenBarCLI {
           tokenbar diagnose --provider <name|all> --format json
                            [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                            [-v|--verbose]
+                           [--redact] [--output <path>]
                            [--pretty]
 
         Description:
@@ -188,6 +189,7 @@ extension TokenBarCLI {
           tokenbar diagnose --provider minimax --format json --pretty
           tokenbar diagnose --provider claude --format json --pretty
           tokenbar diagnose --provider all --format json
+          tokenbar diagnose --provider minimax --format json --redact --output diagnostic.json
         """
     }
 
@@ -222,7 +224,7 @@ extension TokenBarCLI {
           tokenbar config disable --provider <name>
           tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
           tokenbar cache clear <--cookies|--cost|--all> [--provider <name>]
-          tokenbar diagnose --provider <name|all> --format json [--pretty]
+          tokenbar diagnose --provider <name|all> --format json [--redact] [--output <path>] [--pretty]
 
         Global flags:
           -h, --help      Show help
@@ -245,6 +247,7 @@ extension TokenBarCLI {
           tokenbar cache clear --cookies
           tokenbar diagnose --provider minimax --format json --pretty
           tokenbar diagnose --provider all --format json
+          tokenbar diagnose --provider minimax --format json --redact --output diagnostic.json
         """
     }
 }
