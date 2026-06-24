@@ -343,6 +343,14 @@ install_binary() {
   verify_binary_arches "$dest" "${ARCH_LIST[@]}"
 }
 
+strip_release_binary() {
+  local binary="$1"
+  if [[ "$LOWER_CONF" != "release" || ! -f "$binary" ]]; then
+    return 0
+  fi
+  xcrun strip -x "$binary"
+}
+
 ensure_widget_extension_project() {
   local spec="$ROOT/WidgetExtension/project.yml"
   local project_dir="$ROOT/WidgetExtension/TokenBarWidgetExtension.xcodeproj"
@@ -435,6 +443,10 @@ install_binary "TokenBarCLI" "$APP/Contents/Helpers/TokenBarCLI"
 # Watchdog helper: ensures `claude` probes die when TokenBar crashes/gets killed.
 install_binary "TokenBarClaudeWatchdog" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
 install_widget_extension
+strip_release_binary "$APP/Contents/MacOS/TokenBar"
+strip_release_binary "$APP/Contents/Helpers/TokenBarCLI"
+strip_release_binary "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
+strip_release_binary "$APP/Contents/PlugIns/TokenBarWidget.appex/Contents/MacOS/TokenBarWidget"
 
 swiftpm_bin_path "${ARCH_LIST[0]}" PREFERRED_BUILD_DIR
 

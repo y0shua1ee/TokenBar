@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.37.3 — 2026-06-24
+
+### Added
+- Providers: add Poe point-balance/history tracking, Chutes subscription/quota/pay-as-you-go tracking, and Zed plan/edit-prediction quota tracking with matching settings, icons, documentation, and menu rendering.
+- Widgets: add single-window and combined burn-down widgets for Codex and Claude session/weekly limits.
+- Codex: add combined session/weekly menu bar metrics, manual reset-credit display, explicit profile-home accounts, safer OAuth file permissions, and diagnostics that distinguish exact dashboard windows.
+- AWS Bedrock, Mistral, Cursor, and Storage: add Bedrock CloudWatch usage summaries, Mistral Vibe plan usage, Cursor personal on-demand spend, and a compact storage breakdown menu.
+- CLI and diagnostics: add redacted provider diagnostic exports, `/health` build-version reporting for the local server, static Linux CLI release support, and a read-only `codexbar` agent skill for bounded provider JSON.
+
+### Changed
+- Menus: align provider cards, cost/utilization/storage rows, native bottom actions, menu refresh behavior, and chart hover details while preserving TokenBar's merged-menu behavior.
+- Settings: add enabled-first alphabetical provider sorting, faster tab switching, improved provider sidebar rendering, and editable cost-history windows.
+- Packaging and CI: strip local symbols from release executables, split CI lint gates for Linux and macOS, add workflow summaries, and validate generated docs/locales/LLM indexes during checks.
+- Performance: reduce repeated logging, cost-history, Pi scanner, and menu-observation work; trim rebuildable caches and WebViews under memory pressure.
+- Localization: validate placeholder integrity across all app languages, improve Japanese/German/Catalan/Vietnamese copy, and keep app/website locale catalogs aligned.
+
+### Fixed
+- Security: harden provider endpoint overrides before credentials are attached, keep Codex OAuth `auth.json` private, and document recovery for persistent browser Keychain prompts.
+- Provider refreshes: keep Claude, Codex, Gemini, Kiro, Antigravity, OpenRouter, DeepSeek, Command Code, MiniMax, MiMo, z.ai, Cursor, and OpenCode Go refresh paths bounded and responsive when helper processes, optional work, or browser-cookie imports stall.
+- Menu bar: keep open menus updating in place, preserve visible quota values during manual refresh, avoid stale or highlighted informational rows, and prevent merged-menu drift or flicker while switching providers.
+- Memory pressure: isolate callback reads from main-actor state and avoid the remaining utility-queue crash.
+- Testing and fork identity: repair TokenBar-specific config, keychain migration, executable-name, provider-ID, and CI lint assumptions after the upstream CodexBar sync.
+
 ## 0.35.1 — 2026-06-16
 
 ### Added
