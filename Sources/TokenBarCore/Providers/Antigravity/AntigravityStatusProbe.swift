@@ -299,11 +299,25 @@ public struct AntigravityStatusSnapshot: Sendable {
 
     private static func displayTitle(forQuotaGroup group: AntigravityQuotaSummaryGroup) -> String {
         let title = group.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowercasedTitle = title.lowercased()
+        if lowercasedTitle.contains("gemini") {
+            return "Gemini"
+        }
+        if lowercasedTitle.contains("claude") || lowercasedTitle.contains("gpt") {
+            return "Claude/GPT"
+        }
         return title.isEmpty ? "Quota" : title
     }
 
     private static func displayTitle(forQuotaBucket bucket: AntigravityQuotaSummaryBucket) -> String {
-        bucket.displayName
+        switch self.quotaBucketKind(for: bucket) {
+        case .session:
+            "5-hour"
+        case .weekly:
+            "weekly"
+        case .other:
+            bucket.displayName
+        }
     }
 
     private static func windowMinutes(forQuotaBucket bucket: AntigravityQuotaSummaryBucket) -> Int? {
@@ -1445,8 +1459,11 @@ public struct AntigravityStatusProbe: Sendable {
             self.deadline = deadline
         }
 
-        func timeoutForNextAttempt() -> TimeInterval? {
-            AntigravityStatusProbe.timeoutForNextAttempt(timeout: self.timeout, deadline: self.deadline)
+        func timeoutForNextAttempt(remainingAttemptCount: Int = 1) -> TimeInterval? {
+            AntigravityStatusProbe.timeoutForEndpointAttempt(
+                timeout: self.timeout,
+                deadline: self.deadline,
+                remainingAttemptCount: remainingAttemptCount)
         }
     }
 
@@ -1574,7 +1591,7 @@ public struct AntigravityStatusProbe: Sendable {
         var lastError: Error?
 
         for endpoint in context.endpoints {
-            guard let timeout = context.timeoutForNextAttempt() else {
+            guard let timeout = context.timeoutForNextAttempt(remainingAttemptCount: context.endpoints.count) else {
                 lastError = lastError ?? AntigravityStatusProbeError.timedOut
                 break
             }
@@ -1603,7 +1620,7 @@ public struct AntigravityStatusProbe: Sendable {
         var lastError: Error?
 
         for endpoint in context.endpoints {
-            guard let timeout = context.timeoutForNextAttempt() else {
+            guard let timeout = context.timeoutForNextAttempt(remainingAttemptCount: context.endpoints.count) else {
                 lastError = lastError ?? AntigravityStatusProbeError.timedOut
                 break
             }

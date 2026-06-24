@@ -141,7 +141,7 @@ struct ZedStatusProbeTests {
     @Test
     func `loads client settings from json`() throws {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("CodexBar-ZedSettings-\(UUID().uuidString)")
+            .appendingPathComponent("TokenBar-ZedSettings-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 

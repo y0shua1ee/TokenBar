@@ -1064,6 +1064,7 @@
 "Stored in ~/.tokenbar/config.json. You can also provide CROF_API_KEY." = "เก็บไว้ใน ~/.tokenbar/config.json. คุณยังสามารถให้ CROF_API_KEY";
 "Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "เก็บไว้ใน ~/.tokenbar/config.json. คุณยังสามารถระบุ KILO_API_KEY หรือ ~/.local/share/kilo/auth.json (kilo.access) ได้อีกด้วย";
 "T3 Chat cookie" = "คุกกี้ T3 Chat";
+"Team mode" = "โหมดทีม";
 "That account is no longer available in TokenBar. Refresh the account list and try again." = "บัญชีนั้นไม่พร้อมใช้งานใน TokenBar อีกต่อไป รีเฟรชรายการบัญชีแล้วลองอีกครั้ง";
 "The browser login did not complete in time. Try Antigravity login again." = "การเข้าสู่ระบบเบราว์เซอร์ไม่เสร็จสมบูรณ์ทันเวลา ลองเข้าสู่ระบบ Antigravity อีกครั้ง";
 "Timed out waiting for Cursor login. %@" = "หมดเวลารอการเข้าสู่ระบบ Cursor %@";

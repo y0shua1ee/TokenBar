@@ -51,6 +51,7 @@ extension StatusItemController {
                     with: cachedItems)
                 // Cached items may have changed refresh state while detached from a menu.
                 self.updatePersistentRefreshItemsEnabled()
+                self.refreshMenuCardHeights(in: menu)
                 self.cacheMergedSwitcherContent(
                     displacedItems,
                     in: menu,
@@ -84,6 +85,7 @@ extension StatusItemController {
                     menu,
                     fromIndex: contentStartIndex,
                     with: newItems)
+                self.refreshMenuCardHeights(in: menu)
                 self.cacheMergedSwitcherContent(
                     displacedItems,
                     in: menu,
@@ -121,6 +123,7 @@ extension StatusItemController {
             scratch.autoenablesItems = false
             self.addSwitcherScopedMenuContent(into: scratch, captureMenu: menu, context: context)
             self.reconcileMenuContent(menu, fromIndex: contentStartIndex, shapes: shapes, with: scratch)
+            self.refreshMenuCardHeights(in: menu)
             self.cacheVisibleMergedSwitcherContent(
                 in: menu,
                 selection: context.switcherSelection,
