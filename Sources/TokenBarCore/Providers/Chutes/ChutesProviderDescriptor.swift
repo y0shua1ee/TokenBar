@@ -29,7 +29,7 @@ public enum ChutesProviderDescriptor {
                 color: ProviderColor(red: 49 / 255, green: 132 / 255, blue: 255 / 255)),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: false,
-                noDataMessage: { "Chutes cost history is not available from CodexBar." }),
+                noDataMessage: { "Chutes cost history is not available from TokenBar." }),
             fetchPlan: ProviderFetchPlan(
                 sourceModes: [.auto, .api],
                 pipeline: ProviderFetchPipeline(resolveStrategies: { _ in [ChutesAPIFetchStrategy()] })),

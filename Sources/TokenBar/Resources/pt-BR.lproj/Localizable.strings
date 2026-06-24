@@ -1058,6 +1058,7 @@
 "Stored in ~/.tokenbar/config.json. You can also provide CROF_API_KEY." = "Armazenado em ~/.tokenbar/config.json. Você também pode fornecer CROF_API_KEY.";
 "Stored in ~/.tokenbar/config.json. You can also provide KILO_API_KEY or ~/.local/share/kilo/auth.json (kilo.access)." = "Armazenado em ~/.tokenbar/config.json. Você também pode fornecer KILO_API_KEY ou ~/.local/share/kilo/auth.json (kilo.access).";
 "T3 Chat cookie" = "Cookie do T3 Chat";
+"Team mode" = "Modo de equipe";
 "That account is no longer available in TokenBar. Refresh the account list and try again." = "Essa conta não está mais disponível no TokenBar. Atualize a lista de contas e tente novamente.";
 "The browser login did not complete in time. Try Antigravity login again." = "O login no navegador não foi concluído a tempo. Tente o login do Antigravity novamente.";
 "Timed out waiting for Cursor login. %@" = "Tempo esgotado aguardando o login do Cursor. %@";

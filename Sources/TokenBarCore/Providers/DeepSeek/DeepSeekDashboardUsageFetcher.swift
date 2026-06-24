@@ -63,7 +63,10 @@ public struct DeepSeekDashboardUsageSnapshot: Sendable, Equatable {
                 cacheCreationTokens: nil,
                 totalTokens: self.totalTokens > 0 ? self.totalTokens : nil,
                 totalCostUSD: self.monthlyCost > 0 ? self.monthlyCost : nil))
-        let snapshot = CostUsageFetcher.tokenSnapshot(from: report, now: now)
+        let snapshot = CostUsageFetcher.tokenSnapshot(
+            from: report,
+            now: now,
+            useCurrentLocalDayForSession: false)
         return CostUsageTokenSnapshot(
             sessionTokens: snapshot.sessionTokens,
             sessionCostUSD: snapshot.sessionCostUSD,

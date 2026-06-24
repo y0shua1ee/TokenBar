@@ -1,8 +1,6 @@
 # Changelog
 
-## 0.37.4 — Unreleased
-
-## 0.37.3 — 2026-06-24
+## 0.37.4 — 2026-06-25
 
 ### Added
 - Providers: add Poe point-balance/history tracking, Chutes subscription/quota/pay-as-you-go tracking, and Zed plan/edit-prediction quota tracking with matching settings, icons, documentation, and menu rendering.
@@ -10,6 +8,7 @@
 - Codex: add combined session/weekly menu bar metrics, manual reset-credit display, explicit profile-home accounts, safer OAuth file permissions, and diagnostics that distinguish exact dashboard windows.
 - AWS Bedrock, Mistral, Cursor, and Storage: add Bedrock CloudWatch usage summaries, Mistral Vibe plan usage, Cursor personal on-demand spend, and a compact storage breakdown menu.
 - CLI and diagnostics: add redacted provider diagnostic exports, `/health` build-version reporting for the local server, static Linux CLI release support, and a read-only `codexbar` agent skill for bounded provider JSON.
+- z.ai: support saved token-account team usage with account-scoped organization and project metadata. Thanks @zqbake!
 
 ### Changed
 - Menus: align provider cards, cost/utilization/storage rows, native bottom actions, menu refresh behavior, and chart hover details while preserving TokenBar's merged-menu behavior.
@@ -24,6 +23,7 @@
 - Menu bar: keep open menus updating in place, preserve visible quota values during manual refresh, avoid stale or highlighted informational rows, and prevent merged-menu drift or flicker while switching providers.
 - Memory pressure: isolate callback reads from main-actor state and avoid the remaining utility-queue crash.
 - Testing and fork identity: repair TokenBar-specific config, keychain migration, executable-name, provider-ID, and CI lint assumptions after the upstream CodexBar sync.
+- Mistral: restore Vibe monthly-plan usage by forwarding only the required console session cookies. Thanks @lfmundim!
 
 ## 0.35.1 — 2026-06-16
 
