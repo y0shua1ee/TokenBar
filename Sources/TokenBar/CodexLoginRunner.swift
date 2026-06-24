@@ -56,14 +56,16 @@ struct CodexLoginRunner {
             }
 
             var processGroup: pid_t?
+            stdoutCapture.start()
+            stderrCapture.start()
             do {
                 try process.run()
                 processGroup = self.attachProcessGroup(process)
             } catch {
+                stdoutCapture.stop()
+                stderrCapture.stop()
                 return Result(outcome: .launchFailed(error.localizedDescription), output: "")
             }
-            stdoutCapture.start()
-            stderrCapture.start()
 
             let timedOut = await self.wait(timeout: timeout, termination: termination)
             if timedOut {
