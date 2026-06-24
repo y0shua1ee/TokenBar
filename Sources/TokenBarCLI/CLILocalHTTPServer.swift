@@ -210,9 +210,16 @@ final class CLILocalHTTPServer: @unchecked Sendable {
     }
 
     func stop() {
+        let fdToClose: Int32?
         self.stateLock.lock()
         self.stopRequested = true
+        fdToClose = self.listeningFD
+        self.listeningFD = nil
         self.stateLock.unlock()
+
+        if let fdToClose {
+            closeSocket(fdToClose)
+        }
     }
 
     func run(onListening: @Sendable () -> Void = {}) async throws {
@@ -277,6 +284,7 @@ final class CLILocalHTTPServer: @unchecked Sendable {
             }
         }
         onListening()
+        await Task.yield()
 
         while !self.isStopRequested {
             guard waitForReadable(serverFD, timeoutMilliseconds: 250) else {

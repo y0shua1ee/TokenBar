@@ -2,6 +2,10 @@ import Foundation
 import Testing
 @testable import TokenBarCore
 
+private func allowClaudePromptPolicyPreflight(_: String, _: String?) -> KeychainAccessPreflight.Outcome {
+    .allowed
+}
+
 @Suite(.serialized)
 struct ClaudeOAuthCredentialsStorePromptPolicyTests {
     private func makeCredentialsData(accessToken: String, expiresAt: Date, refreshToken: String? = nil) -> Data {
@@ -109,16 +113,22 @@ struct ClaudeOAuthCredentialsStorePromptPolicyTests {
                         accessToken: "keychain-token",
                         expiresAt: Date(timeIntervalSinceNow: 3600))
 
-                    let creds = try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(.onlyOnUserAction) {
-                        try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                            try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                data: keychainData,
-                                fingerprint: fingerprint)
-                            {
-                                try ClaudeOAuthCredentialsStore.load(environment: [:], allowKeychainPrompt: false)
+                    let creds = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudePromptPolicyPreflight,
+                        operation: {
+                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(.onlyOnUserAction) {
+                                try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                    try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
+                                        data: keychainData,
+                                        fingerprint: fingerprint)
+                                    {
+                                        try ClaudeOAuthCredentialsStore.load(
+                                            environment: [:],
+                                            allowKeychainPrompt: false)
+                                    }
+                                }
                             }
-                        }
-                    }
+                        })
 
                     #expect(creds.accessToken == "keychain-token")
                 }

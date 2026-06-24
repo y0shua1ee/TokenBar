@@ -10,7 +10,7 @@ IFS= read -r -d '' FAKE_SWIFT_SCRIPT <<'EOF' || true
 set -euo pipefail
 
 printf '%s\n' "$*" >> "${FAKE_SWIFT_LOG}"
-if [[ "$*" == "test list" ]]; then
+if [[ "$*" == "test list" || "$*" == "test --fake-test-flag list" ]]; then
   if [[ "${FAKE_SWIFT_LIST_FAIL:-0}" == "1" ]]; then
     printf 'test-list stdout marker\n'
     printf 'test-list stderr marker\n' >&2
@@ -116,5 +116,18 @@ if FAKE_SWIFT_LIST_FAIL=1 \
 fi
 grep -Fq "test-list stdout marker" "${TEMP_DIR}/list-failure.log"
 grep -Fq "test-list stderr marker" "${TEMP_DIR}/list-failure.log"
+
+: > "${FAKE_SWIFT_LOG}"
+python3 "${ROOT_DIR}/Scripts/ci_swift_test_by_suite.py" \
+  --group-size 1 \
+  --timeout 10 \
+  --list-only \
+  --swift-test-arg=--fake-test-flag \
+  --swift-command /bin/bash \
+  --swift-command-arg=-c \
+  --swift-command-arg="${FAKE_SWIFT_SCRIPT}" \
+  --swift-command-arg=fake-swift \
+  >"${TEMP_DIR}/test-arg.log"
+grep -Fq "test --fake-test-flag list" "${FAKE_SWIFT_LOG}"
 
 echo "Swift test sharding tests passed."

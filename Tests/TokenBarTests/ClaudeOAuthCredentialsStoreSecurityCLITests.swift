@@ -2,6 +2,11 @@ import Foundation
 import Testing
 @testable import TokenBarCore
 
+private func allowClaudeSecurityCLIPreflight(_: String, _: String?) -> KeychainAccessPreflight.Outcome {
+    .allowed
+}
+
+// swiftlint:disable type_body_length
 @Suite(.serialized)
 struct ClaudeOAuthCredentialsStoreSecurityCLITests {
     private func makeCredentialsData(accessToken: String, expiresAt: Date, refreshToken: String? = nil) -> Data {
@@ -50,21 +55,25 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                         expiresAt: Date(timeIntervalSinceNow: 3600),
                         refreshToken: "security-refresh")
 
-                    let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                        .securityCLIExperimental,
+                    let creds = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeSecurityCLIPreflight,
                         operation: {
-                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
-                                .onlyOnUserAction,
+                            try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                .securityCLIExperimental,
                                 operation: {
-                                    try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                                        try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
-                                            .data(securityData))
-                                        {
-                                            try ClaudeOAuthCredentialsStore.load(
-                                                environment: [:],
-                                                allowKeychainPrompt: false)
-                                        }
-                                    }
+                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
+                                        .onlyOnUserAction,
+                                        operation: {
+                                            try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                                try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
+                                                    .data(securityData))
+                                                {
+                                                    try ClaudeOAuthCredentialsStore.load(
+                                                        environment: [:],
+                                                        allowKeychainPrompt: false)
+                                                }
+                                            }
+                                        })
                                 })
                         })
 
@@ -108,23 +117,27 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                     }
                     let securityReadCalls = ReadCounter()
 
-                    let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                        .securityCLIExperimental,
+                    let creds = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeSecurityCLIPreflight,
                         operation: {
-                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
-                                .onlyOnUserAction,
+                            try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                .securityCLIExperimental,
                                 operation: {
-                                    try ProviderInteractionContext.$current.withValue(.background) {
-                                        try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
-                                            .dynamic { _ in
-                                                securityReadCalls.count += 1
-                                                return securityData
-                                            }) {
-                                                try ClaudeOAuthCredentialsStore.load(
-                                                    environment: [:],
-                                                    allowKeychainPrompt: false)
+                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
+                                        .onlyOnUserAction,
+                                        operation: {
+                                            try ProviderInteractionContext.$current.withValue(.background) {
+                                                try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
+                                                    .dynamic { _ in
+                                                        securityReadCalls.count += 1
+                                                        return securityData
+                                                    }) {
+                                                        try ClaudeOAuthCredentialsStore.load(
+                                                            environment: [:],
+                                                            allowKeychainPrompt: false)
+                                                    }
                                             }
-                                    }
+                                        })
                                 })
                         })
 
@@ -163,26 +176,31 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                         expiresAt: Date(timeIntervalSinceNow: 3600),
                         refreshToken: "fallback-refresh")
 
-                    let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                        .securityCLIExperimental,
+                    let creds = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeSecurityCLIPreflight,
                         operation: {
-                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
-                                .onlyOnUserAction,
+                            try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                .securityCLIExperimental,
                                 operation: {
-                                    try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                                        try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                            data: fallbackData,
-                                            fingerprint: nil)
-                                        {
-                                            try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
-                                                .timedOut)
-                                            {
-                                                try ClaudeOAuthCredentialsStore.load(
-                                                    environment: [:],
-                                                    allowKeychainPrompt: false)
+                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
+                                        .onlyOnUserAction,
+                                        operation: {
+                                            try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                                try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
+                                                    data: fallbackData,
+                                                    fingerprint: nil)
+                                                {
+                                                    try ClaudeOAuthCredentialsStore
+                                                        .withSecurityCLIReadOverrideForTesting(
+                                                            .timedOut)
+                                                        {
+                                                            try ClaudeOAuthCredentialsStore.load(
+                                                                environment: [:],
+                                                                allowKeychainPrompt: false)
+                                                        }
+                                                }
                                             }
-                                        }
-                                    }
+                                        })
                                 })
                         })
 
@@ -219,26 +237,31 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                         accessToken: "fallback-token",
                         expiresAt: Date(timeIntervalSinceNow: 3600))
 
-                    let creds = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                        .securityCLIExperimental,
+                    let creds = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeSecurityCLIPreflight,
                         operation: {
-                            try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
-                                .onlyOnUserAction,
+                            try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                .securityCLIExperimental,
                                 operation: {
-                                    try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                                        try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                            data: fallbackData,
-                                            fingerprint: nil)
-                                        {
-                                            try ClaudeOAuthCredentialsStore.withSecurityCLIReadOverrideForTesting(
-                                                .data(Data("not-json".utf8)))
-                                            {
-                                                try ClaudeOAuthCredentialsStore.load(
-                                                    environment: [:],
-                                                    allowKeychainPrompt: false)
+                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(
+                                        .onlyOnUserAction,
+                                        operation: {
+                                            try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                                try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
+                                                    data: fallbackData,
+                                                    fingerprint: nil)
+                                                {
+                                                    try ClaudeOAuthCredentialsStore
+                                                        .withSecurityCLIReadOverrideForTesting(
+                                                            .data(Data("not-json".utf8)))
+                                                        {
+                                                            try ClaudeOAuthCredentialsStore.load(
+                                                                environment: [:],
+                                                                allowKeychainPrompt: false)
+                                                        }
+                                                }
                                             }
-                                        }
-                                    }
+                                        })
                                 })
                         })
 
@@ -709,33 +732,40 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
                                 createdAt: 455,
                                 persistentRefHash: "sentinel")
 
-                            let record = try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
-                                .securityCLIExperimental,
+                            let record = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                                allowClaudeSecurityCLIPreflight,
                                 operation: {
-                                    try ClaudeOAuthKeychainPromptPreference.withTaskOverrideForTesting(.always) {
-                                        try ProviderInteractionContext.$current.withValue(.background) {
-                                            try ClaudeOAuthCredentialsStore
-                                                .withClaudeKeychainFingerprintStoreOverrideForTesting(
-                                                    fingerprintStore)
-                                                {
-                                                    try ClaudeOAuthCredentialsStore
-                                                        .withClaudeKeychainOverridesForTesting(
-                                                            data: nil,
-                                                            fingerprint: sentinelFingerprint)
-                                                        {
-                                                            try ClaudeOAuthCredentialsStore
-                                                                .withSecurityCLIReadOverrideForTesting(
-                                                                    .data(securityData))
-                                                                {
-                                                                    try ClaudeOAuthCredentialsStore.loadRecord(
-                                                                        environment: [:],
-                                                                        allowKeychainPrompt: false,
-                                                                        respectKeychainPromptCooldown: true)
-                                                                }
-                                                        }
+                                    try ClaudeOAuthKeychainReadStrategyPreference.withTaskOverrideForTesting(
+                                        .securityCLIExperimental,
+                                        operation: {
+                                            try ClaudeOAuthKeychainPromptPreference
+                                                .withTaskOverrideForTesting(.always) {
+                                                    try ProviderInteractionContext.$current.withValue(.background) {
+                                                        try ClaudeOAuthCredentialsStore
+                                                            .withClaudeKeychainFingerprintStoreOverrideForTesting(
+                                                                fingerprintStore)
+                                                            {
+                                                                try ClaudeOAuthCredentialsStore
+                                                                    .withClaudeKeychainOverridesForTesting(
+                                                                        data: nil,
+                                                                        fingerprint: sentinelFingerprint)
+                                                                    {
+                                                                        try ClaudeOAuthCredentialsStore
+                                                                            .withSecurityCLIReadOverrideForTesting(
+                                                                                .data(securityData))
+                                                                            {
+                                                                                try ClaudeOAuthCredentialsStore
+                                                                                    .loadRecord(
+                                                                                        environment: [:],
+                                                                                        allowKeychainPrompt: false,
+                                                                                        // swiftlint:disable:next line_length
+                                                                                        respectKeychainPromptCooldown: true)
+                                                                            }
+                                                                    }
+                                                            }
+                                                    }
                                                 }
-                                        }
-                                    }
+                                        })
                                 })
 
                             #expect(record.credentials.accessToken == "security-repair-no-fingerprint-probe")
@@ -880,3 +910,5 @@ struct ClaudeOAuthCredentialsStoreSecurityCLITests {
         }
     }
 }
+
+// swiftlint:enable type_body_length

@@ -7,295 +7,315 @@ import Testing
 struct CLIOpenAIDashboardCacheTests {
     @Test
     func `cached dashboard restores when authority allows cached reuse`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "owner@example.com")
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "stale-route@example.com",
-            snapshot: dashboard))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "owner@example.com")
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "stale-route@example.com",
+                snapshot: dashboard))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: nil),
-            sourceLabel: "openai-web",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: nil),
+                sourceLabel: "openai-web",
+                context: context)
 
-        #expect(restored == dashboard)
+            #expect(restored == dashboard)
+        }
     }
 
     @Test
     func `cached dashboard returns nil on display only and clears cache`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(email: "shared@example.com")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(email: "shared@example.com")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "shared@example.com",
-            snapshot: self.makeDashboard(email: "shared@example.com")))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "shared@example.com",
+                snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "shared@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "shared@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard returns nil on fail closed and clears cache`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-other"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "owner@example.com",
-            snapshot: self.makeDashboard(email: "owner@example.com")))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-other"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "owner@example.com",
+                snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard wrong email returns nil and clears cache`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "other@example.com",
-            snapshot: self.makeDashboard(email: "other@example.com")))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "other@example.com",
+                snapshot: self.makeDashboard(email: "other@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard provider account without scoped auth email fails closed`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(email: nil, accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(email: nil, accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "shared@example.com",
-            snapshot: self.makeDashboard(email: "shared@example.com")))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "shared@example.com",
+                snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "shared@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "shared@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard unresolved trusted continuity with competing owner returns nil`() {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let emptyHome = self.makeEmptyHome()
-        defer { try? FileManager.default.removeItem(at: emptyHome) }
-        let context = self.makeContext(
-            authHome: emptyHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "shared@example.com",
-            snapshot: self.makeDashboard(email: "shared@example.com")))
+            let emptyHome = self.makeEmptyHome()
+            defer { try? FileManager.default.removeItem(at: emptyHome) }
+            let context = self.makeContext(
+                authHome: emptyHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "shared@example.com",
+                snapshot: self.makeDashboard(email: "shared@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "shared@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "shared@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard trusts codex cli usage continuity`() {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let emptyHome = self.makeEmptyHome()
-        defer { try? FileManager.default.removeItem(at: emptyHome) }
-        let context = self.makeContext(
-            authHome: emptyHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "owner@example.com")
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "stale-route@example.com",
-            snapshot: dashboard))
+            let emptyHome = self.makeEmptyHome()
+            defer { try? FileManager.default.removeItem(at: emptyHome) }
+            let context = self.makeContext(
+                authHome: emptyHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "owner@example.com")
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "stale-route@example.com",
+                snapshot: dashboard))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == dashboard)
+            #expect(restored == dashboard)
+        }
     }
 
     @Test
     func `cached dashboard trusts oauth usage continuity`() {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let emptyHome = self.makeEmptyHome()
-        defer { try? FileManager.default.removeItem(at: emptyHome) }
-        let context = self.makeContext(
-            authHome: emptyHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "owner@example.com")
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "stale-route@example.com",
-            snapshot: dashboard))
+            let emptyHome = self.makeEmptyHome()
+            defer { try? FileManager.default.removeItem(at: emptyHome) }
+            let context = self.makeContext(
+                authHome: emptyHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "owner@example.com")
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "stale-route@example.com",
+                snapshot: dashboard))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "oauth",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "oauth",
+                context: context)
 
-        #expect(restored == dashboard)
+            #expect(restored == dashboard)
+        }
     }
 
     @Test
     func `cached dashboard does not trust open A I web usage continuity`() {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let emptyHome = self.makeEmptyHome()
-        defer { try? FileManager.default.removeItem(at: emptyHome) }
-        let context = self.makeContext(
-            authHome: emptyHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "owner@example.com",
-            snapshot: self.makeDashboard(email: "owner@example.com")))
+            let emptyHome = self.makeEmptyHome()
+            defer { try? FileManager.default.removeItem(at: emptyHome) }
+            let context = self.makeContext(
+                authHome: emptyHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "owner@example.com",
+                snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "openai-web",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "openai-web",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `cached dashboard ignores cached account email equality when authority rejects`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-other"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "owner@example.com",
-            snapshot: self.makeDashboard(email: "owner@example.com")))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-other"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "owner@example.com",
+                snapshot: self.makeDashboard(email: "owner@example.com")))
 
-        let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
-            usage: self.makeUsage(email: "owner@example.com"),
-            sourceLabel: "codex-cli",
-            context: context)
+            let restored = TokenBarCLI.loadOpenAIDashboardIfAvailable(
+                usage: self.makeUsage(email: "owner@example.com"),
+                sourceLabel: "codex-cli",
+                context: context)
 
-        #expect(restored == nil)
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(restored == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     private func makeContext(

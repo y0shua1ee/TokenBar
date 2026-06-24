@@ -14,7 +14,9 @@ import WebKit
 struct OpenAIDashboardWebViewCacheTests {
     private func shouldSkipOnCI() -> Bool {
         let env = ProcessInfo.processInfo.environment
-        return env["GITHUB_ACTIONS"] == "true" || env["CI"] == "true"
+        return env["GITHUB_ACTIONS"] == "true"
+            || env["CI"] == "true"
+            || env["CODEX_SANDBOX"] == "seatbelt"
     }
 
     // MARK: - Data Store Identity Tests

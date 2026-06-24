@@ -2,6 +2,10 @@ import Foundation
 import Testing
 @testable import TokenBarCore
 
+private func allowClaudeCredentialsStorePreflight(_: String, _: String?) -> KeychainAccessPreflight.Outcome {
+    .allowed
+}
+
 @Suite(.serialized)
 struct ClaudeOAuthCredentialsStoreTests {
     private func makeCredentialsData(accessToken: String, expiresAt: Date, refreshToken: String? = nil) -> Data {
@@ -497,20 +501,26 @@ struct ClaudeOAuthCredentialsStoreTests {
                         createdAt: 1,
                         persistentRefHash: "ref1")
 
-                    let first = try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                        try ClaudeOAuthCredentialsStore.withClaudeKeychainFingerprintStoreOverrideForTesting(
-                            fingerprintStore)
-                        {
-                            try ClaudeOAuthKeychainAccessGate.withShouldAllowPromptOverrideForTesting(true) {
-                                try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                    data: cachedData,
-                                    fingerprint: fingerprint1)
+                    let first = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeCredentialsStorePreflight,
+                        operation: {
+                            try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                try ClaudeOAuthCredentialsStore.withClaudeKeychainFingerprintStoreOverrideForTesting(
+                                    fingerprintStore)
                                 {
-                                    try ClaudeOAuthCredentialsStore.load(environment: [:], allowKeychainPrompt: false)
+                                    try ClaudeOAuthKeychainAccessGate.withShouldAllowPromptOverrideForTesting(true) {
+                                        try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
+                                            data: cachedData,
+                                            fingerprint: fingerprint1)
+                                        {
+                                            try ClaudeOAuthCredentialsStore.load(
+                                                environment: [:],
+                                                allowKeychainPrompt: false)
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
+                        })
                     #expect(first.accessToken == "cached-token")
                     #expect(fingerprintStore.fingerprint == fingerprint1)
 
@@ -525,20 +535,26 @@ struct ClaudeOAuthCredentialsStoreTests {
                         accessToken: "keychain-token",
                         expiresAt: Date(timeIntervalSinceNow: 3600))
 
-                    let second = try ProviderInteractionContext.$current.withValue(.userInitiated) {
-                        try ClaudeOAuthCredentialsStore.withClaudeKeychainFingerprintStoreOverrideForTesting(
-                            fingerprintStore)
-                        {
-                            try ClaudeOAuthKeychainAccessGate.withShouldAllowPromptOverrideForTesting(true) {
-                                try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
-                                    data: keychainData,
-                                    fingerprint: fingerprint2)
+                    let second = try KeychainAccessPreflight.withCheckGenericPasswordOverrideForTesting(
+                        allowClaudeCredentialsStorePreflight,
+                        operation: {
+                            try ProviderInteractionContext.$current.withValue(.userInitiated) {
+                                try ClaudeOAuthCredentialsStore.withClaudeKeychainFingerprintStoreOverrideForTesting(
+                                    fingerprintStore)
                                 {
-                                    try ClaudeOAuthCredentialsStore.load(environment: [:], allowKeychainPrompt: false)
+                                    try ClaudeOAuthKeychainAccessGate.withShouldAllowPromptOverrideForTesting(true) {
+                                        try ClaudeOAuthCredentialsStore.withClaudeKeychainOverridesForTesting(
+                                            data: keychainData,
+                                            fingerprint: fingerprint2)
+                                        {
+                                            try ClaudeOAuthCredentialsStore.load(
+                                                environment: [:],
+                                                allowKeychainPrompt: false)
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
+                        })
                     #expect(second.accessToken == "keychain-token")
                     #expect(fingerprintStore.fingerprint == fingerprint2)
 

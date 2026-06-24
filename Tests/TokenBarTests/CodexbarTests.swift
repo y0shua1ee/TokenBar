@@ -771,11 +771,7 @@ struct TokenBarTests {
 
     @Test
     func `account info parses snake case auth token`() throws {
-        let tmp = try FileManager.default.url(
-            for: .itemReplacementDirectory,
-            in: .userDomainMask,
-            appropriateFor: URL(fileURLWithPath: NSTemporaryDirectory()),
-            create: true)
+        let tmp = try Self.makeIsolatedCodexHome()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
         let token = Self.fakeJWT(email: "user@example.com", plan: "pro")
@@ -792,11 +788,7 @@ struct TokenBarTests {
 
     @Test
     func `account info parses legacy camel case auth token`() throws {
-        let tmp = try FileManager.default.url(
-            for: .itemReplacementDirectory,
-            in: .userDomainMask,
-            appropriateFor: URL(fileURLWithPath: NSTemporaryDirectory()),
-            create: true)
+        let tmp = try Self.makeIsolatedCodexHome()
         defer { try? FileManager.default.removeItem(at: tmp) }
 
         let token = Self.fakeJWT(email: "user@example.com", plan: "pro")
@@ -809,6 +801,13 @@ struct TokenBarTests {
         let account = fetcher.loadAccountInfo()
         #expect(account.email == "user@example.com")
         #expect(account.plan == "pro")
+    }
+
+    private static func makeIsolatedCodexHome() throws -> URL {
+        let directory = URL(fileURLWithPath: "/tmp", isDirectory: true)
+            .appendingPathComponent("TokenBarTests-CodexHome-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
     }
 
     private static func fakeJWT(email: String, plan: String) -> String {

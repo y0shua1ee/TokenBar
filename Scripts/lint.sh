@@ -29,6 +29,10 @@ check_release_dsym_paths() {
   "${ROOT_DIR}/Scripts/test_release_dsym_paths.sh"
 }
 
+check_release_adhoc_script() {
+  bash -n "${ROOT_DIR}/Scripts/release-adhoc.sh"
+}
+
 check_sparkle_signing_paths() {
   "${ROOT_DIR}/Scripts/test_sparkle_signing_paths.sh"
 }
@@ -64,6 +68,7 @@ run_portable_checks() {
   check_package_product_paths
   check_package_strip
   check_release_dsym_paths
+  check_release_adhoc_script
   check_sparkle_signing_paths
   check_swift_test_sharding
   check_ci_path_gate

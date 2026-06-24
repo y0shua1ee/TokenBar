@@ -34,6 +34,16 @@ source "$ROOT/version.env"
 source "$ROOT/Scripts/package_product_paths.sh"
 source "$ROOT/Scripts/sparkle_signing_paths.sh"
 
+swiftpm_build() {
+  local command=(swift build)
+  local swiftpm_arg
+  while IFS= read -r swiftpm_arg; do
+    command+=("$swiftpm_arg")
+  done < <(codexbar_swiftpm_disable_sandbox_args)
+  command+=("$@")
+  "${command[@]}"
+}
+
 # Clean build only when explicitly requested (slower).
 if [[ "${TOKENBAR_FORCE_CLEAN:-${CODEXBAR_FORCE_CLEAN:-0}}" == "1" ]]; then
   if [[ -d "$ROOT/.build" ]]; then
@@ -125,7 +135,7 @@ PY
 
 KEYBOARD_SHORTCUTS_UTIL="$ROOT/.build/checkouts/KeyboardShortcuts/Sources/KeyboardShortcuts/Utilities.swift"
 if [[ ! -f "$KEYBOARD_SHORTCUTS_UTIL" ]]; then
-  swift build -c "$CONF" --arch "${ARCH_LIST[0]}"
+  swiftpm_build -c "$CONF" --arch "${ARCH_LIST[0]}"
 fi
 patch_keyboard_shortcuts
 
@@ -164,7 +174,7 @@ stage_build_products() {
 
   stage_dir="$PRODUCT_STAGE_ROOT/$arch"
   mkdir -p "$stage_dir"
-  for name in TokenBar TokenBarCLI TokenBarClaudeWatchdog; do
+  for name in TokenBar TokenBarCLI TokenBarClaudeWatchdog TokenBarWidget; do
     if ! product=$(codexbar_require_product_file "$bin_dir" "$name" "$arch"); then
       return 1
     fi
@@ -180,7 +190,7 @@ stage_build_products() {
 }
 
 for ARCH in "${ARCH_LIST[@]}"; do
-  swift build -c "$CONF" --arch "$ARCH"
+  swiftpm_build -c "$CONF" --arch "$ARCH"
   stage_build_products "$ARCH"
 done
 
@@ -362,7 +372,7 @@ ensure_widget_extension_project() {
   fi
 }
 
-build_widget_extension() {
+build_widget_extension_with_xcode() {
   local xcode_conf="Release"
   if [[ "$LOWER_CONF" == "debug" ]]; then
     xcode_conf="Debug"
@@ -375,16 +385,40 @@ build_widget_extension() {
   local build_log="$derived_dir/xcodebuild.log"
   local timeout_seconds="${TOKENBAR_WIDGET_EXTENSION_TIMEOUT_SECONDS:-${CODEXBAR_WIDGET_EXTENSION_TIMEOUT_SECONDS:-900}}"
   local archs="${ARCH_LIST[*]}"
+  local xcode_home="$derived_dir/home"
+  local xcode_cache="$derived_dir/cache"
+  local xcode_tmp="$derived_dir/tmp"
+  local xcode_package_cache="$xcode_cache/package"
+  local xcode_source_packages="$derived_dir/SourcePackages"
+  local clang_module_cache="$xcode_cache/clang-module-cache"
+  local swift_module_cache="$xcode_cache/swift-module-cache"
 
-  mkdir -p "$derived_dir"
+  mkdir -p \
+    "$derived_dir" \
+    "$xcode_home" \
+    "$xcode_cache" \
+    "$xcode_tmp" \
+    "$xcode_package_cache" \
+    "$xcode_source_packages" \
+    "$clang_module_cache" \
+    "$swift_module_cache"
   echo "Building TokenBarWidget Xcode extension (${xcode_conf}, ${archs})." >&2
-  xcodebuild \
+  env \
+    HOME="$xcode_home" \
+    XDG_CACHE_HOME="$xcode_cache" \
+    TMPDIR="$xcode_tmp/" \
+    CLANG_MODULE_CACHE_PATH="$clang_module_cache" \
+    SWIFT_MODULE_CACHE_PATH="$swift_module_cache" \
+    xcodebuild \
     -project "$project_dir" \
     -scheme TokenBarWidgetExtension \
     -configuration "$xcode_conf" \
     -destination "generic/platform=macOS" \
     -derivedDataPath "$derived_dir" \
+    -packageCachePath "$xcode_package_cache" \
+    -clonedSourcePackagesDirPath "$xcode_source_packages" \
     -skipPackageUpdates \
+    -disablePackageRepositoryCache \
     -disableAutomaticPackageResolution \
     -skipMacroValidation \
     -skipPackagePluginValidation \
@@ -392,6 +426,8 @@ build_widget_extension() {
     TOKENBAR_TEAM_ID="$APP_TEAM_ID" \
     MARKETING_VERSION="$MARKETING_VERSION" \
     CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+    CLANG_MODULE_CACHE_PATH="$clang_module_cache" \
+    SWIFT_MODULE_CACHE_PATH="$swift_module_cache" \
     CODE_SIGNING_ALLOWED=NO \
     ARCHS="$archs" \
     ONLY_ACTIVE_ARCH=NO \
@@ -425,6 +461,72 @@ build_widget_extension() {
     exit 1
   fi
   echo "$appex"
+}
+
+build_widget_extension_from_swiftpm() {
+  local appex="$ROOT/.build/package/TokenBarWidget.appex"
+  rm -rf "$appex"
+  mkdir -p "$appex/Contents/MacOS" "$appex/Contents/Resources"
+  install_binary "TokenBarWidget" "$appex/Contents/MacOS/TokenBarWidget"
+  cat >"$appex/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>TokenBar</string>
+    <key>CFBundleExecutable</key>
+    <string>TokenBarWidget</string>
+    <key>CFBundleIdentifier</key>
+    <string>${WIDGET_BUNDLE_ID}</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>TokenBarWidget</string>
+    <key>CFBundlePackageType</key>
+    <string>XPC!</string>
+    <key>CFBundleShortVersionString</key>
+    <string>${MARKETING_VERSION}</string>
+    <key>CFBundleVersion</key>
+    <string>${BUILD_NUMBER}</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>TokenBarTeamID</key>
+    <string>${APP_TEAM_ID}</string>
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.widgetkit-extension</string>
+    </dict>
+</dict>
+</plist>
+PLIST
+  echo -n "XPC!" >"$appex/Contents/PkgInfo"
+  plutil -lint "$appex/Contents/Info.plist" >/dev/null
+  echo "$appex"
+}
+
+build_widget_extension() {
+  local builder="${TOKENBAR_WIDGET_EXTENSION_BUILDER:-}"
+  if [[ -z "$builder" && "${CODEX_SANDBOX:-}" == "seatbelt" ]]; then
+    builder=swiftpm
+  fi
+  builder="${builder:-xcode}"
+
+  case "$builder" in
+    swiftpm)
+      build_widget_extension_from_swiftpm
+      ;;
+    xcode)
+      build_widget_extension_with_xcode
+      ;;
+    *)
+      echo "ERROR: Unsupported TOKENBAR_WIDGET_EXTENSION_BUILDER=${builder}" >&2
+      exit 1
+      ;;
+  esac
 }
 
 install_widget_extension() {

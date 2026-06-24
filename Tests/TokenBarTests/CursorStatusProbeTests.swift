@@ -803,96 +803,81 @@ struct CursorStatusProbeTests {
     // MARK: - Session Store Serialization
 
     @Test
-    func `session store saves and loads cookies`() async {
-        let store = CursorSessionStore.shared
+    func `session store saves and loads cookies`() async throws {
+        try await withIsolatedCursorSessionStore { store in
+            let cookieProps: [HTTPCookiePropertyKey: Any] = [
+                .name: "testCookie",
+                .value: "testValue",
+                .domain: "cursor.com",
+                .path: "/",
+                .expires: Date(timeIntervalSince1970: 1_800_000_000),
+                .secure: true,
+            ]
 
-        // Clear any existing cookies
-        await store.clearCookies()
+            guard let cookie = HTTPCookie(properties: cookieProps) else {
+                Issue.record("Failed to create test cookie")
+                return
+            }
 
-        // Create test cookies with Date properties
-        let cookieProps: [HTTPCookiePropertyKey: Any] = [
-            .name: "testCookie",
-            .value: "testValue",
-            .domain: "cursor.com",
-            .path: "/",
-            .expires: Date(timeIntervalSince1970: 1_800_000_000),
-            .secure: true,
-        ]
+            await store.setCookies([cookie])
 
-        guard let cookie = HTTPCookie(properties: cookieProps) else {
-            Issue.record("Failed to create test cookie")
-            return
+            let storedCookies = await store.getCookies()
+            #expect(storedCookies.count == 1)
+            #expect(storedCookies.first?.name == "testCookie")
+            #expect(storedCookies.first?.value == "testValue")
         }
-
-        // Save cookies
-        await store.setCookies([cookie])
-
-        // Verify cookies are stored
-        let storedCookies = await store.getCookies()
-        #expect(storedCookies.count == 1)
-        #expect(storedCookies.first?.name == "testCookie")
-        #expect(storedCookies.first?.value == "testValue")
-
-        // Clean up
-        await store.clearCookies()
     }
 
     @Test
-    func `session store reloads from disk when needed`() async {
-        let store = CursorSessionStore.shared
-        await store.resetForTesting()
+    func `session store reloads from disk when needed`() async throws {
+        try await withIsolatedCursorSessionStore { store in
+            let cookieProps: [HTTPCookiePropertyKey: Any] = [
+                .name: "diskCookie",
+                .value: "diskValue",
+                .domain: "cursor.com",
+                .path: "/",
+                .expires: Date(timeIntervalSince1970: 1_800_000_000),
+                .secure: true,
+            ]
 
-        let cookieProps: [HTTPCookiePropertyKey: Any] = [
-            .name: "diskCookie",
-            .value: "diskValue",
-            .domain: "cursor.com",
-            .path: "/",
-            .expires: Date(timeIntervalSince1970: 1_800_000_000),
-            .secure: true,
-        ]
+            guard let cookie = HTTPCookie(properties: cookieProps) else {
+                Issue.record("Failed to create test cookie")
+                return
+            }
 
-        guard let cookie = HTTPCookie(properties: cookieProps) else {
-            Issue.record("Failed to create test cookie")
-            return
+            await store.setCookies([cookie])
+            await store.resetForTesting(clearDisk: false)
+
+            let reloaded = await store.getCookies()
+            #expect(reloaded.count == 1)
+            #expect(reloaded.first?.name == "diskCookie")
+            #expect(reloaded.first?.value == "diskValue")
         }
-
-        await store.setCookies([cookie])
-        await store.resetForTesting(clearDisk: false)
-
-        let reloaded = await store.getCookies()
-        #expect(reloaded.count == 1)
-        #expect(reloaded.first?.name == "diskCookie")
-        #expect(reloaded.first?.value == "diskValue")
-
-        await store.clearCookies()
     }
 
     @Test
-    func `session store has valid session loads from disk`() async {
-        let store = CursorSessionStore.shared
-        await store.resetForTesting()
+    func `session store has valid session loads from disk`() async throws {
+        try await withIsolatedCursorSessionStore { store in
+            let cookieProps: [HTTPCookiePropertyKey: Any] = [
+                .name: "validCookie",
+                .value: "validValue",
+                .domain: "cursor.com",
+                .path: "/",
+                .expires: Date(timeIntervalSince1970: 1_800_000_000),
+                .secure: true,
+            ]
 
-        let cookieProps: [HTTPCookiePropertyKey: Any] = [
-            .name: "validCookie",
-            .value: "validValue",
-            .domain: "cursor.com",
-            .path: "/",
-            .expires: Date(timeIntervalSince1970: 1_800_000_000),
-            .secure: true,
-        ]
+            guard let cookie = HTTPCookie(properties: cookieProps) else {
+                Issue.record("Failed to create test cookie")
+                return
+            }
 
-        guard let cookie = HTTPCookie(properties: cookieProps) else {
-            Issue.record("Failed to create test cookie")
-            return
+            await store.setCookies([cookie])
+            await store.resetForTesting(clearDisk: false)
+
+            let hasSession = await store.hasValidSession()
+            #expect(hasSession)
         }
-
-        await store.setCookies([cookie])
-        await store.resetForTesting(clearDisk: false)
-
-        let hasSession = await store.hasValidSession()
-        #expect(hasSession)
-
-        await store.clearCookies()
     }
 
     private static func makeSessionInfo(sourceLabel: String) -> CursorCookieImporter.SessionInfo {
@@ -906,6 +891,46 @@ struct CursorStatusProbeTests {
 
         let cookie = HTTPCookie(properties: cookieProps)!
         return CursorCookieImporter.SessionInfo(cookies: [cookie], sourceLabel: sourceLabel)
+    }
+}
+
+private func withIsolatedCursorSessionStore<T>(
+    _ operation: (CursorSessionStore) async throws -> T) async throws -> T
+{
+    let store = CursorSessionStore.shared
+    let directory = FileManager.default.temporaryDirectory
+        .appendingPathComponent("cursor-session-store-\(UUID().uuidString)", isDirectory: true)
+    let fileURL = directory.appendingPathComponent("cursor-session.json")
+    await store.setFileURLOverrideForTesting(fileURL)
+    await store.resetForTesting()
+
+    func cleanup() async {
+        await store.resetForTesting()
+        await store.setFileURLOverrideForTesting(nil)
+        try? FileManager.default.removeItem(at: directory)
+    }
+
+    do {
+        let result = try await operation(store)
+        await cleanup()
+        return result
+    } catch {
+        await cleanup()
+        throw error
+    }
+}
+
+private func withIsolatedCursorCookieCache<T>(_ operation: () async throws -> T) async throws -> T {
+    try await KeychainCacheStore.withServiceOverrideForTesting("cursor-cookie-\(UUID().uuidString)") {
+        let legacyBase = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cursor-cookie-\(UUID().uuidString)", isDirectory: true)
+        CookieHeaderCache.setLegacyBaseURLOverrideForTesting(legacyBase)
+        defer { CookieHeaderCache.setLegacyBaseURLOverrideForTesting(nil) }
+        KeychainCacheStore.setTestStoreForTesting(true)
+        defer { KeychainCacheStore.setTestStoreForTesting(false) }
+        CookieHeaderCache.resetDisplayCacheForTesting()
+        defer { CookieHeaderCache.resetDisplayCacheForTesting() }
+        return try await operation()
     }
 }
 
@@ -1165,73 +1190,71 @@ extension CursorStatusProbeTests {
 
     @Test
     func `fetch prefers stored session cookies before Cursor app auth fallback`() async throws {
-        let store = CursorSessionStore.shared
-        await store.clearCookies()
-        defer {
-            Task { await store.clearCookies() }
-        }
+        try await withIsolatedCursorCookieCache {
+            try await withIsolatedCursorSessionStore { store in
+                guard let cookie = HTTPCookie(properties: [
+                    .name: "WorkosCursorSessionToken",
+                    .value: "stored-session",
+                    .domain: "cursor.com",
+                    .path: "/",
+                    .secure: true,
+                ]) else {
+                    Issue.record("Failed to create stored Cursor session cookie")
+                    return
+                }
+                await store.setCookies([cookie])
 
-        guard let cookie = HTTPCookie(properties: [
-            .name: "WorkosCursorSessionToken",
-            .value: "stored-session",
-            .domain: "cursor.com",
-            .path: "/",
-            .secure: true,
-        ]) else {
-            Issue.record("Failed to create stored Cursor session cookie")
-            return
-        }
-        await store.setCookies([cookie])
+                let testSession = CursorStatusProbeTestSession { request in
+                    let requestURL = try #require(request.url)
+                    #expect(request.value(forHTTPHeaderField: "Authorization") == nil)
+                    #expect(request.value(forHTTPHeaderField: "Cookie") == "WorkosCursorSessionToken=stored-session")
 
-        let testSession = CursorStatusProbeTestSession { request in
-            let requestURL = try #require(request.url)
-            #expect(request.value(forHTTPHeaderField: "Authorization") == nil)
-            #expect(request.value(forHTTPHeaderField: "Cookie") == "WorkosCursorSessionToken=stored-session")
-
-            switch requestURL.path {
-            case "/api/usage-summary":
-                return makeCursorStatusProbeResponse(
-                    url: requestURL,
-                    body: """
-                    {
-                      "membershipType": "pro",
-                      "individualUsage": {
-                        "plan": {
-                          "used": 1500,
-                          "limit": 5000,
-                          "totalPercentUsed": 30.0
-                        }
-                      }
+                    switch requestURL.path {
+                    case "/api/usage-summary":
+                        return makeCursorStatusProbeResponse(
+                            url: requestURL,
+                            body: """
+                            {
+                              "membershipType": "pro",
+                              "individualUsage": {
+                                "plan": {
+                                  "used": 1500,
+                                  "limit": 5000,
+                                  "totalPercentUsed": 30.0
+                                }
+                              }
+                            }
+                            """,
+                            statusCode: 200)
+                    case "/api/auth/me":
+                        return makeCursorStatusProbeResponse(
+                            url: requestURL,
+                            body: #"{"email":"stored@example.com","name":"Stored User"}"#,
+                            statusCode: 200)
+                    default:
+                        Issue.record("Stored-session precedence test unexpectedly requested \(requestURL.path)")
+                        throw URLError(.badURL)
                     }
-                    """,
-                    statusCode: 200)
-            case "/api/auth/me":
-                return makeCursorStatusProbeResponse(
-                    url: requestURL,
-                    body: #"{"email":"stored@example.com","name":"Stored User"}"#,
-                    statusCode: 200)
-            default:
-                Issue.record("Stored-session precedence test unexpectedly requested \(requestURL.path)")
-                throw URLError(.badURL)
+                }
+
+                let baseURL = try #require(URL(string: "https://cursor.test"))
+                let accessToken = try makeCursorAppAuthToken()
+                let snapshot = try await CursorStatusProbe(
+                    baseURL: baseURL,
+                    browserDetection: BrowserDetection(cacheTTL: 0),
+                    browserCookieImportOrder: [],
+                    urlSession: testSession.urlSession,
+                    appAuthStore: CursorAppAuthSessionProviderStub(session: CursorAppAuthSession(
+                        accessToken: accessToken))).fetch()
+
+                #expect(snapshot.planPercentUsed == 30.0)
+                #expect(snapshot.accountEmail == "stored@example.com")
+                #expect(testSession.requestPaths.sorted() == [
+                    "/api/auth/me",
+                    "/api/usage-summary",
+                ])
             }
         }
-
-        let baseURL = try #require(URL(string: "https://cursor.test"))
-        let accessToken = try makeCursorAppAuthToken()
-        let snapshot = try await CursorStatusProbe(
-            baseURL: baseURL,
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            browserCookieImportOrder: [],
-            urlSession: testSession.urlSession,
-            appAuthStore: CursorAppAuthSessionProviderStub(session: CursorAppAuthSession(
-                accessToken: accessToken))).fetch()
-
-        #expect(snapshot.planPercentUsed == 30.0)
-        #expect(snapshot.accountEmail == "stored@example.com")
-        #expect(testSession.requestPaths.sorted() == [
-            "/api/auth/me",
-            "/api/usage-summary",
-        ])
     }
 
     @Test
@@ -1361,44 +1384,48 @@ extension CursorStatusProbeTests {
 
     @Test
     func `cached session transient failure does not switch to Cursor app auth`() async throws {
-        CookieHeaderCache.store(provider: .cursor, cookieHeader: "cached=bad", sourceLabel: "test")
-        defer {
-            CookieHeaderCache.clear(provider: .cursor)
-        }
+        try await withIsolatedCursorCookieCache {
+            try await withIsolatedCursorSessionStore { _ in
+                CookieHeaderCache.store(provider: .cursor, cookieHeader: "cached=bad", sourceLabel: "test")
+                defer {
+                    CookieHeaderCache.clear(provider: .cursor)
+                }
 
-        let accessToken = try makeCursorAppAuthToken()
-        let appCookie = "WorkosCursorSessionToken=user_test%3A%3A\(accessToken)"
-        let testSession = CursorStatusProbeTestSession { request in
-            let requestURL = try #require(request.url)
-            let cookie = request.value(forHTTPHeaderField: "Cookie")
-            switch requestURL.path {
-            case "/api/usage-summary" where cookie == "cached=bad":
-                return makeCursorStatusProbeResponse(
-                    url: requestURL,
-                    body: #"{"error":"temporary"}"#,
-                    statusCode: 500)
-            case _ where cookie == appCookie:
-                Issue.record("Transient cached-session failure unexpectedly switched to Cursor.app auth")
-                throw URLError(.userAuthenticationRequired)
-            default:
-                throw URLError(.badURL)
+                let accessToken = try makeCursorAppAuthToken()
+                let appCookie = "WorkosCursorSessionToken=user_test%3A%3A\(accessToken)"
+                let testSession = CursorStatusProbeTestSession { request in
+                    let requestURL = try #require(request.url)
+                    let cookie = request.value(forHTTPHeaderField: "Cookie")
+                    switch requestURL.path {
+                    case "/api/usage-summary" where cookie == "cached=bad":
+                        return makeCursorStatusProbeResponse(
+                            url: requestURL,
+                            body: #"{"error":"temporary"}"#,
+                            statusCode: 500)
+                    case _ where cookie == appCookie:
+                        Issue.record("Transient cached-session failure unexpectedly switched to Cursor.app auth")
+                        throw URLError(.userAuthenticationRequired)
+                    default:
+                        throw URLError(.badURL)
+                    }
+                }
+
+                let baseURL = try #require(URL(string: "https://cursor-web.test"))
+                let probe = CursorStatusProbe(
+                    baseURL: baseURL,
+                    browserDetection: BrowserDetection(cacheTTL: 0),
+                    browserCookieImportOrder: [],
+                    urlSession: testSession.urlSession,
+                    appAuthStore: CursorAppAuthSessionProviderStub(session: CursorAppAuthSession(
+                        accessToken: accessToken)))
+
+                await #expect(throws: CursorStatusProbeError.self) {
+                    _ = try await probe.fetch()
+                }
+                #expect(testSession.requestCookies.contains("cached=bad"))
+                #expect(!testSession.requestCookies.contains(appCookie))
             }
         }
-
-        let baseURL = try #require(URL(string: "https://cursor-web.test"))
-        let probe = CursorStatusProbe(
-            baseURL: baseURL,
-            browserDetection: BrowserDetection(cacheTTL: 0),
-            browserCookieImportOrder: [],
-            urlSession: testSession.urlSession,
-            appAuthStore: CursorAppAuthSessionProviderStub(session: CursorAppAuthSession(
-                accessToken: accessToken)))
-
-        await #expect(throws: CursorStatusProbeError.self) {
-            _ = try await probe.fetch()
-        }
-        #expect(testSession.requestCookies.contains("cached=bad"))
-        #expect(!testSession.requestCookies.contains(appCookie))
     }
 }
 

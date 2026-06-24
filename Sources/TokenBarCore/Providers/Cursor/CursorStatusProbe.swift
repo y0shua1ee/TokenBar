@@ -725,7 +725,11 @@ public actor CursorSessionStore {
 
     private var sessionCookies: [HTTPCookie] = []
     private var hasLoadedFromDisk = false
-    private let fileURL: URL
+    private let defaultFileURL: URL
+    #if DEBUG
+    private static let fileURLOverrideLock = NSLock()
+    private nonisolated(unsafe) static var fileURLOverrideForTesting: URL?
+    #endif
 
     private init() {
         let fm = FileManager.default
@@ -733,7 +737,7 @@ public actor CursorSessionStore {
             ?? fm.temporaryDirectory
         let dir = appSupport.appendingPathComponent("TokenBar", isDirectory: true)
         try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
-        self.fileURL = dir.appendingPathComponent("cursor-session.json")
+        self.defaultFileURL = dir.appendingPathComponent("cursor-session.json")
 
         // Load saved cookies on init
         Task { await self.loadFromDiskIfNeeded() }
@@ -753,7 +757,7 @@ public actor CursorSessionStore {
     public func clearCookies() {
         self.hasLoadedFromDisk = true
         self.sessionCookies = []
-        try? FileManager.default.removeItem(at: self.fileURL)
+        try? FileManager.default.removeItem(at: self.effectiveFileURL)
     }
 
     public func hasValidSession() -> Bool {
@@ -766,10 +770,27 @@ public actor CursorSessionStore {
         self.hasLoadedFromDisk = false
         self.sessionCookies = []
         if clearDisk {
-            try? FileManager.default.removeItem(at: self.fileURL)
+            try? FileManager.default.removeItem(at: self.effectiveFileURL)
         }
     }
+
+    func setFileURLOverrideForTesting(_ url: URL?) {
+        Self.fileURLOverrideLock.withLock {
+            Self.fileURLOverrideForTesting = url
+        }
+        self.hasLoadedFromDisk = false
+        self.sessionCookies = []
+    }
     #endif
+
+    private var effectiveFileURL: URL {
+        #if DEBUG
+        if let override = Self.fileURLOverrideLock.withLock({ Self.fileURLOverrideForTesting }) {
+            return override
+        }
+        #endif
+        return self.defaultFileURL
+    }
 
     private func loadFromDiskIfNeeded() {
         guard !self.hasLoadedFromDisk else { return }
@@ -807,11 +828,15 @@ public actor CursorSessionStore {
         else {
             return
         }
-        try? data.write(to: self.fileURL)
+        let fileURL = self.effectiveFileURL
+        try? FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true)
+        try? data.write(to: fileURL)
     }
 
     private func loadFromDisk() {
-        guard let data = try? Data(contentsOf: self.fileURL),
+        guard let data = try? Data(contentsOf: self.effectiveFileURL),
               let cookieArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
         else { return }
 

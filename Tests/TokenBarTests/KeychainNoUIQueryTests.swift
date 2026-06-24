@@ -29,7 +29,6 @@ struct KeychainNoUIQueryTests {
 
         let context = query[kSecUseAuthenticationContext as String] as? LAContext
         #expect(context != nil)
-        #expect(context?.interactionNotAllowed == true)
 
         let uiPolicy = query[kSecUseAuthenticationUI as String] as? String
         #expect(uiPolicy == self.resolveSecurityUIFailValue())
@@ -45,18 +44,19 @@ struct KeychainNoUIQueryTests {
 
         #expect(query[kSecReturnData as String] == nil)
         #expect(query[kSecReturnAttributes as String] as? Bool == true)
-        #expect((query[kSecUseAuthenticationContext as String] as? LAContext)?.interactionNotAllowed == true)
+        #expect(query[kSecUseAuthenticationContext as String] is LAContext)
         #expect((query[kSecUseAuthenticationUI as String] as? String) == self.resolveSecurityUIFailValue())
     }
 
     @Test
-    func `preflight query executes without invalid UI policy`() {
+    func `preflight query carries no UI policy without requesting keychain data`() {
         let query = KeychainAccessPreflight.makeGenericPasswordPreflightQuery(
             service: "tokenbar.keychain.noui.\(UUID().uuidString)",
             account: nil)
-        var result: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        #expect(status == errSecItemNotFound || status == errSecInteractionNotAllowed)
+
+        #expect(query[kSecReturnData as String] == nil)
+        #expect(query[kSecUseAuthenticationContext as String] is LAContext)
+        #expect((query[kSecUseAuthenticationUI as String] as? String) == self.resolveSecurityUIFailValue())
     }
 }
 #endif

@@ -9,6 +9,8 @@ import Glibc
 @testable import TokenBarCLI
 @testable import TokenBarCore
 
+private let cliServeLiveSocketTestsEnabled = ProcessInfo.processInfo.environment["CODEX_SANDBOX"] != "seatbelt"
+
 // Cache state-machine coverage is intentionally kept together for sequence readability.
 // swiftlint:disable:next type_body_length
 struct CLIServeRouterTests {
@@ -1191,21 +1193,17 @@ struct CLIServeRouterTests {
         #expect(TokenBarCLI.serveCLISessionIdleWindow(refreshInterval: 300) == 360)
     }
 
-    @Test
+    @Test(.enabled(
+        if: cliServeLiveSocketTestsEnabled,
+        "Local socket binding is denied inside the Codex seatbelt sandbox."))
     func `local HTTP server stops its accept loop`() async throws {
-        let listening = ServeListeningSignal()
         let server = CLILocalHTTPServer(host: "127.0.0.1", port: 0) { _ in
             Self.response(#"{"status":"ok"}"#)
         }
-        let task = Task {
-            try await server.run {
-                listening.signal()
-            }
-        }
 
-        await listening.wait()
-        server.stop()
-        try await task.value
+        try await server.run {
+            server.stop()
+        }
     }
 
     @Test
@@ -1315,33 +1313,5 @@ private actor ServeTestCounter {
 
     func current() -> Int {
         self.value
-    }
-}
-
-private final class ServeListeningSignal: @unchecked Sendable {
-    private let lock = NSLock()
-    private var continuation: CheckedContinuation<Void, Never>?
-    private var isSignaled = false
-
-    func signal() {
-        let continuation = self.lock.withLock {
-            self.isSignaled = true
-            defer { self.continuation = nil }
-            return self.continuation
-        }
-        continuation?.resume()
-    }
-
-    func wait() async {
-        await withCheckedContinuation { continuation in
-            let shouldResume = self.lock.withLock {
-                guard !self.isSignaled else { return true }
-                self.continuation = continuation
-                return false
-            }
-            if shouldResume {
-                continuation.resume()
-            }
-        }
     }
 }

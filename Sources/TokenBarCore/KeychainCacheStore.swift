@@ -333,6 +333,14 @@ public enum KeychainCacheStore {
         }
     }
 
+    #if DEBUG
+    static var isTestStoreEnabledForTesting: Bool {
+        self.testStoreLock.lock()
+        defer { self.testStoreLock.unlock() }
+        return self.testStore != nil
+    }
+    #endif
+
     private static var serviceName: String {
         serviceOverride ?? self.globalServiceOverride ?? self.cacheService
     }

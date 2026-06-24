@@ -7,308 +7,326 @@ import Testing
 struct CodexWebDashboardStrategyAuthorityTests {
     @Test
     func `web dashboard attach converts snapshot with authority attachment email`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let result = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-            dashboard: self.makeDashboard(email: "owner@example.com"),
-            context: context,
-            routingTargetEmail: "route@example.com")
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let result = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                dashboard: self.makeDashboard(email: "owner@example.com"),
+                context: context,
+                routingTargetEmail: "route@example.com")
 
-        #expect(result.usage.accountEmail(for: .codex) == "owner@example.com")
-        #expect(result.credits?.remaining == 42)
+            #expect(result.usage.accountEmail(for: .codex) == "owner@example.com")
+            #expect(result.credits?.remaining == 42)
+        }
     }
 
     @Test
     func `web dashboard attach preserves credits when usage limits are absent`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboardWithoutUsageLimits(email: "owner@example.com")
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboardWithoutUsageLimits(email: "owner@example.com")
 
-        let result = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-            dashboard: dashboard,
-            context: context,
-            routingTargetEmail: "route@example.com")
+            let result = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                dashboard: dashboard,
+                context: context,
+                routingTargetEmail: "route@example.com")
 
-        #expect(result.usage.primary == nil)
-        #expect(result.usage.secondary == nil)
-        #expect(result.usage.updatedAt == dashboard.updatedAt)
-        #expect(result.usage.identity?.accountEmail == "owner@example.com")
-        #expect(result.usage.identity?.loginMethod == "pro")
-        #expect(result.credits?.remaining == 42)
-        #expect(result.dashboard == dashboard)
+            #expect(result.usage.primary == nil)
+            #expect(result.usage.secondary == nil)
+            #expect(result.usage.updatedAt == dashboard.updatedAt)
+            #expect(result.usage.identity?.accountEmail == "owner@example.com")
+            #expect(result.usage.identity?.loginMethod == "pro")
+            #expect(result.credits?.remaining == 42)
+            #expect(result.dashboard == dashboard)
+        }
     }
 
     @Test
     func `web dashboard display only throws typed policy error`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(email: "shared@example.com")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(email: "shared@example.com")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "shared@example.com")
-        let expectedDecision = CodexDashboardAuthority.evaluate(
-            CodexCLIDashboardAuthorityContext.makeLiveWebInput(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "route@example.com"))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "shared@example.com")
+            let expectedDecision = CodexDashboardAuthority.evaluate(
+                CodexCLIDashboardAuthorityContext.makeLiveWebInput(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "route@example.com"))
 
-        do {
-            _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "route@example.com")
-            Issue.record("Expected CodexDashboardPolicyError.displayOnly")
-        } catch let error as CodexDashboardPolicyError {
-            #expect(error == .displayOnly(expectedDecision))
-        } catch {
-            Issue.record("Expected CodexDashboardPolicyError.displayOnly, got \(error)")
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "route@example.com")
+                Issue.record("Expected CodexDashboardPolicyError.displayOnly")
+            } catch let error as CodexDashboardPolicyError {
+                #expect(error == .displayOnly(expectedDecision))
+            } catch {
+                Issue.record("Expected CodexDashboardPolicyError.displayOnly, got \(error)")
+            }
         }
     }
 
     @Test
     func `web dashboard fail closed throws policy rejection`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-other"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "owner@example.com")
-        let expectedDecision = CodexDashboardAuthority.evaluate(
-            CodexCLIDashboardAuthorityContext.makeLiveWebInput(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "route@example.com"))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-other"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "owner@example.com")
+            let expectedDecision = CodexDashboardAuthority.evaluate(
+                CodexCLIDashboardAuthorityContext.makeLiveWebInput(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "route@example.com"))
 
-        do {
-            _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "route@example.com")
-            Issue.record("Expected OpenAIWebCodexError.policyRejected")
-        } catch let error as OpenAIWebCodexError {
-            #expect(error == .policyRejected(expectedDecision))
-        } catch {
-            Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "route@example.com")
+                Issue.record("Expected OpenAIWebCodexError.policyRejected")
+            } catch let error as OpenAIWebCodexError {
+                #expect(error == .policyRejected(expectedDecision))
+            } catch {
+                Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
+            }
         }
     }
 
     @Test
     func `web dashboard wrong email throws policy rejection`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "other@example.com")
-        let expectedDecision = CodexDashboardAuthority.evaluate(
-            CodexCLIDashboardAuthorityContext.makeLiveWebInput(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "owner@example.com"))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "other@example.com")
+            let expectedDecision = CodexDashboardAuthority.evaluate(
+                CodexCLIDashboardAuthorityContext.makeLiveWebInput(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "owner@example.com"))
 
-        do {
-            _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "owner@example.com")
-            Issue.record("Expected OpenAIWebCodexError.policyRejected")
-        } catch let error as OpenAIWebCodexError {
-            #expect(error == .policyRejected(expectedDecision))
-            if case let .policyRejected(decision) = error {
-                #expect(decision.reason == .wrongEmail(expected: "owner@example.com", actual: "other@example.com"))
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "owner@example.com")
+                Issue.record("Expected OpenAIWebCodexError.policyRejected")
+            } catch let error as OpenAIWebCodexError {
+                #expect(error == .policyRejected(expectedDecision))
+                if case let .policyRejected(decision) = error {
+                    #expect(decision.reason == .wrongEmail(expected: "owner@example.com", actual: "other@example.com"))
+                }
+            } catch {
+                Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
             }
-        } catch {
-            Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
         }
     }
 
     @Test
     func `web dashboard provider account without scoped auth email fail closes on dashboard collision`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(email: nil, accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(email: nil, accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
-        let dashboard = self.makeDashboard(email: "shared@example.com")
-        let expectedDecision = CodexDashboardAuthority.evaluate(
-            CodexCLIDashboardAuthorityContext.makeLiveWebInput(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "shared@example.com"))
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
+            let dashboard = self.makeDashboard(email: "shared@example.com")
+            let expectedDecision = CodexDashboardAuthority.evaluate(
+                CodexCLIDashboardAuthorityContext.makeLiveWebInput(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "shared@example.com"))
 
-        do {
-            _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-                dashboard: dashboard,
-                context: context,
-                routingTargetEmail: "shared@example.com")
-            Issue.record("Expected OpenAIWebCodexError.policyRejected")
-        } catch let error as OpenAIWebCodexError {
-            #expect(error == .policyRejected(expectedDecision))
-            if case let .policyRejected(decision) = error {
-                #expect(decision.reason == .providerAccountMissingScopedEmail)
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: dashboard,
+                    context: context,
+                    routingTargetEmail: "shared@example.com")
+                Issue.record("Expected OpenAIWebCodexError.policyRejected")
+            } catch let error as OpenAIWebCodexError {
+                #expect(error == .policyRejected(expectedDecision))
+                if case let .policyRejected(decision) = error {
+                    #expect(decision.reason == .providerAccountMissingScopedEmail)
+                }
+            } catch {
+                Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
             }
-        } catch {
-            Issue.record("Expected OpenAIWebCodexError.policyRejected, got \(error)")
         }
     }
 
     @Test
     func `web dashboard attach saves cache with attached email not routing fallback`() throws {
-        OpenAIDashboardCacheStore.clear()
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.clear()
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-owner"),
-                    normalizedEmail: "owner@example.com"),
-            ])
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-owner"),
+                        normalizedEmail: "owner@example.com"),
+                ])
 
-        _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-            dashboard: self.makeDashboard(email: "owner@example.com"),
-            context: context,
-            routingTargetEmail: "route@example.com")
-
-        let cache = try #require(OpenAIDashboardCacheStore.load())
-        #expect(cache.accountEmail == "owner@example.com")
-        #expect(cache.accountEmail != "route@example.com")
-    }
-
-    @Test
-    func `web dashboard fail closed clears stale cache`() throws {
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "stale@example.com",
-            snapshot: self.makeDashboard(email: "stale@example.com")))
-        defer { OpenAIDashboardCacheStore.clear() }
-
-        let authHome = try self.makeAuthHome(
-            email: "owner@example.com",
-            accountId: "acct-owner")
-        defer { try? FileManager.default.removeItem(at: authHome) }
-
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-other"),
-                    normalizedEmail: "owner@example.com"),
-            ])
-
-        do {
             _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
                 dashboard: self.makeDashboard(email: "owner@example.com"),
                 context: context,
                 routingTargetEmail: "route@example.com")
-            Issue.record("Expected OpenAIWebCodexError.policyRejected")
-        } catch is OpenAIWebCodexError {}
 
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            let cache = try #require(OpenAIDashboardCacheStore.load())
+            #expect(cache.accountEmail == "owner@example.com")
+            #expect(cache.accountEmail != "route@example.com")
+        }
+    }
+
+    @Test
+    func `web dashboard fail closed clears stale cache`() throws {
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "stale@example.com",
+                snapshot: self.makeDashboard(email: "stale@example.com")))
+            defer { OpenAIDashboardCacheStore.clear() }
+
+            let authHome = try self.makeAuthHome(
+                email: "owner@example.com",
+                accountId: "acct-owner")
+            defer { try? FileManager.default.removeItem(at: authHome) }
+
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-other"),
+                        normalizedEmail: "owner@example.com"),
+                ])
+
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: self.makeDashboard(email: "owner@example.com"),
+                    context: context,
+                    routingTargetEmail: "route@example.com")
+                Issue.record("Expected OpenAIWebCodexError.policyRejected")
+            } catch is OpenAIWebCodexError {}
+
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     @Test
     func `web dashboard display only clears stale cache`() throws {
-        OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
-            accountEmail: "stale@example.com",
-            snapshot: self.makeDashboard(email: "stale@example.com")))
-        defer { OpenAIDashboardCacheStore.clear() }
+        try withIsolatedOpenAIDashboardCache {
+            OpenAIDashboardCacheStore.save(OpenAIDashboardCache(
+                accountEmail: "stale@example.com",
+                snapshot: self.makeDashboard(email: "stale@example.com")))
+            defer { OpenAIDashboardCacheStore.clear() }
 
-        let authHome = try self.makeAuthHome(email: "shared@example.com")
-        defer { try? FileManager.default.removeItem(at: authHome) }
+            let authHome = try self.makeAuthHome(email: "shared@example.com")
+            defer { try? FileManager.default.removeItem(at: authHome) }
 
-        let context = self.makeContext(
-            authHome: authHome,
-            knownOwners: [
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-alpha"),
-                    normalizedEmail: "shared@example.com"),
-                CodexDashboardKnownOwnerCandidate(
-                    identity: .providerAccount(id: "acct-beta"),
-                    normalizedEmail: "shared@example.com"),
-            ])
+            let context = self.makeContext(
+                authHome: authHome,
+                knownOwners: [
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-alpha"),
+                        normalizedEmail: "shared@example.com"),
+                    CodexDashboardKnownOwnerCandidate(
+                        identity: .providerAccount(id: "acct-beta"),
+                        normalizedEmail: "shared@example.com"),
+                ])
 
-        do {
-            _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
-                dashboard: self.makeDashboard(email: "shared@example.com"),
-                context: context,
-                routingTargetEmail: "route@example.com")
-            Issue.record("Expected CodexDashboardPolicyError.displayOnly")
-        } catch is CodexDashboardPolicyError {}
+            do {
+                _ = try CodexWebDashboardStrategy.makeAuthorizedDashboardResultForTesting(
+                    dashboard: self.makeDashboard(email: "shared@example.com"),
+                    context: context,
+                    routingTargetEmail: "route@example.com")
+                Issue.record("Expected CodexDashboardPolicyError.displayOnly")
+            } catch is CodexDashboardPolicyError {}
 
-        #expect(OpenAIDashboardCacheStore.load() == nil)
+            #expect(OpenAIDashboardCacheStore.load() == nil)
+        }
     }
 
     private func makeContext(

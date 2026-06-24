@@ -250,7 +250,8 @@ struct JetBrainsStatusProbeTests {
     @Test
     func `expands tilde in custom path`() async throws {
         let fileManager = FileManager.default
-        let home = fileManager.homeDirectoryForCurrentUser
+        let home = fileManager.temporaryDirectory
+            .appendingPathComponent("TokenBarTests-JetBrainsHome-\(UUID().uuidString)", isDirectory: true)
         let testRoot = home
             .appendingPathComponent("Library")
             .appendingPathComponent("Caches")
@@ -261,7 +262,7 @@ struct JetBrainsStatusProbeTests {
             at: optionsDir,
             withIntermediateDirectories: true,
             attributes: nil)
-        defer { try? fileManager.removeItem(at: testRoot) }
+        defer { try? fileManager.removeItem(at: home) }
 
         let quotaInfo = [
             "{&quot;type&quot;:&quot;free&quot;",
@@ -281,19 +282,16 @@ struct JetBrainsStatusProbeTests {
         let quotaFile = optionsDir.appendingPathComponent("AIAssistantQuotaManager2.xml")
         try xml.write(to: quotaFile, atomically: true, encoding: .utf8)
 
-        let tildePath: String
-        if testRoot.path.hasPrefix(home.path) {
-            let suffix = testRoot.path.dropFirst(home.path.count)
-            tildePath = "~\(suffix)"
-        } else {
-            tildePath = testRoot.path
-        }
+        let suffix = testRoot.path.dropFirst(home.path.count)
+        let tildePath = "~\(suffix)"
 
         let settings = ProviderSettingsSnapshot.make(
             jetbrains: ProviderSettingsSnapshot.JetBrainsProviderSettings(ideBasePath: "  \(tildePath)  "))
 
-        let probe = JetBrainsStatusProbe(settings: settings)
-        let snapshot = try await probe.fetch()
+        let snapshot = try await JetBrainsStatusProbe.withHomeDirectoryOverrideForTesting(home) {
+            let probe = JetBrainsStatusProbe(settings: settings)
+            return try await probe.fetch()
+        }
 
         #expect(snapshot.quotaInfo.maximum == 100_000)
     }

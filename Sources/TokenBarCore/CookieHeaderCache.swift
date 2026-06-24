@@ -863,6 +863,13 @@ public enum CookieHeaderCache {
 
     private static var defaultLegacyBaseURL: URL {
         let fm = FileManager.default
+        #if DEBUG
+        if KeychainCacheStore.isTestStoreEnabledForTesting {
+            return fm.temporaryDirectory
+                .appendingPathComponent("TokenBarTests", isDirectory: true)
+                .appendingPathComponent("CookieHeaderCache", isDirectory: true)
+        }
+        #endif
         let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fm.temporaryDirectory
         return base.appendingPathComponent("TokenBar", isDirectory: true)

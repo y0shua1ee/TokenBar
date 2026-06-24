@@ -30,6 +30,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--list-only", action="store_true")
     parser.add_argument("--swift-command", default="swift")
     parser.add_argument("--swift-command-arg", action="append", default=[])
+    parser.add_argument("--swift-test-arg", action="append", default=[])
     return parser.parse_args()
 
 
@@ -49,8 +50,8 @@ def run_command(command: list[str], timeout: int | None = None) -> int:
         return 124
 
 
-def swift_test_list(swift_command: list[str]) -> list[TestSelection]:
-    command = [*swift_command, "test", "list"]
+def swift_test_list(swift_command: list[str], swift_test_args: list[str]) -> list[TestSelection]:
+    command = [*swift_command, "test", *swift_test_args, "list"]
     try:
         result = subprocess.run(command, check=True, capture_output=True, text=True)
     except subprocess.CalledProcessError as error:
@@ -138,9 +139,9 @@ def filter_for(suites: list[TestSelection]) -> str:
     return rf"({'|'.join(suite.filter_pattern for suite in suites)})"
 
 
-def run_group(suites: list[TestSelection], timeout: int, swift_command: list[str]) -> int:
+def run_group(suites: list[TestSelection], timeout: int, swift_command: list[str], swift_test_args: list[str]) -> int:
     return run_command(
-        [*swift_command, "test", "--no-parallel", "--filter", filter_for(suites)],
+        [*swift_command, "test", *swift_test_args, "--no-parallel", "--filter", filter_for(suites)],
         timeout=timeout,
     )
 
@@ -152,7 +153,8 @@ def main() -> int:
         return 2
 
     swift_command = [args.swift_command, *args.swift_command_arg]
-    suites = prioritized_suites(filtered_suites_for_environment(swift_test_list(swift_command)))
+    swift_test_args = args.swift_test_arg
+    suites = prioritized_suites(filtered_suites_for_environment(swift_test_list(swift_command, swift_test_args)))
     suite_groups = list(chunks(suites, args.group_size))
     try:
         suite_groups = shard_groups(suite_groups, args.shard_index, args.shard_count)
@@ -182,7 +184,7 @@ def main() -> int:
             f"({len(group)} selections)",
             flush=True,
         )
-        result = run_group(group, args.timeout, swift_command)
+        result = run_group(group, args.timeout, swift_command, swift_test_args)
         print("::endgroup::", flush=True)
         if result == 0:
             continue
@@ -191,7 +193,7 @@ def main() -> int:
 
         if result != 124:
             print(f"Shard {group_index} failed with exit code {result}; retrying shard once", flush=True)
-            retry_result = run_group(group, args.timeout, swift_command)
+            retry_result = run_group(group, args.timeout, swift_command, swift_test_args)
             if retry_result == 0:
                 continue
             return retry_result
@@ -199,7 +201,7 @@ def main() -> int:
         print(f"Shard {group_index} timed out; retrying suites one at a time", flush=True)
         for suite in group:
             print(f"::group::Swift test retry {suite.name}", flush=True)
-            retry_result = run_group([suite], args.timeout, swift_command)
+            retry_result = run_group([suite], args.timeout, swift_command, swift_test_args)
             print("::endgroup::", flush=True)
             if retry_result != 0:
                 return retry_result

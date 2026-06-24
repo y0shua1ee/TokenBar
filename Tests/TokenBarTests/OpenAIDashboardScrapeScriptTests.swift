@@ -78,7 +78,9 @@ struct OpenAIDashboardScrapeScriptTests {
 
     private static func shouldSkipOnCI() -> Bool {
         let env = ProcessInfo.processInfo.environment
-        return env["GITHUB_ACTIONS"] == "true" || env["CI"] == "true"
+        return env["GITHUB_ACTIONS"] == "true"
+            || env["CI"] == "true"
+            || env["CODEX_SANDBOX"] == "seatbelt"
     }
 
     private static func waitForFixture(_ webView: WKWebView, elementID: String = "usage-chart") async throws {

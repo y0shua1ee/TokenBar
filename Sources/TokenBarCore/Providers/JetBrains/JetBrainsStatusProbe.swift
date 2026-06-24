@@ -125,6 +125,10 @@ public enum JetBrainsStatusProbeError: LocalizedError, Sendable, Equatable {
 public struct JetBrainsStatusProbe: Sendable {
     private let settings: ProviderSettingsSnapshot?
 
+    #if DEBUG
+    @TaskLocal private static var homeDirectoryOverrideForTesting: URL?
+    #endif
+
     public init(settings: ProviderSettingsSnapshot? = nil) {
         self.settings = settings
     }
@@ -138,7 +142,7 @@ public struct JetBrainsStatusProbe: Sendable {
         if let customPath = self.settings?.jetbrainsIDEBasePath?.trimmingCharacters(in: .whitespacesAndNewlines),
            !customPath.isEmpty
         {
-            let expandedBasePath = (customPath as NSString).expandingTildeInPath
+            let expandedBasePath = Self.expandCustomBasePath(customPath)
             let quotaPath = JetBrainsIDEDetector.quotaFilePath(for: expandedBasePath)
             return (quotaPath, nil)
         }
@@ -148,6 +152,30 @@ public struct JetBrainsStatusProbe: Sendable {
         }
         return (detectedIDE.quotaFilePath, detectedIDE)
     }
+
+    private static func expandCustomBasePath(_ path: String) -> String {
+        #if DEBUG
+        if let homeDirectoryOverrideForTesting,
+           path == "~" || path.hasPrefix("~/")
+        {
+            if path == "~" { return homeDirectoryOverrideForTesting.path }
+            let suffix = path.dropFirst(2)
+            return homeDirectoryOverrideForTesting.appendingPathComponent(String(suffix)).path
+        }
+        #endif
+        return (path as NSString).expandingTildeInPath
+    }
+
+    #if DEBUG
+    public static func withHomeDirectoryOverrideForTesting<T>(
+        _ homeDirectory: URL,
+        operation: () async throws -> T) async rethrows -> T
+    {
+        try await self.$homeDirectoryOverrideForTesting.withValue(homeDirectory) {
+            try await operation()
+        }
+    }
+    #endif
 
     public static func parseQuotaFile(
         at path: String,

@@ -12,6 +12,16 @@ ARGS=(
   --timeout "${SUITE_TIMEOUT}"
 )
 
+DISABLE_SWIFTPM_SANDBOX=${TOKENBAR_SWIFT_TEST_DISABLE_SANDBOX:-}
+if [[ -z "${DISABLE_SWIFTPM_SANDBOX}" && "${CODEX_SANDBOX:-}" == "seatbelt" ]]; then
+  DISABLE_SWIFTPM_SANDBOX=1
+fi
+if [[ "${DISABLE_SWIFTPM_SANDBOX}" == "1" ]]; then
+  ARGS+=(
+    --swift-test-arg=--disable-sandbox
+  )
+fi
+
 if [[ -n "${CODEXBAR_TEST_SHARD_INDEX:-}" || -n "${CODEXBAR_TEST_SHARD_COUNT:-}" ]]; then
   ARGS+=(
     --shard-index "${CODEXBAR_TEST_SHARD_INDEX:?CODEXBAR_TEST_SHARD_COUNT requires CODEXBAR_TEST_SHARD_INDEX}"

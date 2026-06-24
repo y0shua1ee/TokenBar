@@ -13,9 +13,14 @@ SwiftPM-only; package/sign/notarize manually (no Xcode project). Sparkle feed is
 **Must read first:** open the master macOS release guide at `~/Projects/agent-scripts/docs/RELEASING-MAC.md` alongside this file and reconcile any differences in favor of TokenBar specifics before starting a release.
 
 ## Expectations
-- When someone says “release TokenBar”, do the entire end-to-end flow: bump versions/CHANGELOG, build, sign and notarize, upload the zip to the GitHub release, generate/update the appcast with the new signature, publish the tag/release, and verify the enclosure URL responds with 200/OK and installs via Sparkle (no 404s or stale feeds).
+- TokenBar has two release modes:
+  - **Personal ad-hoc release:** default while the project is developed for the owner’s own use without Apple Developer Program membership. Use `Scripts/release-adhoc.sh --publish`. This builds an ad-hoc signed app and dSYM zip, can publish the GitHub Release/tag, and intentionally skips notarization, Sparkle appcast updates, Sparkle private-key checks, and Apple Developer credentials.
+  - **Formal public release:** use `Scripts/release.sh` only when Developer ID signing, notarization, Sparkle appcast signing, and update verification are explicitly available and desired.
+- When someone says “release TokenBar” during the personal/self-use period, use the personal ad-hoc path unless the user explicitly asks for a formal notarized Sparkle release.
+- For a formal public release, do the entire end-to-end flow: bump versions/CHANGELOG, build, sign and notarize, upload the zip to the GitHub release, generate/update the appcast with the new signature, publish the tag/release, and verify the enclosure URL responds with 200/OK and installs via Sparkle (no 404s or stale feeds).
 
 ### Release automation notes (Scripts/release.sh)
+- `Scripts/release.sh` is the formal Developer ID + notarized + Sparkle appcast release path. It is not the personal ad-hoc release path.
 - Always forces a fresh build/notarization (no cached artifacts) before publishing.
 - Fails fast if: git tree is dirty, the top changelog section is still “Unreleased” or mismatched, the target version already exists in the appcast, or the build number is not greater than the latest appcast entry.
 - Sparkle key probe runs up front; appcast entry + signature verified automatically after generation.
@@ -25,6 +30,7 @@ SwiftPM-only; package/sign/notarize manually (no Xcode project). Sparkle feed is
 
 ## Prereqs
 - Xcode 26+ installed at `/Applications/Xcode.app` (for ictool/iconutil and SDKs).
+- For personal ad-hoc releases, Apple Developer Program membership, Developer ID certificates, notarization credentials, and Sparkle private-key material are not required. The app zip is for manual install/Homebrew-style distribution and should not update `appcast.xml`.
 - Developer ID Application cert installed for this fork and exported through `APP_IDENTITY`
   (for example, `Developer ID Application: Your Name (TEAMID)`). Do not release TokenBar
   with an upstream CodexBar signing identity.
@@ -57,6 +63,24 @@ Gotchas fixed:
 - Avoid `unzip` — it can add AppleDouble `._*` files that break the sealed signature and trigger “app is damaged”. Use Finder or `ditto -x -k TokenBar-<ver>.zip /Applications`. If Gatekeeper complains, delete the app bundle, re-extract with `ditto`, then `spctl -a -t exec` to verify.
 - Manual sanity check before uploading: `find TokenBar.app -name '._*'` should return nothing; then `spctl --assess --type execute --verbose TokenBar.app` and `codesign --verify --deep --strict --verbose TokenBar.app` should both pass on the packaged bundle.
 
+## Personal ad-hoc release
+```
+Scripts/release-adhoc.sh --publish
+```
+What it does:
+- Validates the finalized changelog section for `version.env`.
+- Runs `make check` and `make test` unless `--skip-checks` is passed.
+- Builds `TokenBar.app` with `TOKENBAR_SIGNING=adhoc` and universal architectures by default.
+- Verifies the bundle has an ad-hoc signature, an empty `SUFeedURL`, and disabled Sparkle automatic checks.
+- Produces `TokenBar-macos-universal-<version>.zip` and `TokenBar-macos-universal-<version>.dSYM.zip`.
+- With `--publish`, creates the git tag and GitHub Release with the app and dSYM assets.
+
+Ad-hoc release rules:
+- Do not run `Scripts/release.sh`, `Scripts/sign-and-notarize.sh`, `Scripts/make_appcast.sh`, or Sparkle key checks for this mode.
+- Do not modify `appcast.xml`; previous Sparkle users will not receive this as an automatic update.
+- `spctl --assess` and `stapler validate` are not expected to pass for ad-hoc builds.
+- After publishing, `.github/workflows/release-cli.yml` can still build CLI assets and update the Homebrew tap, subject to GitHub token permissions.
+
 ## Appcast (Sparkle)
 After notarization, or let `Scripts/release.sh` do this:
 ```
@@ -67,6 +91,12 @@ Generates HTML release notes from `CHANGELOG.md` (via `Scripts/changelog-to-html
 Uploads not handled automatically—commit/publish appcast + zip to the feed location (GitHub Releases/raw URL).
 
 ## Tag & release
+Personal/self-use default:
+```
+Scripts/release-adhoc.sh --publish
+```
+
+Formal notarized/Sparkle release:
 ```
 ./Scripts/release.sh
 ```
@@ -81,6 +111,8 @@ After publishing the GitHub release, `.github/workflows/release-cli.yml` builds 
 - [ ] Read both this file and `~/Projects/agent-scripts/docs/RELEASING-MAC.md`; resolve any conflicts toward TokenBar’s specifics.
 - [ ] Update versions (scripts/Info.plist, CHANGELOG, About text) — changelog top section must be finalized; release script pulls notes from it automatically.
 - [ ] `swiftformat`, `swiftlint`, `make test` (zero warnings/errors)
+- [ ] For personal/self-use releases, run `Scripts/release-adhoc.sh --publish`; verify app zip, dSYM zip, GitHub Release/tag, CLI assets when available, and Homebrew/tap status where applicable. Do not update `appcast.xml`.
+- [ ] For formal releases only, continue with signing/notarization/Sparkle steps below.
 - [ ] `./Scripts/build_icon.sh` if icon changed
 - [ ] `./Scripts/sign-and-notarize.sh`
 - [ ] Generate Sparkle appcast via `Scripts/release.sh` or `Scripts/make_appcast.sh`; use `SPARKLE_PRIVATE_KEY_FILE` only if overriding Keychain signing.

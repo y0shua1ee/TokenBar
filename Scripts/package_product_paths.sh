@@ -1,10 +1,25 @@
 #!/usr/bin/env bash
 
+codexbar_swiftpm_disable_sandbox_args() {
+  local disable="${TOKENBAR_SWIFTPM_DISABLE_SANDBOX:-}"
+  if [[ -z "$disable" && "${CODEX_SANDBOX:-}" == "seatbelt" ]]; then
+    disable=1
+  fi
+  if [[ "$disable" == "1" ]]; then
+    printf '%s\n' "--disable-sandbox"
+  fi
+}
+
 codexbar_swiftpm_bin_path() {
   local conf="$1"
   shift
-  local command=(swift build --show-bin-path -c "$conf")
+  local command=(swift build)
   local arch
+  local swiftpm_arg
+  while IFS= read -r swiftpm_arg; do
+    command+=("$swiftpm_arg")
+  done < <(codexbar_swiftpm_disable_sandbox_args)
+  command+=(--show-bin-path -c "$conf")
   for arch in "$@"; do
     command+=(--arch "$arch")
   done
