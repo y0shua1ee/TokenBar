@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.37.5 — Unreleased
+
+### Fixed
+- Release: bound the Homebrew tap dispatch command so a hung `gh workflow run` cannot leave the release workflow running indefinitely.
+
 ## 0.37.4 — 2026-06-25
 
 ### Added

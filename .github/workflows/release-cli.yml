@@ -272,6 +272,7 @@ jobs:
       - name: Dispatch tap update
         env:
           GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GH_PROMPT_DISABLED: "1"
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
           REQUEST_ID: ${{ steps.release.outputs.request_id }}
         shell: bash
@@ -279,7 +280,7 @@ jobs:
           set -euo pipefail
           test -n "$GH_TOKEN"
           for attempt in {1..6}; do
-            if gh workflow run update-formula.yml \
+            if timeout 60s gh workflow run update-formula.yml \
               --repo y0shua1ee/homebrew-tokenbar \
               -f formula=tokenbar \
               -f tag="$RELEASE_TAG" \
