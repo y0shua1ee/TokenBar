@@ -23,6 +23,7 @@
 - Menu bar: keep open menus updating in place, preserve visible quota values during manual refresh, avoid stale or highlighted informational rows, and prevent merged-menu drift or flicker while switching providers.
 - Memory pressure: isolate callback reads from main-actor state and avoid the remaining utility-queue crash.
 - Testing and fork identity: repair TokenBar-specific config, keychain migration, executable-name, provider-ID, and CI lint assumptions after the upstream CodexBar sync.
+- Release: default ad-hoc packaging to SwiftPM widget assembly so self-use release automation avoids the full Xcode widget-extension build path.
 - Mistral: restore Vibe monthly-plan usage by forwarding only the required console session cookies. Thanks @lfmundim!
 
 ## 0.35.1 — 2026-06-16

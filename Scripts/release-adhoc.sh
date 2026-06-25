@@ -23,6 +23,9 @@ This path intentionally does not notarize, generate Sparkle appcast entries, or 
 Apple Developer / Sparkle private key material. Use Scripts/release.sh for formal
 Developer ID + notarized + Sparkle releases.
 
+Ad-hoc releases default to SwiftPM widget assembly for reproducible automation.
+Set TOKENBAR_WIDGET_EXTENSION_BUILDER=xcode to force the full Xcode widget build.
+
 Options:
   --publish          Create/push the git tag and GitHub Release with app + dSYM assets.
   --wait-assets      After publishing, wait for release assets, including CLI assets.
@@ -230,7 +233,10 @@ if [[ "$SKIP_CHECKS" != "1" ]]; then
 fi
 
 rm -f "$ZIP_NAME" "$DSYM_ZIP"
-TOKENBAR_SIGNING=adhoc ARCHES="$ARCHES_VALUE" "$ROOT/Scripts/package_app.sh" release
+TOKENBAR_WIDGET_EXTENSION_BUILDER="${TOKENBAR_WIDGET_EXTENSION_BUILDER:-swiftpm}" \
+  TOKENBAR_SIGNING=adhoc \
+  ARCHES="$ARCHES_VALUE" \
+  "$ROOT/Scripts/package_app.sh" release
 verify_adhoc_bundle
 xattr -cr "$APP_BUNDLE"
 find "$APP_BUNDLE" -name '._*' -delete
