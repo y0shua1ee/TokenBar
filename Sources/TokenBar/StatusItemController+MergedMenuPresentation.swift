@@ -17,6 +17,9 @@ extension StatusItemController {
     }
 
     func scheduleOpenMergedMenuRealignmentIfNeeded(_ menu: NSMenu) {
+        #if DEBUG
+        self._test_openMergedMenuRealignmentScheduleObserver?(menu)
+        #endif
         self.realignOpenMergedMenuWindowIfNeeded(menu)
         DispatchQueue.main.async { [weak self, weak menu] in
             guard let self, let menu else { return }

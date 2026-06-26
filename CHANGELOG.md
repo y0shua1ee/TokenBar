@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.37.5 — Unreleased
+## 0.37.5 — 2026-06-27
 
 ### Fixed
+- Menu bar: keep the merged provider menu anchored under the status item while switching provider tabs after rebuilt content changes height.
 - Release: bound the Homebrew tap dispatch command so a hung `gh workflow run` cannot leave the release workflow running indefinitely.
 
 ## 0.37.4 — 2026-06-25

@@ -218,7 +218,10 @@ extension StatusItemController {
             "populateMenu",
             breadcrumb: "populateMenu:\(provider?.rawValue ?? "merged")")
         defer { self.endMenuOperationTrace(trace, menu: menu, provider: provider) }
-        defer { self.refreshMenuCardHeights(in: menu) }
+        defer {
+            self.refreshMenuCardHeights(in: menu)
+            self.scheduleOpenMergedMenuRealignmentIfNeeded(menu)
+        }
 
         let enabledProviders = self.store.enabledProvidersForDisplay()
         let includesOverview = self.includesOverviewTab(enabledProviders: enabledProviders)
