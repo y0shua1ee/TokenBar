@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.37.6 — Unreleased
+## 0.37.6 — 2026-07-08
+
+### Fixed
+- Krill: restore credits, subscription, and cost refreshes by using Krill's current same-origin API endpoint, and keep optional dashboard enrichment failures from replacing the provider card with a red error.
+- OpenRouter: show account balance again by querying credits with the management/activity key while keeping API key quota checks scoped to the API key.
+- Menu bar: make Settings open the preferences window reliably from the status menu.
 
 ## 0.37.5 — 2026-06-27
 

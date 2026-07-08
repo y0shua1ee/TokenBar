@@ -483,6 +483,7 @@ extension StatusItemController: StatusItemMenuPersistentActionDelegate {
         DispatchQueue.main.async {
             self.preferencesSelection.tab = tab
             NSApp.activate(ignoringOtherApps: true)
+            _ = NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
             NotificationCenter.default.post(
                 name: .tokenbarOpenSettings,
                 object: nil,

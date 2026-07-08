@@ -1072,7 +1072,7 @@ struct MenuCardModelTests {
             hidePersonalInfo: false,
             now: now))
 
-        #expect(model.creditsText == nil)
+        #expect(model.creditsText == "Balance: $4.61")
         #expect(model.metrics.count == 1)
         #expect(model.usageNotes.isEmpty)
         let metric = try #require(model.metrics.first)
@@ -1120,7 +1120,7 @@ struct MenuCardModelTests {
             now: now))
 
         #expect(model.metrics.isEmpty)
-        #expect(model.creditsText == nil)
+        #expect(model.creditsText == "Balance: $4.61")
         #expect(model.placeholder == nil)
         #expect(model.usageNotes == ["No limit set for the API key"])
     }
@@ -1161,6 +1161,7 @@ struct MenuCardModelTests {
             now: now))
 
         #expect(model.metrics.isEmpty)
+        #expect(model.creditsText == "Balance: $4.61")
         #expect(model.usageNotes == ["API key limit unavailable right now"])
     }
 

@@ -350,5 +350,65 @@ struct KrillCostUsageFetcherTests {
         #expect(cost.currencyCode == "USD")
         #expect(cost.period == "Elite #1150")
     }
+
+    @Test
+    func `builds Krill snapshot when optional enrichments are unavailable`() throws {
+        let creditsJSON = #"""
+        {
+          "success": true,
+          "data": {
+            "balance_usd": "16.55"
+          }
+        }
+        """#
+        let subscriptionJSON = #"""
+        {
+          "success": true,
+          "data": {
+            "credit_balance_usd": "12.34",
+            "request_count_quota": {
+              "limit_monthly": 200000,
+              "used_monthly": 1890
+            },
+            "subscriptions": [
+              {
+                "subscription_id": 1150,
+                "plan": {
+                  "name": "Elite"
+                },
+                "quota": {
+                  "limit_credits": 440,
+                  "remaining_credits": 140,
+                  "daily_limit_usd": "439.99",
+                  "used_usd": "297.37"
+                }
+              },
+              {
+                "subscription_id": 505,
+                "plan": {
+                  "name": "尊享月卡"
+                },
+                "quota": {}
+              }
+            ]
+          }
+        }
+        """#
+        let credits = try JSONDecoder().decode(KrillCreditsResponse.self, from: Data(creditsJSON.utf8))
+        let subscription = try JSONDecoder().decode(KrillSubscriptionResponse.self, from: Data(subscriptionJSON.utf8))
+
+        let snapshot = KrillUsageFetcher.buildSnapshot(
+            credits: credits,
+            subscription: subscription,
+            stats: nil,
+            activeQuota: nil,
+            modelCount: nil)
+
+        #expect(snapshot.primary?.resetDescription == "Elite 140/440 credits remaining")
+        #expect(snapshot.secondary?.resetDescription == "尊享月卡 1890/200000 requests this month")
+        #expect(snapshot.identity?.loginMethod?.contains("Wallet: $16.55") == true)
+        #expect(snapshot.identity?.loginMethod?.contains("Elite quota $297.37/$439.99") == true)
+        #expect(snapshot.identity?.loginMethod?.contains("models") == false)
+    }
 }
 #endif

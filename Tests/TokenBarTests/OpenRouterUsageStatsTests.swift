@@ -114,7 +114,7 @@ struct OpenRouterUsageStatsTests {
     }
 
     @Test
-    func `fetch usage sets credits timeout and client headers`() async throws {
+    func `fetch usage sets credits timeout and separates balance and key tokens`() async throws {
         let registered = URLProtocol.registerClass(OpenRouterStubURLProtocol.self)
         defer {
             if registered {
@@ -128,15 +128,17 @@ struct OpenRouterUsageStatsTests {
             switch url.path {
             case "/api/v1/credits":
                 #expect(request.timeoutInterval == 15)
+                #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer sk-or-v1-management")
                 #expect(request.value(forHTTPHeaderField: "HTTP-Referer") == "https://codexbar.example")
                 #expect(request.value(forHTTPHeaderField: "X-Title") == "TokenBar QA")
                 let body = #"{"data":{"total_credits":100,"total_usage":40}}"#
                 return Self.makeResponse(url: url, body: body, statusCode: 200)
             case "/api/v1/key":
+                #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer sk-or-v1-test")
                 let body = #"""
                 {"data":{
                   "limit":20,
-                  "usage":0.5,
+                  "limit_remaining":19.5,
                   "usage_daily":0.12,
                   "usage_weekly":0.74,
                   "usage_monthly":4.56,
@@ -153,6 +155,7 @@ struct OpenRouterUsageStatsTests {
             apiKey: "sk-or-v1-test",
             environment: [
                 "OPENROUTER_API_URL": "https://openrouter.test/api/v1",
+                "OPENROUTER_MANAGEMENT_KEY": "sk-or-v1-management",
                 "OPENROUTER_HTTP_REFERER": " https://codexbar.example ",
                 "OPENROUTER_X_TITLE": "TokenBar QA",
             ])

@@ -875,8 +875,10 @@ extension UsageMenuCardView.Model {
         let openAIAPIUsage = input.snapshot?.openAIAPIUsage
         let inlineUsageDashboard = Self.inlineUsageDashboard(input: input)
         let usageNotes = Self.usageNotes(input: input)
-        let rawCreditsText: String? = if input.provider == .openrouter {
-            nil
+        let rawCreditsText: String? = if input.provider == .openrouter,
+                                         let openRouterBalance = input.snapshot?.openRouterUsage?.balance
+        {
+            "\(L("Balance")): \(UsageFormatter.usdString(openRouterBalance))"
         } else if input.codexProjection != nil, !input.showOptionalCreditsAndExtraUsage {
             nil
         } else {

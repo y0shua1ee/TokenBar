@@ -1,7 +1,7 @@
 #if os(macOS)
 import Foundation
 
-/// Fetches Krill usage data using internal API (api.krill-ai.com) with JWT auth.
+/// Fetches Krill usage data using Krill's same-origin API with JWT auth.
 /// Falls back to WebView login if JWT is missing or expired.
 public enum KrillUsageFetcher: Sendable {
     public static func fetchUsage() async throws -> UsageSnapshot {
@@ -15,14 +15,30 @@ public enum KrillUsageFetcher: Sendable {
             return self.buildEmptySnapshot()
         }
 
-        // 2. Fetch data in parallel
-        async let creditsTask = KrillAPIClient.fetchCredits(jwt: jwt)
-        async let subscriptionTask = KrillAPIClient.fetchSubscription(jwt: jwt)
-        async let statsTask = KrillAPIClient.fetchStats(jwt: jwt)
-        async let modelsTask = KrillAPIClient.fetchModels(jwt: jwt)
+        // 2. Fetch the core account data first, then treat dashboard enrichment as best-effort.
+        var firstError: (any Error)?
+        let credits: KrillCreditsResponse?
+        do {
+            credits = try await KrillAPIClient.fetchCredits(jwt: jwt)
+        } catch {
+            firstError = error
+            credits = nil
+        }
 
-        let (credits, subscription, stats, models) = try await (
-            creditsTask, subscriptionTask, statsTask, modelsTask)
+        let subscription: KrillSubscriptionResponse?
+        do {
+            subscription = try await KrillAPIClient.fetchSubscription(jwt: jwt)
+        } catch {
+            firstError = firstError ?? error
+            subscription = nil
+        }
+
+        guard credits != nil || subscription != nil else {
+            throw firstError ?? KrillAPIError.missingJWT
+        }
+
+        let stats = try? await KrillAPIClient.fetchStats(jwt: jwt)
+        let models = try? await KrillAPIClient.fetchModels(jwt: jwt)
         let activeQuota = try? await KrillAPIClient.fetchActiveSubscriptionDailyQuota(jwt: jwt)
 
         // 3. Build snapshot
@@ -31,28 +47,28 @@ public enum KrillUsageFetcher: Sendable {
             subscription: subscription,
             stats: stats,
             activeQuota: activeQuota,
-            modelCount: models.count)
+            modelCount: models?.count)
     }
 
     // MARK: - Snapshot Building
 
-    private static func buildSnapshot(
-        credits: KrillCreditsResponse,
-        subscription: KrillSubscriptionResponse,
-        stats: KrillStatsResponse,
+    static func buildSnapshot(
+        credits: KrillCreditsResponse?,
+        subscription: KrillSubscriptionResponse?,
+        stats: KrillStatsResponse?,
         activeQuota: KrillActiveSubscriptionDailyQuotaResponse?,
-        modelCount: Int) -> UsageSnapshot
+        modelCount: Int?) -> UsageSnapshot
     {
         var primary: RateWindow?
         var secondary: RateWindow?
         var loginMethodParts = ["Krill"]
 
         // Extract wallet balance
-        let balanceUSD = credits.data?.balance_usd
-            ?? subscription.data?.credit_balance_usd
+        let balanceUSD = credits?.data?.balance_usd
+            ?? subscription?.data?.credit_balance_usd
 
         // Extract subscriptions
-        if let subs = subscription.data?.subscriptions {
+        if let subs = subscription?.data?.subscriptions {
             for sub in subs {
                 guard let planName = sub.plan?.name else { continue }
 
@@ -88,8 +104,8 @@ public enum KrillUsageFetcher: Sendable {
 
                 // ── 尊享月卡: monthly request count ──
                 if planName.contains("尊享月卡"),
-                   let monthlyLimit = subscription.data?.request_count_quota?.limit_monthly,
-                   let monthlyUsed = subscription.data?.request_count_quota?.used_monthly,
+                   let monthlyLimit = subscription?.data?.request_count_quota?.limit_monthly,
+                   let monthlyUsed = subscription?.data?.request_count_quota?.used_monthly,
                    monthlyLimit > 0
                 {
                     let usedPct = min(100.0, (Double(monthlyUsed) / Double(monthlyLimit)) * 100.0)
@@ -103,7 +119,7 @@ public enum KrillUsageFetcher: Sendable {
         }
 
         // Cache rate from stats
-        if let channels = stats.data?.channel_cache_rates {
+        if let channels = stats?.data?.channel_cache_rates {
             let bestChannel = channels.max(by: {
                 ($0.cache_rate ?? 0) < ($1.cache_rate ?? 0)
             })
@@ -113,7 +129,9 @@ public enum KrillUsageFetcher: Sendable {
         }
 
         // Model count
-        loginMethodParts.append("\(modelCount) models")
+        if let modelCount {
+            loginMethodParts.append("\(modelCount) models")
+        }
 
         // Build balance line
         var balanceStr = "Wallet: --"

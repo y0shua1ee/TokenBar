@@ -13,6 +13,8 @@ read_when:
 ## Authentication
 
 OpenRouter uses API key authentication. Get your API key from [OpenRouter Settings](https://openrouter.ai/settings/keys).
+The account credits endpoint requires a management/activity key, while API-key quota details still use the
+provider API key.
 
 ### Environment Variable
 
@@ -20,6 +22,12 @@ Set the `OPENROUTER_API_KEY` environment variable:
 
 ```bash
 export OPENROUTER_API_KEY="sk-or-v1-..."
+```
+
+To show account balance/credits, also set the management key:
+
+```bash
+export OPENROUTER_MANAGEMENT_KEY="sk-or-v1-..."
 ```
 
 ### Settings
@@ -36,7 +44,7 @@ printf '%s' "$OPENROUTER_API_KEY" | tokenbar config set-api-key --provider openr
 
 The OpenRouter provider fetches usage data from two API endpoints:
 
-1. **Credits API** (`/api/v1/credits`): Returns total credits purchased and total usage. The balance is calculated as `total_credits - total_usage`.
+1. **Credits API** (`/api/v1/credits`): Returns total credits purchased and total usage using the management/activity key when configured. The balance is calculated as `total_credits - total_usage`.
 
 2. **Key API** (`/api/v1/key`): Returns rate limit information plus current daily, weekly, and monthly spend for your API key.
 
@@ -61,6 +69,7 @@ tokenbar -p or  # alias
 | Variable | Description |
 |----------|-------------|
 | `OPENROUTER_API_KEY` | Your OpenRouter API key (required) |
+| `OPENROUTER_MANAGEMENT_KEY` | Management/activity key for account balance and credits (optional but recommended) |
 | `OPENROUTER_API_URL` | Override the base API URL (optional, defaults to `https://openrouter.ai/api/v1`) |
 | `OPENROUTER_HTTP_REFERER` | Optional client referer sent as `HTTP-Referer` header |
 | `OPENROUTER_X_TITLE` | Optional client title sent as `X-Title` header (defaults to `TokenBar`) |

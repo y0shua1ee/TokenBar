@@ -45,6 +45,8 @@ public struct OpenRouterKeyData: Decodable, Sendable {
     public let limit: Double?
     /// Current usage
     public let usage: Double?
+    /// Remaining credits for the key, when OpenRouter returns the current API shape.
+    public let limitRemaining: Double?
     /// API key usage for the current UTC day.
     public let usageDaily: Double?
     /// API key usage for the current UTC week.
@@ -56,6 +58,7 @@ public struct OpenRouterKeyData: Decodable, Sendable {
         case rateLimit = "rate_limit"
         case limit
         case usage
+        case limitRemaining = "limit_remaining"
         case usageDaily = "usage_daily"
         case usageWeekly = "usage_weekly"
         case usageMonthly = "usage_monthly"
@@ -230,9 +233,10 @@ public struct OpenRouterUsageFetcher: Sendable {
         let baseURL = OpenRouterSettingsReader.apiURL(environment: environment)
         let creditsURL = baseURL.appendingPathComponent("credits")
 
+        let creditsToken = OpenRouterSettingsReader.activityAPIKey(environment: environment) ?? apiKey
         var request = URLRequest(url: creditsURL)
         request.httpMethod = "GET"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(creditsToken)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.timeoutInterval = Self.creditsRequestTimeoutSeconds
         if let referer = Self.sanitizedHeaderValue(environment[self.httpRefererEnvKey]) {
@@ -265,6 +269,10 @@ public struct OpenRouterUsageFetcher: Sendable {
                 baseURL: baseURL,
                 timeoutSeconds: Self.rateLimitTimeoutSeconds)
 
+            let keyUsage = keyFetch.data?.usage ?? Self.keyUsage(
+                limit: keyFetch.data?.limit,
+                remaining: keyFetch.data?.limitRemaining)
+
             return OpenRouterUsageSnapshot(
                 totalCredits: creditsResponse.data.totalCredits,
                 totalUsage: creditsResponse.data.totalUsage,
@@ -272,7 +280,7 @@ public struct OpenRouterUsageFetcher: Sendable {
                 usedPercent: creditsResponse.data.usedPercent,
                 keyDataFetched: keyFetch.fetched,
                 keyLimit: keyFetch.data?.limit,
-                keyUsage: keyFetch.data?.usage,
+                keyUsage: keyUsage,
                 keyUsageDaily: keyFetch.data?.usageDaily,
                 keyUsageWeekly: keyFetch.data?.usageWeekly,
                 keyUsageMonthly: keyFetch.data?.usageMonthly,
@@ -289,6 +297,16 @@ public struct OpenRouterUsageFetcher: Sendable {
             Self.log.error("OpenRouter parsing error: \(error.localizedDescription)")
             throw OpenRouterUsageError.parseFailed(error.localizedDescription)
         }
+    }
+
+    private static func keyUsage(limit: Double?, remaining: Double?) -> Double? {
+        guard let limit,
+              let remaining,
+              limit > 0
+        else {
+            return nil
+        }
+        return max(0, limit - max(0, remaining))
     }
 
     /// Fetches key quota/rate-limit info from /key endpoint

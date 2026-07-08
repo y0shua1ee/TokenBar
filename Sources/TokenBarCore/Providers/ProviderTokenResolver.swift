@@ -337,7 +337,8 @@ public enum ProviderTokenResolver {
     public static func openRouterResolution(
         environment: [String: String] = ProcessInfo.processInfo.environment) -> ProviderTokenResolution?
     {
-        self.resolveEnv(OpenRouterSettingsReader.apiToken(environment: environment))
+        self.resolveEnv(OpenRouterSettingsReader.apiToken(environment: environment)) ??
+            self.resolveEnv(OpenRouterSettingsReader.activityAPIKey(environment: environment))
     }
 
     public static func elevenLabsResolution(

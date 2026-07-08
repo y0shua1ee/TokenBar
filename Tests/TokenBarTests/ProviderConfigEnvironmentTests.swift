@@ -411,6 +411,13 @@ struct ProviderConfigEnvironmentTests {
     }
 
     @Test
+    func `open router token falls back to management key`() {
+        let env = [OpenRouterSettingsReader.managementEnvKey: "management-token"]
+
+        #expect(ProviderTokenResolver.openRouterToken(environment: env) == "management-token")
+    }
+
+    @Test
     func `deepseek config override leaves environment token alone`() {
         let config = ProviderConfig(id: .deepseek, apiKey: "config-token")
         let envKey = DeepSeekSettingsReader.apiKeyEnvironmentKeys[0]
