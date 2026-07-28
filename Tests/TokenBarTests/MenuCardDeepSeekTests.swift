@@ -143,4 +143,44 @@ struct MenuCardDeepSeekTests {
         #expect(model.inlineUsageDashboard?.accessibilityLabel == "DeepSeek 30 day token usage trend")
         #expect(model.usageNotes.contains { $0.contains("Today:") })
     }
+
+    @Test
+    func `dashboard-only snapshot shows usage without a balance metric`() throws {
+        let now = Date()
+        let metadata = try #require(ProviderDefaults.metadata[.deepseek])
+        let snapshot = UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            deepseekUsage: Self.sampleDeepSeekSummary(now: now),
+            updatedAt: now,
+            identity: ProviderIdentitySnapshot(
+                providerID: .deepseek,
+                accountEmail: nil,
+                accountOrganization: nil,
+                loginMethod: "web"))
+
+        let model = UsageMenuCardView.Model.make(.init(
+            provider: .deepseek,
+            metadata: metadata,
+            snapshot: snapshot,
+            credits: nil,
+            creditsError: nil,
+            dashboard: nil,
+            dashboardError: nil,
+            tokenSnapshot: nil,
+            tokenError: nil,
+            account: AccountInfo(email: nil, plan: nil),
+            isRefreshing: false,
+            lastError: nil,
+            usageBarsShowUsed: false,
+            resetTimeDisplayStyle: .countdown,
+            tokenCostUsageEnabled: false,
+            showOptionalCreditsAndExtraUsage: false,
+            hidePersonalInfo: false,
+            now: now))
+
+        #expect(model.metrics.isEmpty)
+        #expect(model.inlineUsageDashboard?.accessibilityLabel == "DeepSeek 30 day token usage trend")
+        #expect(model.usageNotes.contains { $0.contains("This month:") })
+    }
 }

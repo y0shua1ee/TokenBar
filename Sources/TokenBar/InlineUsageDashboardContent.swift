@@ -59,7 +59,7 @@ extension UsageMenuCardView.Model {
         }
 
         if input.provider == .deepseek,
-           input.showOptionalCreditsAndExtraUsage,
+           self.shouldShowDeepSeekUsage(input),
            let usage = input.snapshot?.deepseekUsage
         {
             let symbol = usage.currency == "CNY" ? "¥" : "$"
@@ -190,7 +190,7 @@ extension UsageMenuCardView.Model {
             return Self.minimaxInlineDashboard(billing)
         }
         if input.provider == .deepseek,
-           input.showOptionalCreditsAndExtraUsage,
+           self.shouldShowDeepSeekUsage(input),
            let usage = input.snapshot?.deepseekUsage,
            !usage.daily.isEmpty
         {
@@ -210,6 +210,11 @@ extension UsageMenuCardView.Model {
             return Self.costHistoryInlineDashboard(provider: input.provider, snapshot: tokenSnapshot)
         }
         return nil
+    }
+
+    private static func shouldShowDeepSeekUsage(_ input: Input) -> Bool {
+        input.showOptionalCreditsAndExtraUsage ||
+            (input.snapshot?.primary == nil && input.snapshot?.deepseekUsage != nil)
     }
 
     static func usesProviderCostHistoryAsPrimaryDashboard(_ provider: UsageProvider) -> Bool {

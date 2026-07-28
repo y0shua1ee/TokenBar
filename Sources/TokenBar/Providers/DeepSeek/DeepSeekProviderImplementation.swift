@@ -4,22 +4,25 @@ import TokenBarCore
 struct DeepSeekProviderImplementation: ProviderImplementation {
     let id: UsageProvider = .deepseek
     let supportsLoginFlow: Bool = true
+    private let hasStoredDashboardToken: @MainActor @Sendable () -> Bool
+
+    init(
+        hasStoredDashboardToken: @escaping @MainActor @Sendable () -> Bool = {
+            DeepSeekPlatformTokenManager.shared.hasStoredToken()
+        })
+    {
+        self.hasStoredDashboardToken = hasStoredDashboardToken
+    }
 
     @MainActor
     func presentation(context _: ProviderPresentationContext) -> ProviderPresentation {
-        ProviderPresentation { _ in "api" }
+        ProviderPresentation { context in
+            context.store.sourceLabel(for: context.provider)
+        }
     }
 
     @MainActor
     func observeSettings(_: SettingsStore) {}
-
-    @MainActor
-    func isAvailable(context: ProviderAvailabilityContext) -> Bool {
-        if DeepSeekSettingsReader.apiKey(environment: context.environment) != nil {
-            return true
-        }
-        return !context.settings.tokenAccounts(for: .deepseek).isEmpty
-    }
 
     @MainActor
     func settingsFields(context _: ProviderSettingsContext) -> [ProviderSettingsFieldDescriptor] {
@@ -30,7 +33,10 @@ struct DeepSeekProviderImplementation: ProviderImplementation {
     func loginMenuAction(context _: ProviderMenuLoginContext)
         -> (label: String, action: MenuDescriptor.MenuAction)?
     {
-        ("Login to DeepSeek Dashboard...", .switchAccount(.deepseek))
+        let label = self.hasStoredDashboardToken()
+            ? "Reconnect DeepSeek Dashboard..."
+            : "Login to DeepSeek Dashboard..."
+        return (label, .switchAccount(.deepseek))
     }
 
     @MainActor

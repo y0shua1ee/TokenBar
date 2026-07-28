@@ -302,7 +302,7 @@ struct ProviderSettingsDescriptorTests {
     @Test
     func `deepseek exposes dashboard login flow`() throws {
         let fixture = try self.makeSettingsFixture(suite: "ProviderSettingsDescriptorTests-deepseek-login")
-        let implementation = DeepSeekProviderImplementation()
+        let implementation = DeepSeekProviderImplementation(hasStoredDashboardToken: { false })
         let loginContext = ProviderMenuLoginContext(
             provider: .deepseek,
             store: fixture.store,
@@ -313,6 +313,47 @@ struct ProviderSettingsDescriptorTests {
         #expect(implementation.supportsLoginFlow)
         #expect(action.label == "Login to DeepSeek Dashboard...")
         #expect(action.action == .switchAccount(.deepseek))
+    }
+
+    @Test
+    func `deepseek reconnects an existing dashboard login`() throws {
+        let fixture = try self.makeSettingsFixture(suite: "ProviderSettingsDescriptorTests-deepseek-reconnect")
+        let implementation = DeepSeekProviderImplementation(hasStoredDashboardToken: { true })
+        let loginContext = ProviderMenuLoginContext(
+            provider: .deepseek,
+            store: fixture.store,
+            settings: fixture.settings,
+            account: AccountInfo(email: nil, plan: nil))
+        let action = try #require(implementation.loginMenuAction(context: loginContext))
+
+        #expect(action.label == "Reconnect DeepSeek Dashboard...")
+        #expect(action.action == .switchAccount(.deepseek))
+    }
+
+    @Test
+    func `deepseek stays available for dashboard login without API credentials`() throws {
+        let fixture = try self.makeSettingsFixture(suite: "ProviderSettingsDescriptorTests-deepseek-availability")
+        let implementation = DeepSeekProviderImplementation(hasStoredDashboardToken: { false })
+        let context = ProviderAvailabilityContext(
+            provider: .deepseek,
+            settings: fixture.settings,
+            environment: [:])
+
+        #expect(implementation.isAvailable(context: context))
+    }
+
+    @Test
+    func `deepseek presentation follows the resolved source label`() throws {
+        let fixture = try self.makeSettingsFixture(suite: "ProviderSettingsDescriptorTests-deepseek-presentation")
+        fixture.store.lastSourceLabels[.deepseek] = "web"
+        let metadata = try #require(ProviderDescriptorRegistry.metadata[.deepseek])
+        let context = fixture.presentationContext(provider: .deepseek, metadata: metadata)
+
+        let detailLine = DeepSeekProviderImplementation(hasStoredDashboardToken: { true })
+            .presentation(context: context)
+            .detailLine(context)
+
+        #expect(detailLine == "web")
     }
 
     private func makeSettingsFixture(suite: String) throws -> ProviderSettingsFixture {

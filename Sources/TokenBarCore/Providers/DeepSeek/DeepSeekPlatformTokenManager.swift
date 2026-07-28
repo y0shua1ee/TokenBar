@@ -3,20 +3,23 @@ import AppKit
 import Foundation
 import WebKit
 
-@MainActor
-public final class DeepSeekPlatformTokenManager: @unchecked Sendable {
-    public static let shared = DeepSeekPlatformTokenManager()
-    private static let keychainService = "com.tokenbar.deepseek-platform-token"
+enum DeepSeekPlatformTokenStore {
+    static let keychainService = "com.tokenbar.deepseek-platform-token"
 
-    private init() {}
+    static func hasStoredTokenNoUI() -> Bool {
+        guard !KeychainAccessGate.isDisabled else { return false }
+        if case .allowed = KeychainAccessPreflight.checkGenericPassword(
+            service: self.keychainService,
+            account: nil)
+        {
+            return true
+        }
+        return false
+    }
 
-    public func getStoredToken() -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.keychainService,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
+    static func loadNoUI() -> String? {
+        guard !KeychainAccessGate.isDisabled else { return nil }
+        let query = self.makeLoadQuery()
 
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
@@ -31,25 +34,73 @@ public final class DeepSeekPlatformTokenManager: @unchecked Sendable {
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    public func storeToken(_ token: String) {
+    static func store(_ token: String) {
+        guard !KeychainAccessGate.isDisabled else { return }
         let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, let data = trimmed.data(using: .utf8) else { return }
 
-        self.deleteToken()
-        let query: [String: Any] = [
+        let itemQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.keychainService,
+            kSecAttrService as String: self.keychainService,
+        ]
+        let attributes: [String: Any] = [
             kSecValueData as String: data,
         ]
-        SecItemAdd(query as CFDictionary, nil)
+        let updateStatus = SecItemUpdate(itemQuery as CFDictionary, attributes as CFDictionary)
+        guard updateStatus == errSecItemNotFound else { return }
+
+        var addQuery = itemQuery
+        addQuery[kSecValueData as String] = data
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+
+    static func delete() {
+        guard !KeychainAccessGate.isDisabled else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: self.keychainService,
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
+    private static func makeLoadQuery() -> [String: Any] {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: self.keychainService,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        KeychainNoUIQuery.apply(to: &query)
+        return query
+    }
+
+    #if DEBUG
+    static func makeLoadQueryForTesting() -> [String: Any] {
+        self.makeLoadQuery()
+    }
+    #endif
+}
+
+@MainActor
+public final class DeepSeekPlatformTokenManager: @unchecked Sendable {
+    public static let shared = DeepSeekPlatformTokenManager()
+
+    private init() {}
+
+    public func getStoredToken() -> String? {
+        DeepSeekPlatformTokenStore.loadNoUI()
+    }
+
+    public func hasStoredToken() -> Bool {
+        DeepSeekPlatformTokenStore.hasStoredTokenNoUI()
+    }
+
+    public func storeToken(_ token: String) {
+        DeepSeekPlatformTokenStore.store(token)
     }
 
     public func deleteToken() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.keychainService,
-        ]
-        SecItemDelete(query as CFDictionary)
+        DeepSeekPlatformTokenStore.delete()
     }
 
     public func loginViaWebView() async throws -> String {

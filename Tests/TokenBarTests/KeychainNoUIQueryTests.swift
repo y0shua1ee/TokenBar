@@ -58,5 +58,15 @@ struct KeychainNoUIQueryTests {
         #expect(query[kSecUseAuthenticationContext as String] is LAContext)
         #expect((query[kSecUseAuthenticationUI as String] as? String) == self.resolveSecurityUIFailValue())
     }
+
+    @Test
+    func `deepseek dashboard token query requests data without allowing UI`() {
+        let query = DeepSeekPlatformTokenStore.makeLoadQueryForTesting()
+
+        #expect(query[kSecAttrService as String] as? String == DeepSeekPlatformTokenStore.keychainService)
+        #expect(query[kSecReturnData as String] as? Bool == true)
+        #expect(query[kSecUseAuthenticationContext as String] is LAContext)
+        #expect((query[kSecUseAuthenticationUI as String] as? String) == self.resolveSecurityUIFailValue())
+    }
 }
 #endif

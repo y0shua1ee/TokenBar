@@ -87,6 +87,91 @@ public struct DeepSeekDashboardUsageSnapshot: Sendable, Equatable {
             period: "This month",
             updatedAt: self.updatedAt)
     }
+
+    public func toUsageSummary(
+        now: Date? = nil,
+        calendar: Calendar = .current) -> DeepSeekUsageSummary
+    {
+        let referenceDate = now ?? self.updatedAt
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = calendar.timeZone
+        let components = gregorian.dateComponents([.year, .month, .day], from: referenceDate)
+        let todayKey = String(
+            format: "%04d-%02d-%02d",
+            components.year ?? 1970,
+            components.month ?? 1,
+            components.day ?? 1)
+        let today = self.daily.first(where: { $0.date == todayKey })
+        let daily = self.daily.map {
+            DeepSeekDailyUsage(
+                date: $0.date,
+                totalTokens: $0.totalTokens ?? 0,
+                cost: $0.costUSD,
+                requestCount: $0.requestCount ?? 0)
+        }
+        let categoryBreakdown = [
+            DeepSeekCategoryBreakdown(
+                category: .promptCacheHitToken,
+                tokens: self.daily.compactMap(\.cacheReadTokens).reduce(0, +),
+                cost: nil),
+            DeepSeekCategoryBreakdown(
+                category: .promptCacheMissToken,
+                tokens: self.daily.compactMap(\.inputTokens).reduce(0, +),
+                cost: nil),
+            DeepSeekCategoryBreakdown(
+                category: .responseToken,
+                tokens: self.daily.compactMap(\.outputTokens).reduce(0, +),
+                cost: nil),
+        ].filter { $0.tokens > 0 }
+
+        var modelTotals: [String: (cost: Double, tokens: Int)] = [:]
+        for entry in self.daily {
+            for breakdown in entry.modelBreakdowns ?? [] {
+                let current = modelTotals[breakdown.modelName] ?? (cost: 0, tokens: 0)
+                modelTotals[breakdown.modelName] = (
+                    cost: current.cost + (breakdown.costUSD ?? 0),
+                    tokens: current.tokens + (breakdown.totalTokens ?? 0))
+            }
+        }
+        let topModel = modelTotals.max { lhs, rhs in
+            if lhs.value.cost != rhs.value.cost {
+                return lhs.value.cost < rhs.value.cost
+            }
+            if lhs.value.tokens != rhs.value.tokens {
+                return lhs.value.tokens < rhs.value.tokens
+            }
+            return lhs.key > rhs.key
+        }?.key ?? (self.models.count == 1 ? self.models.first : nil)
+
+        return DeepSeekUsageSummary(
+            todayTokens: today?.totalTokens ?? 0,
+            currentMonthTokens: self.totalTokens,
+            todayCost: today?.costUSD,
+            currentMonthCost: self.monthlyCost > 0 ? self.monthlyCost : nil,
+            requestCount: today?.requestCount ?? 0,
+            currentMonthRequestCount: self.requestCount,
+            topModel: topModel,
+            categoryBreakdown: categoryBreakdown,
+            daily: daily,
+            currency: self.currencyCode,
+            updatedAt: self.updatedAt)
+    }
+
+    public func toUsageSnapshot(
+        now: Date? = nil,
+        calendar: Calendar = .current) -> UsageSnapshot
+    {
+        UsageSnapshot(
+            primary: nil,
+            secondary: nil,
+            deepseekUsage: self.toUsageSummary(now: now, calendar: calendar),
+            updatedAt: self.updatedAt,
+            identity: ProviderIdentitySnapshot(
+                providerID: .deepseek,
+                accountEmail: nil,
+                accountOrganization: nil,
+                loginMethod: "web"))
+    }
 }
 
 public enum DeepSeekDashboardUsageFetcher: Sendable {
@@ -248,6 +333,7 @@ public enum DeepSeekDashboardUsageFetcher: Sendable {
                 cacheReadTokens: dayTotal.sawPromptCacheHitTokens ? dayTotal.promptCacheHitTokens : nil,
                 cacheCreationTokens: nil,
                 totalTokens: dayTotal.hasTokens ? dayTotal.totalTokens : nil,
+                requestCount: dayTotal.hasRequests ? dayTotal.requestCount : nil,
                 costUSD: dayTotal.hasCost ? dayTotal.cost : nil,
                 modelsUsed: modelNames.isEmpty ? nil : modelNames,
                 modelBreakdowns: sortedBreakdowns.isEmpty ? nil : sortedBreakdowns)
@@ -376,10 +462,7 @@ public enum DeepSeekDashboardUsageFetcher: Sendable {
 #if os(macOS)
 public enum DeepSeekCostUsageFetcher: Sendable {
     public static func loadTokenSnapshot(now: Date = Date()) async throws -> CostUsageTokenSnapshot {
-        guard let token = await MainActor.run(
-            resultType: String?.self,
-            body: { DeepSeekPlatformTokenManager.shared.getStoredToken() })
-        else {
+        guard let token = DeepSeekPlatformTokenStore.loadNoUI() else {
             throw DeepSeekDashboardUsageError.missingPlatformToken
         }
 

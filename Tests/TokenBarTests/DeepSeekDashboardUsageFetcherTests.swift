@@ -22,6 +22,7 @@ struct DeepSeekDashboardUsageFetcherTests {
         #expect(firstDay.date == "2026-05-01")
         #expect(firstDay.costUSD == 5.12)
         #expect(firstDay.totalTokens == 25_000_000)
+        #expect(firstDay.requestCount == 300)
         #expect(firstDay.modelBreakdowns?.first?.modelName == "deepseek-v4-pro")
         #expect(firstDay.modelBreakdowns?.first?.costUSD == 5.12)
         #expect(firstDay.modelBreakdowns?.first?.totalTokens == 25_000_000)
@@ -61,6 +62,72 @@ struct DeepSeekDashboardUsageFetcherTests {
         #expect(abs(cost.limit - 57.52) > 0.0001)
         #expect(cost.currencyCode == "CNY")
         #expect(cost.period == "This month")
+    }
+
+    @Test
+    func `converts dashboard data to web usage without fabricating balance`() throws {
+        let updatedAt = Date(timeIntervalSince1970: 1_777_777_777)
+        let dashboard = try DeepSeekDashboardUsageFetcher._parseSnapshotForTesting(
+            costData: Data(Self.costJSON.utf8),
+            amountData: Data(Self.amountJSON.utf8),
+            now: updatedAt)
+        let today = try #require(ISO8601DateFormatter().date(from: "2026-05-02T12:00:00Z"))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(secondsFromGMT: 0))
+
+        let usage = dashboard.toUsageSnapshot(now: today, calendar: calendar)
+        let summary = try #require(usage.deepseekUsage)
+
+        #expect(usage.primary == nil)
+        #expect(usage.secondary == nil)
+        #expect(usage.identity?.providerID == .deepseek)
+        #expect(usage.identity?.loginMethod == "web")
+        #expect(summary.todayTokens == 40_118_189)
+        #expect(summary.currentMonthTokens == 65_118_189)
+        #expect(summary.todayCost == 7.20)
+        #expect(summary.currentMonthCost == 12.32)
+        #expect(summary.requestCount == 360)
+        #expect(summary.currentMonthRequestCount == 660)
+        #expect(summary.topModel == "deepseek-v4-pro")
+        #expect(summary.categoryBreakdown == [
+            DeepSeekCategoryBreakdown(category: .promptCacheHitToken, tokens: 20_000_000, cost: nil),
+            DeepSeekCategoryBreakdown(category: .promptCacheMissToken, tokens: 30_000_000, cost: nil),
+            DeepSeekCategoryBreakdown(category: .responseToken, tokens: 15_118_189, cost: nil),
+        ])
+        #expect(summary.daily.map(\.requestCount) == [300, 360])
+    }
+
+    @Test
+    func `dashboard summary selects the dominant model across multiple models`() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let dashboard = DeepSeekDashboardUsageSnapshot(
+            currencyCode: "CNY",
+            monthlyCost: 3,
+            requestCount: 3,
+            totalTokens: 300,
+            models: ["deepseek-chat", "deepseek-reasoner"],
+            daily: [
+                CostUsageDailyReport.Entry(
+                    date: "2027-01-15",
+                    inputTokens: 120,
+                    outputTokens: 180,
+                    cacheReadTokens: nil,
+                    cacheCreationTokens: nil,
+                    totalTokens: 300,
+                    requestCount: 3,
+                    costUSD: 3,
+                    modelsUsed: ["deepseek-chat", "deepseek-reasoner"],
+                    modelBreakdowns: [
+                        .init(modelName: "deepseek-chat", costUSD: 1, totalTokens: 200),
+                        .init(modelName: "deepseek-reasoner", costUSD: 2, totalTokens: 100),
+                    ]),
+            ],
+            updatedAt: now)
+
+        let summary = dashboard.toUsageSummary(now: now)
+
+        #expect(summary.topModel == "deepseek-reasoner")
+        #expect(summary.categoryBreakdown.map(\.category) == [.promptCacheMissToken, .responseToken])
     }
 
     private static let costJSON = """

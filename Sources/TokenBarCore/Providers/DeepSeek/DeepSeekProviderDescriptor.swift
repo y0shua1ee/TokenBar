@@ -34,34 +34,45 @@ public enum DeepSeekProviderDescriptor {
                     "DeepSeek dashboard usage is unavailable until you log in to platform.deepseek.com."
                 }),
             fetchPlan: ProviderFetchPlan(
-                sourceModes: [.auto, .api],
-                pipeline: ProviderFetchPipeline(resolveStrategies: { _ in [DeepSeekAPIFetchStrategy()] })),
+                sourceModes: [.auto, .api, .web],
+                pipeline: ProviderFetchPipeline(resolveStrategies: self.resolveStrategies)),
             cli: ProviderCLIConfig(
                 name: "deepseek",
                 aliases: ["deep-seek", "ds"],
                 versionDetector: nil))
     }
+
+    static func resolveStrategies(context: ProviderFetchContext) async -> [any ProviderFetchStrategy] {
+        switch context.sourceMode {
+        case .auto:
+            [DeepSeekAPIFetchStrategy(), DeepSeekDashboardFetchStrategy()]
+        case .api:
+            [DeepSeekAPIFetchStrategy()]
+        case .web:
+            [DeepSeekDashboardFetchStrategy()]
+        case .cli, .oauth:
+            []
+        }
+    }
 }
 
 struct DeepSeekAPIFetchStrategy: ProviderFetchStrategy {
-    private static let log = CodexBarLog.logger(LogCategories.deepSeekUsage)
-
     let id: String = "deepseek.api"
     let kind: ProviderFetchKind = .apiToken
 
     func isAvailable(_ context: ProviderFetchContext) async -> Bool {
-        Self.resolveToken(environment: context.env) != nil
+        context.sourceMode == .api || Self.resolveToken(environment: context.env) != nil
     }
 
     func fetch(_ context: ProviderFetchContext) async throws -> ProviderFetchResult {
         guard let apiKey = Self.resolveToken(environment: context.env) else {
             throw DeepSeekUsageError.missingCredentials
         }
-        let (usage, dashboard) = try await Self.fetchUsageAndDashboard(
+        let usage = try await DeepSeekUsageFetcher.fetchUsage(
             apiKey: apiKey,
             includeOptionalUsage: context.includeOptionalUsage)
         return self.makeResult(
-            usage: usage.toUsageSnapshot(dashboard: dashboard),
+            usage: usage.toUsageSnapshot(),
             sourceLabel: "api")
     }
 
@@ -69,68 +80,68 @@ struct DeepSeekAPIFetchStrategy: ProviderFetchStrategy {
         false
     }
 
-    private static func resolveToken(environment: [String: String]) -> String? {
+    static func resolveToken(environment: [String: String]) -> String? {
         ProviderTokenResolver.deepseekToken(environment: environment)
     }
+}
 
-    private enum FetchPart: Sendable {
-        case usage(DeepSeekUsageSnapshot)
-        case dashboard(DeepSeekDashboardUsageSnapshot?)
+struct DeepSeekDashboardFetchStrategy: ProviderFetchStrategy {
+    struct Dependencies: Sendable {
+        let loadToken: @Sendable () -> String?
+        let now: @Sendable () -> Date
+        let fetchDashboard: @Sendable (String, Date) async throws -> DeepSeekDashboardUsageSnapshot
+
+        static var live: Self {
+            #if os(macOS)
+            Self(
+                loadToken: { DeepSeekPlatformTokenStore.loadNoUI() },
+                now: Date.init,
+                fetchDashboard: { token, now in
+                    try await DeepSeekDashboardUsageFetcher.fetchCurrentMonth(
+                        platformToken: token,
+                        now: now)
+                })
+            #else
+            Self(
+                loadToken: { nil },
+                now: Date.init,
+                fetchDashboard: { _, _ in
+                    throw DeepSeekDashboardUsageError.missingPlatformToken
+                })
+            #endif
+        }
     }
 
-    private static func fetchUsageAndDashboard(
-        apiKey: String,
-        includeOptionalUsage: Bool) async throws
-        -> (DeepSeekUsageSnapshot, DeepSeekDashboardUsageSnapshot?)
-    {
-        var usage: DeepSeekUsageSnapshot?
-        var dashboard: DeepSeekDashboardUsageSnapshot?
+    let id: String = "deepseek.dashboard"
+    let kind: ProviderFetchKind = .webDashboard
+    private let dependencies: Dependencies
 
-        try await withThrowingTaskGroup(of: FetchPart.self) { group in
-            group.addTask {
-                let usage = try await DeepSeekUsageFetcher.fetchUsage(
-                    apiKey: apiKey,
-                    includeOptionalUsage: includeOptionalUsage)
-                return .usage(usage)
-            }
-            group.addTask {
-                let dashboard = await Self.fetchDashboardUsageIfAvailable()
-                return .dashboard(dashboard)
-            }
-
-            for try await part in group {
-                switch part {
-                case let .usage(value):
-                    usage = value
-                case let .dashboard(value):
-                    dashboard = value
-                }
-            }
-        }
-
-        guard let usage else {
-            throw DeepSeekDashboardUsageError.parseFailed("Missing DeepSeek balance response.")
-        }
-        return (usage, dashboard)
+    init(dependencies: Dependencies = .live) {
+        self.dependencies = dependencies
     }
 
-    private static func fetchDashboardUsageIfAvailable() async -> DeepSeekDashboardUsageSnapshot? {
+    func isAvailable(_ context: ProviderFetchContext) async -> Bool {
         #if os(macOS)
-        guard let token = await MainActor.run(
-            resultType: String?.self,
-            body: { DeepSeekPlatformTokenManager.shared.getStoredToken() })
-        else {
-            return nil
-        }
-
-        do {
-            return try await DeepSeekDashboardUsageFetcher.fetchCurrentMonth(platformToken: token)
-        } catch {
-            Self.log.debug("DeepSeek dashboard usage unavailable: \(error.localizedDescription)")
-            return nil
-        }
+        if context.sourceMode == .web { return true }
+        if self.dependencies.loadToken() != nil { return true }
+        return DeepSeekAPIFetchStrategy.resolveToken(environment: context.env) == nil
         #else
-        return nil
+        return false
         #endif
+    }
+
+    func fetch(_: ProviderFetchContext) async throws -> ProviderFetchResult {
+        guard let token = self.dependencies.loadToken() else {
+            throw DeepSeekDashboardUsageError.missingPlatformToken
+        }
+        let now = self.dependencies.now()
+        let dashboard = try await self.dependencies.fetchDashboard(token, now)
+        return self.makeResult(
+            usage: dashboard.toUsageSnapshot(now: now),
+            sourceLabel: "web")
+    }
+
+    func shouldFallback(on _: Error, context _: ProviderFetchContext) -> Bool {
+        false
     }
 }

@@ -58,7 +58,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 | Doubao | API key from config/env → Volcengine Ark chat-completions probe (`api`). |
 | Abacus AI | Browser cookies → compute points + billing API (`web`). |
 | Mistral | Console billing and Vibe subscription usage via browser cookies (`web`). |
-| DeepSeek | API key from env or token accounts → balance endpoint (`api`). |
+| DeepSeek | API key balance (`api`) → stored Dashboard login for usage history (`web`). |
 | Moonshot | API key from config/env → balance endpoint (`api`). |
 | Codebuff | API token from config/env or `codebuff login` credentials → usage API (`api`). |
 | Crof | API key from config/env → credit balance + requests quota API (`api`). |
@@ -329,6 +329,8 @@ headers, source selection, provider ordering, and token accounts are stored in `
 ## DeepSeek
 - API key via `DEEPSEEK_API_KEY` / `DEEPSEEK_KEY` env var or DeepSeek token accounts.
 - Shows total balance with paid vs. granted breakdown; USD preferred when multiple currencies present.
+- A stored Dashboard login supplies current-month cost, token, request, model, and daily history data when no API key is configured.
+- `--source web` selects the stored Dashboard login explicitly on macOS.
 - Status: `https://status.deepseek.com` (link only, no auto-polling).
 - Details: `docs/deepseek.md`.
 
