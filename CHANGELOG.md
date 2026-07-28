@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.37.8 — Unreleased
+## 0.37.8 — 2026-07-28
+
+### Fixed
+- DeepSeek: let Dashboard login provide web usage and cost history without an API key, while keeping API balance data preferred when configured.
 
 ## 0.37.7 — 2026-07-28
 
