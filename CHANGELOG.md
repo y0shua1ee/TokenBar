@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.37.7 — Unreleased
+## 0.37.7 — 2026-07-28
+
+### Fixed
+- Krill: restore API, login, and dashboard access after the service moved to `www.krill-ai.net`.
 
 ## 0.37.6 — 2026-07-08
 
