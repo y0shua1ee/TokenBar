@@ -109,7 +109,6 @@ private final class KrillLoginRunner: NSObject {
     private var hasCompleted = false
 
     private static let messageHandlerName = "tokenbarKrillJWT"
-    private static let loginURL = URL(string: "https://www.krill-ai.com/login")!
 
     init(jwtManager: KrillJWTManager) {
         self.jwtManager = jwtManager
@@ -182,7 +181,7 @@ private final class KrillLoginRunner: NSObject {
         window.delegate = self
         self.window = window
 
-        webView.load(URLRequest(url: Self.loginURL))
+        webView.load(URLRequest(url: KrillAPIClient.loginURL))
 
         // Activate and show the window. With .regular activation policy already
         // set in run(), the process IS the foreground app and keyboard events

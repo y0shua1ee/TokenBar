@@ -20,7 +20,7 @@ public enum KrillProviderDescriptor {
                 defaultEnabled: false,
                 isPrimaryProvider: false,
                 usesAccountFallback: false,
-                dashboardURL: "https://www.krill-ai.com/app",
+                dashboardURL: KrillAPIClient.dashboardURL,
                 statusPageURL: nil,
                 statusLinkURL: nil),
             branding: ProviderBranding(

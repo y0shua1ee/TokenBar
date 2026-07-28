@@ -3,10 +3,12 @@ import Foundation
 import FoundationNetworking
 #endif
 
-/// HTTP client for Krill's same-origin API exposed by www.krill-ai.com.
+/// HTTP client for Krill's same-origin API exposed by www.krill-ai.net.
 /// Uses JWT bearer token authentication (extracted from WebView login).
 public enum KrillAPIClient: Sendable {
-    public static let baseURL = "https://www.krill-ai.com"
+    public static let baseURL = "https://www.krill-ai.net"
+    static let dashboardURL = "\(baseURL)/app"
+    static let loginURL = URL(string: "\(baseURL)/login")!
     private static let requestTimeout: TimeInterval = 15
 
     // MARK: - Credits
