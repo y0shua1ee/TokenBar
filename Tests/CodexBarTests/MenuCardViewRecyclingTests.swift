@@ -213,6 +213,15 @@ extension StatusMenuTests {
         defer { StatusItemController.menuCardRenderingEnabled = previousRendering }
 
         let settings = self.makeSettings()
+        settings._test_codexAccountSnapshotLoader = { _ in
+            CodexAccountReconciliationSnapshot(
+                storedAccounts: [],
+                activeStoredAccount: nil,
+                liveSystemAccount: nil,
+                matchingStoredAccountForLiveSystemAccount: nil,
+                activeSource: .liveSystem,
+                hasUnreadableAddedAccountStore: false)
+        }
         settings.statusChecksEnabled = false
         settings.refreshFrequency = .manual
         settings.mergeIcons = true
