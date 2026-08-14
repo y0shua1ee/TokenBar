@@ -53,7 +53,7 @@ private actor ClaudeCLISessionOperationGate {
 actor ClaudeCLISession {
     static let shared = ClaudeCLISession()
     private static let log = CodexBarLog.logger(LogCategories.provider(.claude, scope: "cli"))
-    private static let probeSessionIDFilename = ".codexbar-session-id"
+    private static let probeSessionIDFilename = ".\(TokenBarIdentity.commandName)-session-id"
     private static let fallbackProbeSessionID = UUID()
     #if DEBUG
     @TaskLocal private static var sessionOverrideForTesting: ClaudeCLISession?
@@ -88,7 +88,8 @@ actor ClaudeCLISession {
             case let .ioFailed(msg): "Claude CLI PTY I/O failed: \(msg)"
             case .timedOut: "Claude CLI session timed out."
             case .processExited: "Claude CLI session exited."
-            case .outputTooLarge: "Claude CLI session produced more output than CodexBar can safely process."
+            case .outputTooLarge:
+                "Claude CLI session produced more output than \(TokenBarIdentity.displayName) can safely process."
             }
         }
     }

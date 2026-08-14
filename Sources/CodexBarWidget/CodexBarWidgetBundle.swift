@@ -1,3 +1,4 @@
+import CodexBarCore
 import SwiftUI
 import WidgetKit
 
@@ -23,7 +24,7 @@ struct CodexBarSwitcherWidget: Widget {
         { entry in
             CodexBarSwitcherWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar Switcher")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) Switcher")
         .description("Usage widget with a provider switcher.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
@@ -40,7 +41,7 @@ struct CodexBarUsageWidget: Widget {
         { entry in
             CodexBarUsageWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar Usage")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) Usage")
         .description("Session and weekly usage with credits and costs.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
@@ -57,7 +58,7 @@ struct CodexBarHistoryWidget: Widget {
         { entry in
             CodexBarHistoryWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar History")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) History")
         .description("Usage history chart with recent totals.")
         .supportedFamilies([.systemMedium, .systemLarge])
     }
@@ -74,7 +75,7 @@ struct CodexBarCompactWidget: Widget {
         { entry in
             CodexBarCompactWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar Metric")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) Metric")
         .description("Compact widget for credits or cost.")
         .supportedFamilies([.systemSmall])
     }
@@ -91,7 +92,7 @@ struct CodexBarBurnDownWidget: Widget {
         { entry in
             BurnDownWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar Burn Down")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) Burn Down")
         .description("Remaining budget compared with an ideal steady burn rate.")
         .supportedFamilies([.systemMedium])
     }
@@ -108,7 +109,7 @@ struct CodexBarCombinedBurnDownWidget: Widget {
         { entry in
             CombinedBurnDownWidgetView(entry: entry)
         }
-        .configurationDisplayName("CodexBar Burn Down (Combined)")
+        .configurationDisplayName("\(TokenBarIdentity.displayName) Burn Down (Combined)")
         .description("Session and weekly burn-down charts in one tile.")
         .supportedFamilies([.systemMedium])
     }

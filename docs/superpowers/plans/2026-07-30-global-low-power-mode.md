@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a non-destructive global low-power mode that clamps CodexBar's automatic provider, local cost, storage, and OpenAI Web background work while preserving manual refreshes.
+**Goal:** Add a non-destructive global low-power mode that clamps TokenBar's automatic provider, local cost, storage, and OpenAI Web background work while preserving manual refreshes.
 
 **Architecture:** A pure `BackgroundWorkPowerPolicy` owns the 30-minute lower bound. `SettingsStore` persists one default-off toggle, and each automatic scheduling seam asks the shared policy for its effective interval. Manual entry points continue to bypass automatic cooldowns.
 
@@ -227,7 +227,7 @@ Expected: Web policy and persistence tests pass; UI source compiles.
 
 **Files:**
 - Modify only if needed: `docs/superpowers/specs/2026-07-30-global-low-power-mode-design.zh-CN.md`
-- Create local artifact outside Git: `CodexBar-Low-Power-Local.app`
+- Create local artifact outside Git: `TokenBar-Low-Power-Local.app`
 
 **Interfaces:**
 - Consumes: all prior tasks
@@ -254,8 +254,8 @@ Assemble the app from the exact committed executable and resources, disable Spar
 
 - [ ] **Step 6: Back up and install**
 
-Quit CodexBar, copy the current `/Applications/CodexBar.app` to a timestamped backup, install the local app, launch it, verify the menu appears, enable Low Power Mode, and confirm existing settings remain readable.
+Quit TokenBar, copy the current `/Applications/TokenBar.app` to a timestamped backup, install the local app, launch it, verify the menu appears, enable Low Power Mode, and confirm existing settings remain readable.
 
 - [ ] **Step 7: Push the branch and prepare the upstream contribution**
 
-Push `codex/global-low-power-mode` to `Carl723000/CodexBar`. Prepare a PR referencing #2508 with the root cause, behavior table, tests, and explicit note that the no-Widget packaging workaround is local-only.
+Push `codex/global-low-power-mode` to `Carl723000/TokenBar`. Prepare a PR referencing #2508 with the root cause, behavior table, tests, and explicit note that the no-Widget packaging workaround is local-only.

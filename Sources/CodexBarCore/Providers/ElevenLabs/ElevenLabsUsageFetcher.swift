@@ -167,7 +167,7 @@ public enum ElevenLabsUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingCredentials:
-            "Missing ElevenLabs API key. Set apiKey in ~/.codexbar/config.json or ELEVENLABS_API_KEY."
+            "Missing ElevenLabs API key. Set apiKey in \(TokenBarIdentity.configPathHint) or ELEVENLABS_API_KEY."
         case let .networkError(message):
             "ElevenLabs network error: \(message)"
         case let .apiError(message):

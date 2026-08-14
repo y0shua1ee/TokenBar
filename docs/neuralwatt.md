@@ -31,11 +31,11 @@ endpoint exposes both surfaces plus current-month spend and optional per-key spe
 Store the API key without opening Settings:
 
 ```bash
-printf '%s' "$NEURALWATT_API_KEY" | codexbar config set-api-key --provider neuralwatt --stdin
+printf '%s' "$NEURALWATT_API_KEY" | tokenbar config set-api-key --provider neuralwatt --stdin
 ```
 
-This trims the piped key, writes it to CodexBar's config file (`~/.config/codexbar/config.json`
-by default, or the legacy `~/.codexbar/config.json` when already present), and enables Neuralwatt by
+This trims the piped key, writes it to TokenBar's config file (`~/.config/tokenbar/config.json`
+by default, or the legacy `~/.tokenbar/config.json` when already present), and enables Neuralwatt by
 default. Use `--no-enable` to save the key without enabling the provider.
 
 ### Settings
@@ -44,11 +44,11 @@ default. Use `--no-enable` to save the key without enabling the provider.
 2. Enable **Neuralwatt**
 3. Open `https://portal.neuralwatt.com/dashboard`
 4. Create or copy an API key
-5. Paste the key into CodexBar's Neuralwatt provider settings
+5. Paste the key into TokenBar's Neuralwatt provider settings
 
 ### Environment Variables
 
-CodexBar also accepts these environment variables:
+TokenBar also accepts these environment variables:
 
 - `NEURALWATT_API_KEY`
 
@@ -75,12 +75,12 @@ plugin HTTP API, which has no retry-policy or sleep capability.
 
 ### "Missing Neuralwatt API key"
 
-Set the key with `codexbar config set-api-key --provider neuralwatt --stdin`, add it in
+Set the key with `tokenbar config set-api-key --provider neuralwatt --stdin`, add it in
 **Settings → Providers → Neuralwatt**, set `NEURALWATT_API_KEY`, or configure a Neuralwatt token
-account in CodexBar.
+account in TokenBar.
 
 ### "Neuralwatt API error"
 
 Confirm the API key is valid and that the current network can reach `api.neuralwatt.com`. The
-quota endpoint is rate-limited to 1 request per second per customer; CodexBar refreshes on its
+quota endpoint is rate-limited to 1 request per second per customer; TokenBar refreshes on its
 normal cycle so this should not be hit in practice.

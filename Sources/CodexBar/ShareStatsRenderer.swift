@@ -1,4 +1,5 @@
 import AppKit
+import CodexBarCore
 import SwiftUI
 
 @MainActor
@@ -70,6 +71,6 @@ enum ShareStatsExporter {
     }
 
     private static func defaultFilename(_ payload: ShareStatsPayload) -> String {
-        "codexbar-subscriptions-last-\(payload.days)-days.png"
+        "\(TokenBarIdentity.commandName)-subscriptions-last-\(payload.days)-days.png"
     }
 }

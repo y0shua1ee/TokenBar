@@ -7,11 +7,11 @@ read_when:
 
 # Poe Provider
 
-CodexBar reads Poe's official usage API with a manually configured API key. It does not perform OAuth login or import browser cookies.
+TokenBar reads Poe's official usage API with a manually configured API key. It does not perform OAuth login or import browser cookies.
 
 ## Authentication
 
-Create or copy an API key from [Poe API Keys](https://poe.com/api/keys), then add it in CodexBar Settings → Providers → Poe.
+Create or copy an API key from [Poe API Keys](https://poe.com/api/keys), then add it in TokenBar Settings → Providers → Poe.
 
 You can also set the environment variable:
 
@@ -22,12 +22,12 @@ export POE_API_KEY="..."
 Or configure it through the CLI:
 
 ```bash
-printf '%s' "$POE_API_KEY" | codexbar config set-api-key --provider poe --stdin
+printf '%s' "$POE_API_KEY" | tokenbar config set-api-key --provider poe --stdin
 ```
 
 ## Data Source
 
-CodexBar requests:
+TokenBar requests:
 
 - `GET https://api.poe.com/usage/current_balance`
 - `GET https://api.poe.com/usage/points_history`
@@ -41,5 +41,5 @@ The provider shows the current point balance in the menu and menu bar. When avai
 ## CLI Usage
 
 ```bash
-codexbar --provider poe
+tokenbar --provider poe
 ```

@@ -6,17 +6,20 @@ struct AppGroupSupportTests {
     @Test
     func `app group identifiers use resolved team-prefixed release and debug variants`() {
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "Y5PE65HELJ", bundleID: "com.steipete.codexbar")
-                == "Y5PE65HELJ.com.steipete.codexbar")
+            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: TokenBarIdentity.bundleIdentifier)
+                == "ABCDE12345.com.y0shua1ee.tokenbar")
         #expect(
-            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: "com.steipete.codexbar.debug")
-                == "ABCDE12345.com.steipete.codexbar.debug")
+            AppGroupSupport.currentGroupID(teamID: "ABCDE12345", bundleID: TokenBarIdentity.debugBundleIdentifier)
+                == "ABCDE12345.com.y0shua1ee.tokenbar.debug")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.steipete.codexbar")
-                == "group.com.steipete.codexbar")
+            AppGroupSupport.legacyGroupID(for: TokenBarIdentity.bundleIdentifier)
+                == "group.com.y0shua1ee.tokenbar")
         #expect(
-            AppGroupSupport.legacyGroupID(for: "com.steipete.codexbar.debug")
-                == "group.com.steipete.codexbar.debug")
+            AppGroupSupport.legacyGroupID(for: TokenBarIdentity.debugBundleIdentifier)
+                == "group.com.y0shua1ee.tokenbar.debug")
+        #expect(
+            AppGroupSupport.currentGroupID(teamID: "", bundleID: TokenBarIdentity.bundleIdentifier)
+                == TokenBarIdentity.legacyReleaseAppGroupIdentifier)
     }
 
     @Test
@@ -62,7 +65,7 @@ struct AppGroupSupportTests {
 
         let currentSnapshotURL = root.appendingPathComponent("current/widget-snapshot.json", isDirectory: false)
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: TokenBarIdentity.bundleIdentifier,
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -80,7 +83,7 @@ struct AppGroupSupportTests {
                 == AppGroupSupport.migrationVersion)
 
         let secondResult = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: TokenBarIdentity.bundleIdentifier,
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults,
@@ -108,7 +111,7 @@ struct AppGroupSupportTests {
         legacyDefaults.set(UsageProvider.cursor.rawValue, forKey: "widgetSelectedProvider")
 
         let result = AppGroupSupport.migrateLegacyDataIfNeeded(
-            bundleID: "com.steipete.codexbar",
+            bundleID: TokenBarIdentity.bundleIdentifier,
             standardDefaults: standardDefaults,
             currentDefaultsOverride: currentDefaults,
             legacyDefaultsOverride: legacyDefaults)

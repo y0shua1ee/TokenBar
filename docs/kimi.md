@@ -8,7 +8,7 @@ read_when:
 
 # Kimi Code Provider
 
-Tracks usage for [Kimi For Coding](https://www.kimi.com/code) in CodexBar.
+Tracks usage for [Kimi For Coding](https://www.kimi.com/code) in TokenBar.
 
 Kimi Code is distinct from the Moonshot/Kimi Open Platform. China-issued Open Platform keys and balance
 belong under **Moonshot / Kimi Open Platform** with the China mainland region selected; they are not Kimi
@@ -28,10 +28,10 @@ Choose one of four authentication methods:
 
 ### Method 1: Kimi Code API Key (Recommended)
 
-Create an API key in the [Kimi Code Console](https://www.kimi.com/code/console), then save it in CodexBar:
+Create an API key in the [Kimi Code Console](https://www.kimi.com/code/console), then save it in TokenBar:
 
 ```bash
-codexbar config set-api-key --provider kimi --api-key "kimi-api-key-here"
+tokenbar config set-api-key --provider kimi --api-key "kimi-api-key-here"
 ```
 
 Or provide it through the environment:
@@ -40,18 +40,18 @@ Or provide it through the environment:
 export KIMI_CODE_API_KEY="kimi-code-api-key-here"
 ```
 
-CodexBar calls `GET https://api.kimi.com/coding/v1/usages` with the API key. Set
+TokenBar calls `GET https://api.kimi.com/coding/v1/usages` with the API key. Set
 `KIMI_CODE_BASE_URL` only when testing a compatible HTTPS proxy or alternate host with an explicit API key.
-CodexBar never forwards a Kimi Code CLI credential to an endpoint override.
+TokenBar never forwards a Kimi Code CLI credential to an endpoint override.
 
 ### Method 2: Kimi Code CLI
 
 If you are signed in with the official Kimi Code CLI, Auto mode can reuse its fresh access token from
-`~/.kimi-code/credentials/kimi-code.json`. CodexBar sends the same device identity headers as the CLI,
+`~/.kimi-code/credentials/kimi-code.json`. TokenBar sends the same device identity headers as the CLI,
 including the local hostname, OS details, and stable `~/.kimi-code/device_id` value. If that device ID is
-missing, CodexBar creates it with private file permissions to match the official client.
+missing, TokenBar creates it with private file permissions to match the official client.
 
-CodexBar treats CLI-owned authentication as read-only: it never uses the refresh token and never rewrites
+TokenBar treats CLI-owned authentication as read-only: it never uses the refresh token and never rewrites
 the credential file. When the access token expires, sign in again with Kimi Code CLI or configure an API
 key. Set `KIMI_CODE_HOME` only when the official CLI uses a non-default home directory.
 
@@ -62,29 +62,29 @@ reuse; use an explicit API key for endpoint-override testing.
 
 **No setup needed!** If you're already logged in to Kimi in Arc, Chrome, Safari, Edge, Brave, or Chromium:
 
-1. Open CodexBar settings → Providers → Kimi
+1. Open TokenBar settings → Providers → Kimi
 2. Set "Cookie source" to "Automatic"
 3. Enable the Kimi provider toggle
-4. CodexBar will automatically find your session
+4. TokenBar will automatically find your session
 
-**Note**: Requires Full Disk Access to read browser cookies (System Settings → Privacy & Security → Full Disk Access → CodexBar).
+**Note**: Requires Full Disk Access to read browser cookies (System Settings → Privacy & Security → Full Disk Access → TokenBar).
 
 Automatic mode also checks the official Kimi Desktop app before importing browser cookies. Its Chromium
 Cookies database is opened read-only: active WAL databases use SQLite's normal WAL-aware path, while idle
-WAL-mode databases with no sidecars use an immutable read-only fallback. CodexBar never creates or modifies
+WAL-mode databases with no sidecars use an immutable read-only fallback. TokenBar never creates or modifies
 Kimi Desktop database files.
 
 ### Method 4: Manual Token Entry
 
 For advanced users or when automatic import fails:
 
-1. Open CodexBar settings → Providers → Kimi
+1. Open TokenBar settings → Providers → Kimi
 2. Set "Cookie source" to "Manual"
 3. Visit `https://www.kimi.com/code/console` in your browser
 4. Open Developer Tools (F12 or Cmd+Option+I)
 5. Go to **Application** → **Cookies**
 6. Copy the `kimi-auth` cookie value (JWT token)
-7. Paste it into the "Auth Token" field in CodexBar
+7. Paste it into the "Auth Token" field in TokenBar
 
 ### Cookie Environment Variable
 
@@ -96,7 +96,7 @@ export KIMI_AUTH_TOKEN="jwt-token-here"
 
 ## Authentication Priority
 
-When multiple sources are available, CodexBar uses this order:
+When multiple sources are available, TokenBar uses this order:
 
 1. API key (`providers[].apiKey` or `KIMI_CODE_API_KEY`) in Auto mode
 2. Fresh Kimi Code CLI access token (`~/.kimi-code/credentials/kimi-code.json`)
@@ -197,7 +197,7 @@ All tiers have a rate limit of 200 requests per 5 hours.
 
 ### "No Kimi session cookies found"
 - You're not logged in to Kimi in any supported browser
-- Grant Full Disk Access to CodexBar in System Settings
+- Grant Full Disk Access to TokenBar in System Settings
 
 ### "Failed to parse Kimi usage data"
 - The API response format may have changed. Please report this issue.

@@ -8,26 +8,26 @@ read_when:
 
 # ClawRouter
 
-CodexBar reads the policy attached to a ClawRouter API key. The menu card shows its monthly budget, spend, requests,
+TokenBar reads the policy attached to a ClawRouter API key. The menu card shows its monthly budget, spend, requests,
 tokens, and provider breakdown. Provider rows come directly from ClawRouter, so the integration works with any routed
-model provider configured there; CodexBar does not need a separate provider plugin for each route.
+model provider configured there; TokenBar does not need a separate provider plugin for each route.
 
 ## Setup
 
-Create a ClawRouter key with access to the routes you want, then store it in CodexBar:
+Create a ClawRouter key with access to the routes you want, then store it in TokenBar:
 
 ```bash
-printf '%s' "$CLAWROUTER_API_KEY" | codexbar config set-api-key --provider clawrouter --stdin
+printf '%s' "$CLAWROUTER_API_KEY" | tokenbar config set-api-key --provider clawrouter --stdin
 ```
 
-You can also paste the key in CodexBar Settings → Providers → ClawRouter. The hosted service is used by default:
+You can also paste the key in TokenBar Settings → Providers → ClawRouter. The hosted service is used by default:
 
 ```text
 https://clawrouter.openclaw.ai
 ```
 
 For another deployment, set the Base URL in Settings or use `CLAWROUTER_BASE_URL`. The value may point to the service
-root or `/v1`; CodexBar normalizes both to `/v1/usage`. Overrides must be HTTPS URLs or bare hosts normalized to HTTPS.
+root or `/v1`; TokenBar normalizes both to `/v1/usage`. Overrides must be HTTPS URLs or bare hosts normalized to HTTPS.
 
 ## Display
 
@@ -38,7 +38,7 @@ root or `/v1`; CodexBar normalizes both to `/v1/usage`. Overrides must be HTTPS 
 - Unmetered policy status and spend when no monthly limit is configured.
 
 ClawRouter usage is policy-wide. If one key can route OpenAI, Anthropic, Google, OpenRouter, or non-model services, the
-same CodexBar card aggregates them and lists the provider identifiers returned by `/v1/usage`.
+same TokenBar card aggregates them and lists the provider identifiers returned by `/v1/usage`.
 
 ## Environment variables
 
@@ -47,5 +47,5 @@ same CodexBar card aggregates them and lists the provider identifiers returned b
 | `CLAWROUTER_API_KEY` | ClawRouter API key. |
 | `CLAWROUTER_BASE_URL` | Optional HTTPS service root or `/v1` URL. |
 
-CodexBar sends the key only to the validated ClawRouter endpoint. `/v1/usage` returns accounting metadata; CodexBar
+TokenBar sends the key only to the validated ClawRouter endpoint. `/v1/usage` returns accounting metadata; TokenBar
 never receives routed prompts or model responses.

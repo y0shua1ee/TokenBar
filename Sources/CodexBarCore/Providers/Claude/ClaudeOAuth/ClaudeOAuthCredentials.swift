@@ -89,14 +89,16 @@ public enum ClaudeOAuthCredentialsStore {
         "ClaudeOAuthPendingCodexBarOAuthKeychainCacheClearV1"
     private static let directKeychainReadConsentRevocationMarkerKey =
         "ClaudeOAuthDirectKeychainReadConsentRevocationMarkerV1"
+    private static let cacheTemporarilyUnavailableError = ClaudeOAuthCredentialsError.readFailed(
+        "\(TokenBarIdentity.displayName) cache is temporarily unavailable.")
     private static var sharedDefaults: UserDefaults {
-        UserDefaults(suiteName: "com.steipete.codexbar") ?? .standard
+        UserDefaults(suiteName: TokenBarIdentity.persistenceNamespace) ?? .standard
     }
 
     private static let pendingCodexBarOAuthKeychainCacheClearStore: ClaudeOAuthPendingCacheClearStore =
         ClaudeOAuthPendingCacheClearUserDefaultsStore(
             // The cache service is shared by release/debug apps and their CLIs, so its tombstone is shared too.
-            domain: "com.steipete.codexbar",
+            domain: TokenBarIdentity.persistenceNamespace,
             key: ClaudeOAuthCredentialsStore.pendingCodexBarOAuthKeychainCacheClearKey)
     private static let claudeKeychainChangeCheckLock = NSLock()
     private nonisolated(unsafe) static var lastClaudeKeychainChangeCheckAt: Date?
@@ -385,7 +387,7 @@ public enum ClaudeOAuthCredentialsStore {
                         clearInvalidCache: clearInvalidCache)
                 case .temporarilyUnavailable:
                     cacheTemporarilyUnavailable = true
-                    lastError = ClaudeOAuthCredentialsError.readFailed("CodexBar cache is temporarily unavailable.")
+                    lastError = ClaudeOAuthCredentialsStore.cacheTemporarilyUnavailableError
                 case .missing:
                     break
                 }
@@ -1691,7 +1693,7 @@ public enum ClaudeOAuthCredentialsStore {
             owner: .codexbar,
             historyOwnerIdentifier: historyOwnerIdentifier,
             profileIdentifier: profileIdentifier)
-        self.log.debug("Saved refreshed credentials to CodexBar keychain cache")
+        self.log.debug("Saved refreshed credentials to \(TokenBarIdentity.displayName) keychain cache")
     }
 
     /// Response from the OAuth token refresh endpoint
@@ -3105,7 +3107,7 @@ public enum ClaudeOAuthCredentialsStore {
 
     private static func credentialsProfileIdentifier(for credentialsURL: URL) -> String {
         let path = credentialsURL.standardizedFileURL.path
-        let material = Data("codexbar:claude-oauth-cache-profile:v1\0\(path)".utf8)
+        let material = Data("tokenbar:claude-oauth-cache-profile:v1\0\(path)".utf8)
         return self.sha256Hex(material)
     }
 

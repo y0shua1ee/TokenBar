@@ -7,7 +7,7 @@ read_when:
 
 # Multi-Upstream Fork Management Strategy
 
-**Fork:** topoffunnel/CodexBar  
+**Fork:** y0shua1ee/TokenBar
 **Upstream 1:** steipete/CodexBar (original)  
 **Upstream 2:** nguyenphutrong/quotio (inspiration source)
 
@@ -41,7 +41,7 @@ read_when:
 
 ```bash
 # Your fork (origin)
-git remote add origin git@github.com:topoffunnel/CodexBar.git
+git remote add origin git@github.com:y0shua1ee/TokenBar.git
 
 # Original upstream (steipete)
 git remote add upstream git@github.com:steipete/CodexBar.git
@@ -234,7 +234,7 @@ git commit -m "feat: implement feature inspired by quotio
 Inspired by quotio's approach to [feature]:
 https://github.com/nguyenphutrong/quotio/commit/abc123
 
-Implemented independently with CodexBar-specific patterns."
+Implemented independently with TokenBar-specific patterns."
 ```
 
 ---
@@ -256,7 +256,7 @@ Implemented independently with CodexBar-specific patterns."
 - Multi-account management (major architectural change)
 - Fork-specific UI customizations
 - Experimental features
-- topoffunnel.com-specific integrations
+- TokenBar-specific integrations
 
 ### Creating Upstream PR Branch
 
@@ -324,9 +324,8 @@ git push origin upstream-pr/fix-cursor-bonus
 feat: add multi-account management for Augment
 
 Implements account switching UI and storage.
-Fork-specific feature for topoffunnel.com users.
+Fork-specific feature for TokenBar users.
 
-Co-authored-by: Brandon Charleson <brandon@topoffunnel.com>
 ```
 
 ### Upstream-Bound Commits (Generic)
@@ -350,7 +349,7 @@ Adds automatic session restoration on app restart.
 Inspired by quotio's approach:
 https://github.com/nguyenphutrong/quotio/blob/main/...
 
-Implemented independently using CodexBar patterns.
+Implemented independently using TokenBar patterns.
 ```
 
 ---
@@ -487,7 +486,7 @@ git commit -m "feat: implement multi-account management
 Inspired by quotio's account switching pattern:
 https://github.com/nguyenphutrong/quotio/...
 
-Implemented independently using CodexBar's architecture."
+Implemented independently using TokenBar's architecture."
 ```
 
 ---

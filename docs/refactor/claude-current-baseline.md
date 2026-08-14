@@ -9,7 +9,7 @@ read_when:
 
 # Claude current baseline
 
-This document is the current-state parity reference for Claude behavior in CodexBar.
+This document is the current-state parity reference for Claude behavior in TokenBar.
 
 Use it when later tickets need to preserve or intentionally change Claude behavior. When the refactor plan,
 summary docs, and running code disagree, treat current code plus characterization coverage as authoritative, and use
@@ -91,7 +91,7 @@ Current behavior that later refactor work must preserve:
 - Prompt mode `never` blocks delegated refresh attempts.
 - Expired credential owner behavior remains owner-specific:
   - `.claudeCLI`: delegated refresh path,
-  - `.codexbar`: direct refresh path,
+  - `.tokenbar`: direct refresh path,
   - `.environment`: no auto-refresh.
 
 ## Token-account routing baseline

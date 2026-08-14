@@ -14,15 +14,15 @@ read_when:
 
 ## Problem
 
-The Kilo provider in CodexBar always queries the personal account. Users who belong to one or more Kilo organizations cannot see organization-level credits, KiloPass usage, or plan info. Kilo's own clients (VS Code extension, CLI) let users pick "Personal" or any organization they belong to and route requests with an `X-KILOCODE-ORGANIZATIONID` header.
+The Kilo provider in TokenBar always queries the personal account. Users who belong to one or more Kilo organizations cannot see organization-level credits, KiloPass usage, or plan info. Kilo's own clients (VS Code extension, CLI) let users pick "Personal" or any organization they belong to and route requests with an `X-KILOCODE-ORGANIZATIONID` header.
 
-Goal: let CodexBar users opt in to seeing one or more Kilo organizations alongside their personal account.
+Goal: let TokenBar users opt in to seeing one or more Kilo organizations alongside their personal account.
 
 ## Non-goals
 
 - Menu-bar org switcher. Selection lives in Preferences only.
-- Editing org membership from CodexBar (read-only consumer of Kilo's org list).
-- Per-org auth (CodexBar reuses the same API key/CLI session; Kilo's gateway scopes via header).
+- Editing org membership from TokenBar (read-only consumer of Kilo's org list).
+- Per-org auth (TokenBar reuses the same API key/CLI session; Kilo's gateway scopes via header).
 - Replacing the existing single-account `Personal` flow when no orgs are configured.
 
 ## Constraints / context
@@ -30,11 +30,11 @@ Goal: let CodexBar users opt in to seeing one or more Kilo organizations alongsi
 - Kilo gateway accepts `X-KILOCODE-ORGANIZATIONID: <orgId>` to scope any authenticated request. Documented at `kilo.ai/docs/gateway/authentication`.
 - Profile endpoint shape (from `Kilo-Org/kilocode` `packages/kilo-gateway/src/api/profile.ts`):
   `GET /api/profile` → `{ user: { email, name }, organizations: [{ id, name, role }] }`.
-- CodexBar's Kilo provider currently calls `https://app.kilo.ai/api/trpc` with procedures `user.getCreditBlocks`, `kiloPass.getState`, `user.getAutoTopUpPaymentMethod`. The `X-KILOCODE-ORGANIZATIONID` header is transport-level and must work for the same procedures.
-- Existing CodexBar patterns to reuse:
+- TokenBar's Kilo provider currently calls `https://app.kilo.ai/api/trpc` with procedures `user.getCreditBlocks`, `kiloPass.getState`, `user.getAutoTopUpPaymentMethod`. The `X-KILOCODE-ORGANIZATIONID` header is transport-level and must work for the same procedures.
+- Existing TokenBar patterns to reuse:
   - `ProviderIdentitySnapshot.accountOrganization` for rendering the org name in a card.
   - Stacked multi-snapshot rendering used by Claude tokenAccounts (Preferences → Advanced → Display).
-  - `~/.codexbar/config.json` per-provider entry for persisted state.
+  - `~/.tokenbar/config.json` per-provider entry for persisted state.
 
 ## User stories
 
@@ -77,7 +77,7 @@ Goal: let CodexBar users opt in to seeing one or more Kilo organizations alongsi
 - Personal scope is implicit: always enabled, can't be toggled off.
 
 Persistence:
-- Add `organizations: [KiloOrganization]?` and `enabledOrganizationIds: [String]?` to the Kilo provider's entry in `~/.codexbar/config.json`.
+- Add `organizations: [KiloOrganization]?` and `enabledOrganizationIds: [String]?` to the Kilo provider's entry in `~/.tokenbar/config.json`.
 - Mutators write through `updateProviderConfig(provider: .kilo)`.
 
 ### Refresh / UsageStore
@@ -134,7 +134,7 @@ Persistence:
   - `UsageStore+KiloRefreshTests`:
     - Fan-out runs N scopes, per-scope error isolation.
     - Single-scope path unchanged when no orgs enabled.
-- CLI snapshot test (`Tests/CodexBarTests/CLIRendererTests` or similar): `codexbar-cli kilo` shows one section per active scope when orgs are enabled.
+- CLI snapshot test (`Tests/CodexBarTests/CLIRendererTests` or similar): `tokenbar-cli kilo` shows one section per active scope when orgs are enabled.
 - Run `make check` and `swift test` before handoff.
 
 ## Migration / compatibility
@@ -152,5 +152,5 @@ Persistence:
 
 - Menu-bar org switcher UI.
 - Per-org token storage / multiple API keys for the same provider.
-- CLI command for org switching (`codexbar-cli` consumes the same settings).
+- CLI command for org switching (`tokenbar-cli` consumes the same settings).
 - Widget rendering changes for multi-scope (widget continues to show personal scope).

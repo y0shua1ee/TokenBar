@@ -251,7 +251,9 @@ public enum CodebuffUsageFetcher {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["fingerprintId": "codexbar-usage"])
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "fingerprintId": "\(TokenBarIdentity.commandName)-usage",
+        ])
 
         let response = try await self.send(request: request, transport: transport)
         if let err = self.statusError(for: response.statusCode) {

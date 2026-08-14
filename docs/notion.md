@@ -15,13 +15,13 @@ Notion begins enforcing the AI usage allowance on **August 3, 2026**. Before tha
 reports `"enforcement": "preview"` while still returning real usage numbers, so the gauges are accurate
 either way.
 
-> **Unsupported integration:** CodexBar uses Notion's internal, cookie-authenticated `/api/v3` endpoints.
+> **Unsupported integration:** TokenBar uses Notion's internal, cookie-authenticated `/api/v3` endpoints.
 > These endpoints are not a supported public API and may change or break without notice.
 
 ## Requirements
 
 The usage allowance only exists on **Business** and **Enterprise** workspaces. Free, Plus, and personal
-workspaces make the endpoint answer `{"status":"not_applicable"}`, and CodexBar surfaces that as a clear
+workspaces make the endpoint answer `{"status":"not_applicable"}`, and TokenBar surfaces that as a clear
 provider error rather than an empty gauge.
 
 ## Setup
@@ -31,7 +31,7 @@ provider error rather than an empty gauge.
 1. Sign in to Notion in Chrome.
 2. Enable **Notion AI** in **Settings → Providers**.
 
-CodexBar imports your browser session cookie automatically and sends it only to `https://app.notion.com`.
+TokenBar imports your browser session cookie automatically and sends it only to `https://app.notion.com`.
 The import requires the `token_v2` session cookie; a browser profile that has Notion cookies but no
 `token_v2` is skipped rather than used for a request that would fail with 401.
 
@@ -54,7 +54,7 @@ To capture the cookie manually:
 2. Open Developer Tools → Network tab.
 3. Open **Settings → Notion AI → Usage** and find a `getCreditRateLimitStatus` request.
 4. Right-click → Copy → Copy as cURL.
-5. Paste the full `curl` command into the **Notion cookie** field in CodexBar settings.
+5. Paste the full `curl` command into the **Notion cookie** field in TokenBar settings.
 
 ### Workspace selection
 
@@ -67,7 +67,7 @@ only manual paths are the Settings fields above and `config.json`.
 
 ## Data Source
 
-CodexBar sends two POST requests per refresh, both to `https://app.notion.com`:
+TokenBar sends two POST requests per refresh, both to `https://app.notion.com`:
 
 1. `/api/v3/getSpaces` — resolves the signed-in user (email, name) and the workspaces the account can see,
    including each workspace's `plan_type` and `subscription_tier`. This is what makes automatic workspace
@@ -95,7 +95,7 @@ The rate-limit response looks like this:
 
 ## Mapping
 
-| CodexBar window | Notion field | Notes |
+| TokenBar window | Notion field | Notes |
 | --- | --- | --- |
 | Rolling (primary) | `window.used` / `window.limit` | `window.window` (`6h`) sets the window length; `resetsInSeconds` sets the reset time. |
 | Monthly (secondary) | `billingPeriodWindow.used` / `.limit` | `periodEndMs` sets the reset time, and the window length is the calendar month ending there. |
@@ -110,7 +110,7 @@ Custom Agents and Workers are **not** covered by this allowance — Notion meter
 
 ### Pace
 
-Both bars carry an expected-usage estimate on the card and in `codexbar usage`, reading `n% in deficit`
+Both bars carry an expected-usage estimate on the card and in `tokenbar usage`, reading `n% in deficit`
 when you are ahead of an even burn and `n% in reserve` when behind.
 
 The monthly estimate needs a window length, and Notion reports only `periodEndMs`. The snapshot
@@ -130,7 +130,7 @@ period and goes through the reset-window path instead.
 
 ## Status
 
-Notion publishes a status page at <https://status.notion.so/>; CodexBar links to it but does not poll
+Notion publishes a status page at <https://status.notion.so/>; TokenBar links to it but does not poll
 components.
 
 ## Troubleshooting

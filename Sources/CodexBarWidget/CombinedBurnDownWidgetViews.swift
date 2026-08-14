@@ -28,7 +28,7 @@ struct CombinedBurnDownWidgetView: View {
 
     private var emptyState: some View {
         VStack(spacing: 6) {
-            Text("Open CodexBar")
+            Text("Open \(TokenBarIdentity.displayName)")
                 .font(.body)
                 .fontWeight(.semibold)
             Text("Usage data will appear once the app refreshes.")

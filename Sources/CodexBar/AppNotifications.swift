@@ -44,7 +44,7 @@ final class AppNotifications {
             content.badge = badge
 
             let request = UNNotificationRequest(
-                identifier: "codexbar-\(idPrefix)-\(UUID().uuidString)",
+                identifier: "\(TokenBarIdentity.commandName)-\(idPrefix)-\(UUID().uuidString)",
                 content: content,
                 trigger: nil)
 

@@ -8,7 +8,7 @@ read_when:
 
 # Perplexity Provider
 
-CodexBar reads Perplexity account credit data with a Perplexity web session cookie. It does not use a Perplexity API
+TokenBar reads Perplexity account credit data with a Perplexity web session cookie. It does not use a Perplexity API
 key and does not support token-cost history.
 
 ## Setup
@@ -35,7 +35,7 @@ export PERPLEXITY_COOKIE="__Secure-next-auth.session-token=..."
 
 ## Data Source
 
-CodexBar requests:
+TokenBar requests:
 
 - `GET https://www.perplexity.ai/rest/billing/credits?version=2.18&source=default`
 
@@ -57,14 +57,14 @@ Purchased credits do not reset, so the menu displays that balance without a rese
 ## CLI Usage
 
 ```bash
-codexbar usage --provider perplexity --verbose
+tokenbar usage --provider perplexity --verbose
 ```
 
 ## Troubleshooting
 
 ### "Perplexity session token is missing"
 
-Sign in to [perplexity.ai](https://www.perplexity.ai/) and refresh CodexBar, or paste a fresh cookie/session token in
+Sign in to [perplexity.ai](https://www.perplexity.ai/) and refresh TokenBar, or paste a fresh cookie/session token in
 manual mode.
 
 ### "Perplexity session token is invalid or expired"

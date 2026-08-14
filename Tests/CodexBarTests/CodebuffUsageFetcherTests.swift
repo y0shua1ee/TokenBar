@@ -46,7 +46,7 @@ struct CodebuffUsageFetcherTests {
         let body = try #require(CodebuffStubURLProtocol.requestBodies[usageIndex])
         let payload = try #require(JSONSerialization.jsonObject(with: body) as? [String: String])
 
-        #expect(payload["fingerprintId"] == "codexbar-usage")
+        #expect(payload["fingerprintId"] == "tokenbar-usage")
         #expect(snapshot.creditsUsed == 25)
     }
 

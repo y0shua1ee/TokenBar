@@ -4,19 +4,24 @@ set -euo pipefail
 PREV_TAG=${1:?"pass previous release tag (e.g. v0.1.0)"}
 CUR_TAG=${2:?"pass current release tag (e.g. v0.1.1)"}
 
+if [[ "${TOKENBAR_ALLOW_DESTRUCTIVE_LIVE_UPDATE:-}" != "1" ]]; then
+  echo "Refusing to replace /Applications/TokenBar.app without TOKENBAR_ALLOW_DESTRUCTIVE_LIVE_UPDATE=1." >&2
+  exit 2
+fi
+
 PREV_VER=${PREV_TAG#v}
 CUR_VER=${CUR_TAG#v}
-APP_NAME="CodexBar"
+APP_NAME="TokenBar"
 
-ZIP_URL="https://github.com/steipete/CodexBar/releases/download/${PREV_TAG}/${APP_NAME}-macos-universal-${PREV_VER}.zip"
-TMP_DIR=$(mktemp -d /tmp/codexbar-live.XXXX)
+ZIP_URL="https://github.com/y0shua1ee/TokenBar/releases/download/${PREV_TAG}/${APP_NAME}-macos-universal-${PREV_VER}.zip"
+TMP_DIR=$(mktemp -d /tmp/tokenbar-live.XXXX)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "Downloading previous release $PREV_TAG from $ZIP_URL"
 curl --fail --location --output "$TMP_DIR/prev.zip" "$ZIP_URL"
 
 echo "Installing previous release to /Applications/${APP_NAME}.app"
-osascript -e 'tell application "CodexBar" to quit' >/dev/null 2>&1 || true
+osascript -e 'tell application "TokenBar" to quit' >/dev/null 2>&1 || true
 for _ in {1..20}; do
   pgrep -x "$APP_NAME" >/dev/null || break
   sleep 0.25

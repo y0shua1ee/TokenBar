@@ -14,7 +14,8 @@ public enum NotionUsageError: LocalizedError, Sendable, Equatable {
         case .noSessionCookie:
             "No Notion cookies found. Please log in to notion.com in your browser."
         case .cookieImportDeferred:
-            "Notion cookies can only be read during a manual refresh. Refresh CodexBar once to import them."
+            "Notion cookies can only be read during a manual refresh. Refresh \(TokenBarIdentity.displayName) " +
+                "once to import them."
         case .invalidCredentials:
             "Notion session cookie is invalid or expired."
         case .noWorkspace:

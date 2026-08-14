@@ -14,7 +14,7 @@ read_when:
 
 ## Decision
 
-CodexBar uses plain `Adaptive` for a missing refresh preference only when no prior-launch marker or existing config exists.
+TokenBar uses plain `Adaptive` for a missing refresh preference only when no prior-launch marker or existing config exists.
 The resolved value is persisted immediately, so later launches preserve that choice. Existing installations without a
 stored cadence, and unrecognized stored values, resolve to the legacy 5-minute fallback. Every valid stored choice,
 including Manual and each fixed interval, remains unchanged. Both adaptive modes adjust the existing provider-batch

@@ -1,4 +1,5 @@
 import AppKit
+import CodexBarCore
 import SwiftUI
 
 @MainActor
@@ -17,7 +18,9 @@ struct AboutPane: View {
     }
 
     private var buildTimestamp: String? {
-        guard let raw = Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String else { return nil }
+        guard let raw = Bundle.main.object(forInfoDictionaryKey: "TokenBarBuildTimestamp") as? String
+            ?? Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String
+        else { return nil }
         let parser = ISO8601DateFormatter()
         parser.formatOptions = [.withInternetDateTime]
         guard let date = parser.date(from: raw) else { return raw }
@@ -66,10 +69,10 @@ struct AboutPane: View {
                 AboutLinkRow(
                     icon: "chevron.left.slash.chevron.right",
                     title: L("link_github"),
-                    url: "https://github.com/steipete/CodexBar")
-                AboutLinkRow(icon: "globe", title: L("link_website"), url: "https://steipete.me")
-                AboutLinkRow(icon: "bird", title: L("link_twitter"), url: "https://twitter.com/steipete")
-                AboutLinkRow(icon: "envelope", title: L("link_email"), url: "mailto:peter@steipete.me")
+                    url: TokenBarIdentity.repositoryURL)
+                AboutLinkRow(icon: "globe", title: L("link_website"), url: TokenBarIdentity.websiteURL)
+                AboutLinkRow(icon: "bird", title: L("link_twitter"), url: TokenBarAboutLinks.maintainerProfile)
+                AboutLinkRow(icon: "envelope", title: L("link_email"), url: TokenBarAboutLinks.maintainerEmail)
             } header: {
                 Text(L("section_links"))
             } footer: {
@@ -115,7 +118,7 @@ struct AboutPane: View {
             }
 
             VStack(spacing: 2) {
-                Text("CodexBar")
+                Text(TokenBarIdentity.displayName)
                     .font(.title3).bold()
                 Text(String(format: L("version_format"), self.versionString))
                     .foregroundStyle(.secondary)
@@ -146,7 +149,7 @@ struct AboutPane: View {
     }
 
     private func openProjectHome() {
-        guard let url = URL(string: "https://github.com/steipete/CodexBar") else { return }
+        guard let url = URL(string: TokenBarIdentity.repositoryURL) else { return }
         NSWorkspace.shared.open(url)
     }
 }

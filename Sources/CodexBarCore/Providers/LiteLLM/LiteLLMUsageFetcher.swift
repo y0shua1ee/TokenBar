@@ -15,9 +15,9 @@ public enum LiteLLMUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingCredentials:
-            "Missing LiteLLM API key. Set apiKey in ~/.codexbar/config.json or LITELLM_API_KEY."
+            "Missing LiteLLM API key. Set apiKey in \(TokenBarIdentity.configPathHint) or LITELLM_API_KEY."
         case .missingBaseURL:
-            "Missing LiteLLM base URL. Set enterpriseHost in ~/.codexbar/config.json or LITELLM_BASE_URL."
+            "Missing LiteLLM base URL. Set enterpriseHost in \(TokenBarIdentity.configPathHint) or LITELLM_BASE_URL."
         case let .invalidEndpointOverride(key):
             "LiteLLM base URL override \(key) is invalid. Use an HTTPS URL, or plain HTTP for " +
                 "loopback or private-network addresses and .local hosts, without embedded credentials."

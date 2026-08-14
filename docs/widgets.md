@@ -1,9 +1,9 @@
 ---
-summary: "WidgetKit snapshot pipeline + visibility troubleshooting for CodexBar widgets."
+summary: "WidgetKit snapshot pipeline + visibility troubleshooting for TokenBar widgets."
 read_when:
   - Modifying WidgetKit extension behavior or snapshot format
   - Debugging widget update timing
-  - Widget gallery shows no CodexBar widgets
+  - Widget gallery shows no TokenBar widgets
 ---
 
 # Widgets
@@ -26,12 +26,12 @@ read_when:
 - Keep data shape in sync with `WidgetSnapshot` in the main app.
 
 ## Widget types
-- **CodexBar Switcher** (`CodexBarSwitcherWidget`): static provider switcher widget, small/medium/large.
-- **CodexBar Usage** (`CodexBarUsageWidget`): configurable provider usage widget, small/medium/large.
-- **CodexBar History** (`CodexBarHistoryWidget`): configurable usage-history chart, medium/large.
-- **CodexBar Metric** (`CodexBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
-- **CodexBar Burn Down** (`CodexBarBurnDownWidget`): configurable session or weekly burn-down chart, medium only.
-- **CodexBar Burn Down (Combined)** (`CodexBarCombinedBurnDownWidget`): session and weekly burn-down charts, medium only.
+- **TokenBar Switcher** (`CodexBarSwitcherWidget`): static provider switcher widget, small/medium/large.
+- **TokenBar Usage** (`CodexBarUsageWidget`): configurable provider usage widget, small/medium/large.
+- **TokenBar History** (`CodexBarHistoryWidget`): configurable usage-history chart, medium/large.
+- **TokenBar Metric** (`CodexBarCompactWidget`): compact credits/today-cost/30-day-cost widget, small only.
+- **TokenBar Burn Down** (`CodexBarBurnDownWidget`): configurable session or weekly burn-down chart, medium only.
+- **TokenBar Burn Down (Combined)** (`CodexBarCombinedBurnDownWidget`): session and weekly burn-down charts, medium only.
 
 ## Provider picker support
 The configurable provider widgets currently expose:
@@ -47,16 +47,16 @@ registration, signing, or daemon caching (not SwiftUI code).
 
 ### 1) Verify the extension bundle exists where macOS expects it
 ```
-APP="/Applications/CodexBar.app"
+APP="/Applications/TokenBar.app"
 WAPPEX="$APP/Contents/PlugIns/CodexBarWidget.appex"
-WIDGET_ID="com.steipete.codexbar.widget" # debug builds use com.steipete.codexbar.debug.widget
+WIDGET_ID="com.y0shua1ee.tokenbar.widget" # debug builds use com.y0shua1ee.tokenbar.debug.widget
 
 ls -la "$WAPPEX" "$WAPPEX/Contents" "$WAPPEX/Contents/MacOS"
 ```
 
 ### 2) PlugInKit registration (pkd)
 ```
-pluginkit -m -p com.apple.widgetkit-extension -v | grep -i codexbar || true
+pluginkit -m -p com.apple.widgetkit-extension -v | grep -i tokenbar || true
 pluginkit -m -p com.apple.widgetkit-extension -i "$WIDGET_ID" -vv
 ```
 Notes:
@@ -75,10 +75,10 @@ If multiple paths appear, delete older installs and bump `CFBundleVersion`.
 ### 3) Code signing + Gatekeeper assessment
 Widgets are loaded by system daemons. Any signing failure can hide the widget.
 ```
-codesign --verify --deep --strict --verbose=4 /Applications/CodexBar.app
+codesign --verify --deep --strict --verbose=4 /Applications/TokenBar.app
 codesign --verify --strict --verbose=4 "$WAPPEX"
 codesign --verify --strict --verbose=4 "$WAPPEX/Contents/MacOS/CodexBarWidget"
-spctl --assess --type execute --verbose=4 /Applications/CodexBar.app
+spctl --assess --type execute --verbose=4 /Applications/TokenBar.app
 ```
 
 ### 4) Restart the right daemons (NotificationCenter alone is not enough)
@@ -94,7 +94,7 @@ log stream --style compact --predicate '(process == "pkd" OR process == "chronod
 ```
 
 ### 6) Packaging sanity checks
-- Widget bundle id should be `com.steipete.codexbar.widget` for release and `com.steipete.codexbar.debug.widget` for debug.
+- Widget bundle id should be `com.y0shua1ee.tokenbar.widget` for release and `com.y0shua1ee.tokenbar.debug.widget` for debug.
 - `NSExtensionPointIdentifier` must be `com.apple.widgetkit-extension`.
 - Bundle folder name should match: `CodexBarWidget.appex`.
 

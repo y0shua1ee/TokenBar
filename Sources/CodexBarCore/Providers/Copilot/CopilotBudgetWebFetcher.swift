@@ -446,7 +446,7 @@ public struct CopilotBudgetWebFetcher: Sendable {
         request.timeoutInterval = 15
         request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
 
         let response = try await self.transport.response(for: request)
         switch response.statusCode {
@@ -487,7 +487,7 @@ public struct CopilotBudgetWebFetcher: Sendable {
         request.setValue("https://github.com/settings/billing/budgets", forHTTPHeaderField: "Referer")
         request.setValue("XMLHttpRequest", forHTTPHeaderField: "X-Requested-With")
         request.setValue("true", forHTTPHeaderField: "GitHub-Verified-Fetch")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
         if let nonce, !nonce.isEmpty {
             request.setValue(nonce, forHTTPHeaderField: "X-Fetch-Nonce")
         }

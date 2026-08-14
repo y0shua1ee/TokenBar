@@ -5,9 +5,9 @@ read_when:
   - Reviewing fork milestones
 ---
 
-# CodexBar Fork Roadmap
+# TokenBar Fork Roadmap
 
-This document outlines the development roadmap for the CodexBar fork maintained by Brandon Charleson.
+This document outlines the development roadmap for the TokenBar fork maintained by y0shua1ee.
 
 ## ✅ Phase 1: Fork Identity (COMPLETE)
 
@@ -196,7 +196,7 @@ This document outlines the development roadmap for the CodexBar fork maintained 
 - Multi-account management (major architectural change)
 - Fork-specific branding/attribution
 - Experimental features
-- Features specific to topoffunnel.com users
+- Features specific to TokenBar users
 
 **PR Guidelines:**
 - Keep PRs focused and small
@@ -216,7 +216,7 @@ This document outlines the development roadmap for the CodexBar fork maintained 
 - Zero regressions from upstream syncs
 
 **User:**
-- Positive feedback from topoffunnel.com users
+- Positive feedback from TokenBar users
 - Active usage metrics
 - Feature requests and engagement
 - Community contributions

@@ -21,7 +21,7 @@ extension KeychainCacheStore {
             ?? executableURL.flatMap(self.appBundleURL(containing:))
         else { return [] }
         append(appBundle.path)
-        append(appBundle.appendingPathComponent("Contents/Helpers/CodexBarCLI").path)
+        append(appBundle.appendingPathComponent(TokenBarIdentity.bundledCLIRelativePath).path)
         if let executableURL {
             append(executableURL.path)
         }

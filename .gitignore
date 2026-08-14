@@ -2,6 +2,7 @@
 xcuserdata/
 .swiftpm/xcode/xcshareddata/
 .codexbar/config.json
+.tokenbar/config.json
 *.env
 *.local
 
@@ -15,6 +16,9 @@ CodexBar.app/
 CodexBar *.app/
 CodexBar_*.app/
 Codexbar.app/
+TokenBar.app/
+TokenBar *.app/
+TokenBar_*.app/
 # Release artifacts
 *.ipa
 *.dSYM*

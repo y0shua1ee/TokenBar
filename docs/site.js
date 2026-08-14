@@ -350,7 +350,7 @@ function applyThemePreference(preference, persist = true) {
 
   if (persist) {
     try {
-      localStorage.setItem("codexbar-theme", preference);
+      localStorage.setItem("tokenbar-theme", preference);
     } catch {}
   }
 }
@@ -416,7 +416,7 @@ const localeAliases = {
   pt: "pt-BR",
   "pt-br": "pt-BR",
 };
-const languageStorageKey = "codexbar-language";
+const languageStorageKey = "tokenbar-language";
 const languagePicker = document.querySelector("#language-picker");
 const languageTrigger = document.querySelector("#language-picker-trigger");
 const languageMenu = document.querySelector("#language-picker-menu");
@@ -464,9 +464,9 @@ function applyAttributeMessages(dataAttribute, targetAttribute) {
 
 function richToken(name) {
   const codeTokens = {
-    cask: "brew install --cask steipete/tap/codexbar",
-    codexbar: "codexbar",
-    linuxCommand: "brew install steipete/tap/codexbar",
+    cask: "brew install --cask y0shua1ee/tokenbar/tokenbar",
+    codexbar: "tokenbar",
+    linuxCommand: "brew install y0shua1ee/tokenbar/tokenbar",
     upgrade: "brew upgrade",
   };
   if (codeTokens[name]) {
@@ -478,7 +478,7 @@ function richToken(name) {
   if (name === "releases") {
     const link = document.createElement("a");
     link.className = "text-link";
-    link.href = "https://github.com/steipete/CodexBar/releases";
+    link.href = "https://github.com/y0shua1ee/TokenBar/releases";
     link.textContent = "GitHub Releases";
     return link;
   }

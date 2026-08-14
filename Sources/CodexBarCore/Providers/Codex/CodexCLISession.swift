@@ -21,7 +21,8 @@ actor CodexCLISession {
             case let .launchFailed(msg): "Failed to launch Codex CLI session: \(msg)"
             case .timedOut: "Codex CLI session timed out."
             case .processExited: "Codex CLI session exited."
-            case .outputTooLarge: "Codex CLI session produced more output than CodexBar can safely process."
+            case .outputTooLarge:
+                "Codex CLI session produced more output than \(TokenBarIdentity.displayName) can safely process."
             }
         }
     }

@@ -281,7 +281,7 @@ jobs:
 
           echo "CODEXBAR_SQLITE3_LIB_DIR=$sqlite_out/lib" >> "$GITHUB_ENV"
 
-      - name: Build CodexBarCLI (release)
+      - name: Build TokenBarCLI (release)
         id: build
         shell: bash
         run: |
@@ -310,7 +310,7 @@ jobs:
 
           echo "bin_dir=$("${SHOW_BIN_ARGS[@]}")" >> "$GITHUB_OUTPUT"
 
-      - name: Smoke test CodexBarCLI
+      - name: Smoke test TokenBarCLI
         timeout-minutes: 5
         shell: bash
         run: |
@@ -350,20 +350,20 @@ jobs:
           file "$BIN"
           if [[ "${{ matrix.platform }}" == "macos" ]]; then
             lipo -archs "$BIN" | tr ' ' '\n' | grep -Fx "${{ matrix.asset-arch }}"
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-smoke-${{ matrix.name }}.txt" "$BIN" config validate --format json
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-smoke-${{ matrix.name }}.txt" "$BIN" config validate --format json
           elif [[ -n "${{ matrix.swift-sdk }}" ]]; then
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-config-${{ matrix.name }}.json" "$BIN" config validate --format json
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-config-${{ matrix.name }}.json" "$BIN" config validate --format json
             file "$BIN" | grep -q "${{ matrix.file-arch-pattern }}"
             file "$BIN" | grep -q "statically linked"
           else
-            run_with_timeout "$RUNNER_TEMP/codexbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
+            run_with_timeout "$RUNNER_TEMP/tokenbar-cli-help-${{ matrix.name }}.txt" "$BIN" --help
             file "$BIN" | grep -q "${{ matrix.file-arch-pattern }}"
           fi
           printf '%s\n' "${RELEASE_TAG#v}" > "$BIN_DIR/VERSION"
-          VERSION_OUTPUT="$RUNNER_TEMP/codexbar-cli-version-${{ matrix.name }}.txt"
+          VERSION_OUTPUT="$RUNNER_TEMP/tokenbar-cli-version-${{ matrix.name }}.txt"
           run_with_timeout "$VERSION_OUTPUT" "$BIN" --version
-          grep -Fx "CodexBar ${RELEASE_TAG#v}" "$VERSION_OUTPUT"
+          grep -Fx "TokenBar ${RELEASE_TAG#v}" "$VERSION_OUTPUT"
           rm "$BIN_DIR/VERSION"
 
       - name: Package
@@ -381,8 +381,8 @@ jobs:
 
           BIN_DIR="${{ steps.build.outputs.bin_dir }}"
           OUT_DIR="$(mktemp -d)"
-          install -m 0755 "$BIN_DIR/CodexBarCLI" "$OUT_DIR/CodexBarCLI"
-          ln -s "CodexBarCLI" "$OUT_DIR/codexbar"
+          install -m 0755 "$BIN_DIR/CodexBarCLI" "$OUT_DIR/TokenBarCLI"
+          ln -s "TokenBarCLI" "$OUT_DIR/tokenbar"
           printf '%s\n' "${SAFE_REF_NAME#v}" > "$OUT_DIR/VERSION"
 
           CORE_RESOURCE_SOURCE=""
@@ -399,16 +399,16 @@ jobs:
             exit 1
           fi
           cp -R "$CORE_RESOURCE_SOURCE" "$OUT_DIR/CodexBar_CodexBarCore.bundle"
-          DIRECT_RESOURCE_SMOKE_OUTPUT="$RUNNER_TEMP/codexbar-cli-resource-smoke-direct-${{ matrix.name }}.txt"
-          CODEXBAR_RESOURCE_SMOKE=1 "$OUT_DIR/CodexBarCLI" > "$DIRECT_RESOURCE_SMOKE_OUTPUT"
+          DIRECT_RESOURCE_SMOKE_OUTPUT="$RUNNER_TEMP/tokenbar-cli-resource-smoke-direct-${{ matrix.name }}.txt"
+          CODEXBAR_RESOURCE_SMOKE=1 "$OUT_DIR/TokenBarCLI" > "$DIRECT_RESOURCE_SMOKE_OUTPUT"
           grep -Fx "CODEXBAR_RESOURCE_SMOKE_OK" "$DIRECT_RESOURCE_SMOKE_OUTPUT"
-          SYMLINK_RESOURCE_SMOKE_OUTPUT="$RUNNER_TEMP/codexbar-cli-resource-smoke-symlink-${{ matrix.name }}.txt"
-          CODEXBAR_RESOURCE_SMOKE=1 "$OUT_DIR/codexbar" > "$SYMLINK_RESOURCE_SMOKE_OUTPUT"
+          SYMLINK_RESOURCE_SMOKE_OUTPUT="$RUNNER_TEMP/tokenbar-cli-resource-smoke-symlink-${{ matrix.name }}.txt"
+          CODEXBAR_RESOURCE_SMOKE=1 "$OUT_DIR/tokenbar" > "$SYMLINK_RESOURCE_SMOKE_OUTPUT"
           grep -Fx "CODEXBAR_RESOURCE_SMOKE_OK" "$SYMLINK_RESOURCE_SMOKE_OUTPUT"
 
-          ASSET="CodexBarCLI-${SAFE_REF_NAME}-${{ matrix.asset-platform }}-${{ matrix.asset-arch }}.tar.gz"
+          ASSET="TokenBarCLI-${SAFE_REF_NAME}-${{ matrix.asset-platform }}-${{ matrix.asset-arch }}.tar.gz"
           (cd "$OUT_DIR" && tar czf "$ASSET" \
-            CodexBarCLI codexbar VERSION CodexBar_CodexBarCore.bundle)
+            TokenBarCLI tokenbar VERSION CodexBar_CodexBarCore.bundle)
           if command -v sha256sum >/dev/null 2>&1; then
             sha256sum "$OUT_DIR/$ASSET" > "$OUT_DIR/$ASSET.sha256"
           else
@@ -434,7 +434,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: codexbar-cli-${{ matrix.name }}
+          name: tokenbar-cli-${{ matrix.name }}
           path: |
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}
             ${{ steps.pkg.outputs.out_dir }}/${{ steps.pkg.outputs.asset }}.sha256
@@ -464,7 +464,7 @@ jobs:
             exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "request_id=codexbar-${tag}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+          echo "request_id=tokenbar-${tag}-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch tap update
         env:
@@ -477,14 +477,14 @@ jobs:
           test -n "$GH_TOKEN"
           for attempt in {1..6}; do
             if gh workflow run update-formula.yml \
-              --repo steipete/homebrew-tap \
-              -f formula=codexbar \
+              --repo y0shua1ee/homebrew-tokenbar \
+              -f formula=tokenbar \
               -f tag="$RELEASE_TAG" \
-              -f repository=steipete/CodexBar \
-              -f artifact_template='CodexBarCLI-{tag}-{target}.tar.gz' \
+              -f repository=y0shua1ee/TokenBar \
+              -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
               -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
-              -f cask=codexbar \
-              -f cask_artifact='CodexBar-macos-universal-{version}.zip' \
+              -f cask=tokenbar \
+              -f cask_artifact='TokenBar-macos-universal-{version}.zip' \
               -f request_id="$REQUEST_ID"; then
               exit 0
             fi

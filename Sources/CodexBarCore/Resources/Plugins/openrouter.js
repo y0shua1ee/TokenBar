@@ -25,7 +25,7 @@ defineProvider({
     }
 
     const base = (ctx.settings.get("OPENROUTER_API_URL") || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
-    const headers = { "X-Title": ctx.settings.get("OPENROUTER_X_TITLE") || "CodexBar" };
+    const headers = { "X-Title": ctx.settings.get("OPENROUTER_X_TITLE") || "TokenBar" };
     const referer = ctx.settings.get("OPENROUTER_HTTP_REFERER");
     if (referer) headers["HTTP-Referer"] = referer;
     const creditsResponse = await ctx.http.get(`${base}/credits`, { headers });

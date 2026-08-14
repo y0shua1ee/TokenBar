@@ -4,10 +4,10 @@ import Security
 #endif
 
 public enum AppGroupSupport {
-    public static let defaultTeamID = "Y5PE65HELJ"
-    public static let teamIDInfoKey = "CodexBarTeamID"
-    public static let legacyReleaseGroupID = "group.com.steipete.codexbar"
-    public static let legacyDebugGroupID = "group.com.steipete.codexbar.debug"
+    public static let defaultTeamID = TokenBarIdentity.defaultTeamID
+    public static let teamIDInfoKey = TokenBarIdentity.appGroupTeamIDInfoKey
+    public static let legacyReleaseGroupID = TokenBarIdentity.legacyReleaseAppGroupIdentifier
+    public static let legacyDebugGroupID = TokenBarIdentity.legacyDebugAppGroupIdentifier
     public static let widgetSnapshotFilename = "widget-snapshot.json"
     public static let migrationVersion = 1
     public static let migrationVersionKey = "appGroupMigrationVersion"
@@ -40,7 +40,10 @@ public enum AppGroupSupport {
     }
 
     static func currentGroupID(teamID: String, bundleID: String?) -> String {
-        let base = "\(teamID).com.steipete.codexbar"
+        guard !teamID.isEmpty else {
+            return self.legacyGroupID(for: bundleID)
+        }
+        let base = "\(teamID).\(TokenBarIdentity.appGroupIdentifierBase)"
         return self.isDebugBundleID(bundleID) ? "\(base).debug" : base
     }
 
@@ -111,7 +114,9 @@ public enum AppGroupSupport {
     {
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
-        let directory = base.appendingPathComponent("CodexBar", isDirectory: true)
+        let directory = base.appendingPathComponent(
+            TokenBarIdentity.applicationSupportDirectoryName,
+            isDirectory: true)
         try? fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }

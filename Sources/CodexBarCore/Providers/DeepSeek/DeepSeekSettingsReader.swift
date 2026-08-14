@@ -66,7 +66,7 @@ public struct DeepSeekSettingsReader: Sendable {
         }
         #if canImport(CryptoKit)
         let accountScope = selectedTokenAccountID?.uuidString.lowercased() ?? "environment"
-        let input = "com.steipete.codexbar.deepseek-profile-scope.v1\0\(accountScope)\0\(apiKey)"
+        let input = "\(TokenBarIdentity.persistenceNamespace).deepseek-profile-scope.v1\0\(accountScope)\0\(apiKey)"
         let digest = SHA256.hash(data: Data(input.utf8))
         return "v1:" + digest.map { String(format: "%02x", $0) }.joined()
         #else

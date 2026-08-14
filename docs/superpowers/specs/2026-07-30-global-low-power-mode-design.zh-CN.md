@@ -1,11 +1,11 @@
 ---
-summary: "为 CodexBar 增加非破坏性的全局低功耗后台刷新策略。"
+summary: "为 TokenBar 增加非破坏性的全局低功耗后台刷新策略。"
 read_when:
   - 实现或审阅全局低功耗模式
   - 修改自动刷新、本地成本扫描、存储扫描或 OpenAI Web 后台刷新
 ---
 
-# CodexBar 全局低功耗模式设计
+# TokenBar 全局低功耗模式设计
 
 **状态：** 已批准（2026-07-30）
 
@@ -15,7 +15,7 @@ read_when:
 
 ## 决策摘要
 
-新增一个默认关闭的全局 **Low Power Mode（低功耗模式）**。开启后，CodexBar 的自动供应商刷新、
+新增一个默认关闭的全局 **Low Power Mode（低功耗模式）**。开启后，TokenBar 的自动供应商刷新、
 本地 Token/成本扫描和供应商存储扫描都不得短于 30 分钟；OpenAI Web 的常规后台刷新同时按现有
 Battery Saver 规则处理。用户主动触发的刷新保持可用，不改写用户原有刷新频率，也不删除任何统计
 选项。
@@ -84,7 +84,7 @@ effectiveWebBatterySaver =
 Codex 提供商中的旧标题由 `Battery Saver` 改为 `OpenAI web battery saver`，说明仍明确其只限制
 `chatgpt.com` 刷新。全局设置使用 `Low Power Mode`，避免两个开关被理解为同一作用域。
 
-首个实现至少提供英文和简体中文本地化；其他语言缺失时沿用 CodexBar 的英文回退机制，不在本修复中
+首个实现至少提供英文和简体中文本地化；其他语言缺失时沿用 TokenBar 的英文回退机制，不在本修复中
 批量生成未经审校的翻译。
 
 ## 非目标
@@ -109,9 +109,9 @@ Codex 提供商中的旧标题由 `Battery Saver` 改为 `OpenAI web battery sav
 
 ## 本地安装边界
 
-Mac 可以安装自己编译的 CodexBar。开发包使用 ad-hoc 本地签名，自动更新关闭。由于当前机器没有完整
+Mac 可以安装自己编译的 TokenBar。开发包使用 ad-hoc 本地签名，自动更新关闭。由于当前机器没有完整
 Xcode，首个测试包可不包含 Widget；这不影响菜单栏 App、本地用量统计或本次低功耗策略。安装前备份
-现有 `/Applications/CodexBar.app`，失败时可直接恢复。
+现有 `/Applications/TokenBar.app`，失败时可直接恢复。
 
 ## 验收标准
 
@@ -119,4 +119,4 @@ Xcode，首个测试包可不包含 Widget；这不影响菜单栏 App、本地�
 2. 菜单和显式刷新仍能立即取得新数据。
 3. 关闭低功耗模式后无需重新设置，5 分钟配置恢复。
 4. 设置界面明确区分全局低功耗模式与 OpenAI Web 专用省电开关。
-5. 本地 ad-hoc 包能启动、显示菜单，并读取现有 CodexBar 设置。
+5. 本地 ad-hoc 包能启动、显示菜单，并读取现有 TokenBar 设置。

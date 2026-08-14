@@ -115,7 +115,7 @@ public enum ClaudeAdminAPIUsageFetcher {
         request.setValue(Self.anthropicVersion, forHTTPHeaderField: "anthropic-version")
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("CodexBar/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("\(TokenBarIdentity.displayName)/1.0", forHTTPHeaderField: "User-Agent")
 
         let response: ProviderHTTPResponse
         do {

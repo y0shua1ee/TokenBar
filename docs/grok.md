@@ -19,7 +19,7 @@ browser session when the CLI surface does not expose billing.
    - Reads `email`, `team_id`, `first_name`/`last_name`, plan-hint (`auth_mode`),
      and the optional `principal_type` for the identity row in the menu.
    - Team principals are recognized on the CLI and web billing paths. Until Grok
-     exposes a supported team usage surface, CodexBar keeps the identity row and
+     exposes a supported team usage surface, TokenBar keeps the identity row and
      reports that team usage is unavailable instead of exposing the personal-team
      rejection verbatim.
 2) **`grok agent stdio` ACP JSON-RPC** (best-effort, currently disabled in grok 0.1.210)
@@ -39,13 +39,13 @@ browser session when the CLI surface does not expose billing.
    - POSTs an empty gRPC-web protobuf request to
      `https://grok.com/grok_api_v2.GrokBuildBilling/GetGrokCreditsConfig`.
    - Uses grok.com browser session cookies. When a non-expired
-     `~/.grok/auth.json` token is available, CodexBar first sends it with each
+     `~/.grok/auth.json` token is available, TokenBar first sends it with each
      browser session, then retries that session with cookies only.
-   - CodexBar imports Chrome only by default to avoid unrelated browser
+   - TokenBar imports Chrome only by default to avoid unrelated browser
      Keychain prompts.
    - Ordinary CLI/test runtime does not import browser cookies unless
      `CODEXBAR_ALLOW_BROWSER_COOKIE_IMPORT=1` is set. An explicit
-     `codexbar cookie refresh --provider grok` also opts in for that refresh.
+     `tokenbar cookie refresh --provider grok` also opts in for that refresh.
    - Validated sessions are stored in the Keychain-backed cookie cache and are
      reused first by later app and CLI fetches, so background work does not
      re-open the Chromium Keychain gate. The cached cookie is evicted only on
@@ -66,14 +66,14 @@ browser session when the CLI surface does not expose billing.
 ## OAuth credentials
 
 - File: `~/.grok/auth.json` (path overridable via `GROK_HOME`).
-- Top-level keys are OIDC scope URLs. CodexBar prefers entries under
+- Top-level keys are OIDC scope URLs. TokenBar prefers entries under
   `https://auth.x.ai::<client-id>` (SuperGrok), falling back to
   `https://accounts.x.ai/sign-in` (legacy session).
 - Required fields per entry: `key` (bearer token), `refresh_token`, `expires_at`,
   `auth_mode`, `email`, `team_id`, `user_id`, `first_name`/`last_name`.
   `principal_type` is optional because older auth files do not include it.
 - Tokens are issued by `grok login` and expire after ~7 days; refresh is handled by
-  the CLI itself (CodexBar does not refresh; it just reads the cached credential).
+  the CLI itself (TokenBar does not refresh; it just reads the cached credential).
 
 ## JSON-RPC contract
 
@@ -108,7 +108,7 @@ browser session when the CLI surface does not expose billing.
   ```
 - Auth errors surface as JSON-RPC errors with the message
   `"Authentication required to fetch billing data. Run 'grok login' to authenticate."`.
-- Timeouts: 8s for `initialize`, 12s for `x.ai/billing`. CodexBar terminates the
+- Timeouts: 8s for `initialize`, 12s for `x.ai/billing`. TokenBar terminates the
   child `grok` process on timeout to avoid leaking subprocesses.
 
 ## Mapping to `UsageSnapshot`
@@ -143,7 +143,7 @@ Each session directory contains `signals.json` with fields like:
 }
 ```
 
-CodexBar aggregates these into a `GrokLocalSessionSummary` (session count, total
+TokenBar aggregates these into a `GrokLocalSessionSummary` (session count, total
 tokens, last session time, primary model) and exposes it for diagnostics even when
 the RPC path is unavailable.
 

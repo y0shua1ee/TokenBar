@@ -94,19 +94,19 @@ if [[ "$url" == *'/actions/workflows/update-formula.yml/runs?'* ]]; then
     write_api_response 200 '{"workflow_runs":[]}'
   else
     write_api_response 200 \
-      '{"workflow_runs":[{"id":999,"display_title":"Update codexbar for v0.49.0 (prefix-codexbar-v0.49.0-31322422801-suffix)"},{"id":222,"display_title":"Update codexbar for v0.49.0 (codexbar-v0.49.0-31322422801)"}]}'
+      '{"workflow_runs":[{"id":999,"display_title":"Update tokenbar for v0.49.0 (prefix-tokenbar-v0.49.0-31322422801-suffix)"},{"id":222,"display_title":"Update tokenbar for v0.49.0 (tokenbar-v0.49.0-31322422801)"}]}'
   fi
 elif [[ "$url" == *'/actions/runs/222' ]]; then
   if [[ "$MOCK_SCENARIO" == "failure" ]]; then
     write_api_response 200 \
-      '{"id":222,"display_title":"Update codexbar for v0.49.0 (codexbar-v0.49.0-31322422801)","status":"completed","conclusion":"failure"}'
+      '{"id":222,"display_title":"Update tokenbar for v0.49.0 (tokenbar-v0.49.0-31322422801)","status":"completed","conclusion":"failure"}'
   else
     write_api_response 200 \
-      '{"id":222,"display_title":"Update codexbar for v0.49.0 (codexbar-v0.49.0-31322422801)","status":"completed","conclusion":"success"}'
+      '{"id":222,"display_title":"Update tokenbar for v0.49.0 (tokenbar-v0.49.0-31322422801)","status":"completed","conclusion":"success"}'
   fi
-elif [[ "$url" == *'/Formula/codexbar.rb' ]]; then
+elif [[ "$url" == *'/Formula/tokenbar.rb' ]]; then
   cp "${MOCK_FIXTURE_DIR}/Formula.rb" "$body_file"
-elif [[ "$url" == *'/Casks/codexbar.rb' ]]; then
+elif [[ "$url" == *'/Casks/tokenbar.rb' ]]; then
   if [[ "$MOCK_SCENARIO" == "content-mismatch" ]]; then
     cp "${MOCK_FIXTURE_DIR}/Cask-old.rb" "$body_file"
   else
@@ -123,30 +123,30 @@ chmod +x "$mock_bin/date" "$mock_bin/sleep" "$mock_bin/git" "$mock_bin/curl"
 fixture_dir="$tmp_dir/fixtures"
 mkdir -p "$fixture_dir"
 cat > "$fixture_dir/Formula.rb" <<'RUBY'
-class Codexbar < Formula
+class Tokenbar < Formula
   version "0.49.0"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBarCLI-v#{version}-macos-arm64.tar.gz"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBarCLI-v#{version}-macos-arm64.tar.gz"
   sha256 "1111111111111111111111111111111111111111111111111111111111111111"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBarCLI-v#{version}-macos-x86_64.tar.gz"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBarCLI-v#{version}-macos-x86_64.tar.gz"
   sha256 "2222222222222222222222222222222222222222222222222222222222222222"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBarCLI-v#{version}-linux-aarch64.tar.gz"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBarCLI-v#{version}-linux-aarch64.tar.gz"
   sha256 "3333333333333333333333333333333333333333333333333333333333333333"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBarCLI-v#{version}-linux-x86_64.tar.gz"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBarCLI-v#{version}-linux-x86_64.tar.gz"
   sha256 "4444444444444444444444444444444444444444444444444444444444444444"
 end
 RUBY
 cat > "$fixture_dir/Cask.rb" <<'RUBY'
-cask "codexbar" do
+cask "tokenbar" do
   version "0.49.0"
   sha256 "5555555555555555555555555555555555555555555555555555555555555555"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBar-macos-universal-#{version}.zip"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBar-macos-universal-#{version}.zip"
 end
 RUBY
 cat > "$fixture_dir/Cask-old.rb" <<'RUBY'
-cask "codexbar" do
+cask "tokenbar" do
   version "0.48.1"
   sha256 "5555555555555555555555555555555555555555555555555555555555555555"
-  url "https://github.com/steipete/CodexBar/releases/download/v#{version}/CodexBar-macos-universal-#{version}.zip"
+  url "https://github.com/y0shua1ee/TokenBar/releases/download/v#{version}/TokenBar-macos-universal-#{version}.zip"
 end
 RUBY
 
@@ -161,7 +161,7 @@ run_monitor() {
     MOCK_STATE_DIR="$state_dir" \
     MOCK_FIXTURE_DIR="$fixture_dir" \
     GH_TOKEN=test-token \
-    REQUEST_ID=codexbar-v0.49.0-31322422801 \
+    REQUEST_ID=tokenbar-v0.49.0-31322422801 \
     RELEASE_TAG=v0.49.0 \
     TAP_WAIT_TIMEOUT_SECONDS="$timeout_seconds" \
     TAP_POLL_SECONDS=1 \

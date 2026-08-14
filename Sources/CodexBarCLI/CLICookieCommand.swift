@@ -144,7 +144,7 @@ extension CodexBarCLI {
             return CookieRefreshResult(
                 provider: descriptor.cli.name,
                 status: .failed,
-                message: "\(browser.displayName) cookie decryption is disabled in CodexBar; " +
+                message: "\(browser.displayName) cookie decryption is disabled in \(TokenBarIdentity.displayName); " +
                     "enable Keychain access and refresh.")
         }
         if let browser = promptCapableBrowsers.first(where: { BrowserCookieAccessGate.hasActiveDenial(for: $0) }) {
@@ -178,7 +178,7 @@ extension CodexBarCLI {
 
     private static let browserCookieAccessFailureHint =
         "No browser session cookie was refreshed. Sign in in a configured browser and retry. " +
-        "If Keychain access was declined, CodexBar keeps the six-hour denial cooldown; " +
+        "If Keychain access was declined, \(TokenBarIdentity.displayName) keeps the six-hour denial cooldown; " +
         "use --allow-keychain-prompt only for an explicit interactive retry."
 
     private static func refreshCookie(

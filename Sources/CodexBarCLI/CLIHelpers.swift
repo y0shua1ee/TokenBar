@@ -169,10 +169,7 @@ extension CodexBarCLI {
     }
 
     static func resetTimeDisplayStyleFromDefaults() -> ResetTimeDisplayStyle {
-        let domains = [
-            "com.steipete.codexbar",
-            "com.steipete.codexbar.debug",
-        ]
+        let domains = Self.preferenceDomains
         for domain in domains {
             if let value = UserDefaults(suiteName: domain)?.object(forKey: "resetTimesShowAbsolute") as? Bool {
                 return value ? .absolute : .countdown
@@ -183,10 +180,7 @@ extension CodexBarCLI {
     }
 
     static func weeklyProgressWorkDaysFromDefaults() -> Int? {
-        let domains = [
-            "com.steipete.codexbar",
-            "com.steipete.codexbar.debug",
-        ]
+        let domains = Self.preferenceDomains
         for domain in domains {
             if let value = UserDefaults(suiteName: domain)?.object(forKey: "weeklyProgressWorkDays") as? Int {
                 return value
@@ -194,6 +188,11 @@ extension CodexBarCLI {
         }
         return UserDefaults.standard.object(forKey: "weeklyProgressWorkDays") as? Int
     }
+
+    static let preferenceDomains = [
+        TokenBarIdentity.bundleIdentifier,
+        TokenBarIdentity.debugBundleIdentifier,
+    ]
 
     static func fetchProviderUsage(
         provider: UsageProvider,

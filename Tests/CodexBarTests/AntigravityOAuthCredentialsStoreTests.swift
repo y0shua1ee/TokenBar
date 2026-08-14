@@ -4,6 +4,15 @@ import Testing
 
 struct AntigravityOAuthCredentialsStoreTests {
     @Test
+    func `default credential URL uses the TokenBar namespace`() {
+        let home = URL(fileURLWithPath: "/tmp/tokenbar-antigravity-home", isDirectory: true)
+
+        #expect(
+            AntigravityOAuthCredentialsStore.defaultURL(home: home).path ==
+                "/tmp/tokenbar-antigravity-home/.tokenbar/antigravity/oauth_creds.json")
+    }
+
+    @Test
     func `oauth client discovery reads renamed legacy bundle`() throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

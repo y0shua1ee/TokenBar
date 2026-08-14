@@ -1495,7 +1495,7 @@ public struct AntigravityStatusProbe: Sendable {
                     "hasAnthropicModelAccess": "true",
                     "ide": "antigravity",
                     "ideVersion": "unknown",
-                    "installationId": "codexbar",
+                    "installationId": TokenBarIdentity.commandName,
                     "language": "UNSPECIFIED",
                     "os": "macos",
                     "requestedModelId": "MODEL_UNSPECIFIED",

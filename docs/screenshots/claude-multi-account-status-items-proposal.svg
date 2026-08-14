@@ -19,7 +19,7 @@
   <rect width="1200" height="760" fill="url(#bg)"/>
   <rect x="0" y="0" width="1200" height="42" fill="#27282d"/>
   <circle cx="22" cy="21" r="5" fill="#aeb1b8"/>
-  <text x="40" y="26" class="body">CodexBar</text>
+  <text x="40" y="26" class="body">TokenBar</text>
   <g transform="translate(1010 8)">
     <g>
       <circle cx="18" cy="13" r="12" fill="#d97757"/>

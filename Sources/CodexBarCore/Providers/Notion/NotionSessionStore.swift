@@ -28,7 +28,7 @@ public actor NotionSessionStore {
         let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fm.temporaryDirectory
         self.fileURL = appSupport
-            .appendingPathComponent("CodexBar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.applicationSupportDirectoryName, isDirectory: true)
             .appendingPathComponent("notion-session.json")
     }
 

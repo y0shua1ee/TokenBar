@@ -9,6 +9,8 @@ struct KeychainPromptCoordinatorTests {
             "/Users/me/CodexBar/.build/arm64-apple-macosx/debug/CodexBar"))
         #expect(KeychainPromptCoordinator.isUnbundledCodexBarExecutable(
             "/Users/me/CodexBar/.build/debug/CodexBar"))
+        #expect(KeychainPromptCoordinator.isUnbundledCodexBarExecutable(
+            "/Users/me/TokenBar/.build/debug/TokenBar"))
     }
 
     @Test
@@ -26,9 +28,9 @@ struct KeychainPromptCoordinatorTests {
     @Test
     func `keeps packaged app keychain behavior`() {
         #expect(!KeychainPromptCoordinator.isUnbundledCodexBarExecutable(
-            "/Applications/CodexBar.app/Contents/MacOS/CodexBar"))
+            "/Applications/TokenBar.app/Contents/MacOS/TokenBar"))
         #expect(!KeychainPromptCoordinator.isUnbundledCodexBarExecutable(
-            "/Users/me/CodexBar/.build/package/CodexBar.app/Contents/MacOS/CodexBar"))
+            "/Users/me/TokenBar/.build/package/TokenBar.app/Contents/MacOS/TokenBar"))
     }
 
     @Test
@@ -45,11 +47,12 @@ struct KeychainPromptCoordinatorTests {
 
         #expect(model.title == "Keychain Access Required")
         #expect(model.message.contains("Chrome Safe Storage"))
-        #expect(model.message.contains("macOS—not CodexBar—handles any Mac login password entry"))
+        #expect(model.message.contains("macOS—not TokenBar—handles any Mac login password entry"))
         #expect(model.message.contains("Settings → Advanced"))
         #expect(model.primaryButtonTitle == "OK")
         #expect(model.learnMoreButtonTitle == "Learn More…")
         #expect(model.documentationURL.hasSuffix("/docs/keychain-prompts.md"))
+        #expect(model.documentationURL.hasPrefix(TokenBarIdentity.repositoryURL))
     }
 
     @Test

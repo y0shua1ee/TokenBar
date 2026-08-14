@@ -748,7 +748,7 @@ extension CodexBarCLI {
 
         do {
             try await server.run {
-                Self.writeStderr("CodexBar server listening on http://\(bindHost):\(port)\n")
+                Self.writeStderr("\(TokenBarIdentity.displayName) server listening on http://\(bindHost):\(port)\n")
                 if !CLIServeSecurity.isLoopbackHost(bindHost) {
                     Self.writeStderr(
                         "Warning: plain HTTP on a non-loopback host; the bearer token gating "

@@ -118,7 +118,7 @@ public enum OllamaUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingAPIKey:
-            "Missing Ollama API key. Set apiKey in ~/.codexbar/config.json or OLLAMA_API_KEY."
+            "Missing Ollama API key. Set apiKey in \(TokenBarIdentity.configPathHint) or OLLAMA_API_KEY."
         case .notLoggedIn:
             "Not signed in to Ollama. Please sign in at \(Self.signInURL)."
         case .invalidCredentials:
@@ -132,12 +132,14 @@ public enum OllamaUsageError: LocalizedError, Sendable {
         case .noSessionCookie:
             "No Ollama session cookie found. Please sign in at \(Self.signInURL) in your browser."
         case .safariCookieAccessDenied:
-            "Safari cookies need Full Disk Access for CodexBar (System Settings > Privacy & Security)."
+            "Safari cookies need Full Disk Access for \(TokenBarIdentity.displayName) " +
+                "(System Settings > Privacy & Security)."
         case let .browserCookieDecryptionDenied(browserName):
             "\(browserName) cookie decryption was declined in Keychain. " +
                 "Open the provider card and click Refresh (⌘R) to request Keychain access again."
         case let .browserCookieDecryptionDisabled(browserName):
-            "\(browserName) cookie decryption is disabled in CodexBar; enable Keychain access and refresh."
+            "\(browserName) cookie decryption is disabled in \(TokenBarIdentity.displayName); " +
+                "enable Keychain access and refresh."
         }
     }
 }
@@ -975,7 +977,7 @@ public enum OllamaAPIUsageFetcher {
         request.timeoutInterval = Self.timeoutSeconds
         request.setValue("Bearer \(trimmed)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("CodexBar/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("\(TokenBarIdentity.displayName)/1.0", forHTTPHeaderField: "User-Agent")
 
         let response: ProviderHTTPResponse
         do {
@@ -1009,7 +1011,7 @@ public enum OllamaAPIUsageFetcher {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("CodexBar/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("\(TokenBarIdentity.displayName)/1.0", forHTTPHeaderField: "User-Agent")
 
         let response: ProviderHTTPResponse
         do {

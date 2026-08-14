@@ -10,7 +10,7 @@ read_when:
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Let CodexBar users opt in to one or more Kilo organizations from Preferences → Providers → Kilo. Enabled orgs render as stacked cards alongside their personal account in the Kilo menu.
+**Goal:** Let TokenBar users opt in to one or more Kilo organizations from Preferences → Providers → Kilo. Enabled orgs render as stacked cards alongside their personal account in the Kilo menu.
 
 **Architecture:** Add `KiloUsageScope` and `KiloOrganization` types in `CodexBarCore`. Inject `X-KILOCODE-ORGANIZATIONID` header in `KiloUsageFetcher` when a scope is `.organization`. Persist known orgs and enabled-ids in `ProviderConfig` JSON. Mirror the existing tokenAccounts pattern in `UsageStore` to fan out a fetch per enabled scope and store stacked snapshots. Render via the existing stacked-snapshot menu pipeline by surfacing a Kilo-scoped accounts adapter.
 
@@ -1352,7 +1352,7 @@ Append to `docs/kilo.md`:
 ```markdown
 ## Organizations
 
-CodexBar can show usage for any Kilo organization the API key belongs to.
+TokenBar can show usage for any Kilo organization the API key belongs to.
 
 - Open Preferences → Providers → Kilo, set the API key, then click **Refresh
   organizations**.
@@ -1360,7 +1360,7 @@ CodexBar can show usage for any Kilo organization the API key belongs to.
   always shown.
 - When at least one organization is enabled, the menu renders one Kilo card per
   enabled scope.
-- The CodexBar fetcher sends the standard `X-KILOCODE-ORGANIZATIONID` header on
+- The TokenBar fetcher sends the standard `X-KILOCODE-ORGANIZATIONID` header on
   every usage call to scope the response to that organization.
 - CLI source mode (`auth.json`): the header is applied to CLI-resolved tokens
   as well. If a CLI token isn't authorized for the chosen organization, that
@@ -1421,7 +1421,7 @@ git commit -m "chore: swiftformat/swiftlint fixups for kilo orgs work"
 - [ ] **Step 12.1: Ensure a fork exists for `noefabris`**
 
 ```bash
-gh repo view noefabris/CodexBar --json url 2>&1 | head -5
+gh repo view noefabris/TokenBar --json url 2>&1 | head -5
 ```
 
 If 404, fork:

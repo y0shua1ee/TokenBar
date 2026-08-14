@@ -181,7 +181,7 @@ struct ProviderPluginDetailsParityTests {
                 ? "https://router.example.test/gateway/v1/key"
                 : "https://openrouter.ai/api/v1/key"))
         #expect(recorded[1].timeoutInterval == 15)
-        #expect(recorded[0].value(forHTTPHeaderField: "X-Title") == (overridden ? "CodexBar QA" : "CodexBar"))
+        #expect(recorded[0].value(forHTTPHeaderField: "X-Title") == (overridden ? "CodexBar QA" : "TokenBar"))
         #expect(recorded[0].value(forHTTPHeaderField: "HTTP-Referer") ==
             (overridden ? "https://codexbar.example" : nil))
         #expect(recorded[1].value(forHTTPHeaderField: "X-Title") == nil)

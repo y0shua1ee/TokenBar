@@ -433,7 +433,7 @@ The UI may collapse reasons into simpler copy, but cache/CLI/test output must pr
 2. **Cache** persists both fields and mandatory quality reasons with the family’s accepted events / cost nanos.
 3. **`CostUsageDailyReport`** (and project breakdowns if present) expose rolled-up fields, e.g. `provenanceQuality` + `accountingQuality` (or derived `isEstimate` = either non-ideal).
 4. **UI / menu:** distinct affordances when possible — e.g. “Incomplete fork history” vs “Estimated (conservative accounting)” — not a single vague “Estimated” that conflates the two.
-5. **CLI** (`codexbar cost` JSON): include both fields and quality reasons so agents/scripts do not treat estimates as exact.
+5. **CLI** (`tokenbar cost` JSON): include both fields and quality reasons so agents/scripts do not treat estimates as exact.
 
 Exact UX copy TBD; the **data path for both dimensions** is required in P1 so quality is not documentation-only.
 

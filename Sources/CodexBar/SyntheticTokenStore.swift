@@ -24,7 +24,7 @@ enum SyntheticTokenStoreError: LocalizedError {
 struct KeychainSyntheticTokenStore: SyntheticTokenStoring {
     private static let log = CodexBarLog.logger(LogCategories.provider(.synthetic, scope: "token-store"))
 
-    private let service = "com.steipete.CodexBar"
+    private let service = TokenBarIdentity.keychainStoreService
     private let account = "synthetic-api-key"
 
     func loadToken() throws -> String? {

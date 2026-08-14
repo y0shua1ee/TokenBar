@@ -256,7 +256,8 @@ public struct ClaudeUsageFetcher: ClaudeUsageFetching, Sendable {
         {
             throw ClaudeUsageError.oauthFailed(
                 "Claude OAuth token expired, but background repair is suppressed when Keychain prompt policy "
-                    + "is set to only prompt on user action. Click Refresh in the CodexBar menu to retry.")
+                    + "is set to only prompt on user action. Click Refresh in the "
+                    + "\(TokenBarIdentity.displayName) menu to retry.")
         }
     }
 
@@ -394,8 +395,8 @@ public struct ClaudeUsageFetcher: ClaudeUsageFetching, Sendable {
         private func loadAfterDelegatedRefresh(allowDelegatedRetry: Bool) async throws -> ClaudeUsageSnapshot {
             guard allowDelegatedRetry else {
                 throw ClaudeUsageError.oauthFailed(
-                    "Claude OAuth token expired. CodexBar CLI does not launch Claude to refresh credentials. "
-                        + "Run `claude login`, then retry.")
+                    "Claude OAuth token expired. \(TokenBarIdentity.displayName) CLI does not launch Claude to " +
+                        "refresh credentials. Run `claude login`, then retry.")
             }
 
             try Task.checkCancellation()

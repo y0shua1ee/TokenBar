@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-tap_repository="${TAP_REPOSITORY:-steipete/homebrew-tap}"
+tap_repository="${TAP_REPOSITORY:-y0shua1ee/homebrew-tokenbar}"
 tap_workflow="${TAP_WORKFLOW:-update-formula.yml}"
 tap_branch="${TAP_BRANCH:-main}"
-tap_formula="${TAP_FORMULA:-codexbar}"
-tap_cask="${TAP_CASK:-codexbar}"
+tap_formula="${TAP_FORMULA:-tokenbar}"
+tap_cask="${TAP_CASK:-tokenbar}"
 wait_timeout_seconds="${TAP_WAIT_TIMEOUT_SECONDS:-3900}"
 poll_seconds="${TAP_POLL_SECONDS:-30}"
 content_attempts="${TAP_CONTENT_ATTEMPTS:-6}"
@@ -202,14 +202,14 @@ verify_tap_contents() {
           linux-x86_64
         do
           if ! grep -Fq \
-            "releases/download/v#{version}/CodexBarCLI-v#{version}-${asset}.tar.gz" \
+            "releases/download/v#{version}/TokenBarCLI-v#{version}-${asset}.tar.gz" \
             "$formula_file"
           then
             content_matches=false
           fi
         done
         if ! grep -Fq \
-          'releases/download/v#{version}/CodexBar-macos-universal-#{version}.zip' \
+          'releases/download/v#{version}/TokenBar-macos-universal-#{version}.zip' \
           "$cask_file"
         then
           content_matches=false

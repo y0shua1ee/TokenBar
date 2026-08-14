@@ -435,7 +435,7 @@ struct ClaudeOAuthCredentialsStoreNeverPromptCacheTests {
     func `bundled CLI resolves the owning app prompt policy domain`() throws {
         let tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let appURL = tempDirectory.appendingPathComponent("CodexBar.app", isDirectory: true)
+        let appURL = tempDirectory.appendingPathComponent(TokenBarIdentity.applicationBundleName, isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
         let helpersURL = contentsURL.appendingPathComponent("Helpers", isDirectory: true)
         let macOSURL = contentsURL.appendingPathComponent("MacOS", isDirectory: true)
@@ -446,7 +446,7 @@ struct ClaudeOAuthCredentialsStoreNeverPromptCacheTests {
         defer { try? FileManager.default.removeItem(at: tempDirectory) }
 
         let info: [String: Any] = [
-            "CFBundleExecutable": "CodexBar",
+            "CFBundleExecutable": TokenBarIdentity.applicationExecutableName,
             "CFBundleIdentifier": ClaudeOAuthKeychainPromptPreference.debugApplicationDefaultsDomain,
             "CFBundlePackageType": "APPL",
         ]
@@ -455,9 +455,9 @@ struct ClaudeOAuthCredentialsStoreNeverPromptCacheTests {
             format: .xml,
             options: 0)
         try infoData.write(to: contentsURL.appendingPathComponent("Info.plist"))
-        try Data().write(to: macOSURL.appendingPathComponent("CodexBar"))
+        try Data().write(to: macOSURL.appendingPathComponent(TokenBarIdentity.applicationExecutableName))
 
-        let helperURL = helpersURL.appendingPathComponent("CodexBarCLI")
+        let helperURL = helpersURL.appendingPathComponent(TokenBarIdentity.cliExecutableName)
         try Data().write(to: helperURL)
         let symlinkURL = binURL.appendingPathComponent("codexbar")
         try FileManager.default.createSymbolicLink(at: symlinkURL, withDestinationURL: helperURL)
@@ -470,7 +470,7 @@ struct ClaudeOAuthCredentialsStoreNeverPromptCacheTests {
         #expect(bundledCLIDomain == ClaudeOAuthKeychainPromptPreference.debugApplicationDefaultsDomain)
 
         let debugWidgetDomain = ClaudeOAuthKeychainPromptPreference.resolveApplicationDefaultsDomain(
-            bundleIdentifier: "com.steipete.codexbar.debug.widget",
+            bundleIdentifier: "\(TokenBarIdentity.debugBundleIdentifier).widget",
             bundleURL: nil,
             executableURL: nil,
             invocationURL: nil)
@@ -479,7 +479,7 @@ struct ClaudeOAuthCredentialsStoreNeverPromptCacheTests {
         let standaloneDomain = ClaudeOAuthKeychainPromptPreference.resolveApplicationDefaultsDomain(
             bundleIdentifier: nil,
             bundleURL: nil,
-            executableURL: URL(fileURLWithPath: "/usr/local/bin/codexbar"),
+            executableURL: URL(fileURLWithPath: "/usr/local/bin/\(TokenBarIdentity.commandName)"),
             invocationURL: nil)
         #expect(standaloneDomain == ClaudeOAuthKeychainPromptPreference.releaseApplicationDefaultsDomain)
 

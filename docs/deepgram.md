@@ -30,16 +30,16 @@ Optionally set a Deepgram project ID:
 export DEEPGRAM_PROJECT_ID="your-project-uuid"
 ```
 
-If `DEEPGRAM_PROJECT_ID` is omitted, CodexBar calls Deepgram's project list endpoint and aggregates usage across all projects visible to the API key.
+If `DEEPGRAM_PROJECT_ID` is omitted, TokenBar calls Deepgram's project list endpoint and aggregates usage across all projects visible to the API key.
 
 ### Settings
 
-You can also configure the API key and optional project ID in CodexBar Settings → Providers → Deepgram.
+You can also configure the API key and optional project ID in TokenBar Settings → Providers → Deepgram.
 
 ### CLI config
 
 ```bash
-printf '%s' "$DEEPGRAM_API_KEY" | codexbar config set-api-key --provider deepgram --stdin
+printf '%s' "$DEEPGRAM_API_KEY" | tokenbar config set-api-key --provider deepgram --stdin
 ```
 
 ## Data Source
@@ -75,8 +75,8 @@ Deepgram does not currently provide a credit balance through this provider. The 
 ## CLI Usage
 
 ```bash
-codexbar --provider deepgram
-codexbar -p dg  # alias
+tokenbar --provider deepgram
+tokenbar -p dg  # alias
 ```
 
 ## Environment Variables
@@ -84,9 +84,9 @@ codexbar -p dg  # alias
 * **DEEPGRAM_API_KEY**: Your Deepgram API key. Required.
 * **DEEPGRAM_PROJECT_ID**: Optional Deepgram project UUID. Leave unset to aggregate all visible projects.
 * **DEEPGRAM_API_URL**: Override the base API URL. Optional, defaults to `https://api.deepgram.com/v1`.
-  Override values must be explicit HTTPS URLs or bare hosts/paths that CodexBar normalizes to HTTPS. Explicit
+  Override values must be explicit HTTPS URLs or bare hosts/paths that TokenBar normalizes to HTTPS. Explicit
   `http://` URLs fail closed before the Deepgram API key is attached to a request. For local proxy testing, use an
-  HTTPS listener or omit the scheme and let CodexBar normalize the override to HTTPS.
+  HTTPS listener or omit the scheme and let TokenBar normalize the override to HTTPS.
 
 ## Permissions
 

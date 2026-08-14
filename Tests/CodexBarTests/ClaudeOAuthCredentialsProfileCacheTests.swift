@@ -53,6 +53,18 @@ struct ClaudeOAuthCredentialsProfileCacheTests {
     }
 
     @Test
+    func `TokenBar credential owner decodes legacy aliases and encodes canonical value`() throws {
+        let decoder = JSONDecoder()
+        let tokenBarOwner = try decoder.decode(ClaudeOAuthCredentialOwner.self, from: Data(#""tokenbar""#.utf8))
+        let codexBarOwner = try decoder.decode(ClaudeOAuthCredentialOwner.self, from: Data(#""codexbar""#.utf8))
+
+        #expect(tokenBarOwner == .codexbar)
+        #expect(codexBarOwner == .codexbar)
+        let encodedOwner = try JSONEncoder().encode(ClaudeOAuthCredentialOwner.codexbar)
+        #expect(String(bytes: encodedOwner, encoding: .utf8) == #""tokenbar""#)
+    }
+
+    @Test
     func `newer cache from another profile never overrides older credentials file`() throws {
         let tempRoot = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -260,7 +272,7 @@ struct ClaudeOAuthCredentialsProfileCacheTests {
     }
 
     @Test
-    func `legacy default profile cache migrates without losing refreshed credentials`() throws {
+    func `legacy TokenBar default profile cache migrates without losing refreshed credentials`() throws {
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)

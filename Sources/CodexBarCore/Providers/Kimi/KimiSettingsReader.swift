@@ -69,7 +69,7 @@ public enum KimiSettingsReader {
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         let osVersionString = "\(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
         return [
-            "User-Agent": "CodexBar/\(version)",
+            "User-Agent": "\(TokenBarIdentity.displayName)/\(version)",
             "X-Msh-Platform": self.codePlatform,
             "X-Msh-Version": version,
             "X-Msh-Device-Name": self.asciiHeaderValue(ProcessInfo.processInfo.hostName),

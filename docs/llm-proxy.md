@@ -7,14 +7,14 @@ read_when:
 
 # LLM Proxy
 
-CodexBar reads aggregate usage from an LLM-API-Key-Proxy compatible `/v1/quota-stats` endpoint.
+TokenBar reads aggregate usage from an LLM-API-Key-Proxy compatible `/v1/quota-stats` endpoint.
 
 ## Setup
 
 Store the API key:
 
 ```bash
-printf '%s' "$LLM_PROXY_API_KEY" | codexbar config set-api-key --provider llmproxy --stdin
+printf '%s' "$LLM_PROXY_API_KEY" | tokenbar config set-api-key --provider llmproxy --stdin
 ```
 
 Set the base URL with `LLM_PROXY_BASE_URL`, or add `enterpriseHost` to the provider config:
@@ -28,7 +28,7 @@ Set the base URL with `LLM_PROXY_BASE_URL`, or add `enterpriseHost` to the provi
 }
 ```
 
-The base URL may point at either the service root or `/v1`; CodexBar normalizes both to `/v1/quota-stats`.
+The base URL may point at either the service root or `/v1`; TokenBar normalizes both to `/v1/quota-stats`.
 
 The base URL must use HTTPS unless it names a loopback or private-network address, or a `.local` mDNS host,
 and must not embed credentials because the API key is sent to it as a bearer token. Plain HTTP remains
@@ -47,4 +47,4 @@ the existing private-network and `.local` HTTP contract without a broader host n
 - Extra rows: top provider summaries by request count.
 - Cost: approximate spend when the proxy reports `approx_cost`.
 
-`quota_groups` may be either an array or a keyed object; CodexBar accepts both shapes.
+`quota_groups` may be either an array or a keyed object; TokenBar accepts both shapes.

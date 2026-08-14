@@ -7,7 +7,7 @@ read_when:
 
 # xAI Provider
 
-CodexBar reads the prepaid credit balance and daily USD spend of an xAI developer-platform team from xAI's documented
+TokenBar reads the prepaid credit balance and daily USD spend of an xAI developer-platform team from xAI's documented
 Management API.
 
 This provider is intentionally separate from the [Grok provider](grok.md): Grok tracks consumer Grok/SuperGrok
@@ -17,7 +17,7 @@ surface. Credentials, balances, and identity are never shared between the two.
 ## Authentication
 
 Create a **Management API key** in the [xAI Console](https://console.x.ai) under Settings > Management Keys, then add
-it together with your **team ID** in CodexBar Settings → Providers → xAI. Inference API keys are not accepted by the
+it together with your **team ID** in TokenBar Settings → Providers → xAI. Inference API keys are not accepted by the
 Management API. The team ID is shown in the xAI Console URL and team settings.
 
 You can also use environment variables:
@@ -30,7 +30,7 @@ export XAI_TEAM_ID="..."
 Or configure the key through the CLI and the team ID in the config file:
 
 ```bash
-printf '%s' "$XAI_MANAGEMENT_API_KEY" | codexbar config set-api-key --provider xai --stdin
+printf '%s' "$XAI_MANAGEMENT_API_KEY" | tokenbar config set-api-key --provider xai --stdin
 ```
 
 ```json
@@ -44,13 +44,13 @@ printf '%s' "$XAI_MANAGEMENT_API_KEY" | codexbar config set-api-key --provider x
 
 ## Data Source
 
-CodexBar requests:
+TokenBar requests:
 
 - `GET https://management-api.x.ai/v1/billing/teams/{team_id}/prepaid/balance`
 - `POST https://management-api.x.ai/v1/billing/teams/{team_id}/usage` with a daily, USD-summed analytics query for the
   last 30 days (UTC), as best-effort history enrichment.
 
-Both requests use `Authorization: Bearer <management key>`. CodexBar does not read browser cookies, console sessions,
+Both requests use `Authorization: Bearer <management key>`. TokenBar does not read browser cookies, console sessions,
 or inference traffic for this provider.
 
 The balance endpoint reports an inverted ledger in string USD cents — a $10 top-up appears as `"-1000"` — so the
@@ -72,7 +72,7 @@ session or weekly meters are synthesized.
 ## CLI Usage
 
 ```bash
-codexbar --provider xai
+tokenbar --provider xai
 ```
 
 ## Troubleshooting

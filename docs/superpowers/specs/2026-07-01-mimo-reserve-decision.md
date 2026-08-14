@@ -13,7 +13,7 @@ read_when:
 
 ## Problem
 
-CodexBar shows MiMo token usage and the plan's current period end, but does not show whether consumption is in reserve or
+TokenBar shows MiMo token usage and the plan's current period end, but does not show whether consumption is in reserve or
 deficit. Shared pace math requires both the used percentage and a trustworthy window duration. MiMo's observed plan
 response supplies the former and an end timestamp, but not the period start, duration, or billing cadence.
 
@@ -94,7 +94,7 @@ confidence and expiry rules.
 
 ## Decision
 
-CodexBar accepts the fail-closed contract above. This decision does not authorize runtime inference or change current MiMo
+TokenBar accepts the fail-closed contract above. This decision does not authorize runtime inference or change current MiMo
 behavior: `windowMinutes` remains nil and reserve/deficit text remains absent until authoritative evidence satisfies the
 contract. Issue [#1205](https://github.com/steipete/CodexBar/issues/1205) stays open for that evidence and a separately
 reviewed implementation. The next useful input is an annual-plan payload plus an authoritative token-credit reset source.

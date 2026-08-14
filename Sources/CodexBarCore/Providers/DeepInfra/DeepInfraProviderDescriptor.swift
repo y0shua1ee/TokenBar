@@ -51,7 +51,9 @@ public enum DeepInfraProviderDescriptor {
                 ]),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: false,
-                noDataMessage: { "DeepInfra per-request cost history is not available in CodexBar." }),
+                noDataMessage: {
+                    "DeepInfra per-request cost history is not available in \(TokenBarIdentity.displayName)."
+                }),
             presentation: ProviderUsagePresentation(
                 menuBarWindowResolver: { context in
                     guard context.metric == .automatic,

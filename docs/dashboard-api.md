@@ -1,19 +1,19 @@
 ---
 summary: "Dashboard-v1 snapshot contract for one-shot CLI and HTTP clients, including serve auth and transport."
 read_when:
-  - "Building a dashboard or adapter against CodexBar"
-  - "Using codexbar dashboard from scripts"
+  - "Building a dashboard or adapter against TokenBar"
+  - "Using tokenbar dashboard from scripts"
   - "Configuring --dashboard-token, --host, or --allow-plain-http"
   - "Reviewing the serve auth or transport security model"
 ---
 
 # Dashboard v1 Snapshot
 
-CodexBar exposes one versioned, display-oriented snapshot contract through two transports:
+TokenBar exposes one versioned, display-oriented snapshot contract through two transports:
 
 ```bash
 # One JSON document on stdout, then exit
-codexbar dashboard
+tokenbar dashboard
 ```
 
 ```text
@@ -34,11 +34,11 @@ On the default loopback bind, `/usage` and `/cost` are unchanged and unauthentic
 
 The browser keeps the last successfully merged snapshot in localStorage under `codexbar.lastSnapshot` and paints that data immediately on the next load, preserving the identity detail served by the configured mode. It then fetches the config-only shell and streams concurrent per-provider snapshot updates into the page as they finish. Signing out clears both the token and cached snapshot.
 
-The UI does not change the transport threat model: `codexbar serve` is plain HTTP. Off-loopback, a token typed into the page transits the network in cleartext like every other request unless a TLS-terminating reverse proxy protects the connection.
+The UI does not change the transport threat model: `tokenbar serve` is plain HTTP. Off-loopback, a token typed into the page transits the network in cleartext like every other request unless a TLS-terminating reverse proxy protects the connection.
 
 ## One-shot command semantics
 
-- `codexbar dashboard` reads enabled providers from CodexBar config, emits them in stable order, and carries configured
+- `tokenbar dashboard` reads enabled providers from TokenBar config, emits them in stable order, and carries configured
   ordering through each row's `display.sortKey`.
 - Identity defaults to full account emails. Pass `--identity redacted` to hide email local parts. Provider failures stay
   in their rows without discarding healthy rows.
@@ -57,10 +57,10 @@ The UI does not change the transport threat model: `codexbar serve` is plain HTT
 openssl rand -hex 32
 
 # Preferred: environment variable (argv leaks via `ps`)
-CODEXBAR_DASHBOARD_TOKEN=YOUR_TOKEN codexbar serve
+CODEXBAR_DASHBOARD_TOKEN=YOUR_TOKEN tokenbar serve
 
 # Also accepted, but visible in the process list
-codexbar serve --dashboard-token YOUR_TOKEN
+tokenbar serve --dashboard-token YOUR_TOKEN
 ```
 
 - `CODEXBAR_DASHBOARD_TOKEN` wins over `--dashboard-token` when both are set.
@@ -70,7 +70,7 @@ codexbar serve --dashboard-token YOUR_TOKEN
 
 ## Threat model — read before binding beyond loopback
 
-Transport is **plain HTTP**. There is no TLS in `codexbar serve`, which means:
+Transport is **plain HTTP**. There is no TLS in `tokenbar serve`, which means:
 
 - The bearer token crosses the network **in cleartext on every request**. Anyone who can observe the path (same Wi-Fi, ARP spoofing, a compromised switch, your ISP on a routed path) can capture the token and replay it until the server restarts with a new one.
 - The response bodies — plan labels, usage percentages, cost figures, and full account emails by default — cross the network in cleartext too. On non-loopback binds, use `--identity redacted` to hide email local parts unless clients need full identity.
@@ -78,7 +78,7 @@ Transport is **plain HTTP**. There is no TLS in `codexbar serve`, which means:
 
 Deployments, from safest to least safe:
 
-1. **Loopback only (default).** `codexbar serve` binds `127.0.0.1`; nothing leaves the machine. Rejects non-loopback `Host` headers, so browser-based DNS-rebinding attacks cannot reach it either.
+1. **Loopback only (default).** `tokenbar serve` binds `127.0.0.1`; nothing leaves the machine. Rejects non-loopback `Host` headers, so browser-based DNS-rebinding attacks cannot reach it either.
 2. **TLS-terminating reverse proxy.** Keep the loopback bind and put a proxy in front. Caddy example:
 
    ```caddyfile
@@ -96,7 +96,7 @@ Deployments, from safest to least safe:
 3. **Trusted network segment, cleartext accepted.** Bind a LAN address directly:
 
    ```bash
-   CODEXBAR_DASHBOARD_TOKEN=... codexbar serve --host 0.0.0.0 --allow-plain-http --identity redacted
+   CODEXBAR_DASHBOARD_TOKEN=... tokenbar serve --host 0.0.0.0 --allow-plain-http --identity redacted
    ```
 
    A non-loopback `--host` refuses to start without a token, and refuses to start without `--allow-plain-http` — passing that flag is the explicit, operational acceptance that cleartext bearer transport is fine on this network. Full account emails are included in dashboard responses by default, so `--identity redacted` is recommended for these deployments. The token gates all data routes, and the server logs a one-line warning at startup.
@@ -133,7 +133,7 @@ Snapshot requests share the serve cache and coordination machinery used by `/usa
 
 ### Stale responses and background refresh
 
-After a fresh cache entry expires, `codexbar serve` may answer immediately with its last-good response while rebuilding that same route and configuration in the background. Concurrent refresh triggers still coalesce, and a slow rebuild commits even if it outlives the initiating request deadline. Clients can use `generatedAt` together with `staleAfterSeconds` to decide how to present freshness. This behavior is disabled when `--refresh-interval 0`.
+After a fresh cache entry expires, `tokenbar serve` may answer immediately with its last-good response while rebuilding that same route and configuration in the background. Concurrent refresh triggers still coalesce, and a slow rebuild commits even if it outlives the initiating request deadline. Clients can use `generatedAt` together with `staleAfterSeconds` to decide how to present freshness. This behavior is disabled when `--refresh-interval 0`.
 
 ## Payload
 
@@ -244,11 +244,11 @@ while leaving the ambient Claude row intact.
 - `schemaVersion`: Dashboard API schema version.
 - `generatedAt`: Snapshot generation timestamp.
 - `staleAfterSeconds`: Client-side staleness hint.
-- `host.codexBarVersion`: CodexBar version when available.
+- `host.codexBarVersion`: TokenBar version when available.
 - `host.refreshIntervalSeconds`: HTTP response cache interval, or `0` for the one-shot command.
 - `providers[].id`: Provider identifier.
 - `providers[].name`: Provider display name.
-- `providers[].enabled`: Whether the provider is enabled in CodexBar config.
+- `providers[].enabled`: Whether the provider is enabled in TokenBar config.
 - `providers[].source`: Source used for the provider data.
 - `providers[].status`: Provider service status when available (`level`: `ok` | `warning` | `critical` | `unknown`).
 - `providers[].identity`: Account email and plan label, or `null`; the email local part is hidden only in redacted mode.

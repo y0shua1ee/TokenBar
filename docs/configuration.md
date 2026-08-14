@@ -1,24 +1,24 @@
 ---
-summary: "CodexBar config file layout for CLI + app settings."
+summary: "TokenBar config file layout for CLI + app settings."
 read_when:
-  - "Editing the CodexBar config file or moving settings off Keychain."
+  - "Editing the TokenBar config file or moving settings off Keychain."
   - "Adding new provider settings fields or defaults."
   - "Explaining CLI/app configuration and security."
 ---
 
 # Configuration
 
-CodexBar reads a single JSON config file for CLI and app provider settings.
+TokenBar reads a single JSON config file for CLI and app provider settings.
 API keys, manual cookie headers, source selection, ordering, and token accounts live here. Keychain is still used for runtime cookie caches, browser Safe Storage access, and provider OAuth/device-flow credentials where those flows require it.
 
 ## Location
 - `CODEXBAR_CONFIG=/path/to/config.json` when set.
-- `$XDG_CONFIG_HOME/codexbar/config.json` when `XDG_CONFIG_HOME` is set to an absolute path. Relative values are
+- `$XDG_CONFIG_HOME/tokenbar/config.json` when `XDG_CONFIG_HOME` is set to an absolute path. Relative values are
   ignored.
-- `~/.config/codexbar/config.json` by default for new installs.
-- `~/.codexbar/config.json` for existing legacy installs when no XDG config exists.
+- `~/.config/tokenbar/config.json` by default for new installs.
+- `~/.tokenbar/config.json` for existing legacy installs when no XDG config exists.
 - The directory is created if missing.
-- Permissions are set to `0600` whenever CodexBar writes the file on macOS and Linux.
+- Permissions are set to `0600` whenever TokenBar writes the file on macOS and Linux.
 
 ## Root shape
 ```json
@@ -71,7 +71,7 @@ HTTP or remote-config endpoint can create or enable hook rules. The top-level `h
 Commands run as direct executable invocations, never through a shell. `executable` must be an absolute path,
 `arguments` preserves exact argument boundaries (including spaces and empty arguments), and `timeoutSeconds` must be
 between `0.1` and `300`. Hook processes receive only a small allowlist of general environment variables plus the
-event's `CODEXBAR_*` variables; CodexBar provider keys and tokens are not inherited. The same event is also encoded as
+event's `CODEXBAR_*` variables; TokenBar provider keys and tokens are not inherited. The same event is also encoded as
 JSON on stdin. Only configure executables you trust.
 
 Events:
@@ -103,7 +103,7 @@ keys are emitted in sorted order. A `quota_reached` payload is exactly shaped li
 {"event":"quota_reached","provider":"claude","resetAt":"2023-11-14T22:13:20Z","timestamp":"2023-11-14T22:15:00Z","usagePercent":0.42,"window":"session"}
 ```
 
-The v1 field names and meanings are compatibility-stable. Hook consumers should ignore unknown fields so CodexBar can
+The v1 field names and meanings are compatibility-stable. Hook consumers should ignore unknown fields so TokenBar can
 add optional observability data without breaking existing commands.
 
 Safety limits: at most 32 rules, 32 arguments per rule, 4 KiB per executable or argument string, 32 KiB per command,
@@ -136,7 +136,7 @@ All provider fields are optional unless noted.
 ## Manual cookies
 Use manual cookies when automatic browser import is unavailable, disabled, or too noisy for your setup.
 The app and CLI both read the same resolved config file, so a manual cookie saved in the UI is also used by
-`codexbar`, and a cookie written by tooling is shown in the app after reload.
+`tokenbar`, and a cookie written by tooling is shown in the app after reload.
 
 `cookieHeader` expects the HTTP `Cookie:` request header value for the provider origin, not a raw Netscape cookie
 export. In browser DevTools, open the Network tab, select a request for the provider site, and copy the request
@@ -165,25 +165,25 @@ Example placeholder config:
 Validate after editing:
 
 ```bash
-codexbar config validate
-codexbar usage --provider example-provider --verbose
+tokenbar config validate
+tokenbar usage --provider example-provider --verbose
 ```
 
 CLI shortcuts:
 
 ```bash
-codexbar config providers
-codexbar config enable --provider grok
-codexbar config disable --provider cursor
-printf '%s' "$ELEVENLABS_API_KEY" | codexbar config set-api-key --provider elevenlabs --stdin
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
-printf '%s' "$GROQ_API_KEY" | codexbar config set-api-key --provider groq --stdin
-printf '%s' "$LLM_PROXY_API_KEY" | codexbar config set-api-key --provider llmproxy --stdin
-printf '%s' "$LITELLM_API_KEY" | codexbar config set-api-key --provider litellm --stdin
-printf '%s' "$CLAWROUTER_API_KEY" | codexbar config set-api-key --provider clawrouter --stdin
-printf '%s' "$SUB2API_API_KEY" | codexbar config set-api-key --provider sub2api --stdin
-printf '%s' "$AIAND_API_KEY" | codexbar config set-api-key --provider aiand --stdin
-printf '%s' "$XAI_MANAGEMENT_API_KEY" | codexbar config set-api-key --provider xai --stdin
+tokenbar config providers
+tokenbar config enable --provider grok
+tokenbar config disable --provider cursor
+printf '%s' "$ELEVENLABS_API_KEY" | tokenbar config set-api-key --provider elevenlabs --stdin
+printf '%s' "$OPENAI_ADMIN_KEY" | tokenbar config set-api-key --provider openai --stdin
+printf '%s' "$GROQ_API_KEY" | tokenbar config set-api-key --provider groq --stdin
+printf '%s' "$LLM_PROXY_API_KEY" | tokenbar config set-api-key --provider llmproxy --stdin
+printf '%s' "$LITELLM_API_KEY" | tokenbar config set-api-key --provider litellm --stdin
+printf '%s' "$CLAWROUTER_API_KEY" | tokenbar config set-api-key --provider clawrouter --stdin
+printf '%s' "$SUB2API_API_KEY" | tokenbar config set-api-key --provider sub2api --stdin
+printf '%s' "$AIAND_API_KEY" | tokenbar config set-api-key --provider aiand --stdin
+printf '%s' "$XAI_MANAGEMENT_API_KEY" | tokenbar config set-api-key --provider xai --stdin
 ```
 
 OpenAI API project scoping uses `workspaceID` in config. This maps to `OPENAI_PROJECT_ID` for Admin API usage and is
@@ -246,7 +246,7 @@ environment. Add labeled token accounts in Settings when one deployment has mult
 
 See [CLI configuration](cli-configuration.md) for scripting examples and output formats.
 
-Manual cookies are secrets. Keep the CodexBar config file private, leave its permissions at `0600`, never commit it,
+Manual cookies are secrets. Keep the TokenBar config file private, leave its permissions at `0600`, never commit it,
 and never paste real cookie values or readable DevTools screenshots into public issues.
 
 ### tokenAccounts
@@ -276,7 +276,7 @@ See the [generated provider ID list](provider-ids.md), sourced from `UsageProvid
 The order of `providers` controls display/order in the app and CLI. Reorder the array to change ordering.
 
 ## iCloud sync
-Opt-in (Settings → iCloud Sync, off by default; requires a signed release build and an iCloud account). When enabled, CodexBar syncs across the user's Macs via CloudKit (private database, container `iCloud.com.steipete.codexbar`):
+Opt-in (Settings → iCloud Sync, off by default; requires a signed release build and an iCloud account). When enabled, TokenBar syncs across the user's Macs via CloudKit (private database, container `iCloud.com.y0shua1ee.tokenbar`):
 
 - **Provider configuration** — portable fields of each provider entry (enabled intent, extras, region, workspace, quota-warning overrides, ordering-relevant metadata). Secrets (`apiKey`, `secretKey`, `cookieHeader`, `tokenAccounts`) sync only when "Include API keys, cookies, and tokens" is on, and travel exclusively in CloudKit `encryptedValues` (end-to-end encrypted; readable only on the user's devices).
 - **A curated preferences subset** — notification/threshold/display settings.
@@ -288,4 +288,4 @@ Never synced, by design: `hooks` (sync payloads structurally cannot create or mo
 - Fields not relevant to a provider are ignored.
 - Omitted providers are appended with defaults during normalization.
 - Keep the file private; it contains secrets.
-- Validate the file with `codexbar config validate` (JSON output available with `--format json`).
+- Validate the file with `tokenbar config validate` (JSON output available with `--format json`).

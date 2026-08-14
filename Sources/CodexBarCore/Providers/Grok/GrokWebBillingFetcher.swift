@@ -175,7 +175,7 @@ public enum GrokWebBillingFetcher {
         request.setValue("application/grpc-web+proto", forHTTPHeaderField: "Content-Type")
         request.setValue("1", forHTTPHeaderField: "x-grpc-web")
         request.setValue("connect-es/2.1.1", forHTTPHeaderField: "x-user-agent")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
 
         let response: ProviderHTTPResponse
         do {

@@ -4,11 +4,11 @@ import Foundation
 extension CodexBarCLI {
     static func pluginsHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar plugins list
-          codexbar plugins fetch <id> [--json] [--pretty]
+          tokenbar plugins list
+          tokenbar plugins fetch <id> [--json] [--pretty]
 
         Description:
           Discover local .js and .ts provider plugins. Fetch requires a recorded approval binding.
@@ -20,10 +20,10 @@ extension CodexBarCLI {
 
     static func cardsHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar cards [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
+          tokenbar cards [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
                         [--provider \(ProviderHelp.list)]
                         [--account <label>] [--account-index <index>] [--all-accounts]
                         [--no-credits] [--no-color] [--status] [--source <auto|web|cli|oauth|api>]
@@ -32,7 +32,7 @@ extension CodexBarCLI {
 
         Description:
           Print a one-shot usage snapshot as a responsive card grid in the terminal.
-          Honors enabled providers from config and reuses the same fetch flags as codexbar usage.
+          Honors enabled providers from config and reuses the same fetch flags as tokenbar usage.
           Failed providers are summarized in a footer instead of error cards.
           Enabled claude-swap lists with 2+ accounts—or one account when `claudeSwapShowSingleAccount`
           is enabled—replace Claude cards unless an account or explicit non-auto `--source` CLI flag is selected.
@@ -49,20 +49,20 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar cards
-          codexbar cards --provider codex
-          codexbar cards --provider all --status
-          codexbar cards --brief
-          codexbar cards --no-color
+          tokenbar cards
+          tokenbar cards --provider codex
+          tokenbar cards --provider all --status
+          tokenbar cards --brief
+          tokenbar cards --no-color
         """
     }
 
     static func usageHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar usage [--format text|json]
+          tokenbar usage [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -81,7 +81,7 @@ extension CodexBarCLI {
             Auto falls back to Claude CLI only when cookies are missing.
           - Kilo: app.kilo.ai API.
             Auto falls back to Kilo CLI when API credentials are missing or unauthorized.
-          Token accounts are loaded from the resolved CodexBar config file.
+          Token accounts are loaded from the resolved TokenBar config file.
           Use --account or --account-index to select a specific token account.
           Use --all-accounts to fetch every token account, or every visible Codex account for Codex.
           Account selection requires a single provider.
@@ -95,22 +95,22 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar usage
-          codexbar usage --provider claude
-          codexbar usage --provider gemini
-          codexbar usage --format json --provider all --pretty
-          codexbar usage --provider all --json
-          codexbar usage --status
-          codexbar usage --provider codex --source web --format json --pretty
+          tokenbar usage
+          tokenbar usage --provider claude
+          tokenbar usage --provider gemini
+          tokenbar usage --format json --provider all --pretty
+          tokenbar usage --provider all --json
+          tokenbar usage --status
+          tokenbar usage --provider codex --source web --format json --pretty
         """
     }
 
     static func costHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar cost [--format text|json]
+          tokenbar cost [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -124,19 +124,19 @@ extension CodexBarCLI {
           Experimental: use --provider-native-only to exclude pi and OMP session mirrors.
 
         Examples:
-          codexbar cost
-          codexbar cost --provider codex --group-by project
-          codexbar cost --provider claude --format json --pretty
+          tokenbar cost
+          tokenbar cost --provider codex --group-by project
+          tokenbar cost --provider claude --format json --pretty
         """
     }
 
     static func sessionsHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar sessions [--json|--json-v2] [--pretty]
-          codexbar sessions focus <id>
+          tokenbar sessions [--json|--json-v2] [--pretty]
+          tokenbar sessions focus <id>
 
         Description:
           List live local Codex, Claude Code, pi, and OMP agent sessions.
@@ -146,19 +146,19 @@ extension CodexBarCLI {
           Focus activates the owning terminal or desktop app on macOS.
 
         Examples:
-          codexbar sessions
-          codexbar sessions --json
-          codexbar sessions --json-v2
-          codexbar sessions focus 019f3497-73bf-7df3-a173-4f67d968914a
+          tokenbar sessions
+          tokenbar sessions --json
+          tokenbar sessions --json-v2
+          tokenbar sessions focus 019f3497-73bf-7df3-a173-4f67d968914a
         """
     }
 
     static func dashboardHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar dashboard [--pretty] [--timeout <seconds>] [--output <path>]
+          tokenbar dashboard [--pretty] [--timeout <seconds>] [--output <path>]
                              [--identity <redacted|full>]
                              [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                              [-v|--verbose]
@@ -182,19 +182,19 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar dashboard
-          codexbar dashboard --pretty
-          codexbar dashboard --timeout 60
-          codexbar dashboard --output /var/www/dashboard/snapshot.json
+          tokenbar dashboard
+          tokenbar dashboard --pretty
+          tokenbar dashboard --timeout 60
+          tokenbar dashboard --output /var/www/dashboard/snapshot.json
         """
     }
 
     static func serveHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar serve [--host <host>] [--port <port>] [--refresh-interval <seconds>]
+          tokenbar serve [--host <host>] [--port <port>] [--refresh-interval <seconds>]
                          [--request-timeout <seconds>]
                          [--dashboard-token <token>] [--allow-plain-http]
                          [--identity <redacted|full>]
@@ -229,10 +229,10 @@ extension CodexBarCLI {
           GET /dashboard/v1/snapshot
 
         Examples:
-          codexbar serve
-          codexbar serve --port 8080 --refresh-interval 60 --request-timeout 30
-          CODEXBAR_DASHBOARD_TOKEN=YOUR_TOKEN codexbar serve
-          CODEXBAR_DASHBOARD_TOKEN=... codexbar serve --host 0.0.0.0 --allow-plain-http
+          tokenbar serve
+          tokenbar serve --port 8080 --refresh-interval 60 --request-timeout 30
+          CODEXBAR_DASHBOARD_TOKEN=YOUR_TOKEN tokenbar serve
+          CODEXBAR_DASHBOARD_TOKEN=... tokenbar serve --host 0.0.0.0 --allow-plain-http
           curl http://127.0.0.1:8080/usage?provider=all
           curl -H "Authorization: Bearer $CODEXBAR_DASHBOARD_TOKEN" \\
             http://127.0.0.1:8080/dashboard/v1/snapshot
@@ -241,32 +241,32 @@ extension CodexBarCLI {
 
     static func configHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar config validate [--format text|json]
+          tokenbar config validate [--format text|json]
                                  [--json]
                                  [--json-only]
                                  [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                                  [-v|--verbose]
                                  [--pretty]
-          codexbar config dump [--show-secrets] [--format text|json]
+          tokenbar config dump [--show-secrets] [--format text|json]
                              [--json]
                              [--json-only]
                              [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                              [-v|--verbose]
                              [--pretty]
-          codexbar config providers [--format text|json] [--json] [--json-only] [--pretty]
-          codexbar config enable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
-          codexbar config disable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
-          codexbar config set-api-key --provider <name> (--api-key <key>|--stdin)
+          tokenbar config providers [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config enable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config disable --provider <name> [--format text|json] [--json] [--json-only] [--pretty]
+          tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
                                     [--label <label>] [--usage-scope team]
                                     [--organization-id <org>] [--workspace-id <project>]
                                     [--no-enable]
                                     [--format text|json] [--json] [--json-only] [--pretty]
 
         Description:
-          Validate or print the CodexBar config file (default: validate).
+          Validate or print the TokenBar config file (default: validate).
           dump prints normalized config JSON with stored credentials redacted by default
           (use --show-secrets to reveal raw values).
           providers lists persistent provider enablement.
@@ -276,23 +276,23 @@ extension CodexBarCLI {
           the key as a token account instead of a provider-level personal key.
 
         Examples:
-          codexbar config validate --format json --pretty
-          codexbar config dump --pretty
-          codexbar config providers
-          codexbar config enable --provider grok
-          codexbar config disable --provider cursor
-          printf '%s' "$ELEVENLABS_API_KEY" | codexbar config set-api-key --provider elevenlabs --stdin
-          printf '%s' "$Z_AI_API_KEY" | codexbar config set-api-key --provider zai --stdin \\
+          tokenbar config validate --format json --pretty
+          tokenbar config dump --pretty
+          tokenbar config providers
+          tokenbar config enable --provider grok
+          tokenbar config disable --provider cursor
+          printf '%s' "$ELEVENLABS_API_KEY" | tokenbar config set-api-key --provider elevenlabs --stdin
+          printf '%s' "$Z_AI_API_KEY" | tokenbar config set-api-key --provider zai --stdin \\
             --label Team --usage-scope team --organization-id org_... --workspace-id proj_...
         """
     }
 
     static func cacheHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar cache clear <--cookies|--cost|--all>
+          tokenbar cache clear <--cookies|--cost|--all>
                               [--provider <name>]
                               [--format text|json]
                               [--json]
@@ -307,24 +307,24 @@ extension CodexBarCLI {
           Optionally specify --provider with --cookies to clear cookies for a single provider only.
 
         Examples:
-          codexbar cache clear --cookies
-          codexbar cache clear --cookies --provider claude
-          codexbar cache clear --cost
-          codexbar cache clear --all
-          codexbar cache clear --all --format json --pretty
+          tokenbar cache clear --cookies
+          tokenbar cache clear --cookies --provider claude
+          tokenbar cache clear --cost
+          tokenbar cache clear --all
+          tokenbar cache clear --all --format json --pretty
         """
     }
 
     static func hooksHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar hooks list [--format text|json] [--pretty]
-          codexbar hooks enable
-          codexbar hooks disable
-          codexbar hooks test <event> --provider <name>
-          codexbar hooks watch [--interval <seconds>] [--provider <name>]
+          tokenbar hooks list [--format text|json] [--pretty]
+          tokenbar hooks enable
+          tokenbar hooks disable
+          tokenbar hooks test <event> --provider <name>
+          tokenbar hooks watch [--interval <seconds>] [--provider <name>]
 
         Description:
           Run external commands when quota/provider events occur. Rules are stored in the
@@ -342,21 +342,21 @@ extension CodexBarCLI {
           baselines and event rate limits survive between polls. Default interval 300s, minimum 60s.
 
         Examples:
-          codexbar hooks list
-          codexbar hooks enable
-          codexbar hooks test quota_reached --provider codex
-          codexbar hooks test quota_low --provider claude
-          codexbar hooks watch --interval 600
-          codexbar hooks watch --provider codex
+          tokenbar hooks list
+          tokenbar hooks enable
+          tokenbar hooks test quota_reached --provider codex
+          tokenbar hooks test quota_low --provider claude
+          tokenbar hooks watch --interval 600
+          tokenbar hooks watch --provider codex
         """
     }
 
     static func diagnoseHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar diagnose --provider <name|all> --format json
+          tokenbar diagnose --provider <name|all> --format json
                            [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                            [-v|--verbose]
                            [--redact] [--output <path>]
@@ -368,19 +368,19 @@ extension CodexBarCLI {
           account IDs, org IDs, raw responses, and billing-history records.
 
         Examples:
-          codexbar diagnose --provider minimax --format json --redact --output diagnostic.json
-          codexbar diagnose --provider minimax --format json --pretty
-          codexbar diagnose --provider claude --format json --pretty
-          codexbar diagnose --provider all --format json
+          tokenbar diagnose --provider minimax --format json --redact --output diagnostic.json
+          tokenbar diagnose --provider minimax --format json --pretty
+          tokenbar diagnose --provider claude --format json --pretty
+          tokenbar diagnose --provider all --format json
         """
     }
 
     static func cookieHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar cookie refresh <--provider <name>|--all>
+          tokenbar cookie refresh <--provider <name>|--all>
                                  [--allow-keychain-prompt]
                                  [--format text|json]
                                  [--json]
@@ -395,18 +395,18 @@ extension CodexBarCLI {
           explicit interactive retry flag is supplied. Cookie values are never shown.
 
         Examples:
-          codexbar cookie refresh --provider opencodego --allow-keychain-prompt
-          codexbar cookie refresh --all --allow-keychain-prompt
-          codexbar cookie refresh --provider opencodego --allow-keychain-prompt --format json --pretty
+          tokenbar cookie refresh --provider opencodego --allow-keychain-prompt
+          tokenbar cookie refresh --all --allow-keychain-prompt
+          tokenbar cookie refresh --provider opencodego --allow-keychain-prompt --format json --pretty
         """
     }
 
     static func guardHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar guard --provider \(ProviderHelp.list)
+          tokenbar guard --provider \(ProviderHelp.list)
                         [--min-remaining <percent>] [--window session|weekly]
                         [--timeout <seconds>] [--json] [--pretty] [--fail-open]
                         [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -430,20 +430,20 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar guard --provider claude
-          codexbar guard --provider codex --min-remaining 20
-          codexbar guard --provider claude --window weekly --min-remaining 5
-          codexbar guard --provider claude --json
-          codexbar guard --provider codex --fail-open
+          tokenbar guard --provider claude
+          tokenbar guard --provider codex --min-remaining 20
+          tokenbar guard --provider claude --window weekly --min-remaining 5
+          tokenbar guard --provider claude --json
+          tokenbar guard --provider codex --fail-open
         """
     }
 
     static func rootHelp(version: String) -> String {
         """
-        CodexBar \(version)
+        TokenBar \(version)
 
         Usage:
-          codexbar [--format text|json]
+          tokenbar [--format text|json]
                   [--json]
                   [--json-only]
                   [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
@@ -451,39 +451,39 @@ extension CodexBarCLI {
                   [--account <label>] [--account-index <index>] [--all-accounts]
                   [--no-credits] [--no-color] [--pretty] [--status] [--source <auto|web|cli|oauth|api>]
                   [--web-timeout <seconds>] [--web-debug-dump-html] [--antigravity-plan-debug] [--augment-debug]
-          codexbar cards [--provider \(ProviderHelp.list)] [--brief] [--no-color] [--status]
-          codexbar cost [--format text|json]
+          tokenbar cards [--provider \(ProviderHelp.list)] [--brief] [--no-color] [--status]
+          tokenbar cost [--format text|json]
                        [--json]
                        [--json-only]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
                        [--provider \(ProviderHelp.list)] [--no-color] [--pretty] [--refresh]
                        [--provider-native-only]
                        [--days <days>] [--group-by project]
-          codexbar sessions [--json|--json-v2] [--pretty]
-          codexbar sessions focus <id>
-          codexbar dashboard [--pretty] [--timeout <seconds>] [--output <path>]
-          codexbar serve [--host <host>] [--port <port>] [--refresh-interval <seconds>]
+          tokenbar sessions [--json|--json-v2] [--pretty]
+          tokenbar sessions focus <id>
+          tokenbar dashboard [--pretty] [--timeout <seconds>] [--output <path>]
+          tokenbar serve [--host <host>] [--port <port>] [--refresh-interval <seconds>]
                        [--request-timeout <seconds>]
                        [--dashboard-token <token>] [--allow-plain-http]
                        [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>] [-v|--verbose]
-          codexbar config <validate|dump|providers> [--format text|json]
+          tokenbar config <validate|dump|providers> [--format text|json]
                                         [--json]
                                         [--json-only]
                                         [--json-output] [--log-level <trace|verbose|debug|info|warning|error|critical>]
                                         [-v|--verbose]
                                         [--pretty]
-          codexbar config enable --provider <name>
-          codexbar config disable --provider <name>
-          codexbar config set-api-key --provider <name> (--api-key <key>|--stdin)
-          codexbar config set-api-key --provider zai --stdin --usage-scope team
+          tokenbar config enable --provider <name>
+          tokenbar config disable --provider <name>
+          tokenbar config set-api-key --provider <name> (--api-key <key>|--stdin)
+          tokenbar config set-api-key --provider zai --stdin --usage-scope team
                                    --organization-id <org> --workspace-id <project>
-          codexbar hooks <list|enable|disable> [--format text|json] [--pretty]
-          codexbar hooks test <event> --provider <name>
-          codexbar plugins <list|fetch <id>> [--json] [--pretty]
-          codexbar cache clear <--cookies|--cost|--all> [--provider <name>]
-          codexbar cookie refresh <--provider <name>|--all> [--allow-keychain-prompt]
-          codexbar diagnose --provider <name|all> --format json [--redact] [--output <path>] [--pretty]
-          codexbar guard --provider <name> [--min-remaining <percent>] [--window session|weekly] [--json]
+          tokenbar hooks <list|enable|disable> [--format text|json] [--pretty]
+          tokenbar hooks test <event> --provider <name>
+          tokenbar plugins <list|fetch <id>> [--json] [--pretty]
+          tokenbar cache clear <--cookies|--cost|--all> [--provider <name>]
+          tokenbar cookie refresh <--provider <name>|--all> [--allow-keychain-prompt]
+          tokenbar diagnose --provider <name|all> --format json [--redact] [--output <path>] [--pretty]
+          tokenbar guard --provider <name> [--min-remaining <percent>] [--window session|weekly] [--json]
 
         Global flags:
           -h, --help      Show help
@@ -494,27 +494,27 @@ extension CodexBarCLI {
           --json-output   Emit machine-readable logs (JSONL) to stderr
 
         Examples:
-          codexbar
-          codexbar --format json --provider all --pretty
-          codexbar --provider all --json
-          codexbar --provider gemini
-          codexbar cards --provider all --status
-          codexbar cards --brief
-          codexbar cost --provider claude --format json --pretty
-          codexbar sessions --json
-          codexbar dashboard --pretty
-          codexbar serve --port 8080
-          codexbar config validate --format json --pretty
-          codexbar config enable --provider grok
-          codexbar config set-api-key --provider elevenlabs --stdin
-          codexbar hooks test quota_reached --provider codex
-          codexbar plugins list
-          codexbar cache clear --cookies
-          codexbar cookie refresh --provider opencodego --allow-keychain-prompt
-          codexbar diagnose --provider minimax --format json --redact --output diagnostic.json
-          codexbar diagnose --provider minimax --format json --pretty
-          codexbar diagnose --provider all --format json
-          codexbar guard --provider claude --min-remaining 20
+          tokenbar
+          tokenbar --format json --provider all --pretty
+          tokenbar --provider all --json
+          tokenbar --provider gemini
+          tokenbar cards --provider all --status
+          tokenbar cards --brief
+          tokenbar cost --provider claude --format json --pretty
+          tokenbar sessions --json
+          tokenbar dashboard --pretty
+          tokenbar serve --port 8080
+          tokenbar config validate --format json --pretty
+          tokenbar config enable --provider grok
+          tokenbar config set-api-key --provider elevenlabs --stdin
+          tokenbar hooks test quota_reached --provider codex
+          tokenbar plugins list
+          tokenbar cache clear --cookies
+          tokenbar cookie refresh --provider opencodego --allow-keychain-prompt
+          tokenbar diagnose --provider minimax --format json --redact --output diagnostic.json
+          tokenbar diagnose --provider minimax --format json --pretty
+          tokenbar diagnose --provider all --format json
+          tokenbar guard --provider claude --min-remaining 20
         """
     }
 }

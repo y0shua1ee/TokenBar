@@ -249,13 +249,14 @@ public struct OpenAIDashboardBrowserCookieImporter {
     }
 
     private nonisolated static func fullDiskAccessTarget(processName: String, executablePath: String) -> String {
-        guard processName != "CodexBarCLI",
+        let helperProcessNames = [TokenBarIdentity.cliExecutableName, "CodexBarCLI"]
+        guard !helperProcessNames.contains(processName),
               let appSuffix = executablePath.range(of: ".app/")
         else {
             return "\(processName) (\(executablePath))"
         }
         let appPath = executablePath[..<appSuffix.upperBound].dropLast()
-        return "CodexBar.app (\(appPath))"
+        return "\(TokenBarIdentity.applicationBundleName) (\(appPath))"
     }
 
     nonisolated static func browserCookieLoadTimeoutError(

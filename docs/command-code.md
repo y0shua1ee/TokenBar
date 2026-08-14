@@ -8,7 +8,7 @@ read_when:
 
 # Command Code
 
-CodexBar surfaces [Command Code](https://commandcode.ai) monthly USD credits next
+TokenBar surfaces [Command Code](https://commandcode.ai) monthly USD credits next
 to your other AI coding providers.
 
 ## Data source

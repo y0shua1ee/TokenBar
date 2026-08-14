@@ -12,7 +12,7 @@ The ZoomMate provider tracks credit usage against a budget cap from
 [zoommate.zoom.us](https://zoommate.zoom.us). ZoomMate is a credits-based quota — there is no
 session/weekly rate window, just a single primary "Credits" window.
 
-CodexBar's ZoomMate branding uses Zoom's official core palette: Bloom (`#0B5CFF`) as the primary
+TokenBar's ZoomMate branding uses Zoom's official core palette: Bloom (`#0B5CFF`) as the primary
 color, with Dawn (`#B4D0F8`) and Midnight (`#00053D`) as supporting colors. Provenance:
 [Zoom Brand Center, Visual identity — Color](https://brand.zoom.com/document/1#/visual-identity/color),
 retrieved 2026-07-18 (page last modified 2025-08-28).
@@ -24,7 +24,7 @@ retrieved 2026-07-18 (page last modified 2025-08-28).
 1. Sign in to ZoomMate in Chrome.
 2. Enable **ZoomMate** in **Settings → Providers**. **Cookie source** defaults to **Auto**.
 
-CodexBar imports your ZoomMate/Zoom session cookies from Chrome's cookie jar (covering
+TokenBar imports your ZoomMate/Zoom session cookies from Chrome's cookie jar (covering
 `zoommate.zoom.us`, `ai.zoom.us`, and the parent `zoom.us` domain, where Zoom's SSO session cookies
 actually live) and exchanges them for a short-lived bearer token via the same
 cookie-to-token bootstrap endpoint ZoomMate's own web app uses internally
@@ -35,16 +35,16 @@ other browsers must use manual capture.
 Because the bearer token is minted from your (much longer-lived) session cookies, this keeps working
 as long as you stay signed in to ZoomMate in Chrome. A minted token is reused from an in-memory cache
 across refreshes until it nears expiry, then re-minted from the same cookies — no re-paste required.
-If the Chrome session cookie is missing, CodexBar reports `noSession`; if Zoom rejects an existing
-session, CodexBar reports `invalidCredentials`.
+If the Chrome session cookie is missing, TokenBar reports `noSession`; if Zoom rejects an existing
+session, TokenBar reports `invalidCredentials`.
 
-Chrome's cookie decryption key lives in the macOS Keychain, so CodexBar only reads Chrome's cookie
-store during user-initiated refreshes (a menu or Settings refresh, or `codexbar cookie`). Once a
+Chrome's cookie decryption key lives in the macOS Keychain, so TokenBar only reads Chrome's cookie
+store during user-initiated refreshes (a menu or Settings refresh, or `tokenbar cookie`). Once a
 fresh import validates — the cookie-to-token mint succeeds — the validated host-scoped cookie headers are saved to
-CodexBar's shared Keychain cookie cache (`com.steipete.codexbar.cache`, account `cookie.zoommate`,
+TokenBar's shared Keychain cookie cache (`com.y0shua1ee.tokenbar.cache`, account `cookie.zoommate`,
 same as other cookie providers) and reused before re-importing from Chrome. Background refreshes and
-the bundled `codexbar` CLI run entirely from those cached headers, so they never touch Chrome's cookie
-store or trigger a Keychain prompt. If Zoom rejects the cached session, CodexBar drops it and retries
+the bundled `tokenbar` CLI run entirely from those cached headers, so they never touch Chrome's cookie
+store or trigger a Keychain prompt. If Zoom rejects the cached session, TokenBar drops it and retries
 one fresh Chrome import (user-initiated contexts only; background refreshes report `noSession` until
 the next user refresh).
 
@@ -59,7 +59,7 @@ command captured from DevTools:
 4. Reload the page and find the `credits/status` request
    (`GET https://ai.zoom.us/ai-computer/api/v1/credits/status`).
 5. Right-click → Copy → Copy as cURL.
-6. Paste the full `curl` command into the **ZoomMate capture** field in CodexBar settings.
+6. Paste the full `curl` command into the **ZoomMate capture** field in TokenBar settings.
 
 Unlike some other manual-paste providers, the forwarded header allowlist for ZoomMate **includes
 `Authorization`** — that's the required credential (see "Common errors" below). `Cookie` and
@@ -67,7 +67,7 @@ selected browser headers may also be forwarded, but `Origin` and `Referer` are a
 the fixed `https://zoommate.zoom.us` value. Captures are accepted only for the HTTPS
 `/ai-computer/api/v1/credits/status` endpoint on `ai.zoom.us` or `zoommate.zoom.us` — DevTools may
 show the request on either host, since both currently serve the same first-party API. A captured
-`Cookie` header is bound to that request's host: CodexBar tries the captured host first and never
+`Cookie` header is bound to that request's host: TokenBar tries the captured host first and never
 forwards its cookies if a non-auth failure falls back to the sibling host.
 
 ## Token expiry (~hourly)
@@ -76,7 +76,7 @@ The ZoomMate bearer token itself is short-lived — typically about an hour. Ses
 longer, so:
 
 - **Automatic mode**: no action needed as long as you stay signed in to ZoomMate in Chrome;
-  CodexBar mints a bearer token from your session cookies and reuses it (in memory) until it nears
+  TokenBar mints a bearer token from your session cookies and reuses it (in memory) until it nears
   expiry, then re-mints automatically.
 - **Manual mode**: re-capture and re-paste a fresh `curl` command when the pasted token expires
   (surfaced as `invalidCredentials` — see below). This is expected behavior, not a bug — switching
@@ -85,13 +85,13 @@ longer, so:
 ## Auth & privacy
 
 Automatic mode uses the same first-party ZoomMate web-client flow a signed-in browser uses:
-CodexBar imports Zoom session cookies from the local Chrome cookie jar, partitions them into the
+TokenBar imports Zoom session cookies from the local Chrome cookie jar, partitions them into the
 headers a browser would send to each fixed API host, exchanges one of those host-scoped headers for
 a short-lived bearer token, and then uses that bearer token for the `credits/status` and
 `credits/history` requests.
 
 The minted bearer token is never persisted — it is held only in a process-lifetime in-memory cache.
-The validated host-scoped cookie headers (and only those headers — never the bearer) are persisted to CodexBar's
+The validated host-scoped cookie headers (and only those headers — never the bearer) are persisted to TokenBar's
 existing shared Keychain cookie cache after a successful mint, the same cache and lifecycle other
 cookie providers (Claude web, Perplexity, OpenCode, …) already use, so background refreshes and the
 bundled CLI can reuse the session without rereading Chrome. ZoomMate logs intentionally omit
@@ -113,14 +113,14 @@ only to discover parent-scoped SSO cookies; it does not authorize requests to ar
 subdomains. ZoomMate does not currently expose a
 documented public API, so this provider depends on the product's first-party web-client endpoints.
 
-This cookie-to-bearer shape follows an existing CodexBar precedent in the Factory provider's WorkOS
+This cookie-to-bearer shape follows an existing TokenBar precedent in the Factory provider's WorkOS
 cookie exchange. The minted bearer is cached in memory (keyed by a SHA-256 of the cookie session)
 and reused until it nears its JWT `exp`; a token whose expiry can't be read is never cached, and a
 `401/403` from a downstream request evicts the cached token so the next refresh mints fresh.
 
 ## Data Source
 
-CodexBar sends up to a few GET requests per refresh:
+TokenBar sends up to a few GET requests per refresh:
 
 ```text
 GET https://ai.zoom.us/ai-computer/api/v1/credits/status
@@ -142,7 +142,7 @@ integration. A failed `credits/history` fetch is non-fatal: it never blocks the 
 
 ### Fields mapped to the Credits window
 
-| Source field | CodexBar mapping |
+| Source field | TokenBar mapping |
 |---|---|
 | `used_credit` / `budget_cap` | Primary window `usedPercent` (clamped 0–100) |
 | `cycle_end_date` | Primary window reset time (epoch ms) |
@@ -154,7 +154,7 @@ There is no secondary window; `resetDescription` is always "Credits".
 
 The same login bootstrap response used to mint the bearer token (`GET
 .../login/?continue=...`) also carries a `data.user_profile` object with the signed-in
-user's account details. CodexBar reads `user_profile.email` from it and surfaces it as the
+user's account details. TokenBar reads `user_profile.email` from it and surfaces it as the
 provider's `accountEmail` — the same identity field Codex/Claude populate — so the menu card's
 account row shows who is signed in, matching those providers' presentation. `loginMethod` is
 set to `"Cookie"` whenever an email was resolved this way. This is purely additive enrichment:
@@ -185,7 +185,7 @@ includes:
   `cycle_start_date`/`cycle_end_date` — comparing actual usage against the expected
   linear-elapsed-fraction of the cycle. This reuses `UsagePace`'s existing stage thresholds (on
   track / slightly ahead / ahead / far ahead / slightly behind / behind / far behind) rather than
-  a ZoomMate-specific scale, so the wording matches other CodexBar pacing indicators.
+  a ZoomMate-specific scale, so the wording matches other TokenBar pacing indicators.
 
 `is_deleted` history records are excluded from both the KPI tiles and the mini-bars; still-running
 sessions (`is_running: true`) are included since their `cost` reflects consumption so far. The
@@ -202,7 +202,7 @@ omits the section instead of showing an empty dashboard.
 ZoomMate's descriptor points at Zoom's public status page,
 [zoomstatus.com](https://www.zoomstatus.com/), which is an Atlassian Statuspage.io site — the same
 platform Claude's status page already uses. This means the overall-status row and its "Updated …"
-subtitle work through CodexBar's existing shared Statuspage.io fetch/parse path with no
+subtitle work through TokenBar's existing shared Statuspage.io fetch/parse path with no
 ZoomMate-specific fetcher code.
 
 Zoom's status page lists ~300+ components, dominated by heavy per-region duplication for services
@@ -232,15 +232,15 @@ descriptor allowlist and keeps showing every component their feed returns, uncha
 ## CLI
 
 ```bash
-codexbar usage --provider zoommate
+tokenbar usage --provider zoommate
 ```
 
 The CLI reuses the host-scoped cookie headers cached by a previous validated refresh; it does not read Chrome's
 cookie store itself. If no cached session exists yet (`noSession`), refresh once from the app or
-seed the cache from the terminal with `codexbar cookie --provider zoommate` (add
+seed the cache from the terminal with `tokenbar cookie --provider zoommate` (add
 `--allow-keychain-prompt` to acknowledge that Chrome cookie decryption may prompt).
 
-ZoomMate provides no token-cost data and is not yet supported in the CodexBar widget (this
+ZoomMate provides no token-cost data and is not yet supported in the TokenBar widget (this
 includes the credits history dashboard and status page above — both are app-menu-only).
 
 ## Common errors
@@ -248,10 +248,10 @@ includes the credits history dashboard and status page above — both are app-me
 | Error | Cause | Fix |
 |---|---|---|
 | `noCapture` | Manual mode is selected but the capture is empty, off-domain, or lacks a parseable `Authorization` header | Paste a fresh cURL capture of the HTTPS `credits/status` request from `ai.zoom.us` or `zoommate.zoom.us` |
-| `noSession` | Automatic mode found no cached session and no ZoomMate/Zoom session cookies it may read (background refreshes and the CLI never read Chrome directly) | Sign in to ZoomMate in Chrome and refresh once from the app (or `codexbar cookie --provider zoommate`), or switch to Manual and paste a capture |
+| `noSession` | Automatic mode found no cached session and no ZoomMate/Zoom session cookies it may read (background refreshes and the CLI never read Chrome directly) | Sign in to ZoomMate in Chrome and refresh once from the app (or `tokenbar cookie --provider zoommate`), or switch to Manual and paste a capture |
 | `invalidCredentials` | HTTP 401/403 — the token expired (~hourly) or was revoked | Re-sign-in (auto) or re-paste a fresh capture (manual) |
 | `apiError` | Any other non-200 HTTP status | Check ZoomMate's status; retry later |
-| `parseFailed` | HTTP 200 body did not contain the expected `credit_status` shape | Open a CodexBar issue with a redacted response sample |
+| `parseFailed` | HTTP 200 body did not contain the expected `credit_status` shape | Open a TokenBar issue with a redacted response sample |
 
 ## Key files
 

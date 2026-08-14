@@ -292,10 +292,10 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_DEBUG_DYLIB = NO;
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_CodexBarTeamID = "$(CODEXBAR_TEAM_ID)";
+				INFOPLIST_KEY_TokenBarTeamID = "$(TOKENBAR_TEAM_ID)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(CODEXBAR_WIDGET_BUNDLE_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOKENBAR_WIDGET_BUNDLE_ID)";
 				PRODUCT_NAME = CodexBarWidget;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -311,10 +311,10 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_DEBUG_DYLIB = NO;
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_CodexBarTeamID = "$(CODEXBAR_TEAM_ID)";
+				INFOPLIST_KEY_TokenBarTeamID = "$(TOKENBAR_TEAM_ID)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(CODEXBAR_WIDGET_BUNDLE_ID)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOKENBAR_WIDGET_BUNDLE_ID)";
 				PRODUCT_NAME = CodexBarWidget;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;

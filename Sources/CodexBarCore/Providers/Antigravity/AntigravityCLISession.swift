@@ -1191,7 +1191,7 @@ final class AntigravityFileCLISessionRecordStore: AntigravityCLISessionRecordSto
 
     init(
         fileURL: URL = URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
-            .appendingPathComponent(".codexbar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.legacyConfigDirectoryName, isDirectory: true)
             .appendingPathComponent("antigravity", isDirectory: true)
             .appendingPathComponent("agy-session.json"),
         fileManager: FileManager = .default)
@@ -1266,7 +1266,7 @@ final class AntigravityFileCLISessionLaunchLock: AntigravityCLISessionLaunchLock
 
     init(
         fileURL: URL = URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
-            .appendingPathComponent(".codexbar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.legacyConfigDirectoryName, isDirectory: true)
             .appendingPathComponent("antigravity", isDirectory: true)
             .appendingPathComponent("agy-session.lock"),
         fileManager: FileManager = .default)

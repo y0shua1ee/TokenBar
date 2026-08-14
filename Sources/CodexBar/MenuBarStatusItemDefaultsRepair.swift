@@ -1,9 +1,11 @@
+import CodexBarCore
 import Foundation
 
 enum MenuBarStatusItemDefaultsRepair {
     static let didRepairKey = "hasRepairedHiddenStatusItemVisibilityDefaults"
     private static let visibilityPrefix = "NSStatusItem VisibleCC "
-    private static let legacyAutosavePrefix = "codexbar-"
+    private static let canonicalAutosavePrefix = "\(TokenBarIdentity.commandName)-"
+    private static let compatibleAutosavePrefixes = [Self.canonicalAutosavePrefix, "codexbar-"]
 
     static func repairHiddenVisibilityDefaultsIfNeeded(defaults: UserDefaults) -> [String] {
         guard !defaults.bool(forKey: self.didRepairKey) else { return [] }
@@ -24,7 +26,8 @@ enum MenuBarStatusItemDefaultsRepair {
     static func shouldRepair(key: String, value: Any?) -> Bool {
         guard key.hasPrefix(self.visibilityPrefix), self.isFalse(value) else { return false }
         let itemName = String(key.dropFirst(self.visibilityPrefix.count))
-        return itemName.hasPrefix(self.legacyAutosavePrefix) || self.isDefaultStatusItemName(itemName)
+        return self.compatibleAutosavePrefixes.contains(where: itemName.hasPrefix)
+            || self.isDefaultStatusItemName(itemName)
     }
 
     static func visibilityDefault(defaults: UserDefaults, autosaveName: String) -> Bool? {

@@ -7,7 +7,7 @@ final class OpenAICreditsPurchaseWindowController: NSWindowController, WKNavigat
     private static let defaultSize = NSSize(width: 980, height: 760)
     private static let logHandlerName = "codexbarLog"
     private static let debugLogURL = URL(fileURLWithPath: NSTemporaryDirectory())
-        .appendingPathComponent("codexbar-buy-credits.log")
+        .appendingPathComponent("\(TokenBarIdentity.commandName)-buy-credits.log")
     private static let autoStartScript = """
     (() => {
       if (window.__codexbarAutoBuyCreditsStarted) return 'already';

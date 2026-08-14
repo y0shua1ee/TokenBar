@@ -65,7 +65,7 @@ FAKE = textwrap.dedent(
 
 
 def make_env(root: Path, *, install: bool = True) -> tuple[dict[str, str], Path]:
-    binary = root / "CodexBar.app" / "Contents" / "Helpers" / "CodexBarCLI"
+    binary = root / "TokenBar.app" / "Contents" / "Helpers" / "TokenBarCLI"
     binary.parent.mkdir(parents=True)
     binary.write_text(FAKE, encoding="utf-8")
     binary.chmod(0o755)
@@ -73,7 +73,7 @@ def make_env(root: Path, *, install: bool = True) -> tuple[dict[str, str], Path]
     env["CODEXBAR_SKIP_DISCOVERY"] = "1"
     env["CODEXBAR_TIMEOUT"] = "3"
     env["FAKE_LOG"] = str(root / "argv.log")
-    env["FAKE_VERSION_STDOUT"] = "CodexBar 1.2.3\n"
+    env["FAKE_VERSION_STDOUT"] = "TokenBar 1.2.3\n"
     env["FAKE_VALIDATE_STDOUT"] = "[]"
     env["FAKE_PROVIDERS_STDOUT"] = json.dumps(
         [{"provider": "codex", "displayName": "Codex", "enabled": True}]
@@ -115,7 +115,7 @@ class CodexBarSkillTests(unittest.TestCase):
     def test_help_is_small_and_read_only(self) -> None:
         result = helper("--help", env=os.environ.copy())
         self.assertEqual(result.returncode, 0)
-        self.assertIn("CodexBar read. JSON out. No writes.", result.stdout)
+        self.assertIn("TokenBar read. JSON out. No writes.", result.stdout)
         self.assertNotIn("enable", result.stdout)
         self.assertNotIn("set-api-key", result.stdout)
 
@@ -132,7 +132,7 @@ class CodexBarSkillTests(unittest.TestCase):
             result = helper("doctor", env=env)
         self.assertEqual(result.returncode, 0)
         payload = json.loads(result.stdout)
-        self.assertEqual(payload["version"], "CodexBar 1.2.3")
+        self.assertEqual(payload["version"], "TokenBar 1.2.3")
         self.assertEqual(payload["configIssues"], [])
         self.assertEqual(payload["binary"]["path"], "~" + str(binary)[len(str(Path.home())) :])
 

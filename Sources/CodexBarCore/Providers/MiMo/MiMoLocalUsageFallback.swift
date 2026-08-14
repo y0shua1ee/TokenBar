@@ -14,7 +14,7 @@ import Foundation
 /// See `docs/mimo.md` "Local fallback (opt-in)" for setup instructions.
 public enum MiMoLocalUsageFallback {
     public static func defaultCachePath() -> String {
-        "\(NSHomeDirectory())/.codexbar/mimo-local-usage.json"
+        "\(NSHomeDirectory())/\(TokenBarIdentity.legacyConfigDirectoryName)/mimo-local-usage.json"
     }
 
     public static func cachePath(environment: [String: String]) -> String {

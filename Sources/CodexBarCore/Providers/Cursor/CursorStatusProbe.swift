@@ -793,16 +793,17 @@ public enum CursorStatusProbeError: LocalizedError, Sendable {
     case noSessionCookie
 
     static let safariFullDiskAccessHint =
-        "If you use Safari, grant CodexBar Full Disk Access in System Settings ▸ Privacy & Security."
+        "If you use Safari, grant \(TokenBarIdentity.displayName) Full Disk Access in System Settings ▸ " +
+        "Privacy & Security."
 
     public var errorDescription: String? {
         switch self {
         case .notLoggedIn:
             #if os(macOS)
-            "Not logged in to Cursor. Please log in via the CodexBar menu."
+            "Not logged in to Cursor. Please log in via the \(TokenBarIdentity.displayName) menu."
             #else
             "Not logged in to Cursor. Sign in to the Cursor app on this machine or paste a Cookie header copied "
-                + "from cursor.com into ~/.config/codexbar/config.json (legacy: ~/.codexbar/config.json)."
+                + "from cursor.com into \(TokenBarIdentity.configPathHint)."
             #endif
         case let .networkError(msg):
             "Cursor API error: \(msg)"
@@ -812,10 +813,10 @@ public enum CursorStatusProbeError: LocalizedError, Sendable {
             #if os(macOS)
             "No Cursor session found. \(Self.safariFullDiskAccessHint) "
                 + "Please log in to cursor.com in \(cursorCookieImportOrder.loginHint). "
-                + "You can also sign in to Cursor from the CodexBar menu (Add / switch account)."
+                + "You can also sign in to Cursor from the \(TokenBarIdentity.displayName) menu (Add / switch account)."
             #else
             "No Cursor session found. Sign in to the Cursor app on this machine or paste a Cookie header copied "
-                + "from cursor.com into ~/.config/codexbar/config.json (legacy: ~/.codexbar/config.json)."
+                + "from cursor.com into \(TokenBarIdentity.configPathHint)."
             #endif
         }
     }
@@ -834,7 +835,7 @@ public actor CursorSessionStore {
         let fm = FileManager.default
         let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fm.temporaryDirectory
-        let dir = appSupport.appendingPathComponent("CodexBar", isDirectory: true)
+        let dir = appSupport.appendingPathComponent(TokenBarIdentity.applicationSupportDirectoryName, isDirectory: true)
         try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         self.fileURL = dir.appendingPathComponent("cursor-session.json")
 

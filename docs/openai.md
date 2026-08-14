@@ -7,7 +7,7 @@ read_when:
 
 # OpenAI API provider
 
-CodexBar's OpenAI API provider targets the API Platform organization dashboard, not ChatGPT/Codex subscription limits.
+TokenBar's OpenAI API provider targets the API Platform organization dashboard, not ChatGPT/Codex subscription limits.
 
 ## Data sources
 
@@ -25,16 +25,16 @@ CodexBar's OpenAI API provider targets the API Platform organization dashboard, 
 Store a key in the shared app/CLI config:
 
 ```bash
-printf '%s' "$OPENAI_ADMIN_KEY" | codexbar config set-api-key --provider openai --stdin
+printf '%s' "$OPENAI_ADMIN_KEY" | tokenbar config set-api-key --provider openai --stdin
 ```
 
-Settings → Providers → OpenAI writes the same `~/.codexbar/config.json` field. `OPENAI_ADMIN_KEY` is preferred over
+Settings → Providers → OpenAI writes the same `~/.tokenbar/config.json` field. `OPENAI_ADMIN_KEY` is preferred over
 `OPENAI_API_KEY` because it unlocks organization costs and usage; a normal API key only supports the legacy balance
 fallback.
 
 Project service-account keys are project-scoped credentials for API workloads. They are not organization Admin API
-keys, so they cannot read the organization usage and cost endpoints used by CodexBar. Configure an organization Admin
-API key instead; CodexBar reports this distinction when a project or service-account key is rejected.
+keys, so they cannot read the organization usage and cost endpoints used by TokenBar. Configure an organization Admin
+API key instead; TokenBar reports this distinction when a project or service-account key is rejected.
 
 To scope Admin API usage to a project, set the OpenAI Project ID field in Settings or add `workspaceID` to the `openai`
 provider config:

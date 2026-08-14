@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only, bounded CodexBar CLI bridge."""
+"""Read-only, bounded TokenBar CLI bridge with CodexBar compatibility."""
 
 from __future__ import annotations
 
@@ -94,9 +94,10 @@ def candidates() -> list[tuple[str, Path]]:
     if override:
         found.append(("env", Path(override).expanduser()))
 
-    path_hit = shutil.which("codexbar")
-    if path_hit:
-        found.append(("path", Path(path_hit)))
+    for command in ("tokenbar", "codexbar"):
+        path_hit = shutil.which(command)
+        if path_hit:
+            found.append(("path", Path(path_hit)))
 
     if os.environ.get(SKIP_DISCOVERY_ENV) == "1":
         return found
@@ -104,12 +105,18 @@ def candidates() -> list[tuple[str, Path]]:
     home = Path.home()
     found.extend(
         [
+            ("homebrew", Path("/opt/homebrew/bin/tokenbar")),
+            ("homebrew", Path("/usr/local/bin/tokenbar")),
+            ("app", Path("/Applications/TokenBar.app/Contents/Helpers/TokenBarCLI")),
+            ("app", home / "Applications/TokenBar.app/Contents/Helpers/TokenBarCLI"),
             ("homebrew", Path("/opt/homebrew/bin/codexbar")),
             ("homebrew", Path("/usr/local/bin/codexbar")),
             ("app", Path("/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI")),
             ("app", home / "Applications/CodexBar.app/Contents/Helpers/CodexBarCLI"),
         ]
     )
+    for root in (Path("/opt/homebrew/Caskroom/tokenbar"), Path("/usr/local/Caskroom/tokenbar")):
+        found.extend(("cask", app / "Contents/Helpers/TokenBarCLI") for app in sorted(root.glob("*/TokenBar.app")))
     for root in (Path("/opt/homebrew/Caskroom/codexbar"), Path("/usr/local/Caskroom/codexbar")):
         found.extend(("cask", app / "Contents/Helpers/CodexBarCLI") for app in sorted(root.glob("*/CodexBar.app")))
     return found
@@ -274,7 +281,7 @@ def doctor(binary: Binary, include_identities: bool) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(prog="codexbar", description="CodexBar read. JSON out. No writes.")
+    root = argparse.ArgumentParser(prog="codexbar", description="TokenBar read. JSON out. No writes.")
     commands = root.add_subparsers(dest="command", required=True)
     for name in ("doctor", "providers"):
         command = commands.add_parser(name)

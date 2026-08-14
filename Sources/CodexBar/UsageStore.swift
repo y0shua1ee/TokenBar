@@ -976,7 +976,8 @@ extension UsageStore {
             browserDetection: self.browserDetection,
             keepCLISessionsAlive: self.settings.debugKeepCLISessionsAlive)
         let output = await fetcher.debugRawProbe(model: "sonnet")
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("codexbar-claude-probe.txt")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("\(TokenBarIdentity.commandName)-claude-probe.txt")
         try? output.write(to: url, atomically: true, encoding: .utf8)
         await MainActor.run {
             let snippet = String(output.prefix(180)).replacingOccurrences(of: "\n", with: " ")
@@ -988,7 +989,7 @@ extension UsageStore {
 
     func dumpLog(toFileFor provider: UsageProvider) async -> URL? {
         let text = await self.debugLog(for: provider)
-        let filename = "codexbar-\(provider.rawValue)-probe.txt"
+        let filename = "\(TokenBarIdentity.commandName)-\(provider.rawValue)-probe.txt"
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(filename)
         do {
             try text.write(to: url, atomically: true, encoding: .utf8)

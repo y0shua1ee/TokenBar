@@ -92,7 +92,7 @@ struct ModelsDevCatalog: Codable, Equatable {
             {
                 let fallbackKey = provider.models[modelKey] == nil
                     ? modelKey
-                    : "codexbar-fallback:\(modelKey):\(cachedModel.normalizedID)"
+                    : "\(TokenBarIdentity.commandName)-fallback:\(modelKey):\(cachedModel.normalizedID)"
                 provider.models[fallbackKey] = cachedModel
             }
             merged.providers[normalizedProviderID] = provider
@@ -439,7 +439,7 @@ enum ModelsDevCache {
 
     private static func defaultCacheRoot() -> URL {
         let root = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        return root.appendingPathComponent("CodexBar", isDirectory: true)
+        return root.appendingPathComponent(TokenBarIdentity.cachesDirectoryName, isDirectory: true)
     }
 
     static func cacheFileURL(cacheRoot: URL? = nil) -> URL {

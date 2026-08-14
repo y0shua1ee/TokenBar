@@ -169,7 +169,7 @@ public enum ZaiSettingsError: LocalizedError, Sendable, Equatable {
     public var errorDescription: String? {
         switch self {
         case .missingToken:
-            "z.ai API token not found. Set apiKey in ~/.codexbar/config.json or Z_AI_API_KEY."
+            "z.ai API token not found. Set apiKey in \(TokenBarIdentity.configPathHint) or Z_AI_API_KEY."
         case let .invalidEndpointOverride(key):
             "z.ai endpoint override \(key) must use HTTPS or a bare host."
         case let .endpointRegionMismatch(key, region):

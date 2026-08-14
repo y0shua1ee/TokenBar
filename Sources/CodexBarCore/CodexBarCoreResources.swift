@@ -14,7 +14,8 @@ import Foundation
 /// executable; a missing bundle is reported by callers instead of trapping.
 public enum CodexBarCoreResources {
     static let missingBundleMessage =
-        "CodexBarCore resource bundle is missing next to the executable; reinstall or update CodexBar"
+        "\(TokenBarIdentity.displayName) resources are missing next to the executable; " +
+        "reinstall or update \(TokenBarIdentity.displayName)"
 
     public static let bundle: Bundle? = resolve(mainBundle: .main)
 

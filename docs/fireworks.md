@@ -8,13 +8,13 @@ read_when:
 
 # Fireworks provider
 
-Fireworks is API-only for billing: there is no public credit-balance endpoint, so CodexBar shows the
+Fireworks is API-only for billing: there is no public credit-balance endpoint, so TokenBar shows the
 **last 30 days of rated spend** from the account billing summary API instead of a balance gauge.
 
 ## Data sources
 
-1. **API key** stored in `~/.codexbar/config.json` or supplied via `FIREWORKS_API_KEY` (legacy alias: `FIREWORKS_KEY`).
-2. **Account slug** stored in `~/.codexbar/config.json` or supplied via `FIREWORKS_ACCOUNT_SLUG`.
+1. **API key** stored in `~/.tokenbar/config.json` or supplied via `FIREWORKS_API_KEY` (legacy alias: `FIREWORKS_KEY`).
+2. **Account slug** stored in `~/.tokenbar/config.json` or supplied via `FIREWORKS_ACCOUNT_SLUG`.
 
 The slug is the segment after `/accounts/` in console URLs (e.g. the slug for
 `app.fireworks.ai/accounts/x0mh0x` is `x0mh0x`). Fireworks does not expose a whoami endpoint, so the slug
@@ -27,7 +27,7 @@ and the config validator flags a missing slug when a key is configured.
 - Request headers: `Authorization: Bearer <api key>`, `Accept: application/json`
 - The 30-day window is sent explicitly (`startTime`/`endTime` as ISO 8601); `granularity` is not requested.
 - Response contains `lineItems` with rated `totalCost` entries (`currencyCode`, `units`, `nanos`).
-- CodexBar sums `units + nanos / 1e9` across line items, using the first rated currency as the display currency
+- TokenBar sums `units + nanos / 1e9` across line items, using the first rated currency as the display currency
   and skipping rows in other currencies.
 
 ## Usage details

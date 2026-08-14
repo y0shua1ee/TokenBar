@@ -8,7 +8,7 @@ read_when:
 
 # Codebuff
 
-CodexBar surfaces [Codebuff](https://www.codebuff.com) credit balance and
+TokenBar surfaces [Codebuff](https://www.codebuff.com) credit balance and
 weekly rate limits next to your other AI providers.
 
 ## Data sources
@@ -17,23 +17,23 @@ weekly rate limits next to your other AI providers.
   remaining balance, auto top-up state, and the next quota reset date.
 - `GET  https://www.codebuff.com/api/user/subscription` — subscription tier,
   billing period end, and the weekly rate-limit window (`weeklyUsed` /
-  `weeklyLimit`) when CodexBar is using the CLI credentials-file session token.
+  `weeklyLimit`) when TokenBar is using the CLI credentials-file session token.
 
 Both endpoints use a Bearer token. Codebuff credentials come from the
-environment, the normal CodexBar config file, or the official CLI credentials
+environment, the normal TokenBar config file, or the official CLI credentials
 file; the Codebuff provider does not write a separate Keychain credential.
 
 ## Authentication
 
-CodexBar resolves the Codebuff API token in this order:
+TokenBar resolves the Codebuff API token in this order:
 
 1. `CODEBUFF_API_KEY` environment variable (takes precedence so CI overrides
    work). API-key tokens fetch credit balance only.
 2. The per-provider API key stored in Settings → Providers → Codebuff (saved
-   in `~/.codexbar/config.json` via the normal CodexBar config flow). API-key
+   in `~/.tokenbar/config.json` via the normal TokenBar config flow). API-key
    tokens fetch credit balance only.
 3. `~/.config/manicode/credentials.json` — the file the official `codebuff`
-   CLI (formerly `manicode`) writes after `codebuff login`. CodexBar reads
+   CLI (formerly `manicode`) writes after `codebuff login`. TokenBar reads
    `default.authToken`, falling back to top-level `authToken`, and uses that
    session token for both credit balance and subscription metadata.
 

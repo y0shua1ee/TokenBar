@@ -5,7 +5,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 extension UTType {
-    static let codexBarMenuLayoutItem = UTType(exportedAs: "com.steipete.codexbar.menu-layout-item")
+    static let codexBarMenuLayoutItem = UTType(
+        exportedAs: "\(TokenBarIdentity.bundleIdentifier).menu-layout-item")
 }
 
 struct MenuBarLayoutPosition: Codable, Hashable, Sendable {

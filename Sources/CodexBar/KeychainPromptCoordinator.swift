@@ -77,7 +77,11 @@ enum KeychainPromptCoordinator {
     private static let promptLock = NSLock()
     private static let log = CodexBarLog.logger(LogCategories.keychainPrompt)
     private static let documentationURL =
-        "https://github.com/steipete/CodexBar/blob/main/docs/keychain-prompts.md"
+        "https://github.com/y0shua1ee/TokenBar/blob/main/docs/keychain-prompts.md"
+    private static let unbundledExecutableNames: Set<String> = [
+        TokenBarIdentity.applicationExecutableName,
+        "CodexBar",
+    ]
 
     static func install() {
         KeychainPromptHandler.handler = { context in
@@ -105,14 +109,15 @@ enum KeychainPromptCoordinator {
         guard Self.isUnbundledCodexBarExecutable(executablePath) else { return }
         KeychainAccessGate.forceDisabledForProcess(reason: "unbundled-executable")
         Self.log.warning(
-            "Unbundled CodexBar executable detected; disabling keychain access to avoid repeated prompts",
+            "Unbundled \(TokenBarIdentity.displayName) executable detected; " +
+                "disabling keychain access to avoid repeated prompts",
             metadata: ["doc": "docs/DEVELOPMENT_SETUP.md"])
     }
 
     static func isUnbundledCodexBarExecutable(_ executablePath: String) -> Bool {
         guard executablePath.hasPrefix("/") else { return false }
         let executableURL = URL(fileURLWithPath: executablePath).standardizedFileURL
-        return executableURL.lastPathComponent == "CodexBar"
+        return Self.unbundledExecutableNames.contains(executableURL.lastPathComponent)
             && !executableURL.pathComponents.contains(where: { $0.hasSuffix(".app") })
     }
 

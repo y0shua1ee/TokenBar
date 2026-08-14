@@ -1,4 +1,10 @@
 import AppKit
+import CodexBarCore
+
+enum TokenBarAboutLinks {
+    static let maintainerProfile = "https://x.com/ever3never"
+    static let maintainerEmail = "mailto:yuxiangl490@gmail.com"
+}
 
 @MainActor
 func showAbout() {
@@ -7,8 +13,10 @@ func showAbout() {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–"
     let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
     let versionString = build.isEmpty ? version : "\(version) (\(build))"
-    let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String
-    let gitCommit = Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String
+    let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "TokenBarBuildTimestamp") as? String
+        ?? Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String
+    let gitCommit = Bundle.main.object(forInfoDictionaryKey: "TokenBarGitCommit") as? String
+        ?? Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String
 
     let separator = NSAttributedString(string: " · ", attributes: [
         .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
@@ -21,14 +29,16 @@ func showAbout() {
         ])
     }
 
-    let credits = NSMutableAttributedString(string: "Peter Steinberger — MIT License\n")
-    credits.append(makeLink("GitHub", urlString: "https://github.com/steipete/CodexBar"))
+    let credits = NSMutableAttributedString(string: "Peter Steinberger — MIT License\nModified by Yoshua Lee\n")
+    credits.append(makeLink("GitHub", urlString: TokenBarIdentity.repositoryURL))
     credits.append(separator)
-    credits.append(makeLink("Website", urlString: "https://codex.bar"))
+    credits.append(makeLink("Website", urlString: TokenBarIdentity.websiteURL))
     credits.append(separator)
-    credits.append(makeLink("Twitter", urlString: "https://twitter.com/steipete"))
+    credits.append(makeLink("Original", urlString: TokenBarIdentity.upstreamRepositoryURL))
     credits.append(separator)
-    credits.append(makeLink("Email", urlString: "mailto:peter@steipete.me"))
+    credits.append(makeLink("Twitter", urlString: TokenBarAboutLinks.maintainerProfile))
+    credits.append(separator)
+    credits.append(makeLink("Email", urlString: TokenBarAboutLinks.maintainerEmail))
     if let buildTimestamp, let formatted = formattedBuildTimestamp(buildTimestamp) {
         var builtLine = "Built \(formatted)"
         if let gitCommit, !gitCommit.isEmpty, gitCommit != "unknown" {
@@ -45,7 +55,7 @@ func showAbout() {
     }
 
     let options: [NSApplication.AboutPanelOptionKey: Any] = [
-        .applicationName: "CodexBar",
+        .applicationName: TokenBarIdentity.displayName,
         .applicationVersion: versionString,
         .version: versionString,
         .credits: credits,

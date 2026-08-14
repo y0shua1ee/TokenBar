@@ -52,7 +52,7 @@ read_when:
 - An allowed scan runs `ps -axo ... command=` to inspect the running-process list and identify Codex/Claude, then runs
   `lsof` when needed and enumerates known session metadata only when an agent process is detected. It then reads
   recent Codex rollouts, reads rollout first-line metadata and mtimes, and inspects Claude transcript metadata. When
-  the Agent Sessions UI is off, CodexBar discards the resulting session records and retains only the latest `Date`.
+  the Agent Sessions UI is off, TokenBar discards the resulting session records and retains only the latest `Date`.
   Each scan considers at most 64 agent processes, parses at most 128 Codex rollout metadata records, keeps at most 64
   Claude transcript candidates per project, and shares a 512-entry, depth-1, 150 ms agent-aware directory metadata
   budget. Future

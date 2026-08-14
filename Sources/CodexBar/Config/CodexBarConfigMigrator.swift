@@ -19,7 +19,8 @@ struct CodexBarConfigMigrator {
         let tokenAccountStore: any ProviderTokenAccountStoring
     }
 
-    private static let legacyMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
+    private static let compatibleMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
 
     private struct MigrationState {
         var didUpdate = false
@@ -43,6 +44,10 @@ struct CodexBarConfigMigrator {
         self.bindLegacyMoonshotAPIKeyRegion(config: &config, state: &state)
 
         let migrationCompleted = userDefaults.bool(forKey: Self.legacyMigrationCompletedKey)
+            || userDefaults.bool(forKey: Self.compatibleMigrationCompletedKey)
+        if migrationCompleted, !userDefaults.bool(forKey: Self.legacyMigrationCompletedKey) {
+            userDefaults.set(true, forKey: Self.legacyMigrationCompletedKey)
+        }
         if !migrationCompleted {
             // Run once: migrate Keychain/file secrets then clear them. Using a completion flag rather
             // than `existing == nil` ensures a crash between config-save and clearLegacyStores can

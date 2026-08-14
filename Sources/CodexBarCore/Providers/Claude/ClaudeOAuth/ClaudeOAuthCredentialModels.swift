@@ -67,7 +67,7 @@ public struct ClaudeOAuthCredentials: Sendable {
     }
 
     private static func makeHistoryOwnerIdentifier(secretKind: String, secret: String) -> String? {
-        let material = Data("codexbar:claude-oauth-history-owner:v1\0\(secretKind)\0\(secret)".utf8)
+        let material = Data("tokenbar:claude-oauth-history-owner:v1\0\(secretKind)\0\(secret)".utf8)
         return SHA256.hash(data: material).map { String(format: "%02x", $0) }.joined()
     }
 
@@ -176,6 +176,36 @@ public enum ClaudeOAuthCredentialOwner: String, Codable, Sendable {
     case claudeCLI
     case codexbar
     case environment
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        switch value {
+        case Self.claudeCLI.rawValue:
+            self = .claudeCLI
+        case "tokenbar", Self.codexbar.rawValue:
+            self = .codexbar
+        case Self.environment.rawValue:
+            self = .environment
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unknown Claude OAuth credential owner: \(value)")
+        }
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        let value = switch self {
+        case .claudeCLI:
+            Self.claudeCLI.rawValue
+        case .codexbar:
+            "tokenbar"
+        case .environment:
+            Self.environment.rawValue
+        }
+        try container.encode(value)
+    }
 }
 
 public enum ClaudeOAuthCredentialSource: String, Sendable {
@@ -269,7 +299,7 @@ public enum ClaudeOAuthCredentialsError: LocalizedError, Sendable {
         case .mcpOAuthOnlyKeychain:
             return "Claude keychain contains MCP OAuth state only (no claudeAiOauth). "
                 + "Claude Code may store subscription OAuth elsewhere now. "
-                + "Open the CodexBar menu and click Refresh to re-authenticate, "
+                + "Open the \(TokenBarIdentity.displayName) menu and click Refresh to re-authenticate, "
                 + "or switch Claude Usage source to Web/CLI."
         case .missingAccessToken:
             return "Claude OAuth access token missing. Run `claude` to authenticate."
@@ -282,8 +312,8 @@ public enum ClaudeOAuthCredentialsError: LocalizedError, Sendable {
                 || status == Int(errSecInteractionNotAllowed)
                 || status == Int(errSecNoAccessForItem)
             {
-                return "Claude Keychain access was denied. CodexBar will back off in the background until you retry "
-                    + "via a user action (menu open / manual refresh). "
+                return "Claude Keychain access was denied. \(TokenBarIdentity.displayName) will back off in the "
+                    + "background until you retry via a user action (menu open / manual refresh). "
                     + "Switch Claude Usage source to Web/CLI, or allow access in Keychain Access."
             }
             #endif

@@ -217,8 +217,9 @@ final class MainThreadHangWatchdog: @unchecked Sendable {
     }
 
     private func launchSample() -> String? {
-        let directory = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Logs/CodexBar", isDirectory: true)
+        let directory = TokenBarIdentity.logsDirectory() ?? FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Logs", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.logsDirectoryName, isDirectory: true)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         } catch {

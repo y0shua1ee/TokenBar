@@ -17,9 +17,9 @@ end = script.index('\nPLIST\n', start) + len('\nPLIST\n')
 Path(sys.argv[2]).write_text(script[start:end])
 PY
 
-APP="$TEMP_DIR/CodexBar.app"
+APP="$TEMP_DIR/TokenBar.app"
 mkdir -p "$APP/Contents"
-BUNDLE_ID=com.steipete.codexbar.test
+BUNDLE_ID=com.y0shua1ee.tokenbar.test
 MARKETING_VERSION=0.0.0
 BUILD_NUMBER=0
 FEED_URL=https://example.invalid/appcast.xml
@@ -40,11 +40,36 @@ from pathlib import Path
 plist = plistlib.loads(Path(sys.argv[1]).read_bytes())
 declarations = plist.get("UTExportedTypeDeclarations")
 assert declarations == [{
-    "UTTypeIdentifier": "com.steipete.codexbar.menu-layout-item",
-    "UTTypeDescription": "CodexBar menu bar layout token",
+    "UTTypeIdentifier": "com.y0shua1ee.tokenbar.menu-layout-item",
+    "UTTypeDescription": "TokenBar menu bar layout token",
     "UTTypeConformsTo": ["public.data"],
     "UTTypeTagSpecification": {},
 }]
+assert plist["CFBundleName"] == "TokenBar"
+assert plist["CFBundleDisplayName"] == "TokenBar"
+assert plist["CFBundleExecutable"] == "TokenBar"
+assert plist["CFBundleIdentifier"] == "com.y0shua1ee.tokenbar.test"
+assert plist["TokenBarTeamID"] == "TESTTEAM"
+PY
+
+APP_ADHOC="$TEMP_DIR/TokenBar-adhoc.app"
+mkdir -p "$APP_ADHOC/Contents"
+APP="$APP_ADHOC"
+BUNDLE_ID=com.y0shua1ee.tokenbar
+FEED_URL=
+AUTO_CHECKS=false
+APP_TEAM_ID=
+source "$PLIST_SCRIPT"
+python3 - "$APP/Contents/Info.plist" <<'PY'
+import plistlib
+import sys
+from pathlib import Path
+
+plist = plistlib.loads(Path(sys.argv[1]).read_bytes())
+assert plist["CFBundleIdentifier"] == "com.y0shua1ee.tokenbar"
+assert plist["SUFeedURL"] == ""
+assert plist["SUEnableAutomaticChecks"] is False
+assert plist["TokenBarTeamID"] == ""
 PY
 
 echo "Package Info.plist tests passed."

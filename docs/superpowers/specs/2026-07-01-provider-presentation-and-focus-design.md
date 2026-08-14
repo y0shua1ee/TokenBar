@@ -29,7 +29,7 @@ inference remains a later, separately reviewed opt-in.
 
 ## Current behavior
 
-With multiple providers and Merge Icons enabled, CodexBar creates one merged status item and removes all provider
+With multiple providers and Merge Icons enabled, TokenBar creates one merged status item and removes all provider
 status items. `primaryProviderForUnifiedIcon()` chooses the merged icon from highest usage, the first Overview
 provider, the selected menu provider, or the first enabled provider. Menu selection is persisted.
 

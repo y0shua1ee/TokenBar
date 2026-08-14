@@ -33,13 +33,13 @@ The supported internal presentation boundary is:
 The Codex cost cache is:
 
 ```text
-~/Library/Caches/CodexBar/cost-usage/codex-v11.json
+~/Library/Caches/TokenBar/cost-usage/codex-v11.json
 ```
 
 The Workspaces sidecar is:
 
 ```text
-~/Library/Caches/CodexBar/local-usage/codex-workspaces-v1.sqlite
+~/Library/Caches/TokenBar/local-usage/codex-workspaces-v1.sqlite
 ```
 
 The sidecar currently uses SQLite schema version 5 and snapshot payload format

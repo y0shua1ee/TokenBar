@@ -491,7 +491,7 @@ struct PreferencesPaneSmokeTests {
         CodexBarLocalizationOverride.$appLanguage.withValue("ja") {
             #expect(L("language_title") == "言語")
             #expect(L("start_at_login_title") == "ログイン時に起動")
-            #expect(L("quit_app") == "CodexBar を終了")
+            #expect(L("quit_app") == "TokenBar を終了")
         }
 
         settings.appLanguage = "id"
@@ -500,8 +500,16 @@ struct PreferencesPaneSmokeTests {
         CodexBarLocalizationOverride.$appLanguage.withValue("id") {
             #expect(L("language_title") == "Bahasa")
             #expect(L("start_at_login_title") == "Mulai saat Login")
-            #expect(L("quit_app") == "Keluar CodexBar")
+            #expect(L("quit_app") == "Keluar TokenBar")
         }
+    }
+
+    @Test
+    func `localization output applies TokenBar branding without rewriting compatibility env names`() {
+        #expect(tokenBarBrandedString("About CodexBar") == "About TokenBar")
+        #expect(tokenBarBrandedString("Run CodexBarCLI as codexbar") == "Run TokenBarCLI as tokenbar")
+        #expect(tokenBarBrandedString("CODEXBAR_PLUGIN_ENGINE") == "CODEXBAR_PLUGIN_ENGINE")
+        #expect(tokenBarBrandedString("~/.codexbar/config.json") == TokenBarIdentity.configPathHint)
     }
 
     @Test
@@ -545,7 +553,7 @@ struct PreferencesPaneSmokeTests {
         CodexBarLocalizationOverride.$appLanguage.withValue("de") {
             #expect(L("tab_general") == "Allgemein")
             #expect(L("language_title") == "Sprache")
-            #expect(L("quit_app") == "CodexBar beenden")
+            #expect(L("quit_app") == "TokenBar beenden")
             #expect(L("display_mode_reset_time") == "Zurücksetzungszeit")
             #expect(L("display_mode_reset_time_desc").contains("↻ 15:56"))
             #expect(L("vertex_ai_login_instructions").contains("\n\n1. Öffnen Sie Terminal"))
@@ -565,7 +573,7 @@ struct PreferencesPaneSmokeTests {
             #expect(L("language_italian") == "Italiano")
             #expect(L("tab_menu_bar") == "Barra menu")
             #expect(L("tab_advanced") == "Avanzate")
-            #expect(L("quit_app") == "Esci da CodexBar")
+            #expect(L("quit_app") == "Esci da TokenBar")
         }
     }
 

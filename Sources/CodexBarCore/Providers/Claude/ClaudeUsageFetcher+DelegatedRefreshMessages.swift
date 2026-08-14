@@ -17,7 +17,8 @@ public struct ClaudeOAuthUnreadableCredentialsError: LocalizedError, Equatable, 
 
     /// The stable lead-in used to recognize this state from a persisted error string (e.g. for the
     /// provider-card call to action after the error crossed an untyped boundary).
-    public static let descriptionPrefix = "Claude OAuth credentials expired and CodexBar cannot read them back"
+    public static let descriptionPrefix =
+        "Claude OAuth credentials expired and \(TokenBarIdentity.displayName) cannot read them back"
 
     public static func matches(description: String?) -> Bool {
         description?.hasPrefix(self.descriptionPrefix) ?? false
@@ -74,9 +75,10 @@ extension ClaudeUsageFetcher {
             // Not "run `claude login`, then retry": that refreshes Claude Code's own Keychain item, which this
             // build does not read without consent, so the same expired cache comes back.
             return ClaudeOAuthUnreadableCredentialsError.descriptionPrefix
-                + ": Claude Code keeps them only in its own Keychain item, which CodexBar reads only with your "
+                + ": Claude Code keeps them only in its own Keychain item, which "
+                + "\(TokenBarIdentity.displayName) reads only with your "
                 + "permission. Enable \u{201C}Allow reading Claude Code credentials\u{201D} in Claude settings to "
-                + "restore OAuth usage, or CodexBar uses the Claude CLI when it is available."
+                + "restore OAuth usage, or \(TokenBarIdentity.displayName) uses the Claude CLI when it is available."
         }
 
         switch result.outcome {
@@ -85,7 +87,7 @@ extension ClaudeUsageFetcher {
                 + "Please retry shortly, or run `claude login`."
         case .skippedByPromptPolicy:
             return "Claude OAuth token expired; background refresh is disabled by the Keychain prompt policy. "
-                + "Refresh CodexBar manually or run `claude login`."
+                + "Refresh \(TokenBarIdentity.displayName) manually or run `claude login`."
         case .cliUnavailable:
             return "Claude OAuth token expired and Claude CLI is not available for delegated refresh. "
                 + "Install/configure `claude`, or run `claude login`."

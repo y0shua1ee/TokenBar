@@ -7,6 +7,22 @@ import Security
 enum KeychainMigration {
     private static let log = CodexBarLog.logger(LogCategories.keychainMigration)
     private static let migrationKey = "KeychainMigrationV1Completed"
+    private static let servicesToMigrate = [
+        TokenBarIdentity.keychainStoreService,
+        TokenBarIdentity.legacyKeychainStoreService,
+    ]
+    private static let accountsToMigrate = [
+        "codex-cookie",
+        "claude-cookie",
+        "cursor-cookie",
+        "factory-cookie",
+        "minimax-cookie",
+        "minimax-api-token",
+        "augment-cookie",
+        "copilot-api-token",
+        "zai-api-token",
+        "synthetic-api-key",
+    ]
 
     struct MigrationItem: Hashable {
         let service: String
@@ -18,18 +34,11 @@ enum KeychainMigration {
         }
     }
 
-    static let itemsToMigrate: [MigrationItem] = [
-        MigrationItem(service: "com.steipete.CodexBar", account: "codex-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "claude-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "cursor-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "factory-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "minimax-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "minimax-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "augment-cookie"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "copilot-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "zai-api-token"),
-        MigrationItem(service: "com.steipete.CodexBar", account: "synthetic-api-key"),
-    ]
+    static let itemsToMigrate: [MigrationItem] = Self.servicesToMigrate.flatMap { service in
+        Self.accountsToMigrate.map { account in
+            MigrationItem(service: service, account: account)
+        }
+    }
 
     /// Run migration once per installation
     static func migrateIfNeeded() {

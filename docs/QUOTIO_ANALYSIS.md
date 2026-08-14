@@ -32,7 +32,7 @@ read_when:
 ### What We ARE Doing
 - ✅ Learning from their architectural decisions
 - ✅ Understanding their UX patterns
-- ✅ Adapting concepts to CodexBar conventions
+- ✅ Adapting concepts to TokenBar conventions
 - ✅ Implementing independently with our own code
 - ✅ Crediting inspiration appropriately
 
@@ -57,7 +57,7 @@ git log --oneline --graph quotio/main --since="30 days ago"
 
 Create a comparison matrix:
 
-| Feature | CodexBar | Quotio | Notes |
+| Feature | TokenBar | Quotio | Notes |
 |---------|----------|--------|-------|
 | Multi-account | ❌ | ✅ | Priority for fork |
 | Provider count | 5 | ? | Check quotio |
@@ -130,7 +130,7 @@ git show quotio/main:path/to/MenuBarView.swift
 - [Key architectural decisions]
 - [Pros and cons]
 
-**CodexBar Current State:**
+**TokenBar Current State:**
 - [What we have now]
 - [Gaps or limitations]
 
@@ -148,7 +148,7 @@ git show quotio/main:path/to/MenuBarView.swift
 ```swift
 // Inspired by quotio's approach to [feature]:
 // https://github.com/nguyenphutrong/quotio/blob/main/path/to/file
-// Implemented independently using CodexBar patterns
+// Implemented independently using TokenBar patterns
 ```
 
 ---
@@ -163,7 +163,7 @@ git show quotio/main:path/to/MenuBarView.swift
 - Active account indicator
 - Quick switch action
 
-**CodexBar Adaptation:**
+**TokenBar Adaptation:**
 ```swift
 // Our implementation (example)
 struct AccountSwitcherView: View {
@@ -190,7 +190,7 @@ struct AccountSwitcherView: View {
 }
 
 // Inspired by quotio's account switching UI pattern
-// Implemented using SwiftUI and CodexBar's UsageStore
+// Implemented using SwiftUI and TokenBar's UsageStore
 ```
 
 ### Example 2: Session Persistence Pattern
@@ -200,7 +200,7 @@ struct AccountSwitcherView: View {
 - Background refresh
 - Error recovery
 
-**CodexBar Adaptation:**
+**TokenBar Adaptation:**
 ```swift
 // Our implementation (example)
 actor SessionPersistence {
@@ -214,7 +214,7 @@ actor SessionPersistence {
 }
 
 // Inspired by quotio's session persistence approach
-// Implemented using Swift concurrency and CodexBar's keychain utilities
+// Implemented using Swift concurrency and TokenBar's keychain utilities
 ```
 
 ---
@@ -245,7 +245,7 @@ actor SessionPersistence {
 
 ### Implementation
 - [ ] Implement independently
-- [ ] Follow CodexBar conventions
+- [ ] Follow TokenBar conventions
 - [ ] Add proper attribution
 - [ ] Write tests
 - [ ] Update documentation
@@ -303,13 +303,13 @@ actor SessionPersistence {
 - [Document questions]
 
 ### Architectural Differences
-- [How quotio differs from CodexBar]
+- [How quotio differs from TokenBar]
 - [Pros and cons of each approach]
 - [What we can learn]
 
 ### Implementation Ideas
 - [Ideas sparked by quotio]
-- [How to adapt to CodexBar]
+- [How to adapt to TokenBar]
 - [Potential improvements]
 
 ---
@@ -342,7 +342,7 @@ actor SessionPersistence {
 Inspired by quotio's approach to [feature]:
 https://github.com/nguyenphutrong/quotio/blob/main/path/to/file
 
-Implemented independently using CodexBar patterns and conventions.
+Implemented independently using TokenBar patterns and conventions.
 ```
 
 ---

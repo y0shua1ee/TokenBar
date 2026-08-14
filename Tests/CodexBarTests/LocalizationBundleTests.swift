@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 @testable import CodexBar
+@testable import CodexBarCore
 
 struct LocalizationBundleTests {
     @Test
@@ -58,6 +59,15 @@ struct LocalizationBundleTests {
 
         #expect(message.contains("codex --version"))
         #expect(message.contains("@openai/codex@latest"))
+    }
+
+    @Test
+    func `inherited config hints point at TokenBar primary and legacy paths`() {
+        let message = tokenBarBrandedString("Stored in ~/.codexbar/config.json. Open CodexBarCLI.")
+
+        #expect(message.contains(TokenBarIdentity.configPathHint))
+        #expect(message.contains(TokenBarIdentity.cliExecutableName))
+        #expect(!message.contains("~/.codexbar"))
     }
 
     private static func makeAppBundleFixture(

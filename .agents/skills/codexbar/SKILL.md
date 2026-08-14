@@ -1,11 +1,12 @@
 ---
 name: codexbar
-description: "CodexBar read. Provider usage, limits, credits, config health. JSON. No writes."
+description: "TokenBar read-only bridge. Provider usage, limits, credits, config health. JSON. No writes."
 ---
 
-# CodexBar
+# TokenBar Read-Only Bridge
 
-Read CodexBar. Never mutate config/auth.
+Read TokenBar. Never mutate config/auth. The skill folder and `CODEXBAR_*` environment variables retain their
+upstream-compatible names.
 
 ## Run
 
@@ -18,7 +19,7 @@ skill="${CODEX_HOME:-$HOME/.codex}/skills/codexbar"
 "$skill/scripts/codexbar" usage --all
 ```
 
-All stdout: JSON. Upstream CodexBar shape kept. Less drift, fewer tokens.
+All stdout: JSON. The inherited upstream JSON shape is kept for compatibility.
 
 ## Rules
 
@@ -33,6 +34,7 @@ All stdout: JSON. Upstream CodexBar shape kept. Less drift, fewer tokens.
 
 ## Binary
 
-Auto-find: `CODEXBAR_BIN`, PATH, app bundle, Homebrew cask. If missing: open CodexBar, Preferences > Advanced > Install CLI; or set `CODEXBAR_BIN`.
+Auto-find: `CODEXBAR_BIN`, `tokenbar`/legacy `codexbar` on PATH, TokenBar app bundle, Homebrew cask, then legacy
+CodexBar locations. If missing: open TokenBar, Preferences > Advanced > Install CLI; or set `CODEXBAR_BIN`.
 
 Each stdout/stderr stream capped at 1 MiB while fully drained. Timeout kills process group.

@@ -13,7 +13,7 @@ read_when:
 
 ## Decision
 
-CodexBar may add the bounded, default-off warning below in a separate implementation PR. Send one alert per risk
+TokenBar may add the bounded, default-off warning below in a separate implementation PR. Send one alert per risk
 episode, not hourly reminders. Re-arm only after a successful, authoritative observation says the quota will last until
 reset. Keep the existing pace model as the only forecast authority and keep episode state in memory. Do not add
 configurable thresholds or additional provider scope in the first version.

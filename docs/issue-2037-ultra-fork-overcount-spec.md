@@ -14,7 +14,7 @@ This spec deliberately ships in two phases:
 
 ## 1. Problem
 
-CodexBar massively overstates usage for `gpt-5.6-terra` and especially `gpt-5.6-sol` when they run in Ultra mode. In one reported Sol session, the raw log reached roughly **268M** cumulative input tokens while CodexBar attributed **3.29B** input tokens and about $4,000 of standard cost. A single forked turn contributed more than 3B tokens across hundreds of rows. Pricing tables are correct; the inflation comes from usage accounting.
+TokenBar massively overstates usage for `gpt-5.6-terra` and especially `gpt-5.6-sol` when they run in Ultra mode. In one reported Sol session, the raw log reached roughly **268M** cumulative input tokens while TokenBar attributed **3.29B** input tokens and about $4,000 of standard cost. A single forked turn contributed more than 3B tokens across hundreds of rows. Pricing tables are correct; the inflation comes from usage accounting.
 
 Ultra sessions fork multiple sub-agents that:
 

@@ -8,7 +8,7 @@ read_when:
 
 # Mistral Provider
 
-CodexBar reads Mistral billing usage with the Mistral web session from `admin.mistral.ai`. It can also fetch credit
+TokenBar reads Mistral billing usage with the Mistral web session from `admin.mistral.ai`. It can also fetch credit
 balance and, when the required CSRF/session cookies are present, best-effort Mistral Vibe monthly-plan usage.
 
 ## Setup
@@ -28,16 +28,16 @@ the documented Mistral domains.
 
 ## Data Sources
 
-CodexBar requests the current UTC month from Mistral Admin:
+TokenBar requests the current UTC month from Mistral Admin:
 
 - `GET https://admin.mistral.ai/api/billing/v2/usage?month=<month>&year=<year>`
 - `GET https://admin.mistral.ai/api/billing/credits` (best-effort credit balance)
 
-When a CSRF token is available, CodexBar also makes a bounded best-effort request for Mistral Vibe plan usage:
+When a CSRF token is available, TokenBar also makes a bounded best-effort request for Mistral Vibe plan usage:
 
 - `GET https://console.mistral.ai/api-ui/trpc/billing.vibeUsage?...`
 
-For the console request, CodexBar forwards only the `csrftoken` and `ory_session_*` cookies. Other
+For the console request, TokenBar forwards only the `csrftoken` and `ory_session_*` cookies. Other
 `admin.mistral.ai` cookies stay origin-bound.
 
 ## Display
@@ -52,7 +52,7 @@ For the console request, CodexBar forwards only the `csrftoken` and `ory_session
 ## CLI Usage
 
 ```bash
-codexbar usage --provider mistral --verbose
+tokenbar usage --provider mistral --verbose
 ```
 
 ## Troubleshooting
@@ -69,7 +69,7 @@ In manual mode, paste a full `Cookie:` header from an `admin.mistral.ai` request
 ### Credits or Vibe plan usage are missing
 
 The billing usage request is required. Credits and Vibe usage are best-effort; if either optional endpoint fails or
-does not expose data for the account, CodexBar keeps the main Mistral usage result.
+does not expose data for the account, TokenBar keeps the main Mistral usage result.
 
 ## Related Files
 

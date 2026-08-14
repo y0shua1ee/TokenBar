@@ -24,10 +24,10 @@ The ElevenLabs provider reads subscription usage from the ElevenLabs API using a
 Store the API key without opening Settings:
 
 ```bash
-printf '%s' "$ELEVENLABS_API_KEY" | codexbar config set-api-key --provider elevenlabs --stdin
+printf '%s' "$ELEVENLABS_API_KEY" | tokenbar config set-api-key --provider elevenlabs --stdin
 ```
 
-This trims the piped key, writes it to `~/.codexbar/config.json` with restrictive permissions, and enables ElevenLabs by default. Use `--no-enable` to save the key without enabling the provider.
+This trims the piped key, writes it to `~/.tokenbar/config.json` with restrictive permissions, and enables ElevenLabs by default. Use `--no-enable` to save the key without enabling the provider.
 
 ### Settings
 
@@ -35,11 +35,11 @@ This trims the piped key, writes it to `~/.codexbar/config.json` with restrictiv
 2. Enable **ElevenLabs**
 3. Open `https://elevenlabs.io/app/settings/api-keys`
 4. Create or copy an API key
-5. Paste the key into CodexBar's ElevenLabs provider settings
+5. Paste the key into TokenBar's ElevenLabs provider settings
 
 ### Environment Variables
 
-CodexBar also accepts these environment variables:
+TokenBar also accepts these environment variables:
 
 - `ELEVENLABS_API_KEY`
 - `XI_API_KEY`
@@ -56,7 +56,7 @@ For tests or self-hosted/proxy setups, override the API base URL with `ELEVENLAB
 
 ### "Missing ElevenLabs API key"
 
-Set the key with `codexbar config set-api-key --provider elevenlabs --stdin`, add it in **Settings -> Providers -> ElevenLabs**, set `ELEVENLABS_API_KEY`, or configure an ElevenLabs token account.
+Set the key with `tokenbar config set-api-key --provider elevenlabs --stdin`, add it in **Settings -> Providers -> ElevenLabs**, set `ELEVENLABS_API_KEY`, or configure an ElevenLabs token account.
 
 ### "ElevenLabs API error"
 

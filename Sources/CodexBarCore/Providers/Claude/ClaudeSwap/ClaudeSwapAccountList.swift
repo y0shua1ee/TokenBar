@@ -110,7 +110,8 @@ public enum ClaudeSwapListParserError: LocalizedError, Equatable, Sendable {
         case .missingSchemaVersion:
             "claude-swap output has no schemaVersion field."
         case let .unsupportedSchemaVersion(version):
-            "claude-swap output uses unsupported schema version \(version); CodexBar supports version 1."
+            "claude-swap output uses unsupported schema version \(version); " +
+                "\(TokenBarIdentity.displayName) supports version 1."
         case let .reportedError(type, message):
             "claude-swap reported \(type): \(message)"
         case let .malformedShape(details):

@@ -38,7 +38,7 @@ struct CodexBarUsageWidgetView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Open CodexBar")
+            Text("Open \(TokenBarIdentity.displayName)")
                 .font(.body)
                 .fontWeight(.semibold)
             Text("Usage data will appear once the app refreshes.")
@@ -68,7 +68,7 @@ struct CodexBarHistoryWidgetView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Open CodexBar")
+            Text("Open \(TokenBarIdentity.displayName)")
                 .font(.body)
                 .fontWeight(.semibold)
             Text("Usage history will appear after a refresh.")
@@ -97,7 +97,7 @@ struct CodexBarCompactWidgetView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Open CodexBar")
+            Text("Open \(TokenBarIdentity.displayName)")
                 .font(.body)
                 .fontWeight(.semibold)
             Text("Usage data will appear once the app refreshes.")
@@ -147,7 +147,7 @@ struct CodexBarSwitcherWidgetView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Open CodexBar")
+            Text("Open \(TokenBarIdentity.displayName)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Text("Usage data appears after a refresh.")

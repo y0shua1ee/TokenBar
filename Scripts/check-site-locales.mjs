@@ -16,8 +16,8 @@ assertEqual(new Set(providerIDs).size, providerIDs.length, "UsageProvider IDs");
 const providerCount = providerIDs.length;
 
 const publicCountFiles = [
-  ["README.md", `alt="CodexBar — every AI coding limit in your menu bar. ${providerCount} providers."`],
-  ["docs/providers.md", `CodexBar currently registers ${providerCount} provider IDs.`],
+  ["README.md", `alt="TokenBar — every AI coding limit in your menu bar. ${providerCount} providers."`],
+  ["docs/providers.md", `TokenBar currently registers ${providerCount} provider IDs.`],
   ["docs/social.html", `<strong>${providerCount} providers</strong>`],
   ["docs/llms.txt", `across ${providerCount} providers`],
 ];
@@ -116,7 +116,7 @@ const hasLanguagePicker =
 assert(hasLanguagePicker, "site must include the language picker backed by localeCatalog");
 
 for (const code of catalogCodes) {
-  assert(indexHtml.includes(`href="https://codexbar.app/?lang=${code}"`), `missing hreflang URL for ${code}`);
+  assert(indexHtml.includes(`href="https://tokenbar.app/?lang=${code}"`), `missing hreflang URL for ${code}`);
 }
 
 const providerCards = [...indexHtml.matchAll(/<li class="provider-card"([^>]*)>([\s\S]*?)<\/li>/g)];

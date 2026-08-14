@@ -109,7 +109,7 @@ public struct FileManagedCodexAccountStore: ManagedCodexAccountStoring, @uncheck
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser
         return base
-            .appendingPathComponent("CodexBar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.applicationSupportDirectoryName, isDirectory: true)
             .appendingPathComponent("managed-codex-accounts.json")
     }
 }

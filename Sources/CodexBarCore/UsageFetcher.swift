@@ -1139,7 +1139,7 @@ public struct UsageFetcher: Sendable {
             resolveExecutable: self.codexExecutableResolver)
         defer { rpc.shutdown() }
         do {
-            try await rpc.initialize(clientName: "codexbar", clientVersion: "0.5.4")
+            try await rpc.initialize(clientName: TokenBarIdentity.commandName, clientVersion: "0.5.4")
             // The app-server answers on a single stdout stream, so keep requests
             // serialized to avoid starving one reader when multiple awaiters race
             // for the same pipe.
@@ -1210,7 +1210,7 @@ public struct UsageFetcher: Sendable {
                 requestTimeoutSeconds: self.requestTimeoutSeconds,
                 resolveExecutable: self.codexExecutableResolver)
             defer { rpc.shutdown() }
-            try await rpc.initialize(clientName: "codexbar", clientVersion: "0.5.4")
+            try await rpc.initialize(clientName: TokenBarIdentity.commandName, clientVersion: "0.5.4")
             let limits = try await rpc.fetchRateLimits()
             let data = try JSONEncoder().encode(limits)
             return String(data: data, encoding: .utf8) ?? "<unprintable>"

@@ -1,5 +1,5 @@
 ---
-summary: "Licenses and provenance for third-party source resources bundled with CodexBar."
+summary: "Licenses and provenance for third-party source resources bundled with TokenBar."
 read_when:
   - Auditing bundled third-party resources and their licenses
 ---
@@ -8,7 +8,7 @@ read_when:
 
 ## Sucrase 3.35.1
 
-CodexBar bundles a minified browser build of [Sucrase 3.35.1](https://github.com/alangpierce/sucrase) for local
+TokenBar bundles a minified browser build of [Sucrase 3.35.1](https://github.com/alangpierce/sucrase) for local
 TypeScript provider plugins. The checked-in resource has SHA-256
 `4d997e15b72cbc9ccf6e743c30c6eb48bf4533f6709852367b40766be5eba70b` and carries its version/license banner.
 

@@ -42,7 +42,9 @@ public enum ChutesProviderDescriptor {
                 widgetColor: ProviderColor(red: 24 / 255, green: 160 / 255, blue: 88 / 255)),
             tokenCost: ProviderTokenCostConfig(
                 supportsTokenCost: false,
-                noDataMessage: { "Chutes cost history is not available from CodexBar." }),
+                noDataMessage: {
+                    "Chutes cost history is not available from \(TokenBarIdentity.displayName)."
+                }),
             presentation: ProviderUsagePresentation(
                 primaryBindingQuotaLanes: [.secondary],
                 menuCard: ProviderMenuCardPresentation(

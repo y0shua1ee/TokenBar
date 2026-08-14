@@ -5,6 +5,7 @@ import Glibc
 #elseif canImport(Musl)
 import Musl
 #endif
+import CodexBarCore
 import Foundation
 
 extension CodexBarCLI {
@@ -15,9 +16,9 @@ extension CodexBarCLI {
 
     static func printVersion() -> Never {
         if let version = currentVersion() {
-            print("CodexBar \(version)")
+            print("\(TokenBarIdentity.displayName) \(version)")
         } else {
-            print("CodexBar")
+            print(TokenBarIdentity.displayName)
         }
         Self.platformExit(0)
     }
@@ -151,6 +152,7 @@ extension CodexBarCLI {
     static func normalizedBundleVersion(_ raw: String?) -> String? {
         guard let trimmed = raw?.trimmingCharacters(in: .whitespacesAndNewlines),
               !trimmed.isEmpty,
+              trimmed != TokenBarIdentity.displayName,
               trimmed != "CodexBar"
         else { return nil }
         return trimmed

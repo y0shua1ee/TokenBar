@@ -13,7 +13,7 @@ public enum ChutesUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingCredentials:
-            "Missing Chutes API key. Set apiKey in ~/.codexbar/config.json or CHUTES_API_KEY."
+            "Missing Chutes API key. Set apiKey in \(TokenBarIdentity.configPathHint) or CHUTES_API_KEY."
         case .invalidCredentials:
             "Chutes API key was rejected. Check the API key in Settings."
         case .invalidURL:

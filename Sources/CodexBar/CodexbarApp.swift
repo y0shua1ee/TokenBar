@@ -47,16 +47,20 @@ struct CodexBarApp: App {
         let storedLevel = CodexBarLog.parseLevel(UserDefaults.standard.string(forKey: "debugLogLevel")) ?? .verbose
         let level = CodexBarLog.parseLevel(env["CODEXBAR_LOG_LEVEL"]) ?? storedLevel
         CodexBarLog.bootstrapIfNeeded(.init(
-            destination: .oslog(subsystem: "com.steipete.codexbar"),
+            destination: .oslog(subsystem: TokenBarIdentity.bundleIdentifier),
             level: level,
             json: false))
 
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
-        let gitCommit = Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String ?? "unknown"
-        let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String ?? "unknown"
+        let gitCommit = Bundle.main.object(forInfoDictionaryKey: "TokenBarGitCommit") as? String
+            ?? Bundle.main.object(forInfoDictionaryKey: "CodexGitCommit") as? String
+            ?? "unknown"
+        let buildTimestamp = Bundle.main.object(forInfoDictionaryKey: "TokenBarBuildTimestamp") as? String
+            ?? Bundle.main.object(forInfoDictionaryKey: "CodexBuildTimestamp") as? String
+            ?? "unknown"
         CodexBarLog.logger(LogCategories.app).info(
-            "CodexBar starting",
+            "\(TokenBarIdentity.displayName) starting",
             metadata: [
                 "version": version,
                 "build": build,
@@ -354,7 +358,7 @@ private func makeUpdaterController() -> UpdaterProviding {
 
     if InstallOrigin.isHomebrewCask(appBundleURL: bundleURL) {
         return DisabledUpdaterController(
-            unavailableReason: "Updates managed by Homebrew. Run: brew upgrade --cask steipete/tap/codexbar")
+            unavailableReason: "Updates managed by Homebrew. Run: brew upgrade --cask \(TokenBarIdentity.commandName)")
     }
 
     guard isDeveloperIDSigned(bundleURL: bundleURL) else {

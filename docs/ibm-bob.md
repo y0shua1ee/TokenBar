@@ -1,24 +1,24 @@
 ---
 summary: "IBM Bob authentication and Bobcoin usage tracking."
 read_when:
-  - Configuring IBM Bob in CodexBar
+  - Configuring IBM Bob in TokenBar
   - Debugging IBM Bob API-key or Bobcoin usage errors
 ---
 
 # IBM Bob
 
-CodexBar reads monthly Bobcoin usage from IBM Bob's profile and per-team budget APIs. It aggregates every team visible
+TokenBar reads monthly Bobcoin usage from IBM Bob's profile and per-team budget APIs. It aggregates every team visible
 to the configured key and follows the regional API host returned for each subscription instance.
 
 ## Authentication
 
-Create an API key in the IBM Bob web portal, then add it to CodexBar's provider settings/token accounts or set:
+Create an API key in the IBM Bob web portal, then add it to TokenBar's provider settings/token accounts or set:
 
 ```bash
 export BOBSHELL_API_KEY="your-api-key"
 ```
 
-CodexBar sends credentials only to HTTPS hosts under `bob.ibm.com`. API keys and JWT-based Bob sessions use the same
+TokenBar sends credentials only to HTTPS hosts under `bob.ibm.com`. API keys and JWT-based Bob sessions use the same
 authorization formats as Bob Shell.
 
 ## Data shown

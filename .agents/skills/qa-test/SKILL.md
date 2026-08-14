@@ -1,17 +1,17 @@
 ---
 name: qa-test
-description: "CodexBar live QA/e2e testing: run provider usage matrix checks, validate real app config, use Peekaboo for menu proof, use Browser Use/official docs for API spec or logged-in dashboard checks, and handle 1Password credentials safely."
+description: "TokenBar live QA/e2e testing: run provider usage matrix checks, validate real app config, use Peekaboo for menu proof, use Browser Use/official docs for API spec or logged-in dashboard checks, and handle 1Password credentials safely."
 ---
 
-# CodexBar Live QA
+# TokenBar Live QA
 
 Use for live provider testing, release smoke tests, menu verification, or debugging “provider works/fails” reports.
 
 ## Rules
 
-- Work from the CodexBar repo checkout.
-- Use the packaged CLI first: `CodexBar.app/Contents/Helpers/CodexBarCLI`.
-- Do not use `CodexBar.app/Contents/MacOS/codexbar`; that is the app binary and may appear to hang as a CLI.
+- Work from the TokenBar repo checkout.
+- Use the packaged CLI first: `TokenBar.app/Contents/Helpers/TokenBarCLI`.
+- Do not use `TokenBar.app/Contents/MacOS/TokenBar`; that is the app binary and may appear to hang as a CLI.
 - Never run broad `env`, `set`, or secret regex dumps.
 - Use `$one-password` for secrets: all `op` commands inside one persistent tmux session, service account first, no raw secret output.
 - Treat browser-cookie/keychain flows as prompt-risky. Prefer CLI/API-token checks and `KeychainNoUIQuery`-safe tests unless the user explicitly requested live UI.
@@ -35,7 +35,7 @@ Useful modes:
 
 Interpretation:
 
-- `--enabled` asks `CodexBarCLI config providers` for enabled providers, honoring `CODEXBAR_CONFIG` and default toggles.
+- `--enabled` asks `TokenBarCLI config providers` for enabled providers, honoring `CODEXBAR_CONFIG` and default toggles.
 - `--default` runs the app-facing default command with no provider override.
 - `--provider all` forces every registered provider and is expected to fail for providers without sessions/keys.
 - A green app config needs `--enabled` and `--default` clean; `--provider all` is a discovery/triage tool.
@@ -45,8 +45,8 @@ Interpretation:
 Validate config:
 
 ```bash
-CodexBar.app/Contents/Helpers/CodexBarCLI config validate
-stat -f '%Lp %N' "$HOME/.codexbar/config.json"
+TokenBar.app/Contents/Helpers/TokenBarCLI config validate
+stat -f '%Lp %N' "$HOME/.tokenbar/config.json"
 ```
 
 Redact config shape:
@@ -57,14 +57,14 @@ jq '(.providers // []) |= map(.apiKey = (if .apiKey then "<redacted>" else .apiK
   .cookieHeader = (if .cookieHeader then "<redacted>" else .cookieHeader end) |
   (if .id == "stepfun" and has("region") then .region = "<redacted>" else . end) |
   .tokenAccounts = (if .tokenAccounts then (.tokenAccounts | .accounts = (.accounts | map(.token = "<redacted>"))) else .tokenAccounts end))' \
-  "$HOME/.codexbar/config.json"
+  "$HOME/.tokenbar/config.json"
 ```
 
 Before editing config, make a backup:
 
 ```bash
-cp "$HOME/.codexbar/config.json" "$HOME/.codexbar/config.pre-qa-$(date +%Y%m%d%H%M%S).json"
-chmod 600 "$HOME/.codexbar"/config.pre-qa-*.json
+cp "$HOME/.tokenbar/config.json" "$HOME/.tokenbar/config.pre-qa-$(date +%Y%m%d%H%M%S).json"
+chmod 600 "$HOME/.tokenbar"/config.pre-qa-*.json
 ```
 
 ## Live Menu QA
@@ -72,18 +72,18 @@ chmod 600 "$HOME/.codexbar"/config.pre-qa-*.json
 Use Peekaboo after CLI checks:
 
 ```bash
-pkill -x CodexBar || pkill -f 'CodexBar.app/Contents/MacOS/CodexBar' || true
-open -n "$PWD/CodexBar.app"
-peekaboo menu list-all --json | rg -i 'codexbar'
-peekaboo menu click-extra --title codexbar-merged --json
-screencapture -x /tmp/codexbar-live-menu.png
+pkill -x TokenBar || pkill -f 'TokenBar.app/Contents/MacOS/TokenBar' || true
+open -n "$PWD/TokenBar.app"
+peekaboo menu list-all --json | rg -i 'tokenbar'
+peekaboo menu click-extra --title tokenbar-merged --json
+screencapture -x /tmp/tokenbar-live-menu.png
 ```
 
 Crop top-right menu if needed:
 
 ```bash
-sips --cropToHeightWidth 900 340 --cropOffset 20 2650 /tmp/codexbar-live-menu.png \
-  --out /tmp/codexbar-live-menu-crop.png >/dev/null
+sips --cropToHeightWidth 900 340 --cropOffset 20 2650 /tmp/tokenbar-live-menu.png \
+  --out /tmp/tokenbar-live-menu-crop.png >/dev/null
 ```
 
 Verify visually with `view_image`. Confirm provider tabs/rows match enabled config and no failing provider dominates the first screen.
@@ -110,7 +110,7 @@ If Browser Use is unavailable, say so and use web search for public official doc
 - User-facing behavior changes need `CHANGELOG.md`.
 - Code fixes need focused tests, `make check`, `$autoreview`, and live CLI proof before landing.
 
-## Known CodexBar QA Notes
+## Known TokenBar QA Notes
 
 - OpenAI Admin API key is the useful usage provider key. Project `OPENAI_API_KEY` values can fail legacy credit-balance fallback with 403.
 - Deepgram usage requires a key/project with Management API permissions; transcription-only keys can return 403.

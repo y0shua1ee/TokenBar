@@ -214,7 +214,7 @@ struct ClaudeCLISessionTests {
             first.uuidString.lowercased(),
         ])
 
-        let file = directory.appendingPathComponent(".codexbar-session-id")
+        let file = directory.appendingPathComponent(".\(TokenBarIdentity.commandName)-session-id")
         let persisted = try String(contentsOf: file, encoding: .utf8)
         #expect(persisted == first.uuidString.lowercased())
         #if os(macOS) || os(Linux)
@@ -231,7 +231,7 @@ struct ClaudeCLISessionTests {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
 
-        let file = directory.appendingPathComponent(".codexbar-session-id")
+        let file = directory.appendingPathComponent(".\(TokenBarIdentity.commandName)-session-id")
         try "invalid".write(to: file, atomically: true, encoding: .utf8)
 
         let sessionID = ClaudeCLISession.loadOrCreateProbeSessionID(in: directory)

@@ -18,7 +18,7 @@ import Testing
 /// `hasSuffix` return true, `removeFirst()` empties the string, and `removeLast()` then
 /// traps with "Can't remove last element from empty collection." This is reachable from
 /// a misconfigured env var (e.g. `ALIBABA_TOKEN_PLAN_COOKIE='"'`) and from quoted JSON
-/// values in `~/.codexbar/config.json`, both of which are user-controllable.
+/// values in `~/.tokenbar/config.json`, both of which are user-controllable.
 ///
 /// These tests exercise two representative public readers — Alibaba Token Plan (the
 /// newest addition in #1098) and the Ollama API key reader (added in #1087) — by

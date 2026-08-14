@@ -69,12 +69,24 @@ struct OpenAIDashboardBrowserCookieImporterTests {
         let hint = OpenAIDashboardBrowserCookieImporter.browserProfileAccessHint(
             for: .chrome,
             issue: .accessDenied,
-            processName: "CodexBarCLI",
-            executablePath: "/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI")
+            processName: TokenBarIdentity.cliExecutableName,
+            executablePath: TokenBarIdentity.bundledCLIPath)
 
         #expect(hint.contains("macOS denied Chrome profile access"))
-        #expect(hint.contains("CodexBarCLI (/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI)"))
+        #expect(hint.contains("\(TokenBarIdentity.cliExecutableName) (\(TokenBarIdentity.bundledCLIPath))"))
         #expect(hint.contains("Full Disk Access"))
+    }
+
+    @Test
+    func `profile denial preserves legacy helper process attribution`() {
+        let executablePath = "/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI"
+        let hint = OpenAIDashboardBrowserCookieImporter.browserProfileAccessHint(
+            for: .chrome,
+            issue: .accessDenied,
+            processName: "CodexBarCLI",
+            executablePath: executablePath)
+
+        #expect(hint.contains("CodexBarCLI (\(executablePath))"))
     }
 
     @Test
@@ -82,18 +94,20 @@ struct OpenAIDashboardBrowserCookieImporterTests {
         let hint = OpenAIDashboardBrowserCookieImporter.browserProfileAccessHint(
             for: .chrome,
             issue: .accessDenied,
-            processName: "CodexBar",
-            executablePath: "/Applications/CodexBar.app/Contents/MacOS/CodexBar")
+            processName: TokenBarIdentity.applicationExecutableName,
+            executablePath: "\(TokenBarIdentity.bundledApplicationPath)/Contents/MacOS/" +
+                TokenBarIdentity.applicationExecutableName)
 
-        #expect(hint.contains("CodexBar.app (/Applications/CodexBar.app)"))
+        #expect(hint.contains("\(TokenBarIdentity.applicationBundleName) " +
+                "(\(TokenBarIdentity.bundledApplicationPath))"))
     }
 
     @Test
     func `browser cookie timeout remains distinct from permission denial`() {
         let error = OpenAIDashboardBrowserCookieImporter.browserCookieLoadTimeoutError(
             for: .chrome,
-            processName: "CodexBarCLI",
-            executablePath: "/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI")
+            processName: TokenBarIdentity.cliExecutableName,
+            executablePath: TokenBarIdentity.bundledCLIPath)
 
         if case .browserCookieLoadTimedOut = error {
             // Expected: a shared deadline does not prove macOS denied access.
@@ -102,7 +116,7 @@ struct OpenAIDashboardBrowserCookieImporterTests {
         }
         #expect(error.localizedDescription.contains("Chrome did not finish before the web timeout"))
         #expect(!error.localizedDescription.contains("access denied"))
-        #expect(error.localizedDescription.contains("CodexBarCLI"))
+        #expect(error.localizedDescription.contains(TokenBarIdentity.cliExecutableName))
         #expect(error.localizedDescription.contains("Keychain prompt"))
         #expect(error.localizedDescription.contains("Full Disk Access"))
     }

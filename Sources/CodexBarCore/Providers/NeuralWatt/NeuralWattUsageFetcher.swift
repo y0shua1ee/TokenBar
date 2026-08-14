@@ -344,7 +344,7 @@ public enum NeuralWattUsageError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .missingCredentials:
-            "Missing Neuralwatt API key. Set apiKey in the CodexBar config file or NEURALWATT_API_KEY."
+            "Missing Neuralwatt API key. Set apiKey in \(TokenBarIdentity.configPathHint) or NEURALWATT_API_KEY."
         case let .networkError(message):
             "Neuralwatt network error: \(message)"
         case let .apiError(message):

@@ -10,18 +10,18 @@ Candidate PRs:
 
 ## Purpose
 
-This document explains the motivation, evidence, design split, current PR state, and open review questions for the CodexBar Overview menu scroll-stutter work. It is written as a handoff document for a second reviewer, especially Claude, to review both the reasoning and the patch directions without needing to reconstruct the whole GitHub thread.
+This document explains the motivation, evidence, design split, current PR state, and open review questions for the TokenBar Overview menu scroll-stutter work. It is written as a handoff document for a second reviewer, especially Claude, to review both the reasoning and the patch directions without needing to reconstruct the whole GitHub thread.
 
 The core question is not only "does either patch compile?" The real question is whether we chose the right boundary for reducing scroll-time work inside an `NSMenu` that hosts rich SwiftUI rows.
 
 ## Original Problem
 
-The user-reported symptom is severe scroll jank in the CodexBar home / Overview menu. The problem appears on recent CodexBar builds and on multiple remote latest versions, not just one local install.
+The user-reported symptom is severe scroll jank in the TokenBar home / Overview menu. The problem appears on recent TokenBar builds and on multiple remote latest versions, not just one local install.
 
 Observed environment from the local sample:
 
 ```text
-CodexBar 0.37.0 (90)
+TokenBar 0.37.0 (90)
 macOS 27.0 (26A5353q)
 Main-thread sample duration: 8 seconds, 1 ms interval
 Main-thread sample count: 3440
@@ -285,7 +285,7 @@ swift build
 make check
 git diff --check
 CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh debug
-codesign --verify --deep --strict --verbose=2 CodexBar.app
+codesign --verify --deep --strict --verbose=2 TokenBar.app
 ```
 
 The follow-up validation was run on:

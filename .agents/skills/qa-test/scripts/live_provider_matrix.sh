@@ -2,7 +2,7 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
-CLI="${CODEXBAR_CLI:-$ROOT/CodexBar.app/Contents/Helpers/CodexBarCLI}"
+CLI="${CODEXBAR_CLI:-$ROOT/TokenBar.app/Contents/Helpers/TokenBarCLI}"
 TIMEOUT_BIN="${TIMEOUT_BIN:-$(command -v gtimeout || command -v timeout || true)}"
 WEB_TIMEOUT="${CODEXBAR_QA_WEB_TIMEOUT:-12}"
 CASE_TIMEOUT="${CODEXBAR_QA_CASE_TIMEOUT:-60}"
@@ -16,7 +16,7 @@ Usage:
   live_provider_matrix.sh --providers openai,zai,deepseek
 
 Environment:
-  CODEXBAR_CLI=/path/to/CodexBarCLI
+  CODEXBAR_CLI=/path/to/TokenBarCLI
   CODEXBAR_CONFIG=/path/to/config.json
   CODEXBAR_QA_WEB_TIMEOUT=12
   CODEXBAR_QA_CASE_TIMEOUT=60
@@ -24,7 +24,7 @@ USAGE
 }
 
 if [[ ! -x "$CLI" ]]; then
-  echo "missing CodexBarCLI at $CLI" >&2
+  echo "missing TokenBarCLI at $CLI" >&2
   exit 2
 fi
 if [[ -z "$TIMEOUT_BIN" ]]; then
@@ -47,7 +47,7 @@ case "$mode" in
     provider_list="$(mktemp)"
     if ! "$CLI" config providers --format json --json-only >"$provider_status" 2>"$provider_err"; then
       rm -f "$provider_status" "$provider_err" "$provider_list"
-      echo "failed to list providers via CodexBarCLI config providers" >&2
+      echo "failed to list providers via TokenBarCLI config providers" >&2
       exit 2
     fi
     if ! node - "$provider_status" >"$provider_list" <<'NODE'; then
@@ -65,7 +65,7 @@ for (const item of payload) {
 }
 NODE
       rm -f "$provider_status" "$provider_err" "$provider_list"
-      echo "failed to parse CodexBarCLI config providers output" >&2
+      echo "failed to parse TokenBarCLI config providers output" >&2
       exit 2
     fi
     while IFS= read -r provider; do
@@ -73,7 +73,7 @@ NODE
     done <"$provider_list"
     rm -f "$provider_status" "$provider_err" "$provider_list"
     if [[ "${#providers[@]}" -eq 0 ]]; then
-      echo "no enabled providers found via CodexBarCLI config providers" >&2
+      echo "no enabled providers found via TokenBarCLI config providers" >&2
       exit 2
     fi
     ;;

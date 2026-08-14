@@ -115,7 +115,7 @@ actor CostUsageStore {
         parserHash: String = CodexParserHash.value)
     {
         let root = cacheRoot ?? FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("CodexBar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.cachesDirectoryName, isDirectory: true)
         self.databaseURL = root
             .appendingPathComponent("cost-usage", isDirectory: true)
             .appendingPathComponent(Self.databaseFilename, isDirectory: false)

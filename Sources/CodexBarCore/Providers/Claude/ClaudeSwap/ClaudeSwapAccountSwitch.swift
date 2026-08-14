@@ -31,13 +31,15 @@ public enum ClaudeSwapSwitchParserError: LocalizedError, Equatable, Sendable {
         case .missingSchemaVersion:
             "claude-swap switch output has no schemaVersion field."
         case let .unsupportedSchemaVersion(version):
-            "claude-swap switch output uses unsupported schema version \(version); CodexBar supports version 1."
+            "claude-swap switch output uses unsupported schema version \(version); " +
+                "\(TokenBarIdentity.displayName) supports version 1."
         case let .reportedError(type, message):
             "claude-swap reported \(type): \(message)"
         case let .malformedShape(details):
             "claude-swap switch output is malformed: \(details)"
         case let .mismatchedTarget(expected, actual):
-            "claude-swap reported account slot \(actual) after CodexBar requested slot \(expected)."
+            "claude-swap reported account slot \(actual) after \(TokenBarIdentity.displayName) requested slot " +
+                "\(expected)."
         }
     }
 }

@@ -24,7 +24,7 @@ enum MiniMaxAPITokenStoreError: LocalizedError {
 struct KeychainMiniMaxAPITokenStore: MiniMaxAPITokenStoring {
     private static let log = CodexBarLog.logger(LogCategories.provider(.minimax, scope: "api-token-store"))
 
-    private let service = "com.steipete.CodexBar"
+    private let service = TokenBarIdentity.keychainStoreService
     private let account = "minimax-api-token"
 
     func loadToken() throws -> String? {

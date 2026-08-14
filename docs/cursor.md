@@ -14,7 +14,7 @@ Cursor is primarily web-backed. Usage is fetched via browser cookies, with legac
 
 1) **Cached cookie header** (preferred)
    - Stored after successful browser import.
-   - Keychain cache: `com.steipete.codexbar.cache` (account `cookie.cursor`).
+   - Keychain cache: `com.y0shua1ee.tokenbar.cache` (account `cookie.cursor`).
 
 2) **Browser cookie import**
    - Cookie order from provider metadata (default: Safari → Chrome → Firefox).
@@ -25,8 +25,8 @@ Cursor is primarily web-backed. Usage is fetched via browser cookies, with legac
      - `next-auth.session-token`
 
 3) **Stored session cookies** (fallback)
-   - Legacy sessions captured by older CodexBar releases remain readable.
-   - Stored at: `~/Library/Application Support/CodexBar/cursor-session.json`.
+   - Legacy sessions captured by older TokenBar releases remain readable.
+   - Stored at: `~/Library/Application Support/TokenBar/cursor-session.json`.
 
 4) **Cursor.app local auth** (last fallback)
    - Reads Cursor.app's VS Code-style global state DB for the local app bearer token.
@@ -45,11 +45,11 @@ Manual option:
 ## Add and switch account
 - **Add Account** opens `https://authenticator.cursor.sh/` in a supported browser.
 - **Switch Account** opens the same authenticator and waits for a different stable account ID when available, falling back to normalized email when IDs are unavailable.
-- When the system's HTTPS handler is a supported browser, CodexBar opens the route there automatically. When the handler is an intermediary app, CodexBar asks the user to choose a concrete supported browser before opening the route.
-- CodexBar pins the original HTTPS route to that concrete browser and polls cookies only from the same application. Interactive login never falls back to another browser, a stored session, or Cursor.app; cancelling browser selection or the absence of a supported browser stops before login opens.
-- An installed non-Safari browser remains eligible before its first profile or cookie database exists, and CodexBar detects the store created during login. Browsers with access-blocked profile data remain unavailable, while Safari still requires an existing readable cookie source.
-- CodexBar preserves its cached and legacy stored Cursor sessions while login is in progress. An accepted browser session must be durably cached before the legacy session is cleared, so cancellation or failure leaves the previous session intact. Add completes only after the authenticated response includes a Cursor account identity. Switch compares stable account IDs when both sides provide them and otherwise compares normalized email.
-- CodexBar checks all available profiles in the selected browser. Add accepts a sole unambiguous account automatically, while Switch always asks for confirmation before replacing the current account, even when only one eligible alternative is found. Multiple eligible accounts always require an explicit choice, and CodexBar caches only the chosen session.
+- When the system's HTTPS handler is a supported browser, TokenBar opens the route there automatically. When the handler is an intermediary app, TokenBar asks the user to choose a concrete supported browser before opening the route.
+- TokenBar pins the original HTTPS route to that concrete browser and polls cookies only from the same application. Interactive login never falls back to another browser, a stored session, or Cursor.app; cancelling browser selection or the absence of a supported browser stops before login opens.
+- An installed non-Safari browser remains eligible before its first profile or cookie database exists, and TokenBar detects the store created during login. Browsers with access-blocked profile data remain unavailable, while Safari still requires an existing readable cookie source.
+- TokenBar preserves its cached and legacy stored Cursor sessions while login is in progress. An accepted browser session must be durably cached before the legacy session is cleared, so cancellation or failure leaves the previous session intact. Add completes only after the authenticated response includes a Cursor account identity. Switch compares stable account IDs when both sides provide them and otherwise compares normalized email.
+- TokenBar checks all available profiles in the selected browser. Add accepts a sole unambiguous account automatically, while Switch always asks for confirmation before replacing the current account, even when only one eligible alternative is found. Multiple eligible accounts always require an explicit choice, and TokenBar caches only the chosen session.
 - A successful add or switch selects the Automatic cookie source. Saved manual headers and token accounts remain
   stored but passive: they do not override browser fetching, cached usage, quota warnings, or utilization/reset
   ownership. Explicitly selecting a saved token account switches Cursor back to Manual and reactivates it.
@@ -68,12 +68,12 @@ Manual option:
 - Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
 
 ## Linux CLI
-- `codexbar usage --provider cursor` reads the signed-in Cursor app's access token from the Linux global state DB and reuses the same `cursor.com` usage endpoints as macOS.
+- `tokenbar usage --provider cursor` reads the signed-in Cursor app's access token from the Linux global state DB and reuses the same `cursor.com` usage endpoints as macOS.
 - Automatic browser cookie import and the external-browser Add/Switch flow are macOS app features.
-- Manual cookie headers from `~/.config/codexbar/config.json` (or legacy `~/.codexbar/config.json`) work on Linux.
+- Manual cookie headers from `~/.config/tokenbar/config.json` (or legacy `~/.tokenbar/config.json`) work on Linux.
 
 ## Local storage footprint
-When **Settings → Advanced → Track provider local storage** is enabled on macOS, CodexBar measures:
+When **Settings → Advanced → Track provider local storage** is enabled on macOS, TokenBar measures:
 - `~/Library/Application Support/Cursor`
 - `~/Library/Application Support/Caches/cursor-updater`
 - `~/.cursor`
@@ -83,7 +83,7 @@ When **Settings → Advanced → Track provider local storage** is enabled on ma
 - `~/Library/Caches/cursor-compile-cache`
 - `~/Library/HTTPStorages/com.todesktop.230313mzl4w4u92`
 
-The storage detail lists measured paths and their sizes. CodexBar does not delete Cursor data.
+The storage detail lists measured paths and their sizes. TokenBar does not delete Cursor data.
 
 ## Token cost (dashboard API)
 The cost summary's Cursor section is opt-in: it only fetches when **Show cost summary** is enabled and the Cursor provider is on.
@@ -92,7 +92,7 @@ Unlike Claude and Codex cost (scanned from local session logs on this machine), 
 Auth reuses the exact status-probe session resolution and cookie-source policy:
 - **Auto**: cached cookie header → browser cookie import → stored WebKit session → Cursor.app local auth.
 - **Manual**: a non-empty pasted cookie header is required and forwarded as-is, so cost and status share the same session; an empty header fails closed instead of falling back to another account.
-- **Off**: the fetch is skipped in the app; `codexbar cost --provider cursor` fails explicitly and `/cost` returns a provider error row.
+- **Off**: the fetch is skipped in the app; `tokenbar cost --provider cursor` fails explicitly and `/cost` returns a provider error row.
 
 Fetch behavior:
 - `POST https://cursor.com/api/dashboard/get-filtered-usage-events` (cookie-authenticated; requires a matching `Origin` for CSRF).

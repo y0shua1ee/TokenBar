@@ -7,6 +7,11 @@ import UniformTypeIdentifiers
 
 struct MenuBarLayoutEditorTests {
     @Test
+    func `drag payload uses TokenBar UTI namespace`() {
+        #expect(UTType.codexBarMenuLayoutItem.identifier == "\(TokenBarIdentity.bundleIdentifier).menu-layout-item")
+    }
+
+    @Test
     func `Notion secondary editor labels use monthly cadence`() {
         let percent = MenuBarLayoutToken.percent(window: .weekly)
         let pace = MenuBarLayoutToken.pace(window: .weekly)

@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-APP_BUNDLE="${1:?usage: verify_packaged_app_launch.sh /path/to/CodexBar.app}"
+APP_BUNDLE="${1:?usage: verify_packaged_app_launch.sh /path/to/TokenBar.app}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 SMOKE_SECONDS="${CODEXBAR_LAUNCH_SMOKE_SECONDS:-6}"
@@ -29,16 +29,16 @@ if [[ "${CODEXBAR_SKIP_LAUNCH_SMOKE:-0}" == "1" ]]; then
   exit 0
 fi
 
-if [[ ! -x "$APP_BUNDLE/Contents/MacOS/CodexBar" ]]; then
+if [[ ! -x "$APP_BUNDLE/Contents/MacOS/TokenBar" ]]; then
   echo "ERROR: Launch smoke check: missing executable in ${APP_BUNDLE}" >&2
   exit 1
 fi
-if [[ ! -x "$APP_BUNDLE/Contents/Helpers/CodexBarCLI" ]]; then
-  echo "ERROR: Launch smoke check: missing Helpers/CodexBarCLI in ${APP_BUNDLE}" >&2
+if [[ ! -x "$APP_BUNDLE/Contents/Helpers/TokenBarCLI" ]]; then
+  echo "ERROR: Launch smoke check: missing Helpers/TokenBarCLI in ${APP_BUNDLE}" >&2
   exit 1
 fi
 if [[ ! -d "$APP_BUNDLE/Contents/Helpers/CodexBar_CodexBarCore.bundle" ]]; then
-  echo "ERROR: Launch smoke check: missing CodexBarCore resource bundle beside Helpers/CodexBarCLI" >&2
+  echo "ERROR: Launch smoke check: missing CodexBarCore resource bundle beside Helpers/TokenBarCLI" >&2
   exit 1
 fi
 
@@ -77,11 +77,11 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-cp -R "$APP_BUNDLE" "$SMOKE_DIR/CodexBar.app"
-SMOKE_BIN="$SMOKE_DIR/CodexBar.app/Contents/MacOS/CodexBar"
-CLI_BIN="$SMOKE_DIR/CodexBar.app/Contents/Helpers/CodexBarCLI"
+cp -R "$APP_BUNDLE" "$SMOKE_DIR/TokenBar.app"
+SMOKE_BIN="$SMOKE_DIR/TokenBar.app/Contents/MacOS/TokenBar"
+CLI_BIN="$SMOKE_DIR/TokenBar.app/Contents/Helpers/TokenBarCLI"
 CLI_SYMLINK_DIR="$SMOKE_DIR/bin"
-CLI_SYMLINK="$CLI_SYMLINK_DIR/codexbar"
+CLI_SYMLINK="$CLI_SYMLINK_DIR/tokenbar"
 SMOKE_LOG="$SMOKE_DIR/launch.log"
 PROBE_LOG="$SMOKE_DIR/probe.log"
 CLI_PROBE_LOG="$SMOKE_DIR/cli-probe.log"

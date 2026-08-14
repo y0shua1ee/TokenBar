@@ -715,7 +715,7 @@ actor HistoricalUsageHistoryStore {
         let root = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser
         return root
-            .appendingPathComponent("CodexBar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.applicationSupportDirectoryName, isDirectory: true)
             .appendingPathComponent("usage-history.jsonl", isDirectory: false)
     }
 

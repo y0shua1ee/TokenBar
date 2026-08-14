@@ -370,10 +370,10 @@ struct ConfigValidationTests {
     @Test
     func `config store default url honors environment override`() {
         let url = CodexBarConfigStore.defaultURL(environment: [
-            CodexBarConfigStore.pathEnvironmentKey: "~/tmp/codexbar-test-config.json",
+            CodexBarConfigStore.pathEnvironmentKey: "~/tmp/tokenbar-test-config.json",
         ])
 
-        #expect(url.path.hasSuffix("/tmp/codexbar-test-config.json"))
+        #expect(url.path.hasSuffix("/tmp/tokenbar-test-config.json"))
     }
 
     @Test
@@ -452,7 +452,7 @@ struct ConfigValidationTests {
 
     private static func makeTemporaryHome() throws -> URL {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("CodexBarConfigStoreTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("TokenBarConfigStoreTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
@@ -464,13 +464,13 @@ struct ConfigValidationTests {
 
     private static func configURL(in directory: URL) -> URL {
         directory
-            .appendingPathComponent("codexbar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.configDirectoryName, isDirectory: true)
             .appendingPathComponent("config.json")
     }
 
     private static func legacyConfigURL(in home: URL) -> URL {
         home
-            .appendingPathComponent(".codexbar", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.legacyConfigDirectoryName, isDirectory: true)
             .appendingPathComponent("config.json")
     }
 }

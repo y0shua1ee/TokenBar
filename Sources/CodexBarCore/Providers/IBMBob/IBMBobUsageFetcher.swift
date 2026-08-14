@@ -270,7 +270,7 @@ public enum IBMBobUsageFetcher {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(self.authorizationValue(token), forHTTPHeaderField: "Authorization")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
         if let instanceID {
             request.setValue(instanceID, forHTTPHeaderField: "x-instance-id")
         }

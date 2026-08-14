@@ -141,7 +141,8 @@ public enum ZedStatusProbeError: LocalizedError, Sendable, Equatable {
         case .notSignedIn:
             "Not signed in to Zed. Sign in from the Zed editor app with GitHub."
         case .keychainUnavailable:
-            "Could not read Zed credentials from the Keychain. Grant CodexBar Keychain access or sign in to Zed again."
+            "Could not read Zed credentials from the Keychain. Grant \(TokenBarIdentity.displayName) Keychain " +
+                "access or sign in to Zed again."
         case let .invalidServerURL(value):
             "Zed server URL is invalid: \(value)"
         case .untrustedServerConfiguration:

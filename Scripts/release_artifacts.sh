@@ -42,3 +42,15 @@ codexbar_dsym_zip_name() {
   local arches="${2:-arm64 x86_64}"
   printf "CodexBar-%s-%s.dSYM.zip" "$(codexbar_release_arch_label "$arches")" "$version"
 }
+
+tokenbar_app_zip_name() {
+  local version=$1
+  local arches="${2:-arm64 x86_64}"
+  printf "TokenBar-%s-%s.zip" "$(codexbar_release_arch_label "$arches")" "$version"
+}
+
+tokenbar_dsym_zip_name() {
+  local version=$1
+  local arches="${2:-arm64 x86_64}"
+  printf "TokenBar-%s-%s.dSYM.zip" "$(codexbar_release_arch_label "$arches")" "$version"
+}

@@ -1,3 +1,4 @@
+import CodexBarCore
 import Foundation
 
 struct GeminiTestEnvironment {
@@ -17,9 +18,7 @@ struct GeminiTestEnvironment {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let geminiDir = root.appendingPathComponent(".gemini")
         try FileManager.default.createDirectory(at: geminiDir, withIntermediateDirectories: true)
-        let antigravityDir = root
-            .appendingPathComponent(".codexbar")
-            .appendingPathComponent("antigravity")
+        let antigravityDir = AntigravityOAuthCredentialsStore.defaultDirectoryURL(home: root)
         try FileManager.default.createDirectory(at: antigravityDir, withIntermediateDirectories: true)
         self.homeURL = root
         self.geminiDir = geminiDir

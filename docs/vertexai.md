@@ -30,7 +30,7 @@ read_when:
 
 ## Token Cost Tracking
 
-Vertex AI Claude usage is logged to the same local files as direct Anthropic API usage (`~/.claude/projects/`). CodexBar identifies Vertex AI entries using two methods:
+Vertex AI Claude usage is logged to the same local files as direct Anthropic API usage (`~/.claude/projects/`). TokenBar identifies Vertex AI entries using two methods:
 
 ### Detection Methods
 

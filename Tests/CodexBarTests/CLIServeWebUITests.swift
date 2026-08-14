@@ -1,3 +1,4 @@
+import CodexBarCore
 import Commander
 import Foundation
 import Testing
@@ -52,7 +53,10 @@ struct CLIServeWebUITests {
     @Test
     func `web ui progressively paints cached shell and provider snapshots`() {
         let html = self.html
-        #expect(html.contains("codexbar.lastSnapshot"))
+        #expect(html.contains("\(TokenBarIdentity.persistenceNamespace).lastSnapshot"))
+        #expect(html.contains("\(TokenBarIdentity.persistenceNamespace).dashboardToken"))
+        #expect(html.contains("<title>\(TokenBarIdentity.displayName) Dashboard</title>"))
+        #expect(!html.contains("codexbar.lastSnapshot"))
         #expect(html.contains("/dashboard/v1/snapshot?detail=shell"))
         #expect(html.contains("card pending"))
         #expect(html.contains("Promise.allSettled"))

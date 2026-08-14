@@ -642,7 +642,7 @@ struct KimiUsageResponseParsingTests {
     func `sends CLI identity headers on the existing usage request`() async throws {
         let baseURL = try #require(URL(string: "https://api.kimi.com"))
         let identityHeaders = [
-            "User-Agent": "CodexBar/test",
+            "User-Agent": "TokenBar/test",
             "X-Msh-Platform": "kimi_code_cli",
             "X-Msh-Device-Id": "test-device-id",
         ]

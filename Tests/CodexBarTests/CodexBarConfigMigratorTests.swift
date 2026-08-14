@@ -57,6 +57,26 @@ struct CodexBarConfigMigratorTests {
     }
 
     @Test
+    func `CodexBar completion flag skips migration and is canonicalized to TokenBar`() throws {
+        let suite = "CodexBarConfigMigratorTests-compatible-flag-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: Self.compatibleMigrationCompletedKey)
+
+        let secrets = CountingLegacySecretStore()
+        let accountStore = CountingTokenAccountStore()
+        _ = CodexBarConfigMigrator.loadOrMigrate(
+            configStore: testConfigStore(suiteName: suite),
+            userDefaults: defaults,
+            stores: Self.legacyStores(secrets: secrets, accountStore: accountStore))
+
+        #expect(secrets.loadCount == 0)
+        #expect(accountStore.loadCount == 0)
+        #expect(defaults.bool(forKey: Self.legacyMigrationCompletedKey))
+    }
+
+    @Test
     func `legacy migration completion waits for successful cleanup`() throws {
         let suite = "CodexBarConfigMigratorTests-cleanup-failure-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))
@@ -118,7 +138,8 @@ struct CodexBarConfigMigratorTests {
         #expect(defaults.bool(forKey: Self.legacyMigrationCompletedKey) == true)
     }
 
-    private static let legacyMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
+    private static let compatibleMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
 
     private static func legacyStores(
         secrets: CountingLegacySecretStore,

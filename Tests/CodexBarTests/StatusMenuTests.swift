@@ -797,7 +797,7 @@ struct StatusMenuTests {
         #expect(!titles.contains("Status Page"))
         #expect(titles.contains("Refresh"))
         #expect(titles.contains("Settings..."))
-        #expect(titles.contains("About CodexBar"))
+        #expect(titles.contains("About TokenBar"))
         #expect(titles.contains("Quit"))
 
         let refreshItem = try #require(menu.items.first { $0.title == "Refresh" })
@@ -929,8 +929,8 @@ extension StatusMenuTests {
             statusBar: self.makeStatusBarForTesting())
 
         let codexItem = try #require(controller.statusItems[.codex])
-        #expect(controller.statusItem.autosaveName == "codexbar-merged")
-        #expect(codexItem.autosaveName == "codexbar-codex")
+        #expect(controller.statusItem.autosaveName == "tokenbar-merged")
+        #expect(codexItem.autosaveName == "tokenbar-codex")
 
         try settings.setProviderEnabled(
             provider: .gemini,
@@ -939,8 +939,8 @@ extension StatusMenuTests {
         controller.handleProviderConfigChange(reason: "test")
 
         #expect(controller.statusItems[.codex] === codexItem)
-        #expect(controller.statusItems[.codex]?.autosaveName == "codexbar-codex")
-        #expect(controller.statusItems[.gemini]?.autosaveName == "codexbar-gemini")
+        #expect(controller.statusItems[.codex]?.autosaveName == "tokenbar-codex")
+        #expect(controller.statusItems[.gemini]?.autosaveName == "tokenbar-gemini")
     }
 
     @Test

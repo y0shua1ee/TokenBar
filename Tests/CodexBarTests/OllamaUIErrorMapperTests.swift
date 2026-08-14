@@ -40,6 +40,17 @@ struct OllamaUIErrorMapperTests {
     }
 
     @Test
+    func `maps legacy disabled Keychain access with browser name`() {
+        let message = OllamaUIErrorMapper.userFacingMessage(
+            "Brave cookie decryption is disabled in CodexBar; enable Keychain access and refresh.",
+            localize: { key in
+                key == "ollama_browser_cookie_decryption_disabled" ? "%@ localized disabled" : key
+            })
+
+        #expect(message == "Brave localized disabled")
+    }
+
+    @Test
     func `preserves generic Ollama errors`() {
         let raw = OllamaUsageError.noSessionCookie.localizedDescription
         #expect(OllamaUIErrorMapper.userFacingMessage(raw, localize: { $0 }) == raw)

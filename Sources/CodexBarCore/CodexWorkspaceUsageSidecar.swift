@@ -324,7 +324,7 @@ struct CodexWorkspaceUsageSidecar: Sendable {
     }
 
     private func databaseURL() -> URL {
-        let root = self.cacheRoot ?? FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        let root = self.cacheRoot ?? TokenBarIdentity.cachesDirectory()!
         return root
             .appendingPathComponent("local-usage", isDirectory: true)
             .appendingPathComponent("codex-workspaces-v1.sqlite", isDirectory: false)

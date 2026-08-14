@@ -56,7 +56,7 @@ Qwen Cloud console (`home.qwencloud.com`), including plans that grant hosted Cla
 
 ### "No Qwen Cloud session cookies found in browsers"
 
-Log in at `https://home.qwencloud.com/billing/subscription/token-plan-individual` in Chrome, then refresh CodexBar.
+Log in at `https://home.qwencloud.com/billing/subscription/token-plan-individual` in Chrome, then refresh TokenBar.
 
 ### "Qwen Cloud cookie header is invalid"
 
@@ -65,4 +65,4 @@ logging in again.
 
 ### "Qwen Cloud login required"
 
-Your Qwen Cloud session is stale. Sign out and back in on the Qwen Cloud console, then refresh CodexBar.
+Your Qwen Cloud session is stale. Sign out and back in on the Qwen Cloud console, then refresh TokenBar.

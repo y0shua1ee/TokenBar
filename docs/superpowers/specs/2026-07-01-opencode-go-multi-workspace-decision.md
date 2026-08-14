@@ -13,7 +13,7 @@ read_when:
 
 ## Problem
 
-One OpenCode account can have several workspaces, each with its own Go subscription. CodexBar discovers workspace
+One OpenCode account can have several workspaces, each with its own Go subscription. TokenBar discovers workspace
 identifiers but selects only the first one, stores one optional workspace override, and projects one scalar usage
 snapshot. Users must replace the override and refresh to inspect another workspace.
 
@@ -100,7 +100,7 @@ Choose option A with these boundaries:
 
 ## Decision
 
-CodexBar accepts automatic workspace fan-out with stacked cards and the existing single-workspace override, bounded by the
+TokenBar accepts automatic workspace fan-out with stacked cards and the existing single-workspace override, bounded by the
 contract above. This document does not change runtime behavior. Implementation still requires redacted authenticated
 multi-workspace proof, focused parser/model tests, packaged UI proof, and separate review. Workspace-name persistence
 remains out of scope until the authenticated response contract is proven.

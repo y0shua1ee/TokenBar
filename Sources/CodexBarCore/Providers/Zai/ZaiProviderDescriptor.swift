@@ -7,7 +7,7 @@ public enum ZaiProviderDescriptor {
         resolve: ZaiSettingsReader.apiToken,
         tokenAccountSupport: TokenAccountSupport(
             title: "API tokens",
-            subtitle: "Stored in the CodexBar config file.",
+            subtitle: "Stored in the \(TokenBarIdentity.displayName) config file.",
             placeholder: "Paste token…",
             injection: .environment(key: ZaiSettingsReader.apiTokenKey),
             requiresManualCookieSource: false,

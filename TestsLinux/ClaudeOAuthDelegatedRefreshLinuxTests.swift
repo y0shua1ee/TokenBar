@@ -42,7 +42,7 @@ struct ClaudeOAuthDelegatedRefreshLinuxTests {
             promptMode: .always)
 
         #expect(result.attempts == 0)
-        #expect(result.message.contains("CodexBar CLI does not launch Claude"))
+        #expect(result.message.contains("TokenBar CLI does not launch Claude"))
     }
 
     @Test
@@ -65,8 +65,8 @@ struct ClaudeOAuthDelegatedRefreshLinuxTests {
 
         #expect(result.attempts == 0)
         #expect(result.message.contains("background repair is suppressed"))
-        #expect(result.message.contains("Click Refresh in the CodexBar menu"))
-        #expect(!result.message.contains("Open the CodexBar menu or"))
+        #expect(result.message.contains("Click Refresh in the TokenBar menu"))
+        #expect(!result.message.contains("Open the TokenBar menu or"))
     }
 
     private func runDelegatedRefresh(

@@ -44,9 +44,9 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
     private static let defaultMenuRefreshEnabled = !SettingsStore.isRunningTests
     private(set) static var menuRefreshEnabled = !SettingsStore.isRunningTests
     static let quotaWarningFlashDuration: TimeInterval = 60
-    private nonisolated static let statusItemAccessibilityTitle = "CodexBar"
-    private nonisolated static let debugStatusItemAccessibilityTitle = "CodexBar Debug"
-    private nonisolated static let statusItemAccessibilityIdentifierPrefix = "CodexBar.StatusItem"
+    private nonisolated static let statusItemAccessibilityTitle = TokenBarIdentity.displayName
+    private nonisolated static let debugStatusItemAccessibilityTitle = "\(TokenBarIdentity.displayName) Debug"
+    private nonisolated static let statusItemAXIdentifierPrefix = TokenBarIdentity.displayName + ".StatusItem"
     private nonisolated static let mergedLegacyDefaultItemIndex = 0
 
     enum StatusItemIdentity {
@@ -56,18 +56,18 @@ final class StatusItemController: NSObject, NSMenuDelegate, StatusItemControllin
         var autosaveName: String {
             switch self {
             case .merged:
-                "codexbar-merged"
+                "\(TokenBarIdentity.commandName)-merged"
             case let .provider(provider):
-                "codexbar-\(provider.rawValue)"
+                "\(TokenBarIdentity.commandName)-\(provider.rawValue)"
             }
         }
 
         var accessibilityIdentifier: String {
             switch self {
             case .merged:
-                StatusItemController.statusItemAccessibilityIdentifierPrefix
+                StatusItemController.statusItemAXIdentifierPrefix
             case let .provider(provider):
-                "\(StatusItemController.statusItemAccessibilityIdentifierPrefix).\(provider.rawValue)"
+                "\(StatusItemController.statusItemAXIdentifierPrefix).\(provider.rawValue)"
             }
         }
     }

@@ -110,7 +110,7 @@ public enum CodexBarLog {
     }
 
     public static func logger(_ category: String) -> CodexBarLogger {
-        let logger = Logger(label: "com.steipete.codexbar.\(category)")
+        let logger = Logger(label: "\(TokenBarIdentity.bundleIdentifier).\(category)")
         return CodexBarLogger(isEnabled: { level in
             self.shouldLog(level)
         }, log: { level, message, metadata in

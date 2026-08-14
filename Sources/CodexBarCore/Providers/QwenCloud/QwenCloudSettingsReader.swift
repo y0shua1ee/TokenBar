@@ -54,7 +54,8 @@ public enum QwenCloudSettingsError: LocalizedError, Sendable {
         switch self {
         case let .missingCookie(details):
             let base = "No Qwen Cloud session cookies found in browsers. " +
-                "Sign in to Qwen Cloud in Chrome, allow CodexBar to access Chrome Safe Storage in Keychain Access, " +
+                "Sign in to Qwen Cloud in Chrome, allow \(TokenBarIdentity.displayName) to access Chrome Safe " +
+                "Storage in Keychain Access, " +
                 "or paste a manual Cookie header."
             guard let details, !details.isEmpty else { return base }
             return "\(base) \(details)"

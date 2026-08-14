@@ -48,14 +48,14 @@ extension CodexBarCLI {
         guard hooks.enabled else {
             Self.exit(
                 code: .failure,
-                message: "Hooks are disabled. Run `codexbar hooks enable` first.",
+                message: "Hooks are disabled. Run `\(TokenBarIdentity.commandName) hooks enable` first.",
                 output: output,
                 kind: .config)
         }
         guard !hooks.events.isEmpty else {
             Self.exit(
                 code: .failure,
-                message: "No hook rules configured. See `codexbar hooks list`.",
+                message: "No hook rules configured. See `\(TokenBarIdentity.commandName) hooks list`.",
                 output: output,
                 kind: .config)
         }

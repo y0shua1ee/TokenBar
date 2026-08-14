@@ -7,7 +7,7 @@ read_when:
 
 # Chutes Provider
 
-CodexBar reads subscription and quota usage from Chutes' management API with a manually configured API key.
+TokenBar reads subscription and quota usage from Chutes' management API with a manually configured API key.
 
 ## Service context
 
@@ -18,7 +18,7 @@ before relying on a plan or rate.
 
 ## Authentication
 
-Create a Chutes API key using the [official authentication guide](https://chutes.ai/docs/getting-started/authentication), then add it in CodexBar Settings → Providers → Chutes.
+Create a Chutes API key using the [official authentication guide](https://chutes.ai/docs/getting-started/authentication), then add it in TokenBar Settings → Providers → Chutes.
 
 You can also set the environment variable:
 
@@ -29,12 +29,12 @@ export CHUTES_API_KEY="cpk_..."
 Or configure it through the CLI:
 
 ```bash
-printf '%s' "$CHUTES_API_KEY" | codexbar config set-api-key --provider chutes --stdin
+printf '%s' "$CHUTES_API_KEY" | tokenbar config set-api-key --provider chutes --stdin
 ```
 
 ## Data Source
 
-CodexBar requests:
+TokenBar requests:
 
 - `GET https://api.chutes.ai/users/me/subscription_usage`
 - `GET https://api.chutes.ai/users/me/quotas` when subscription data does not contain every usage window
@@ -52,11 +52,11 @@ recognized usage fields as a no-data snapshot, a shape the current plugin snapsh
 ## CLI Usage
 
 ```bash
-codexbar --provider chutes
+tokenbar --provider chutes
 ```
 
 ## Troubleshooting
 
 - Confirm the key can read `https://api.chutes.ai/users/me/subscription_usage`.
 - A `401` or `403` means Chutes rejected the key.
-- `CHUTES_API_URL` can override the management API base URL, but CodexBar accepts HTTPS endpoints only.
+- `CHUTES_API_URL` can override the management API base URL, but TokenBar accepts HTTPS endpoints only.

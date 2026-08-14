@@ -365,7 +365,8 @@ public struct TTYCommandRunner {
                 "Missing CLI '\(bin)'. Install it (e.g. npm i -g @openai/codex) or add it to PATH."
             case let .launchFailed(msg): "Failed to launch process: \(msg)"
             case .timedOut: "PTY command timed out."
-            case .outputTooLarge: "PTY command produced more output than CodexBar can safely process."
+            case .outputTooLarge:
+                "PTY command produced more output than \(TokenBarIdentity.displayName) can safely process."
             }
         }
     }

@@ -8,6 +8,14 @@ import Testing
 @MainActor
 struct CloudSyncSettingsTests {
     @Test
+    func `cloud sync identity never targets upstream container`() {
+        #expect(CloudSyncEngine.containerIdentifier == TokenBarIdentity.cloudKitContainerIdentifier)
+        #expect(CloudSyncEngine.zoneID.zoneName == "\(TokenBarIdentity.displayName)Sync")
+        #expect(!CloudSyncEngine.containerIdentifier.contains("steipete"))
+        #expect(CloudSyncPersistence.defaultFileURL().path.contains(TokenBarIdentity.bundleIdentifier))
+    }
+
+    @Test
     func `sync settings use strict opt in defaults and stay local`() throws {
         let fixture = try self.makeFixture("local-defaults")
         let store = fixture.store

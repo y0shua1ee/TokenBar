@@ -37,8 +37,8 @@ public final class CurrencyExchange: @unchecked Sendable {
     ]
     private var lastFetchTime: Date?
 
-    private static let userDefaultsKey = "CodexBar.CurrencyExchangeRates"
-    private static let lastFetchKey = "CodexBar.CurrencyExchangeLastFetch"
+    private static let userDefaultsKey = "\(TokenBarIdentity.displayName).CurrencyExchangeRates"
+    private static let lastFetchKey = "\(TokenBarIdentity.displayName).CurrencyExchangeLastFetch"
 
     public init() {
         self.loadCachedRates()

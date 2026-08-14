@@ -7,7 +7,7 @@ read_when:
 
 # ZenMux Provider
 
-CodexBar reads subscription quota windows and pay-as-you-go balance from ZenMux's documented Management API.
+TokenBar reads subscription quota windows and pay-as-you-go balance from ZenMux's documented Management API.
 
 > **Service maturity:** ZenMux says its upstream access comes from
 > [official providers or authorized cloud partners](https://zenmux.ai/), but that authorization is currently
@@ -17,7 +17,7 @@ CodexBar reads subscription quota windows and pay-as-you-go balance from ZenMux'
 ## Authentication
 
 Create a Management API key in the [ZenMux Management Console](https://zenmux.ai/platform/management), then add it in
-CodexBar Settings → Providers → ZenMux. Standard ZenMux inference API keys are not accepted by these endpoints.
+TokenBar Settings → Providers → ZenMux. Standard ZenMux inference API keys are not accepted by these endpoints.
 
 You can also set the environment variable:
 
@@ -28,17 +28,17 @@ export ZENMUX_MANAGEMENT_API_KEY="..."
 Or configure it through the CLI:
 
 ```bash
-printf '%s' "$ZENMUX_MANAGEMENT_API_KEY" | codexbar config set-api-key --provider zenmux --stdin
+printf '%s' "$ZENMUX_MANAGEMENT_API_KEY" | tokenbar config set-api-key --provider zenmux --stdin
 ```
 
 ## Data Source
 
-CodexBar requests:
+TokenBar requests:
 
 - `GET https://zenmux.ai/api/v1/management/subscription/detail`
 - `GET https://zenmux.ai/api/v1/management/payg/balance` as best-effort credit enrichment
 
-Both requests use `Authorization: Bearer <ZENMUX_MANAGEMENT_API_KEY>`. CodexBar does not read ZenMux browser cookies,
+Both requests use `Authorization: Bearer <ZENMUX_MANAGEMENT_API_KEY>`. TokenBar does not read ZenMux browser cookies,
 dashboard sessions, request logs, or inference prompts.
 
 ## Display
@@ -50,7 +50,7 @@ non-healthy account status, plan expiry, and PAYG balance in US dollars when ava
 ## CLI Usage
 
 ```bash
-codexbar --provider zenmux
+tokenbar --provider zenmux
 ```
 
 ## Troubleshooting

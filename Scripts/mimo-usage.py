@@ -4,7 +4,7 @@ mimo-usage — local token usage tracker for cc-mimo
 
 Scans ~/.claude-envs/mimo/.claude/projects/**/*.jsonl session files,
 sums input/output/cache tokens per time window (today/week/all),
-writes to ~/.codexbar/mimo-local-usage.json, and prints a human-readable
+writes to ~/.tokenbar/mimo-local-usage.json, and prints a human-readable
 summary by default.
 
 Usage:
@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 MIMO_HOME = Path(os.environ.get("MIMO_CLAUDE_HOME", Path.home() / ".claude-envs" / "mimo")).expanduser()
 PROJECTS_DIR = MIMO_HOME / ".claude" / "projects"
 CACHE_PATH = Path(
-    os.environ.get("MIMO_LOCAL_USAGE_PATH", Path.home() / ".codexbar" / "mimo-local-usage.json")
+    os.environ.get("MIMO_LOCAL_USAGE_PATH", Path.home() / ".tokenbar" / "mimo-local-usage.json")
 ).expanduser()
 
 

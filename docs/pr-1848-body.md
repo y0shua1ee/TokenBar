@@ -1,12 +1,12 @@
 ## Summary
 
-Fixes the background browser-launch regression in https://github.com/steipete/CodexBar/issues/1844: when Claude Code stores only MCP OAuth state in `Claude Code-credentials` (no `claudeAiOauth`), CodexBar no longer runs background delegated `claude /status` refresh—which can launch the default browser via `/usr/bin/open`.
+Fixes the background browser-launch regression in https://github.com/steipete/CodexBar/issues/1844: when Claude Code stores only MCP OAuth state in `Claude Code-credentials` (no `claudeAiOauth`), TokenBar no longer runs background delegated `claude /status` refresh—which can launch the default browser via `/usr/bin/open`.
 
 **Scope:** fail-closed safety guard for both keychain readers. Discovery of Claude Code 2.1.x's primary OAuth storage location remains tracked by https://github.com/steipete/CodexBar/issues/1823.
 
 ## Problem
 
-On Claude Code 2.1.x, the `Claude Code-credentials` keychain item may contain only `mcpOAuth`. CodexBar then fails to parse Claude OAuth credentials, treats the session as expired, and may periodically attempt delegated CLI refresh. That path can open the user's default browser from the background.
+On Claude Code 2.1.x, the `Claude Code-credentials` keychain item may contain only `mcpOAuth`. TokenBar then fails to parse Claude OAuth credentials, treats the session as expired, and may periodically attempt delegated CLI refresh. That path can open the user's default browser from the background.
 
 Contributing issues on `main`:
 
@@ -32,7 +32,7 @@ Contributing issues on `main`:
 ## Verification
 
 - [x] Focused macOS integration tests (2026-07-03) — details in `docs/verify-1844-proof.md`
-- [x] Release-built `CodexBar.app` and packaged `CodexBarCLI` isolated live proof
+- [x] Release-built `TokenBar.app` and packaged `TokenBarCLI` isolated live proof
 - [x] Real Claude-tab Refresh click against the isolated built app
 - [x] Final `make check`, 45-shard `make test`, and autoreview on the local port
 

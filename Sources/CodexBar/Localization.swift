@@ -29,7 +29,7 @@ private func appLanguageDefaults() -> UserDefaults {
         return .standard
     }
     // Fallback for running outside a .app bundle (swift run / debug builds)
-    return UserDefaults(suiteName: "CodexBar") ?? .standard
+    return UserDefaults(suiteName: TokenBarIdentity.bundleIdentifier) ?? .standard
 }
 
 private let isRunningTestsProcessAtStartup: Bool = {
@@ -255,17 +255,30 @@ func codexBarLocalizedString(_ key: String, bundle: Bundle, resourceBundle: Bund
     let value = bundle.localizedString(forKey: key, value: nil, table: nil)
     let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
     if !trimmed.isEmpty, value != key {
-        return value
+        return tokenBarBrandedString(value)
     }
 
     guard bundle.bundleURL.lastPathComponent != "en.lproj",
           let englishBundle = lprojBundle(named: "en", in: resourceBundle)
     else {
-        return trimmed.isEmpty ? key : value
+        return tokenBarBrandedString(trimmed.isEmpty ? key : value)
     }
 
     let fallback = englishBundle.localizedString(forKey: key, value: nil, table: nil)
-    return fallback.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? key : fallback
+    return tokenBarBrandedString(
+        fallback.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? key : fallback)
+}
+
+/// Keep inherited localization keys stable while ensuring translated values expose TokenBar's identity.
+/// Compatibility-only names such as `CODEXBAR_*` remain unchanged because the mapping is case-sensitive.
+func tokenBarBrandedString(_ value: String) -> String {
+    value
+        .replacingOccurrences(
+            of: "~/.codexbar/config.json",
+            with: TokenBarIdentity.configPathHint)
+        .replacingOccurrences(of: "CodexBarCLI", with: TokenBarIdentity.cliExecutableName)
+        .replacingOccurrences(of: "CodexBar", with: TokenBarIdentity.displayName)
+        .replacingOccurrences(of: "codexbar", with: TokenBarIdentity.commandName)
 }
 
 func resetCodexBarLocalizationCache() {

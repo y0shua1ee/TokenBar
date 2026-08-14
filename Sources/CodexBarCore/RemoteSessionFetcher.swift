@@ -95,7 +95,7 @@ public enum TailscaleStatusParser {
 }
 
 public struct RemoteSessionFetcher: Sendable {
-    public static let bundledCLIFallback = "/Applications/CodexBar.app/Contents/Helpers/CodexBarCLI"
+    public static let bundledCLIFallback = TokenBarIdentity.bundledCLIPath
 
     public init() {}
 
@@ -169,8 +169,10 @@ public struct RemoteSessionFetcher: Sendable {
         guard let ssh = self.findExecutable("ssh", environment: environment) ??
             (["/usr/bin/ssh", "/bin/ssh"].first { FileManager.default.isExecutableFile(atPath: $0) })
         else { return }
-        let command = "codexbar sessions focus \(Self.shellQuote(sessionID)) || " +
-            "\(Self.shellQuote(Self.bundledCLIFallback)) sessions focus \(Self.shellQuote(sessionID))"
+        let command = [
+            "\(TokenBarIdentity.commandName) sessions focus \(Self.shellQuote(sessionID))",
+            "\(Self.shellQuote(Self.bundledCLIFallback)) sessions focus \(Self.shellQuote(sessionID))",
+        ].joined(separator: " || ")
         _ = try? await SubprocessRunner.run(
             binary: ssh,
             arguments: ["-o", "BatchMode=yes", "-o", "ConnectTimeout=3", host, "sh", "-lc", Self.shellQuote(command)],
@@ -216,8 +218,8 @@ public struct RemoteSessionFetcher: Sendable {
     package static func remoteSessionsCommand() -> String {
         let bundledCLI = Self.shellQuote(Self.bundledCLIFallback)
         return [
-            "codexbar sessions --json-v2",
-            "codexbar sessions --json",
+            "\(TokenBarIdentity.commandName) sessions --json-v2",
+            "\(TokenBarIdentity.commandName) sessions --json",
             "\(bundledCLI) sessions --json-v2",
             "\(bundledCLI) sessions --json",
         ].joined(separator: " || ")

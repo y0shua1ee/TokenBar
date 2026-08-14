@@ -97,7 +97,7 @@ Routing parity requirements:
 
 - OAuth token account values must route to OAuth path (not cookie mode).
 - Cookie/session-key account values must route to web cookie path.
-- CLI token-account behavior must remain consistent in both app and `CodexBarCLI`.
+- CLI token-account behavior must remain consistent in both app and `TokenBarCLI`.
 - Scope note: current string heuristics are mostly edge-routing logic, not deep OAuth credential decoding internals.
 
 ### 4) Ownership and refresh contract
@@ -105,7 +105,7 @@ Routing parity requirements:
 Credential owner behavior must remain identical:
 
 - `.claudeCLI` expired credentials: delegated refresh path.
-- `.codexbar` expired credentials: direct refresh endpoint path.
+- `.tokenbar` expired credentials: direct refresh endpoint path.
 - `.environment` expired credentials: no auto-refresh.
 
 Refresh failure-gate semantics must remain unchanged.
@@ -264,7 +264,7 @@ Deliverables (sub-phases):
 
 Exit gate:
 - Existing OAuth delegated refresh / prompt policy / cooldown suites pass without behavior deltas at each sub-phase.
-- Owner semantics parity remains intact across all sub-phases (`claudeCLI`, `codexbar`, `environment`).
+- Owner semantics parity remains intact across all sub-phases (`claudeCLI`, `tokenbar`, `environment`).
 
 ### Phase 5: Test injection migration (TaskLocal -> DI)
 
@@ -296,7 +296,7 @@ Use this sequence to keep each PR reviewable without turning the rollout into un
 | PR-03 | Typed credentials at the edge | Parse manual credentials once (`sessionKey`, `cookieHeader`, `oauthAccessToken`) in app + CLI snapshot shaping. | R6 | Token-account routing parity tests green in app + CLI contexts. |
 | PR-04 | Source planner introduction + cutover | Add `ClaudeSourcePlanner`, prove parity against old path, then remove duplicate `.auto` selection branches once parity is proven. | R1, R5, R10 | One `.auto` authority remains; attempt/source-label diagnostics remain parity-compatible. |
 | PR-05 | `ClaudeUsageFetcher` decomposition | Split fetcher into execution/retry-focused units; remove embedded source-selection ownership. | R2, R10 | Delegated OAuth retry/recovery tests green with no behavior deltas. |
-| PR-06 | OAuth decomposition | Extract repository, refresher, and delegated-controller seams from `ClaudeOAuthCredentialsStore` while preserving owner semantics. | R3, R4, R7, R9 | Cache/fingerprint/prompt/owner suites green (`claudeCLI`, `codexbar`, `environment`). |
+| PR-06 | OAuth decomposition | Extract repository, refresher, and delegated-controller seams from `ClaudeOAuthCredentialsStore` while preserving owner semantics. | R3, R4, R7, R9 | Cache/fingerprint/prompt/owner suites green (`claudeCLI`, `tokenbar`, `environment`). |
 | PR-07 (optional) | TaskLocal -> DI migration | Move remaining tests and seams to `ClaudeFetchDependencies`, keep temporary compat adapters, then remove. | R9 | Core planner/executor tests run without TaskLocal globals. |
 | PR-08 (optional) | Web decomposition | Split cookie acquisition from web usage client and keep tooling isolated. | R8, R10 | Web parsing/account mapping suites remain green. |
 
@@ -339,7 +339,7 @@ Use these risk IDs in refactor PR checklists/reviews.
 | R1 | Critical | Auto-ordering reconciliation | Three `.auto` paths are inconsistent today. Characterize strategy pipeline vs `resolveUsageStrategy` helper vs fetcher-direct `.auto` before deleting any path. |
 | R2 | High | Prompt policy consolidation | Prompt policy exists across strategy availability, fetcher flow, and credentials store gates. Preserve startup bootstrap constraints exactly to avoid prompt storms or silent OAuth suppression. |
 | R3 | High | `ClaudeOAuthCredentialsStore` decomposition | Large lock-protected state + layered caches + fingerprint invalidation + security calls. Splits can break cache coherence, invalidation timing, or prompt gating order. |
-| R4 | High | Owner semantics drift | Preserve exact owner-to-refresh mapping: `.claudeCLI` delegated, `.codexbar` direct refresh, `.environment` no refresh. |
+| R4 | High | Owner semantics drift | Preserve exact owner-to-refresh mapping: `.claudeCLI` delegated, `.tokenbar` direct refresh, `.environment` no refresh. |
 | R5 | Medium | CLI runtime parity | Preserve runtime-specific policy: CLI `auto` remains `web -> cli`; OAuth is available only when explicitly selected as `sourceMode=.oauth`. Do not accidentally default CLI runtime to app ordering. |
 | R6 | Medium | Token-account OAuth-vs-cookie misrouting | Keep routing parity for OAuth token vs session key vs full cookie header, including `Bearer sk-ant-oat...` normalization. |
 | R7 | Medium | Cache invalidation regressions | Preserve credentials file/keychain fingerprint semantics and stale-cache guards during repository extraction. |

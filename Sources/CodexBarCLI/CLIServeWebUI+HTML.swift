@@ -1,3 +1,4 @@
+import CodexBarCore
 import Foundation
 
 extension CLIServeWebUI {
@@ -9,7 +10,7 @@ extension CLIServeWebUI {
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="color-scheme" content="light dark">
       <link rel="icon" href="data:,">
-      <title>CodexBar Dashboard</title>
+      <title>\#(TokenBarIdentity.displayName) Dashboard</title>
       <style>
         :root {
           color-scheme: light dark;
@@ -575,7 +576,7 @@ extension CLIServeWebUI {
         <header class="topbar">
           <div class="brand">
             <span class="mark" aria-hidden="true"></span>
-            <h1>CodexBar</h1>
+            <h1>\#(TokenBarIdentity.displayName)</h1>
             <span id="version" class="version"></span>
           </div>
           <div class="meta" aria-live="polite">
@@ -587,7 +588,7 @@ extension CLIServeWebUI {
 
         <section id="auth" class="notice" aria-labelledby="auth-title">
           <h2 id="auth-title">This server requires a dashboard token</h2>
-          <p>Enter the bearer token configured for this CodexBar server.</p>
+          <p>Enter the bearer token configured for this \#(TokenBarIdentity.displayName) server.</p>
           <form id="token-form" class="auth-actions">
             <input id="token" type="password" name="token" autocomplete="current-password"
               aria-label="Dashboard token" required>
@@ -607,8 +608,8 @@ extension CLIServeWebUI {
       <script>
         "use strict";
 
-        const tokenKey = "codexbar.dashboardToken";
-        const snapshotKey = "codexbar.lastSnapshot";
+        const tokenKey = "\#(TokenBarIdentity.persistenceNamespace).dashboardToken";
+        const snapshotKey = "\#(TokenBarIdentity.persistenceNamespace).lastSnapshot";
         const providerIconURLs = __PROVIDER_ICON_URLS__;
         const state = {
           snapshot: null,

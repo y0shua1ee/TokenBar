@@ -171,7 +171,7 @@ struct CLICardsRendererTests {
             useColor: false,
             now: Date(timeIntervalSince1970: 0))
 
-        #expect(output.contains("codexbar • AI Usage & Limits"))
+        #expect(output.contains("\(TokenBarIdentity.commandName) • AI Usage & Limits"))
         #expect(output.contains("Provider"))
         #expect(output.contains("Claude"))
         #expect(output.contains("web"))

@@ -20,11 +20,16 @@ struct OllamaUIErrorMapper {
         {
             return String(format: localize("ollama_browser_cookie_decryption_denied"), browserName)
         }
-        if let browserName = self.browserName(
-            in: trimmed,
-            suffix: " cookie decryption is disabled in CodexBar; enable Keychain access and refresh.")
-        {
-            return String(format: localize("ollama_browser_cookie_decryption_disabled"), browserName)
+        let disabledSuffixes = [
+            " cookie decryption is disabled in \(TokenBarIdentity.displayName); " +
+                "enable Keychain access and refresh.",
+            // Accept errors cached by pre-migration builds.
+            " cookie decryption is disabled in CodexBar; enable Keychain access and refresh.",
+        ]
+        for suffix in disabledSuffixes {
+            if let browserName = self.browserName(in: trimmed, suffix: suffix) {
+                return String(format: localize("ollama_browser_cookie_decryption_disabled"), browserName)
+            }
         }
         return trimmed
     }

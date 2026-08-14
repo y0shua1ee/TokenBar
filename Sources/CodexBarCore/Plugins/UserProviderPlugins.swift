@@ -84,8 +84,10 @@ public final class ProviderPluginApprovalStore: @unchecked Sendable {
     }
 
     public static var defaultURL: URL {
-        FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Application Support/CodexBar/plugin-approvals.json")
+        let directory = TokenBarIdentity.applicationSupportDirectory()
+            ?? FileManager.default.temporaryDirectory
+            .appendingPathComponent(TokenBarIdentity.applicationSupportDirectoryName, isDirectory: true)
+        return directory.appendingPathComponent(TokenBarIdentity.pluginApprovalsFilename, isDirectory: false)
     }
 
     private let fileURL: URL
@@ -226,12 +228,16 @@ public final class UserProviderPluginLoader: @unchecked Sendable {
 
     public static var defaultProvidersDirectory: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".config/codexbar/providers", isDirectory: true)
+            .appendingPathComponent(".config", isDirectory: true)
+            .appendingPathComponent(TokenBarIdentity.configDirectoryName, isDirectory: true)
+            .appendingPathComponent("providers", isDirectory: true)
     }
 
     public static var defaultCacheDirectory: URL {
-        FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Caches/CodexBar/plugins", isDirectory: true)
+        let directory = TokenBarIdentity.cachesDirectory()
+            ?? FileManager.default.temporaryDirectory
+            .appendingPathComponent(TokenBarIdentity.cachesDirectoryName, isDirectory: true)
+        return directory.appendingPathComponent(TokenBarIdentity.pluginsDirectoryName, isDirectory: true)
     }
 
     private let providersDirectory: URL

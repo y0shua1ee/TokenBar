@@ -9,8 +9,8 @@ const args = process.argv.slice(2);
 const mode = parseMode(args);
 const cname = fs.readFileSync(path.join(docsDir, "CNAME"), "utf8").trim();
 const origin = "https://" + cname;
-const productName = "CodexBar";
-const source = "https://github.com/steipete/CodexBar";
+const productName = "TokenBar";
+const source = "https://github.com/y0shua1ee/TokenBar";
 const outputPath = path.join(docsDir, "llms.txt");
 
 const pages = allHtml(docsDir)
@@ -28,7 +28,7 @@ const pages = allHtml(docsDir)
   .sort((a, b) => (a.rel === "index.html" ? -1 : b.rel === "index.html" ? 1 : a.rel.localeCompare(b.rel)));
 const productDescription =
   pages.find((page) => page.rel === "index.html")?.description ||
-  "CodexBar shows AI coding-provider usage limits in the macOS menu bar.";
+  "TokenBar shows AI coding-provider usage limits in the macOS menu bar.";
 
 const lines = [
   "# " + productName,

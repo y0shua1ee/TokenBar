@@ -7,7 +7,7 @@ public enum OpenRouterSettingsReader {
     public static let apiURLEnvironmentKey = "OPENROUTER_API_URL"
     public static let httpRefererEnvironmentKey = "OPENROUTER_HTTP_REFERER"
     public static let clientTitleEnvironmentKey = "OPENROUTER_X_TITLE"
-    public static let defaultClientTitle = "CodexBar"
+    public static let defaultClientTitle = TokenBarIdentity.displayName
 
     /// Returns the API token from environment if present and non-empty
     public static func apiToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {

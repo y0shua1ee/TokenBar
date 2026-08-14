@@ -98,11 +98,11 @@ enum CLICardsBriefRenderer {
 
     private static func titleLine(now: Date, terminalWidth: Int, useColor: Bool, enhanced: Bool) -> String {
         let left: String = if useColor, enhanced {
-            CLIRenderer.colorizeEnhancedAccentBold("codexbar • AI Usage & Limits")
+            CLIRenderer.colorizeEnhancedAccentBold("\(TokenBarIdentity.commandName) • AI Usage & Limits")
         } else if useColor {
-            CLIRenderer.colorizeAccentBold("codexbar • AI Usage & Limits")
+            CLIRenderer.colorizeAccentBold("\(TokenBarIdentity.commandName) • AI Usage & Limits")
         } else {
-            "codexbar • AI Usage & Limits"
+            "\(TokenBarIdentity.commandName) • AI Usage & Limits"
         }
         let timestamp = Self.timestampString(now: now)
         guard Self.visibleLength(left) + timestamp.count + 1 <= terminalWidth else {

@@ -315,8 +315,8 @@ struct ClaudeUsageTests {
                 return
             }
             #expect(message.contains("background repair is suppressed"))
-            #expect(message.contains("Click Refresh in the CodexBar menu"))
-            #expect(!message.contains("Open the CodexBar menu or"))
+            #expect(message.contains("Click Refresh in the TokenBar menu"))
+            #expect(!message.contains("Open the TokenBar menu or"))
         } catch {
             Issue.record("Expected ClaudeUsageError, got \(error)")
         }

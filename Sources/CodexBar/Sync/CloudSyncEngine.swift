@@ -139,8 +139,10 @@ enum CloudSyncEntitlementGate {
 }
 
 actor CloudSyncEngine: CKSyncEngineDelegate {
-    static let containerIdentifier = "iCloud.com.steipete.codexbar"
-    static let zoneID = CKRecordZone.ID(zoneName: "CodexBarSync", ownerName: CKCurrentUserDefaultName)
+    static let containerIdentifier = TokenBarIdentity.cloudKitContainerIdentifier
+    static let zoneID = CKRecordZone.ID(
+        zoneName: "\(TokenBarIdentity.displayName)Sync",
+        ownerName: CKCurrentUserDefaultName)
 
     private let settings: SettingsStore
     private let state: CloudSyncState

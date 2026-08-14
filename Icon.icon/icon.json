@@ -1,15 +1,15 @@
 {
   "fill" : {
-    "automatic-gradient" : "extended-srgb:0.00000,0.00000,0.00000,1.00000"
+    "automatic-gradient" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
   },
   "groups" : [
     {
       "layers" : [
         {
-          "image-name" : "codexbar.png",
-          "name" : "codexbar",
+          "image-name" : "tokenbar.png",
+          "name" : "tokenbar",
           "position" : {
-            "scale" : 1.0,
+            "scale" : 1.4,
             "translation-in-points" : [
               0,
               0
@@ -19,11 +19,11 @@
       ],
       "shadow" : {
         "kind" : "neutral",
-        "opacity" : 0.2
+        "opacity" : 0.5
       },
       "translucency" : {
-        "enabled" : false,
-        "value" : 0.0
+        "enabled" : true,
+        "value" : 0.5
       }
     }
   ],

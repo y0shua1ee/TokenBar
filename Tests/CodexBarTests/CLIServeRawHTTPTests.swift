@@ -136,7 +136,7 @@ struct CLIServeRawHTTPTests {
             #expect(response.statusLine == "HTTP/1.1 200 OK")
             #expect(response.headerValue("Content-Type") == "text/html; charset=utf-8")
             #expect(response.headerValue("Cache-Control") == "no-store")
-            #expect(response.body.contains("CodexBar Dashboard"))
+            #expect(response.body.contains("TokenBar Dashboard"))
             #expect(response.body.contains("/dashboard/v1/snapshot"))
         })
     }

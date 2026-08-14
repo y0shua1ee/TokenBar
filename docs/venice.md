@@ -15,13 +15,13 @@ read_when:
 1. Sign up or log in at https://venice.ai
 2. Navigate to your API settings at https://venice.ai/settings/api
 3. Create or retrieve your API key
-4. In CodexBar, add your Venice API key via:
+4. In TokenBar, add your Venice API key via:
    - Preferences > Providers > Venice, OR
    - Set the environment variable `VENICE_API_KEY` or `VENICE_KEY`
 
 ## Balance Query
 
-CodexBar fetches your current Venice API balance using the `/api/v1/billing/balance` endpoint.
+TokenBar fetches your current Venice API balance using the `/api/v1/billing/balance` endpoint.
 
 ### Balance Types
 
@@ -31,7 +31,7 @@ CodexBar fetches your current Venice API balance using the `/api/v1/billing/bala
 
 ### Display
 
-CodexBar shows:
+TokenBar shows:
 - Current remaining balance (DIEM or USD)
 - Epoch allocation progress (if applicable)
 - "Balance unavailable" if consumption is temporarily disabled
@@ -44,5 +44,5 @@ CodexBar shows:
 - Ensure your Venice account has an active balance
 
 **API rate limiting?**
-- CodexBar caches balance data and updates every 30 seconds
+- TokenBar caches balance data and updates every 30 seconds
 - If you hit rate limits, wait a moment before refreshing

@@ -411,7 +411,7 @@ public enum CodexOAuthUsageFetcher {
             timeoutInterval: 30)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         if let accountId, !accountId.isEmpty {
@@ -475,7 +475,7 @@ public enum CodexOAuthUsageFetcher {
             timeoutInterval: timeout)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("CodexBar", forHTTPHeaderField: "User-Agent")
+        request.setValue(TokenBarIdentity.displayName, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("codex-1", forHTTPHeaderField: "OpenAI-Beta")
         request.setValue("Codex Desktop", forHTTPHeaderField: "originator")

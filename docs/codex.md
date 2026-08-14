@@ -35,7 +35,7 @@ Usage source picker:
   `GET https://chatgpt.com/backend-api/wham/rate-limit-reset-credits` using the same account-scoped OAuth context;
   the CLI requests it only when optional credits are included.
 - The menu and provider settings list every still-available expiry, while the optional credits setting controls
-  nearing-expiry notifications. CodexBar does not redeem or modify reset credits.
+  nearing-expiry notifications. TokenBar does not redeem or modify reset credits.
 - `rate_limit.primary_window` / `secondary_window` map to the session/weekly lanes.
 - `additional_rate_limits[]` (model-specific limits such as GPT-5.3-Codex-Spark) map to named
   `UsageSnapshot.extraRateWindows` entries. Spark uses stable `codex-spark` / `codex-spark-weekly` ids and
@@ -45,12 +45,12 @@ Usage source picker:
 
 ### Advanced profile-home accounts
 - Managed Codex accounts remain the default multi-account path.
-- Advanced users can add existing Codex homes to `~/.codexbar/config.json` with
+- Advanced users can add existing Codex homes to `~/.tokenbar/config.json` with
   `providers[].codexProfileHomePaths`.
 - Each configured path must be absolute or start with `~/`, and point at a Codex home that contains `auth.json`.
-- CodexBar reads identity from the configured home, exposes it in the Codex account switcher, and scopes
+- TokenBar reads identity from the configured home, exposes it in the Codex account switcher, and scopes
   remote Codex fetches with `CODEX_HOME`.
-- Profile homes are not copied, reauthenticated, or removed by CodexBar.
+- Profile homes are not copied, reauthenticated, or removed by TokenBar.
 
 Example:
 
@@ -81,7 +81,7 @@ Example:
   3) Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
   - Domains loaded: `chatgpt.com`, `openai.com`.
   - No cookie-name filter; we import all matching domain cookies.
-- Cached cookies: Keychain cache `com.steipete.codexbar.cache` (account `cookie.codex`, source + timestamp).
+- Cached cookies: Keychain cache `com.y0shua1ee.tokenbar.cache` (account `cookie.codex`, source + timestamp).
   Reused before re-importing from browsers.
 - Manual cookie header:
   - Paste the `Cookie:` header from a `chatgpt.com` request in Preferences → Providers → Codex.
@@ -106,16 +106,16 @@ Example:
   - `account/read`
   - `account/rateLimits/read`
 - RPC reads are bounded: initialization has a longer startup budget, and normal requests have a shorter per-method
-  timeout. On timeout, CodexBar terminates the child `codex app-server` process so the stdout reader unwinds instead
+  timeout. On timeout, TokenBar terminates the child `codex app-server` process so the stdout reader unwinds instead
   of leaving refresh stuck indefinitely.
 - Provides:
   - Usage windows (primary + secondary) with reset timestamps.
   - Credits snapshot (balance, hasCredits, unlimited).
   - Account identity (email + plan type) when available.
 - App-server errors are terminal for the CLI strategy, except when Codex includes a recoverable `wham/usage` JSON body in the error text.
-- If macOS blocks or quarantines the `codex` executable, CodexBar records the launch failure and skips background CLI
+- If macOS blocks or quarantines the `codex` executable, TokenBar records the launch failure and skips background CLI
   launches for 30 minutes. Use a manual refresh after reinstalling or unblocking `codex` to retry immediately.
-- CodexBar also discovers the Codex CLI bundled with current ChatGPT and legacy Codex desktop apps, even when `codex`
+- TokenBar also discovers the Codex CLI bundled with current ChatGPT and legacy Codex desktop apps, even when `codex`
   is absent from the shell PATH.
 - If managed Codex account login still reports a missing executable, turn on **Show debug settings** in
   **Settings > Advanced**, then check **Settings > Debug > CLI Paths**. When no Codex binary appears there, confirm
@@ -123,7 +123,7 @@ Example:
   `npm install -g --include=optional @openai/codex@latest` before retrying Add Account.
 
 ### Codex CLI PTY diagnostics (`/status`)
-- Manual/debug parser only; automatic background refresh and `CodexBarCLI usage --source cli` do not launch bare Codex TUI.
+- Manual/debug parser only; automatic background refresh and `TokenBarCLI usage --source cli` do not launch bare Codex TUI.
 - Kept for explicit diagnostics/parser coverage because bare `codex` TUI can start interactive auth and open browser tabs.
 - Parses rendered `/status` output:
   - `Credits:` line
@@ -167,8 +167,8 @@ Example:
   - Native conversation rows reuse the corrected cached per-file totals and existing pricing tables. They are hidden
     when pi-compatible usage joins the aggregate because the native-only rows would not reconcile with the merged total.
 - Cache:
-  - Native + merged provider cache: `~/Library/Caches/CodexBar/cost-usage/codex-v11.json`
-  - pi-compatible session cache: `~/Library/Caches/CodexBar/cost-usage/pi-sessions-v7.json`
+  - Native + merged provider cache: `~/Library/Caches/TokenBar/cost-usage/codex-v11.json`
+  - pi-compatible session cache: `~/Library/Caches/TokenBar/cost-usage/pi-sessions-v7.json`
 - Window: configurable 1-365 day rolling history, with a 60s minimum refresh interval.
 
 ### Usage & Spend account rows
