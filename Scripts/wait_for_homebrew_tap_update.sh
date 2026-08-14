@@ -5,8 +5,8 @@ set -euo pipefail
 tap_repository="${TAP_REPOSITORY:-y0shua1ee/homebrew-tokenbar}"
 tap_workflow="${TAP_WORKFLOW:-update-formula.yml}"
 tap_branch="${TAP_BRANCH:-main}"
-tap_formula="${TAP_FORMULA:-tokenbar}"
-tap_cask="${TAP_CASK:-tokenbar}"
+tap_formula="${TAP_FORMULA-}"
+tap_cask="${TAP_CASK-tokenbar}"
 wait_timeout_seconds="${TAP_WAIT_TIMEOUT_SECONDS:-3900}"
 poll_seconds="${TAP_POLL_SECONDS:-30}"
 content_attempts="${TAP_CONTENT_ATTEMPTS:-6}"
@@ -30,8 +30,16 @@ if [[ ! "$tap_branch" =~ ^[A-Za-z0-9._/-]+$ ]]; then
   echo "Invalid tap branch: $tap_branch" >&2
   exit 2
 fi
-if [[ ! "$tap_formula" =~ ^[A-Za-z0-9_.-]+$ || ! "$tap_cask" =~ ^[A-Za-z0-9_.-]+$ ]]; then
-  echo "Invalid tap formula or cask name." >&2
+if [[ -z "$tap_formula" && -z "$tap_cask" ]]; then
+  echo "At least one tap formula or cask must be configured." >&2
+  exit 2
+fi
+if [[ -n "$tap_formula" && ! "$tap_formula" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+  echo "Invalid tap formula name." >&2
+  exit 2
+fi
+if [[ -n "$tap_cask" && ! "$tap_cask" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+  echo "Invalid tap cask name." >&2
   exit 2
 fi
 if [[ ! "$REQUEST_ID" =~ ^[A-Za-z0-9._-]+$ ]]; then
@@ -55,7 +63,7 @@ for tool in curl git jq; do
   fi
 done
 
-expected_title="Update ${tap_formula} for ${RELEASE_TAG} (${REQUEST_ID})"
+expected_title="$REQUEST_ID"
 started_epoch="$(date +%s)"
 deadline_epoch=$((started_epoch + wait_timeout_seconds))
 tmp_dir="$(mktemp -d)"
@@ -179,22 +187,22 @@ verify_tap_contents() {
   local version="${RELEASE_TAG#v}"
   local remote_url="${server_url}/${tap_repository}.git"
   local head_sha formula_file="$tmp_dir/formula.rb" cask_file="$tmp_dir/cask.rb"
-  local attempt formula_sha_count cask_sha_count asset content_matches
+  local attempt formula_sha_count cask_sha_count asset content_matches proof_label
 
   for ((attempt = 1; attempt <= content_attempts; attempt++)); do
     head_sha="$(git ls-remote --exit-code "$remote_url" "refs/heads/${tap_branch}" 2>/dev/null | awk 'NR == 1 { print $1 }')" || true
-    if [[ "$head_sha" =~ ^[0-9a-f]{40,64}$ ]] \
-      && curl -fsSL --connect-timeout 15 --max-time 60 \
-        "${raw_url}/${tap_repository}/${head_sha}/Formula/${tap_formula}.rb" -o "$formula_file" \
-      && curl -fsSL --connect-timeout 15 --max-time 60 \
-        "${raw_url}/${tap_repository}/${head_sha}/Casks/${tap_cask}.rb" -o "$cask_file"
-    then
-      if awk -v expected="$version" '$1 == "version" && $2 == "\"" expected "\"" { found = 1 } END { exit !found }' \
-        "$formula_file" \
-        && awk -v expected="$version" '$1 == "version" && $2 == "\"" expected "\"" { found = 1 } END { exit !found }' \
-          "$cask_file"
-      then
-        content_matches=true
+    if [[ "$head_sha" =~ ^[0-9a-f]{40,64}$ ]]; then
+      content_matches=true
+
+      if [[ -n "$tap_formula" ]]; then
+        if ! curl -fsSL --connect-timeout 15 --max-time 60 \
+          "${raw_url}/${tap_repository}/${head_sha}/Formula/${tap_formula}.rb" -o "$formula_file" \
+          || ! awk -v expected="$version" \
+            '$1 == "version" && $2 == "\"" expected "\"" { found = 1 } END { exit !found }' \
+            "$formula_file"
+        then
+          content_matches=false
+        fi
         for asset in \
           macos-arm64 \
           macos-x86_64 \
@@ -208,18 +216,40 @@ verify_tap_contents() {
             content_matches=false
           fi
         done
-        if ! grep -Fq \
-          'releases/download/v#{version}/TokenBar-macos-universal-#{version}.zip' \
-          "$cask_file"
+        formula_sha_count="$(grep -Ec '^[[:space:]]*sha256 "[0-9a-f]{64}"' "$formula_file" || true)"
+        if [[ "$formula_sha_count" != "4" ]]; then
+          content_matches=false
+        fi
+      fi
+
+      if [[ -n "$tap_cask" ]]; then
+        if ! curl -fsSL --connect-timeout 15 --max-time 60 \
+          "${raw_url}/${tap_repository}/${head_sha}/Casks/${tap_cask}.rb" -o "$cask_file" \
+          || ! awk -v expected="$version" \
+            '$1 == "version" && $2 == "\"" expected "\"" { found = 1 } END { exit !found }' \
+            "$cask_file" \
+          || ! grep -Fq \
+            'releases/download/v#{version}/TokenBar-macos-universal-#{version}.zip' \
+            "$cask_file"
         then
           content_matches=false
         fi
-        formula_sha_count="$(grep -Ec '^[[:space:]]*sha256 "[0-9a-f]{64}"' "$formula_file" || true)"
         cask_sha_count="$(grep -Ec '^[[:space:]]*sha256 "[0-9a-f]{64}"' "$cask_file" || true)"
-        if [[ "$content_matches" == "true" && "$formula_sha_count" == "4" && "$cask_sha_count" == "1" ]]; then
-          echo "Verified ${tap_repository}@${head_sha}: formula and cask contain ${RELEASE_TAG} with all expected assets."
-          return 0
+        if [[ "$cask_sha_count" != "1" ]]; then
+          content_matches=false
         fi
+      fi
+
+      if [[ "$content_matches" == "true" ]]; then
+        if [[ -n "$tap_formula" && -n "$tap_cask" ]]; then
+          proof_label="formula and cask contain"
+        elif [[ -n "$tap_formula" ]]; then
+          proof_label="formula contains"
+        else
+          proof_label="cask contains"
+        fi
+        echo "Verified ${tap_repository}@${head_sha}: ${proof_label} ${RELEASE_TAG} with all expected assets."
+        return 0
       fi
     fi
 
@@ -229,7 +259,7 @@ verify_tap_contents() {
     fi
   done
 
-  echo "Exact tap run succeeded, but formula/cask content proof failed for ${RELEASE_TAG}." >&2
+  echo "Exact tap run succeeded, but tap content proof failed for ${RELEASE_TAG}." >&2
   return 1
 }
 

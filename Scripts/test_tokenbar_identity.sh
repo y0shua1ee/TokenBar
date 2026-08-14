@@ -56,7 +56,13 @@ grep -Fq 'INFOPLIST_KEY_TokenBarTeamID = "$(TOKENBAR_TEAM_ID)";' "$WIDGET_PROJEC
 grep -Fq "if: github.event_name == 'release'" "$RELEASE_WORKFLOW"
 grep -Fq -- '--repo y0shua1ee/homebrew-tokenbar' "$RELEASE_WORKFLOW"
 grep -Fq -- '-f repository=y0shua1ee/TokenBar' "$RELEASE_WORKFLOW"
-grep -Fq 'TokenBarCLI-{tag}-{target}.tar.gz' "$RELEASE_WORKFLOW"
+grep -Fq -- '-f cask=tokenbar' "$RELEASE_WORKFLOW"
+grep -Fq -- "-f cask_artifact='TokenBar-macos-universal-{version}.zip'" "$RELEASE_WORKFLOW"
+grep -Fq 'TAP_FORMULA: ""' "$RELEASE_WORKFLOW"
+if rg -q -- '-f formula=tokenbar|-f artifact_template=|-f target_aliases=' "$RELEASE_WORKFLOW"; then
+  echo "TokenBar release workflow still requests unsupported tap Formula updates" >&2
+  exit 1
+fi
 grep -Fq 'TokenBar CloudKit deployment is disabled until TokenBar owns an Apple team and container' "$CLOUDKIT_SCRIPT"
 grep -Fq 'EXPECTED_CONTAINER_ID="iCloud.com.y0shua1ee.tokenbar"' "$CLOUDKIT_SCRIPT"
 grep -Fq '[[ "$CONTAINER_ID" != "$EXPECTED_CONTAINER_ID" ]]' "$CLOUDKIT_SCRIPT"

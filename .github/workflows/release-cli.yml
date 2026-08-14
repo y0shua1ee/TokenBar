@@ -478,11 +478,8 @@ jobs:
           for attempt in {1..6}; do
             if gh workflow run update-formula.yml \
               --repo y0shua1ee/homebrew-tokenbar \
-              -f formula=tokenbar \
               -f tag="$RELEASE_TAG" \
               -f repository=y0shua1ee/TokenBar \
-              -f artifact_template='TokenBarCLI-{tag}-{target}.tar.gz' \
-              -f target_aliases='darwin_arm64=macos-arm64,darwin_amd64=macos-x86_64,linux_arm64=linux-aarch64,linux_amd64=linux-x86_64' \
               -f cask=tokenbar \
               -f cask_artifact='TokenBar-macos-universal-{version}.zip' \
               -f request_id="$REQUEST_ID"; then
@@ -501,6 +498,7 @@ jobs:
           GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           REQUEST_ID: ${{ steps.release.outputs.request_id }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          TAP_FORMULA: ""
           TAP_WAIT_TIMEOUT_SECONDS: "3900"
         shell: bash
         run: ./Scripts/wait_for_homebrew_tap_update.sh
