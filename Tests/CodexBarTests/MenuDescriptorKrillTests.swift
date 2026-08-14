@@ -20,7 +20,7 @@ struct MenuDescriptorKrillTests {
                 resetDescription: "尊享月卡 1890/200000 requests this month"),
             updatedAt: Date())
 
-        #expect(descriptor.fetchPlan.sourceModes.map(\.rawValue) == ["auto", "api"])
+        #expect(descriptor.fetchPlan.sourceModes == [.auto, .api])
         #expect(descriptor.tokenCost.supportsTokenCost)
         #expect(descriptor.tokenCost.supportsTokenSnapshot)
         #expect(!descriptor.cli.supportsCostCommand)

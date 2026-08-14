@@ -8,22 +8,30 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
 
     @MainActor
     func presentation(context _: ProviderPresentationContext) -> ProviderPresentation {
-        ProviderPresentation { _ in "api" }
+        ProviderPresentation { context in
+            context.store.sourceLabel(for: context.provider)
+        }
     }
 
     @MainActor
     func observeSettings(_ settings: SettingsStore) {
         _ = settings[providerConfig: .openrouter, field: .apiKey]
+        _ = settings[providerConfig: .openrouter, field: .secretKey]
         _ = settings[providerConfig: .openrouter, field: .endpoint]
     }
 
     @MainActor
     func isAvailable(context: ProviderAvailabilityContext) -> Bool {
-        if OpenRouterSettingsReader.apiToken(environment: context.environment) != nil {
+        if OpenRouterSettingsReader.apiToken(environment: context.environment) != nil ||
+            OpenRouterSettingsReader.managementKey(environment: context.environment) != nil
+        {
             return true
         }
-        return !context.settings[providerConfig: .openrouter, field: .apiKey]
-            .trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let apiKey = context.settings[providerConfig: .openrouter, field: .apiKey]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let managementKey = context.settings[providerConfig: .openrouter, field: .secretKey]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return !apiKey.isEmpty || !managementKey.isEmpty
     }
 
     @MainActor
@@ -37,9 +45,9 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "openrouter-api-key",
                 title: "API key",
-                subtitle: "Stored in ~/.codexbar/config.json. "
-                    + "Get your key from openrouter.ai/settings/keys and set a key spending limit "
-                    + "there to enable API key quota tracking.",
+                subtitle: "Stored in \(TokenBarIdentity.configPathHint). TokenBar uses this regular API key for "
+                    + "Credits balance and current-key quota. Set its spending limit at openrouter.ai/settings/keys "
+                    + "to enable quota tracking.",
                 kind: .secure,
                 placeholder: "sk-or-v1-...",
                 binding: context.providerConfigBinding(.apiKey),
@@ -47,9 +55,33 @@ struct OpenRouterProviderImplementation: ProviderImplementation {
                 isVisible: nil,
                 onActivate: nil),
             ProviderSettingsFieldDescriptor(
+                id: "openrouter-management-key",
+                title: "Management key (Activity)",
+                subtitle: "Stored in \(TokenBarIdentity.configPathHint). Account-level Activity only: the last 30 "
+                    + "completed UTC days. Management keys cannot be used for completions, and TokenBar does not "
+                    + "use this key for Credits balance or current-key quota.",
+                kind: .secure,
+                placeholder: "OpenRouter management key…",
+                binding: context.providerConfigBinding(.secretKey),
+                actions: [
+                    ProviderSettingsActionDescriptor(
+                        id: "openrouter-open-management-keys",
+                        title: "Open Management Keys",
+                        style: .link,
+                        isVisible: nil,
+                        perform: {
+                            if let url = URL(string: "https://openrouter.ai/settings/management-keys") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }),
+                ],
+                isVisible: nil,
+                onActivate: nil),
+            ProviderSettingsFieldDescriptor(
                 id: "openrouter-api-url",
                 title: "API URL",
-                subtitle: "Optional. Defaults to the hosted OpenRouter API.",
+                subtitle: "Optional override for regular-key Credits balance and quota. Management Activity "
+                    + "always uses OpenRouter's hosted API.",
                 kind: .plain,
                 placeholder: "https://openrouter.ai/api/v1",
                 binding: context.providerConfigBinding(.endpoint),

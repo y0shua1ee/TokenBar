@@ -17,12 +17,14 @@ struct CostHistoryChartMenuView: View {
         let date: Date
         let costUSD: Double
         let totalTokens: Int?
+        let reasoningTokens: Int?
         let requestCount: Int?
 
-        init(date: Date, costUSD: Double, totalTokens: Int?, requestCount: Int?) {
+        init(date: Date, costUSD: Double, totalTokens: Int?, reasoningTokens: Int?, requestCount: Int?) {
             self.date = date
             self.costUSD = costUSD
             self.totalTokens = totalTokens
+            self.reasoningTokens = reasoningTokens
             self.requestCount = requestCount
             self.id = "\(Int(date.timeIntervalSince1970))-\(costUSD)"
         }
@@ -486,6 +488,7 @@ struct CostHistoryChartMenuView: View {
                 date: date,
                 costUSD: costUSD,
                 totalTokens: entry.totalTokens,
+                reasoningTokens: entry.reasoningTokens,
                 requestCount: entry.requestCount)
             points.append(point)
             pointsByKey[entry.date] = point
@@ -785,6 +788,9 @@ struct CostHistoryChartMenuView: View {
         if let tokens = point.totalTokens {
             parts.append("\(UsageFormatter.tokenCountString(tokens)) tokens")
         }
+        if let reasoning = point.reasoningTokens {
+            parts.append("\(UsageFormatter.tokenCountString(reasoning)) reasoning")
+        }
         if let requests = point.requestCount {
             parts.append("\(UsageFormatter.tokenCountString(requests)) requests")
         }
@@ -840,14 +846,6 @@ struct CostHistoryChartMenuView: View {
         self.detailRowsNeedScrolling(itemCount: itemCount) ? L("Scroll to see more models") : nil
     }
 
-    private func modelBreakdownTotalSubtitle(_ item: CostUsageDailyReport.ModelBreakdown) -> String? {
-        UsageFormatter.modelCostDetail(
-            item.modelName,
-            costUSD: item.costUSD,
-            totalTokens: item.totalTokens,
-            currencyCode: self.currencyCode)
-    }
-
     private func modelBreakdownModeSubtitle(_ item: CostUsageDailyReport.ModelBreakdown) -> String? {
         var parts: [String] = []
         if let standardCost = item.standardCostUSD {
@@ -887,6 +885,23 @@ struct CostHistoryChartMenuView: View {
 }
 
 extension CostHistoryChartMenuView {
+    private func modelBreakdownTotalSubtitle(_ item: CostUsageDailyReport.ModelBreakdown) -> String? {
+        var parts = [UsageFormatter.modelCostDetail(
+            item.modelName,
+            costUSD: item.costUSD,
+            totalTokens: item.totalTokens,
+            currencyCode: self.currencyCode)].compactMap(\.self)
+        if let reasoning = item.reasoningTokens {
+            parts.append("\(UsageFormatter.tokenCountString(reasoning)) reasoning")
+        }
+        if let requests = item.requestCount {
+            parts.append("\(UsageFormatter.tokenCountString(requests)) requests")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+extension CostHistoryChartMenuView {
     struct RenderFingerprint: Equatable {
         let currencyCode: String
         let historyDays: Int
@@ -901,6 +916,7 @@ extension CostHistoryChartMenuView {
     struct VisibleDailyFingerprint: Equatable {
         let date: String
         let totalTokens: Int?
+        let reasoningTokens: Int?
         let requestCount: Int?
         let costBitPattern: UInt64?
         let modelBreakdowns: [VisibleModelBreakdownFingerprint]
@@ -910,6 +926,7 @@ extension CostHistoryChartMenuView {
         let modelName: String
         let costBitPattern: UInt64?
         let totalTokens: Int?
+        let reasoningTokens: Int?
         let standardCostBitPattern: UInt64?
         let priorityCostBitPattern: UInt64?
         let standardTokens: Int?
@@ -989,6 +1006,7 @@ extension CostHistoryChartMenuView {
                             modelName: item.modelName,
                             costBitPattern: item.costUSD.map(\.bitPattern),
                             totalTokens: item.totalTokens,
+                            reasoningTokens: item.reasoningTokens,
                             standardCostBitPattern: item.standardCostUSD.map(\.bitPattern),
                             priorityCostBitPattern: item.priorityCostUSD.map(\.bitPattern),
                             standardTokens: item.standardCostUSD == nil ? nil : item.standardTokens,
@@ -1001,6 +1019,7 @@ extension CostHistoryChartMenuView {
         VisibleDailyFingerprint(
             date: entry.date,
             totalTokens: entry.totalTokens,
+            reasoningTokens: entry.reasoningTokens,
             requestCount: entry.requestCount,
             costBitPattern: entry.costUSD.map(\.bitPattern),
             modelBreakdowns: self.orderedBreakdownItems(entry.modelBreakdowns ?? []).map { item in
@@ -1008,6 +1027,7 @@ extension CostHistoryChartMenuView {
                     modelName: item.modelName,
                     costBitPattern: item.costUSD.map(\.bitPattern),
                     totalTokens: item.totalTokens,
+                    reasoningTokens: item.reasoningTokens,
                     standardCostBitPattern: item.standardCostUSD.map(\.bitPattern),
                     priorityCostBitPattern: item.priorityCostUSD.map(\.bitPattern),
                     standardTokens: item.standardCostUSD == nil ? nil : item.standardTokens,

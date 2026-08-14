@@ -41,7 +41,7 @@ extension StatusItemController {
         let projectedTokenSnapshot = self.store.tokenSnapshot(fromProviderSnapshot: snapshot, provider: target)
         let storedTokenSnapshot = UsageStore.tokenCostRequiresProviderSnapshot(target)
             ? nil
-            : self.store.tokenSnapshot(for: target)
+            : self.store.tokenSnapshotForCurrentProviderConfig(for: target)?.snapshot
         let now = Date()
         let codexProjection = self.store.codexConsumerProjectionIfNeeded(
             for: target,

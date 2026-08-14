@@ -153,7 +153,8 @@ show an incident indicator.
 - Display controls for provider icons, labels, bars, reset-time style, and highest-usage auto-selection.
 - Fresh installs default to Adaptive refresh. Existing users keep every valid stored choice, while legacy unset or
   invalid preferences resolve to 5 minutes. Manual and fixed 1m, 2m, 5m, 15m, and 30m alternatives remain available.
-- Bundled CLI (`tokenbar`) for scripts and CI (including `tokenbar cost --provider codex`, `claude`, or `both` for local cost usage); macOS and Linux CLI builds available.
+- Bundled CLI (`tokenbar`) for scripts and CI, including local Claude/Codex cost history and management-key-backed
+  OpenRouter Activity reports; macOS and Linux CLI builds available.
 - WidgetKit widgets for supported providers.
 - Localized app and website with a shared 21-language catalog, automatic website detection, persistent pickers, and RTL support.
 - Optional session quota notifications and weekly-reset confetti.

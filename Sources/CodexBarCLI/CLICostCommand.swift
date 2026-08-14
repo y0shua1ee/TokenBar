@@ -18,7 +18,7 @@ extension CodexBarCLI {
                 .sorted()
                 .joined(separator: ", ")
             if !output.jsonOnly {
-                Self.writeStderr("Skipping providers without local cost usage: \(names)\n")
+                Self.writeStderr("Skipping providers without cost usage support: \(names)\n")
             }
         }
         guard !providers.isEmpty else {
@@ -84,6 +84,7 @@ extension CodexBarCLI {
                 // cookie-authenticated dashboard API via the shared session resolution.
                 let snapshot = try await fetcher.loadTokenSnapshot(
                     provider: provider,
+                    environment: Self.costEnvironment(provider: provider, config: config),
                     forceRefresh: forceRefresh,
                     historyDays: historyDays,
                     cursorCookieHeaderOverride: Self.cursorCostHeaderOverride(provider, settings: cursorCookieSettings),
@@ -136,27 +137,40 @@ extension CodexBarCLI {
     {
         let name = ProviderDescriptorRegistry.descriptor(for: provider).metadata.displayName
         // Provider-specific by design: Codex cost is explicitly an API-equivalent local-session estimate.
-        let title = provider == .codex
-            ? "\(name) API-equivalent estimate (not billed)"
-            : "\(name) Cost (API-rate estimate)"
+        let title = switch provider {
+        case .codex:
+            "\(name) API-equivalent estimate (not billed)"
+        case .openrouter:
+            "\(name) Cost (provider-reported)"
+        default:
+            "\(name) Cost (API-rate estimate)"
+        }
         let header = Self.costHeaderLine(title, useColor: useColor)
         if groupBy == .project, provider == .codex {
             return Self.renderProjectCostText(header: header, snapshot: snapshot)
         }
 
+        let latestEntry = CostUsageTokenSnapshot.latestEntry(in: snapshot.daily)
+        let sessionLabel = Self.costSessionLabel(provider: provider, latestEntry: latestEntry)
         let todayCost = snapshot.sessionCostUSD
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.currencyCode) } ?? "—"
-        let todayTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
-        let todayLine = todayTokens.map { "Today: \(todayCost) · \($0) tokens" } ?? "Today: \(todayCost)"
+        let todayLine = Self.costMetricLine(
+            label: sessionLabel,
+            cost: todayCost,
+            tokens: snapshot.sessionTokens,
+            reasoningTokens: latestEntry?.reasoningTokens,
+            requests: snapshot.sessionRequests)
 
         let monthCost = snapshot.last30DaysCostUSD
             .map { UsageFormatter.currencyString($0, currencyCode: snapshot.currencyCode) } ?? "—"
-        let monthTokens = snapshot.last30DaysTokens.map { UsageFormatter.tokenCountString($0) }
         let historyLabel = snapshot.historyLabel
             ?? (snapshot.historyDays == 1 ? "Today" : "Last \(snapshot.historyDays) days")
-        let monthLine = monthTokens.map {
-            "\(historyLabel): \(monthCost) · \($0) tokens"
-        } ?? "\(historyLabel): \(monthCost)"
+        let monthLine = Self.costMetricLine(
+            label: historyLabel,
+            cost: monthCost,
+            tokens: snapshot.last30DaysTokens,
+            reasoningTokens: Self.sum(snapshot.daily.compactMap(\.reasoningTokens)),
+            requests: snapshot.last30DaysRequests)
 
         // Plan-metered spend over the same window (what Cursor actually deducts), shown
         // alongside the API-rate estimate. Only providers like Cursor report it.
@@ -210,6 +224,48 @@ extension CodexBarCLI {
             : UsageFormatter.costEstimateHint(provider: provider)
     }
 
+    private static func costSessionLabel(
+        provider: UsageProvider,
+        latestEntry: CostUsageDailyReport.Entry?) -> String
+    {
+        let cost = ProviderDescriptorRegistry.descriptor(for: provider).tokenCost
+        switch cost.primaryValue {
+        case .session:
+            return "Today"
+        case .latestDaily:
+            let label = switch cost.latestDayLabelStyle {
+            case .billingDay: "Latest billing day"
+            case .completedUTCDay: "Latest completed UTC day"
+            }
+            guard let date = latestEntry?.date.prefix(10), !date.isEmpty else { return label }
+            return "\(label) (\(date))"
+        }
+    }
+
+    private static func costMetricLine(
+        label: String,
+        cost: String,
+        tokens: Int?,
+        reasoningTokens: Int?,
+        requests: Int?) -> String
+    {
+        var parts = [cost]
+        if let tokens {
+            parts.append("\(UsageFormatter.tokenCountString(tokens)) tokens")
+        }
+        if let reasoningTokens {
+            parts.append("\(UsageFormatter.tokenCountString(reasoningTokens)) reasoning")
+        }
+        if let requests {
+            parts.append("\(UsageFormatter.tokenCountString(requests)) requests")
+        }
+        return "\(label): \(parts.joined(separator: " · "))"
+    }
+
+    private static func sum(_ values: [Int]) -> Int? {
+        values.isEmpty ? nil : values.reduce(0, +)
+    }
+
     private static func costHeaderLine(_ header: String, useColor: Bool) -> String {
         guard useColor else { return header }
         return "\u{001B}[1;36m\(header)\u{001B}[0m"
@@ -246,18 +302,26 @@ extension CodexBarCLI {
             } ?? []
             : []
 
+        // Provider-specific by design: Cursor and OpenRouter cost come from authenticated provider APIs.
+        let source = switch provider {
+        case .cursor: "web"
+        case .openrouter: "management-api"
+        default: "local"
+        }
         return CostPayload(
             provider: provider.rawValue,
-            // Provider-specific by design: Cursor cost comes from its authenticated dashboard, not local logs.
-            source: provider == .cursor ? "web" : "local",
+            source: source,
             updatedAt: snapshot?.updatedAt ?? (error == nil ? nil : Date()),
             currencyCode: snapshot?.currencyCode,
             sessionTokens: snapshot?.sessionTokens,
             sessionCostUSD: snapshot?.sessionCostUSD,
+            sessionRequests: snapshot?.sessionRequests,
             historyDays: snapshot?.historyDays,
             historyCoverageIsEstablished: snapshot?.historyCoverageIsEstablished,
+            historyLabel: snapshot?.historyLabel,
             last30DaysTokens: snapshot?.last30DaysTokens,
             last30DaysCostUSD: snapshot?.last30DaysCostUSD,
+            last30DaysRequests: snapshot?.last30DaysRequests,
             meteredCostUSD: snapshot?.meteredCostUSD,
             daily: daily,
             projects: projects,
@@ -270,9 +334,11 @@ extension CodexBarCLI {
             date: entry.date,
             inputTokens: entry.inputTokens,
             outputTokens: entry.outputTokens,
+            reasoningTokens: entry.reasoningTokens,
             cacheReadTokens: entry.cacheReadTokens,
             cacheCreationTokens: entry.cacheCreationTokens,
             totalTokens: entry.totalTokens,
+            requestCount: entry.requestCount,
             costUSD: entry.costUSD,
             modelsUsed: entry.modelsUsed,
             modelBreakdowns: entry.modelBreakdowns?.map(self.costModelBreakdownPayload(from:)))
@@ -284,7 +350,9 @@ extension CodexBarCLI {
         CostModelBreakdownPayload(
             modelName: breakdown.modelName,
             costUSD: breakdown.costUSD,
-            totalTokens: breakdown.totalTokens)
+            totalTokens: breakdown.totalTokens,
+            reasoningTokens: breakdown.reasoningTokens,
+            requestCount: breakdown.requestCount)
     }
 
     private static func costTotals(from snapshot: CostUsageTokenSnapshot) -> CostTotalsPayload? {
@@ -294,9 +362,11 @@ extension CodexBarCLI {
             return CostTotalsPayload(
                 totalInputTokens: nil,
                 totalOutputTokens: nil,
+                totalReasoningTokens: nil,
                 cacheReadTokens: nil,
                 cacheCreationTokens: nil,
                 totalTokens: snapshot.last30DaysTokens,
+                totalRequests: snapshot.last30DaysRequests,
                 totalCostUSD: snapshot.last30DaysCostUSD)
         }
 
@@ -304,13 +374,17 @@ extension CodexBarCLI {
         var totalOutput = 0
         var totalCacheRead = 0
         var totalCacheCreation = 0
+        var totalReasoning = 0
         var totalTokens = 0
+        var totalRequests = 0
         var totalCost = 0.0
         var sawInput = false
         var sawOutput = false
         var sawCacheRead = false
         var sawCacheCreation = false
+        var sawReasoning = false
         var sawTokens = false
+        var sawRequests = false
         var sawCost = false
 
         for entry in entries {
@@ -330,9 +404,17 @@ extension CodexBarCLI {
                 totalCacheCreation += cacheCreation
                 sawCacheCreation = true
             }
+            if let reasoning = entry.reasoningTokens {
+                totalReasoning += reasoning
+                sawReasoning = true
+            }
             if let tokens = entry.totalTokens {
                 totalTokens += tokens
                 sawTokens = true
+            }
+            if let requests = entry.requestCount {
+                totalRequests += requests
+                sawRequests = true
             }
             if let cost = entry.costUSD {
                 totalCost += cost
@@ -344,10 +426,24 @@ extension CodexBarCLI {
         return CostTotalsPayload(
             totalInputTokens: sawInput ? totalInput : nil,
             totalOutputTokens: sawOutput ? totalOutput : nil,
+            totalReasoningTokens: sawReasoning ? totalReasoning : nil,
             cacheReadTokens: sawCacheRead ? totalCacheRead : nil,
             cacheCreationTokens: sawCacheCreation ? totalCacheCreation : nil,
             totalTokens: sawTokens ? totalTokens : snapshot.last30DaysTokens,
+            totalRequests: sawRequests ? totalRequests : snapshot.last30DaysRequests,
             totalCostUSD: sawCost ? totalCost : snapshot.last30DaysCostUSD)
+    }
+
+    static func costEnvironment(
+        provider: UsageProvider,
+        config: CodexBarConfig,
+        base: [String: String] = ProcessInfo.processInfo.environment) -> [String: String]
+    {
+        ProviderEnvironmentResolver.resolve(
+            base: base,
+            provider: provider,
+            config: config.providerConfig(for: provider.instanceID),
+            selectedAccount: nil)
     }
 
     private static func decodeCostHistoryDays(from values: ParsedValues) -> Int {
@@ -488,10 +584,13 @@ struct CostPayload: Encodable, Sendable {
     let currencyCode: String?
     let sessionTokens: Int?
     let sessionCostUSD: Double?
+    let sessionRequests: Int?
     let historyDays: Int?
     let historyCoverageIsEstablished: Bool?
+    let historyLabel: String?
     let last30DaysTokens: Int?
     let last30DaysCostUSD: Double?
+    let last30DaysRequests: Int?
     let meteredCostUSD: Double?
     let daily: [CostDailyEntryPayload]
     let projects: [CostProjectPayload]
@@ -505,10 +604,13 @@ struct CostPayload: Encodable, Sendable {
         currencyCode: String? = nil,
         sessionTokens: Int?,
         sessionCostUSD: Double?,
+        sessionRequests: Int? = nil,
         historyDays: Int?,
         historyCoverageIsEstablished: Bool? = nil,
+        historyLabel: String? = nil,
         last30DaysTokens: Int?,
         last30DaysCostUSD: Double?,
+        last30DaysRequests: Int? = nil,
         meteredCostUSD: Double? = nil,
         daily: [CostDailyEntryPayload],
         projects: [CostProjectPayload] = [],
@@ -521,10 +623,13 @@ struct CostPayload: Encodable, Sendable {
         self.currencyCode = currencyCode
         self.sessionTokens = sessionTokens
         self.sessionCostUSD = sessionCostUSD
+        self.sessionRequests = sessionRequests
         self.historyDays = historyDays
         self.historyCoverageIsEstablished = historyCoverageIsEstablished
+        self.historyLabel = historyLabel
         self.last30DaysTokens = last30DaysTokens
         self.last30DaysCostUSD = last30DaysCostUSD
+        self.last30DaysRequests = last30DaysRequests
         self.meteredCostUSD = meteredCostUSD
         self.daily = daily
         self.projects = projects
@@ -537,9 +642,11 @@ struct CostDailyEntryPayload: Encodable, Sendable {
     let date: String
     let inputTokens: Int?
     let outputTokens: Int?
+    let reasoningTokens: Int?
     let cacheReadTokens: Int?
     let cacheCreationTokens: Int?
     let totalTokens: Int?
+    let requestCount: Int?
     let costUSD: Double?
     let modelsUsed: [String]?
     let modelBreakdowns: [CostModelBreakdownPayload]?
@@ -548,12 +655,40 @@ struct CostDailyEntryPayload: Encodable, Sendable {
         case date
         case inputTokens
         case outputTokens
+        case reasoningTokens
         case cacheReadTokens
         case cacheCreationTokens
         case totalTokens
+        case requestCount
         case costUSD = "totalCost"
         case modelsUsed
         case modelBreakdowns
+    }
+
+    init(
+        date: String,
+        inputTokens: Int?,
+        outputTokens: Int?,
+        reasoningTokens: Int? = nil,
+        cacheReadTokens: Int?,
+        cacheCreationTokens: Int?,
+        totalTokens: Int?,
+        requestCount: Int? = nil,
+        costUSD: Double?,
+        modelsUsed: [String]?,
+        modelBreakdowns: [CostModelBreakdownPayload]?)
+    {
+        self.date = date
+        self.inputTokens = inputTokens
+        self.outputTokens = outputTokens
+        self.reasoningTokens = reasoningTokens
+        self.cacheReadTokens = cacheReadTokens
+        self.cacheCreationTokens = cacheCreationTokens
+        self.totalTokens = totalTokens
+        self.requestCount = requestCount
+        self.costUSD = costUSD
+        self.modelsUsed = modelsUsed
+        self.modelBreakdowns = modelBreakdowns
     }
 }
 
@@ -561,11 +696,29 @@ struct CostModelBreakdownPayload: Encodable, Sendable {
     let modelName: String
     let costUSD: Double?
     let totalTokens: Int?
+    let reasoningTokens: Int?
+    let requestCount: Int?
 
     private enum CodingKeys: String, CodingKey {
         case modelName
         case costUSD = "cost"
         case totalTokens
+        case reasoningTokens
+        case requestCount
+    }
+
+    init(
+        modelName: String,
+        costUSD: Double?,
+        totalTokens: Int?,
+        reasoningTokens: Int? = nil,
+        requestCount: Int? = nil)
+    {
+        self.modelName = modelName
+        self.costUSD = costUSD
+        self.totalTokens = totalTokens
+        self.reasoningTokens = reasoningTokens
+        self.requestCount = requestCount
     }
 }
 
@@ -628,18 +781,42 @@ struct CostProjectSourcePayload: Encodable, Sendable {
 struct CostTotalsPayload: Encodable, Sendable {
     let totalInputTokens: Int?
     let totalOutputTokens: Int?
+    let totalReasoningTokens: Int?
     let cacheReadTokens: Int?
     let cacheCreationTokens: Int?
     let totalTokens: Int?
+    let totalRequests: Int?
     let totalCostUSD: Double?
 
     private enum CodingKeys: String, CodingKey {
         case totalInputTokens = "inputTokens"
         case totalOutputTokens = "outputTokens"
+        case totalReasoningTokens = "reasoningTokens"
         case cacheReadTokens
         case cacheCreationTokens
         case totalTokens
+        case totalRequests = "requests"
         case totalCostUSD = "totalCost"
+    }
+
+    init(
+        totalInputTokens: Int?,
+        totalOutputTokens: Int?,
+        totalReasoningTokens: Int? = nil,
+        cacheReadTokens: Int?,
+        cacheCreationTokens: Int?,
+        totalTokens: Int?,
+        totalRequests: Int? = nil,
+        totalCostUSD: Double?)
+    {
+        self.totalInputTokens = totalInputTokens
+        self.totalOutputTokens = totalOutputTokens
+        self.totalReasoningTokens = totalReasoningTokens
+        self.cacheReadTokens = cacheReadTokens
+        self.cacheCreationTokens = cacheCreationTokens
+        self.totalTokens = totalTokens
+        self.totalRequests = totalRequests
+        self.totalCostUSD = totalCostUSD
     }
 }
 

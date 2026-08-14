@@ -15,7 +15,7 @@ struct DashboardSnapshotBuilderTests {
             providers: [.cursor],
             config: config,
             context: self.costCollectionContext())
-        { provider, header in
+        { provider, header, _ in
             await recorder.record(provider: provider, cursorCookieHeaderOverride: header)
             return CodexBarCLI.makeCostPayload(provider: provider, snapshot: nil, error: nil)
         }
@@ -41,7 +41,7 @@ struct DashboardSnapshotBuilderTests {
             providers: [.cursor],
             config: config,
             context: self.costCollectionContext())
-        { provider, header in
+        { provider, header, _ in
             await recorder.record(provider: provider, cursorCookieHeaderOverride: header)
             return CodexBarCLI.makeCostPayload(provider: provider, snapshot: nil, error: nil)
         }
@@ -52,6 +52,82 @@ struct DashboardSnapshotBuilderTests {
         #expect(calls[0].cursorCookieHeaderOverride == "session=manual")
         #expect(payload.count == 1)
         #expect(payload[0].error == nil)
+    }
+
+    @Test
+    func `dashboard cost collection projects OpenRouter management key into stub fetch`() async throws {
+        let recorder = DashboardCostEnvironmentRecorder()
+        let managementKey = "sk-or-v1-management-secret"
+        let config = CodexBarConfig(providers: [
+            ProviderConfig(id: .openrouter, enabled: true, secretKey: managementKey),
+        ])
+
+        let payload = await CodexBarCLI.collectConfiguredCostPayloads(
+            providers: [.openrouter],
+            config: config,
+            baseEnvironment: [:],
+            context: self.costCollectionContext())
+        { provider, header, environment in
+            await recorder.record(provider: provider, header: header, environment: environment)
+            return CodexBarCLI.makeCostPayload(provider: provider, snapshot: nil, error: nil)
+        }
+
+        let call = try #require(await recorder.call())
+        #expect(call.provider == .openrouter)
+        #expect(call.cursorCookieHeaderOverride == nil)
+        #expect(call.managementKey == managementKey)
+        #expect(payload.first?.source == "management-api")
+        let encoded = try JSONEncoder().encode(payload)
+        let json = try #require(String(data: encoded, encoding: .utf8))
+        #expect(!json.contains(managementKey))
+    }
+
+    @Test
+    func `dashboard cost collection skips optional OpenRouter Activity without management key`() async throws {
+        let recorder = DashboardCostEnvironmentRecorder()
+        let config = CodexBarConfig(providers: [
+            ProviderConfig(id: .openrouter, enabled: true, apiKey: "sk-or-v1-ordinary"),
+        ])
+
+        let payload = await CodexBarCLI.collectConfiguredCostPayloads(
+            providers: [.openrouter],
+            config: config,
+            baseEnvironment: [:],
+            context: self.costCollectionContext())
+        { provider, header, environment in
+            await recorder.record(provider: provider, header: header, environment: environment)
+            return CodexBarCLI.makeCostPayload(
+                provider: provider,
+                snapshot: nil,
+                error: OpenRouterActivityUsageError.missingManagementKey)
+        }
+
+        #expect(await recorder.call() == nil)
+        #expect(payload.isEmpty)
+        #expect(CodexBarCLI.costProviders(from: .custom([.openrouter])) == [.openrouter])
+
+        let usage = ProviderPayload(
+            provider: .openrouter,
+            account: nil,
+            version: nil,
+            source: "api",
+            status: nil,
+            usage: nil,
+            credits: nil,
+            antigravityPlanInfo: nil,
+            openaiDashboard: nil,
+            error: nil)
+        let snapshot = DashboardSnapshotBuilder.makeSnapshot(
+            usagePayloads: [usage],
+            costPayloads: payload,
+            config: config,
+            identityMode: .redacted,
+            generatedAt: Date(timeIntervalSince1970: 1_800_000_000),
+            refreshInterval: 60,
+            codexBarVersion: nil)
+        let object = try self.jsonObject(snapshot)
+        let provider = try #require((object["providers"] as? [[String: Any]])?.first)
+        #expect(provider["error"] is NSNull)
     }
 
     @Test
@@ -649,6 +725,73 @@ struct DashboardSnapshotBuilderTests {
         #expect(costObject["todayUSD"] as? Double == 2.5)
     }
 
+    @Test
+    func `dashboard preserves OpenRouter latest completed UTC day instead of local today`() throws {
+        let generatedAt = Date(timeIntervalSince1970: 1_776_384_000)
+        let usage = ProviderPayload(
+            provider: .openrouter,
+            account: nil,
+            version: nil,
+            source: "management-api",
+            status: nil,
+            usage: nil,
+            credits: nil,
+            antigravityPlanInfo: nil,
+            openaiDashboard: nil,
+            error: nil)
+        let cost = CostPayload(
+            provider: "openrouter",
+            source: "management-api",
+            updatedAt: generatedAt,
+            sessionTokens: 30,
+            sessionCostUSD: 1.25,
+            sessionRequests: 2,
+            historyDays: 30,
+            historyLabel: "Last 30 completed UTC days",
+            last30DaysTokens: 300,
+            last30DaysCostUSD: 9.5,
+            last30DaysRequests: 20,
+            daily: [CostDailyEntryPayload(
+                date: "2026-04-12",
+                inputTokens: 10,
+                outputTokens: 20,
+                reasoningTokens: 5,
+                cacheReadTokens: nil,
+                cacheCreationTokens: nil,
+                totalTokens: 30,
+                requestCount: 2,
+                costUSD: 1.25,
+                modelsUsed: ["openai/gpt-5"],
+                modelBreakdowns: nil)],
+            totals: nil,
+            error: nil)
+
+        let snapshot = DashboardSnapshotBuilder.makeSnapshot(
+            usagePayloads: [usage],
+            costPayloads: [cost],
+            config: CodexBarConfig(providers: [ProviderConfig(id: .openrouter, enabled: true)]),
+            identityMode: .redacted,
+            generatedAt: generatedAt,
+            refreshInterval: 60,
+            codexBarVersion: nil)
+        let object = try self.jsonObject(snapshot)
+        let provider = try #require((object["providers"] as? [[String: Any]])?.first)
+        let costObject = try #require(provider["cost"] as? [String: Any])
+
+        #expect(provider["source"] as? String == "management-api")
+        #expect(costObject["todayUSD"] is NSNull)
+        #expect(costObject["latestCompletedDayUSD"] as? Double == 1.25)
+        #expect(costObject["latestCompletedDay"] as? String == "2026-04-12")
+        #expect(costObject["latestCompletedDayTokens"] as? Int == 30)
+        #expect(costObject["latestCompletedDayReasoningTokens"] as? Int == 5)
+        #expect(costObject["latestCompletedDayRequests"] as? Int == 2)
+        #expect(costObject["historyLabel"] as? String == "Last 30 completed UTC days")
+        #expect(costObject["last30DaysUSD"] as? Double == 9.5)
+        #expect(costObject["last30DaysTokens"] as? Int == 300)
+        #expect(costObject["last30DaysReasoningTokens"] as? Int == 5)
+        #expect(costObject["last30DaysRequests"] as? Int == 20)
+    }
+
     private func identityPayload(email: String) -> ProviderPayload {
         ProviderPayload(
             provider: .claude,
@@ -745,6 +888,27 @@ private actor DashboardCostFetchRecorder {
 
     func calls() -> [Call] {
         self.recordedCalls
+    }
+}
+
+private actor DashboardCostEnvironmentRecorder {
+    struct Call: Sendable {
+        let provider: UsageProvider
+        let cursorCookieHeaderOverride: String?
+        let managementKey: String?
+    }
+
+    private var recordedCall: Call?
+
+    func record(provider: UsageProvider, header: String?, environment: [String: String]) {
+        self.recordedCall = Call(
+            provider: provider,
+            cursorCookieHeaderOverride: header,
+            managementKey: environment[OpenRouterSettingsReader.managementKeyEnvironmentKey])
+    }
+
+    func call() -> Call? {
+        self.recordedCall
     }
 }
 

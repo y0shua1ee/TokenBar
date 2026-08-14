@@ -11,9 +11,11 @@ struct CostUsageDailyReportMergeTests {
                     date: "2026-04-04",
                     inputTokens: 100,
                     outputTokens: 20,
+                    reasoningTokens: 8,
                     cacheReadTokens: 10,
                     cacheCreationTokens: nil,
                     totalTokens: 130,
+                    requestCount: 2,
                     costUSD: 1.25,
                     modelsUsed: ["gpt-5.4"],
                     modelBreakdowns: [
@@ -21,6 +23,8 @@ struct CostUsageDailyReportMergeTests {
                             modelName: "gpt-5.4",
                             costUSD: 1.25,
                             totalTokens: 130,
+                            reasoningTokens: 8,
+                            requestCount: 2,
                             standardCostUSD: 0.75,
                             priorityCostUSD: 0.50,
                             standardTokens: 80,
@@ -40,9 +44,11 @@ struct CostUsageDailyReportMergeTests {
                     date: "2026-04-04",
                     inputTokens: 50,
                     outputTokens: 10,
+                    reasoningTokens: 3,
                     cacheReadTokens: 5,
                     cacheCreationTokens: 2,
                     totalTokens: 67,
+                    requestCount: 1,
                     costUSD: 0.75,
                     modelsUsed: ["gpt-5.4"],
                     modelBreakdowns: [
@@ -50,6 +56,8 @@ struct CostUsageDailyReportMergeTests {
                             modelName: "gpt-5.4",
                             costUSD: 0.75,
                             totalTokens: 67,
+                            reasoningTokens: 3,
+                            requestCount: 1,
                             standardCostUSD: 0.25,
                             priorityCostUSD: 0.50,
                             standardTokens: 20,
@@ -68,20 +76,25 @@ struct CostUsageDailyReportMergeTests {
         #expect(merged.data.count == 1)
         #expect(merged.data.first?.inputTokens == 150)
         #expect(merged.data.first?.outputTokens == 30)
+        #expect(merged.data.first?.reasoningTokens == 11)
         #expect(merged.data.first?.cacheReadTokens == 15)
         #expect(merged.data.first?.cacheCreationTokens == 2)
         #expect(merged.data.first?.totalTokens == 197)
+        #expect(merged.data.first?.requestCount == 3)
         #expect(abs((merged.data.first?.costUSD ?? 0) - 2.0) < 0.000001)
         #expect(merged.data.first?.modelBreakdowns == [
             CostUsageDailyReport.ModelBreakdown(
                 modelName: "gpt-5.4",
                 costUSD: 2.0,
                 totalTokens: 197,
+                reasoningTokens: 11,
+                requestCount: 3,
                 standardCostUSD: 1.0,
                 priorityCostUSD: 1.0,
                 standardTokens: 100,
                 priorityTokens: 97),
         ])
+        #expect(merged.summary?.totalReasoningTokens == 11)
         #expect(merged.summary?.totalTokens == 197)
         #expect(abs((merged.summary?.totalCostUSD ?? 0) - 2.0) < 0.000001)
     }

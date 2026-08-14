@@ -64,14 +64,6 @@ struct SpendDashboardModelTests {
     }
 
     @Test
-    func `dashboard source contract includes only cost capable descriptors`() {
-        let providers = Set(ProviderDescriptorRegistry.all
-            .filter(\.tokenCost.supportsTokenCost)
-            .map(\.id))
-        #expect(providers == [.codex, .claude, .vertexai, .openai, .mistral, .bedrock, .cursor, .opencodego])
-    }
-
-    @Test
     func `native currencies stay separate and rank only within their currency`() throws {
         let model = SpendDashboardModel.build(
             inputs: [
@@ -867,6 +859,18 @@ struct SpendDashboardModelTests {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
         return calendar
+    }
+}
+
+extension SpendDashboardModelTests {
+    @Test
+    func `dashboard source contract includes only cost capable descriptors`() {
+        let providers = Set(ProviderDescriptorRegistry.all
+            .filter(\.tokenCost.supportsTokenCost)
+            .map(\.id))
+        #expect(providers == [
+            .codex, .claude, .vertexai, .openai, .mistral, .bedrock, .cursor, .opencodego, .krill, .openrouter,
+        ])
     }
 }
 

@@ -121,6 +121,7 @@ struct OpenRouterMultiAccountTests {
         let recorder = OpenRouterAccountFetchRecorder()
         let store = try Self.makeStore(settings: settings, recorder: recorder)
         await store.refreshTokenAccounts(provider: .openrouter, accounts: accounts)
+        settings.costSummaryOption = .both
 
         let fetcher = UsageFetcher(environment: [:])
         let controller = StatusItemController(
@@ -143,11 +144,53 @@ struct OpenRouterMultiAccountTests {
         #expect(cardModels.map(\.provider) == [.openrouter, .openrouter])
         #expect(cardModels.map(\.email) == ["Personal", "Work"])
 
+        store.publishTokenSnapshot(
+            CostUsageTokenSnapshot(
+                sessionTokens: 123,
+                sessionCostUSD: 1.23,
+                last30DaysTokens: 456,
+                last30DaysCostUSD: 4.56,
+                historyDays: 30,
+                daily: [],
+                updatedAt: Date()),
+            for: .openrouter)
+        let liveCard = try #require(controller.menuCardModel(for: .openrouter))
+        #expect(liveCard.tokenUsage != nil)
+        #expect(controller.accountGlobalCostMenuCardModel(for: .openrouter)?.tokenUsage != nil)
+        let accountCardsAfterActivity = stacked.snapshots.compactMap {
+            controller.tokenAccountMenuCardModel(for: .openrouter, accountSnapshot: $0)
+        }
+        #expect(accountCardsAfterActivity.allSatisfy { $0.tokenUsage == nil })
+
+        settings[providerConfig: .openrouter, field: .secretKey] = "replacement-management-key"
+        #expect(store.tokenSnapshot(for: .openrouter) != nil)
+        #expect(store.tokenSnapshotForCurrentProviderConfig(for: .openrouter) == nil)
+        #expect(controller.accountGlobalCostMenuCardModel(for: .openrouter) == nil)
+
         settings.multiAccountMenuLayout = .segmented
         let segmented = try #require(controller.tokenAccountMenuDisplay(for: .openrouter))
         #expect(segmented.layout == .segmented)
         #expect(segmented.activeIndex == 1)
         #expect(segmented.snapshots.isEmpty)
+    }
+
+    @Test
+    func `account Activity cost environment ignores active regular key selection`() throws {
+        let settings = Self.makeSettings(suite: "OpenRouterMultiAccountTests-cost-environment")
+        settings[providerConfig: .openrouter, field: .apiKey] = "provider-regular-key"
+        settings[providerConfig: .openrouter, field: .secretKey] = "account-management-key"
+        settings.addTokenAccount(provider: .openrouter, label: "Personal", token: "personal-regular-key")
+        settings.addTokenAccount(provider: .openrouter, label: "Work", token: "work-regular-key")
+        settings.setActiveTokenAccountIndex(1, for: .openrouter)
+        let store = try Self.makeStore(settings: settings)
+
+        let environment = store.tokenCostEnvironment(for: .openrouter)
+        #expect(environment[OpenRouterSettingsReader.envKey] == "provider-regular-key")
+        #expect(environment[OpenRouterSettingsReader.managementKeyEnvironmentKey] == "account-management-key")
+        #expect(!store.tokenCostScope(for: .openrouter).signature.contains("account-management-key"))
+        #expect(
+            store.tokenCostScope(for: .openrouter).signature.contains(
+                OpenRouterActivityUsageFetcher.credentialFingerprint("account-management-key")))
     }
 
     @Test

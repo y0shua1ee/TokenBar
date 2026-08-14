@@ -494,7 +494,7 @@ extension StatusItemController {
         let hasCreditsHistory = codexProjection?.hasCreditsHistory == true
         let hasUsageBreakdown = codexProjection?.hasUsageBreakdown == true
         let hasCostHistory = self.settings.costSummaryShowsSubmenu(for: currentProvider) &&
-            (self.store.tokenSnapshot(for: currentProvider)?.daily.isEmpty == false)
+            (self.store.tokenSnapshotForCurrentProviderConfig(for: currentProvider)?.snapshot.daily.isEmpty == false)
         let canShowBuyCredits = self.settings.showOptionalCreditsAndExtraUsage &&
             codexProjection?.canShowBuyCredits == true
         let hasOpenAIWebMenuItems = !showAllAccounts &&
@@ -664,6 +664,10 @@ extension StatusItemController {
                 captureMenu: captureMenu ?? menu,
                 context: context)
             {
+                self.addAccountGlobalCostMenuCardIfNeeded(
+                    to: menu,
+                    provider: context.currentProvider,
+                    width: context.menuWidth)
                 self.addFleetAccountMenuCards(fleetProjection.additionalAccounts, to: menu, context: context)
                 return false
             }
@@ -676,6 +680,10 @@ extension StatusItemController {
                         accountSnapshot: accountSnapshot)
                 }
             self.addStackedMenuCards(cards, to: menu, context: context)
+            self.addAccountGlobalCostMenuCardIfNeeded(
+                to: menu,
+                provider: context.currentProvider,
+                width: context.menuWidth)
             self.addFleetAccountMenuCards(fleetProjection.additionalAccounts, to: menu, context: context)
             return false
         }
@@ -1533,7 +1541,7 @@ extension StatusItemController {
         if UsageStore.tokenCostRequiresProviderSnapshot(provider) {
             return projected
         }
-        return projected ?? self.store.tokenSnapshot(for: provider)
+        return projected ?? self.store.tokenSnapshotForCurrentProviderConfig(for: provider)?.snapshot
     }
 
     func makeOpenAIAPIUsageSubmenu(provider: UsageProvider, width: CGFloat? = nil) -> NSMenu? {

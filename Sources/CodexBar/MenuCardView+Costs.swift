@@ -175,7 +175,7 @@ extension UsageMenuCardView.Model {
         } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
         let sessionLabel = if tokenCost.primaryValue == .latestDaily {
-            Self.latestBillingDayLabel(from: snapshot)
+            Self.latestDayLabel(style: tokenCost.latestDayLabelStyle, snapshot: snapshot)
         } else {
             L("Today")
         }
@@ -199,9 +199,11 @@ extension UsageMenuCardView.Model {
             historyLabel
         } else if tokenCost.primaryValue == .latestDaily,
                   snapshot.historyDays == 1,
-                  Self.bedrockLatestBillingDay(from: snapshot.daily) != nil
+                  let latestDayLabel = Self.latestDayHistoryLabel(
+                      style: tokenCost.latestDayLabelStyle,
+                      snapshot: snapshot)
         {
-            L("Latest billing day")
+            latestDayLabel
         } else {
             Self.costHistoryWindowLabel(days: snapshot.historyDays)
         }
@@ -227,7 +229,7 @@ extension UsageMenuCardView.Model {
             monthLine: monthLine,
             meteredLine: meteredLine,
             comparisonLines: comparisonPeriodsEnabled
-                ? snapshot.comparisonSummaries().map {
+                ? Self.costComparisonSummaries(provider: provider, snapshot: snapshot).map {
                     Self.costWindowLine(
                         summary: $0,
                         currencyCode: UsageFormatter.effectiveCurrencyCode(
@@ -261,6 +263,43 @@ extension UsageMenuCardView.Model {
             UsageFormatter.tokenCountString(totalTokens))
     }
 
+    static func costComparisonSummaries(
+        provider: UsageProvider,
+        snapshot: CostUsageTokenSnapshot,
+        periods: [Int] = [7, 30, 90],
+        calendar: Calendar = .current) -> [CostUsageWindowSummary]
+    {
+        let latestDayLabelStyle = ProviderDescriptorRegistry.descriptor(for: provider).tokenCost.latestDayLabelStyle
+        guard latestDayLabelStyle == .completedUTCDay else {
+            return snapshot.comparisonSummaries(periods: periods, calendar: calendar)
+        }
+
+        var utcCalendar = Calendar(identifier: .gregorian)
+        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        let currentUTCDay = utcCalendar.startOfDay(for: snapshot.updatedAt)
+        guard let latestCompletedUTCDay = utcCalendar.date(byAdding: .day, value: -1, to: currentUTCDay) else {
+            return snapshot.comparisonSummaries(periods: periods, calendar: calendar)
+        }
+        let rebasedSnapshot = CostUsageTokenSnapshot(
+            sessionTokens: snapshot.sessionTokens,
+            sessionCostUSD: snapshot.sessionCostUSD,
+            sessionRequests: snapshot.sessionRequests,
+            last30DaysTokens: snapshot.last30DaysTokens,
+            last30DaysCostUSD: snapshot.last30DaysCostUSD,
+            last30DaysRequests: snapshot.last30DaysRequests,
+            currencyCode: snapshot.currencyCode,
+            historyDays: snapshot.historyDays,
+            historyCoverageIsEstablished: snapshot.historyCoverageIsEstablished,
+            historyLabel: snapshot.historyLabel,
+            meteredCostUSD: snapshot.meteredCostUSD,
+            credentialScopeFingerprint: snapshot.credentialScopeFingerprint,
+            daily: snapshot.daily,
+            projects: snapshot.projects,
+            sessions: snapshot.sessions,
+            updatedAt: latestCompletedUTCDay)
+        return rebasedSnapshot.comparisonSummaries(periods: periods, calendar: utcCalendar)
+    }
+
     static func tokenUsageHint(provider: UsageProvider) -> String? {
         let lines = Self.tokenUsageHintLines(provider: provider)
         return lines.isEmpty ? nil : lines.joined(separator: "\n")
@@ -284,18 +323,43 @@ extension UsageMenuCardView.Model {
         days == 1 ? L("Today") : String(format: L("Last %d days"), days)
     }
 
-    private static func latestBillingDayLabel(from snapshot: CostUsageTokenSnapshot) -> String {
-        guard let entry = bedrockLatestBillingDay(from: snapshot.daily),
-              let displayDate = bedrockDisplayDate(from: entry.date)
-        else { return L("Latest billing day") }
-        return String(format: L("Latest billing day (%@)"), displayDate)
+    private static func latestDayLabel(
+        style: ProviderTokenCostLatestDayLabelStyle,
+        snapshot: CostUsageTokenSnapshot) -> String
+    {
+        let label = switch style {
+        case .billingDay: L("Latest billing day")
+        case .completedUTCDay: "Latest completed UTC day"
+        }
+        guard let entry = latestValidDailyEntry(from: snapshot.daily),
+              let displayDate = dailyDisplayDate(from: entry.date)
+        else { return label }
+        switch style {
+        case .billingDay:
+            return String(format: L("Latest billing day (%@)"), displayDate)
+        case .completedUTCDay:
+            return "\(label) (\(displayDate))"
+        }
     }
 
-    private static func bedrockLatestBillingDay(from entries: [CostUsageDailyReport.Entry])
+    private static func latestDayHistoryLabel(
+        style: ProviderTokenCostLatestDayLabelStyle,
+        snapshot: CostUsageTokenSnapshot) -> String?
+    {
+        switch style {
+        case .billingDay:
+            guard self.latestValidDailyEntry(from: snapshot.daily) != nil else { return nil }
+            return L("Latest billing day")
+        case .completedUTCDay:
+            return self.latestDayLabel(style: style, snapshot: snapshot)
+        }
+    }
+
+    private static func latestValidDailyEntry(from entries: [CostUsageDailyReport.Entry])
         -> CostUsageDailyReport.Entry?
     {
         entries.compactMap { entry -> (entry: CostUsageDailyReport.Entry, dayKey: String)? in
-            guard let dayKey = bedrockBillingDayKey(from: entry.date) else { return nil }
+            guard let dayKey = billingDayKey(from: entry.date) else { return nil }
             return (entry, dayKey)
         }
         .max { lhs, rhs in
@@ -316,8 +380,8 @@ extension UsageMenuCardView.Model {
         }?.entry
     }
 
-    private static func bedrockDisplayDate(from text: String) -> String? {
-        guard let dayKey = bedrockBillingDayKey(from: text) else { return nil }
+    private static func dailyDisplayDate(from text: String) -> String? {
+        guard let dayKey = billingDayKey(from: text) else { return nil }
         let monthStart = dayKey.index(dayKey.startIndex, offsetBy: 5)
         let monthEnd = dayKey.index(monthStart, offsetBy: 2)
         let dayStart = dayKey.index(dayKey.startIndex, offsetBy: 8)
@@ -335,7 +399,7 @@ extension UsageMenuCardView.Model {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ]
 
-    private static func bedrockBillingDayKey(from text: String) -> String? {
+    private static func billingDayKey(from text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count == 10 else { return nil }
         for (offset, character) in trimmed.enumerated() {

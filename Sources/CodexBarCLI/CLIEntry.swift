@@ -192,7 +192,7 @@ enum CodexBarCLI {
                 signature: guardSignature),
             CommandDescriptor(
                 name: "cost",
-                abstract: "Print local cost usage as text or JSON",
+                abstract: "Print provider-reported or local cost usage as text or JSON",
                 discussion: nil,
                 signature: costSignature),
             CommandDescriptor(

@@ -1347,7 +1347,7 @@ extension CostUsageFetcher {
         historyDays: Int,
         cursorCookieHeaderOverride: String?) async throws -> CostUsageTokenSnapshot?
     {
-        // Provider-specific by design: Bedrock uses AWS billing while Cursor uses its macOS dashboard session.
+        // Provider-specific by design: these providers load remote, provider-metered history instead of local logs.
         let since = Calendar.current.date(byAdding: .day, value: -(historyDays - 1), to: now) ?? now
         if provider == .bedrock {
             let daily = try await Self.loadBedrockDailyReport(
@@ -1359,6 +1359,13 @@ extension CostUsageFetcher {
                 now: now,
                 historyDays: historyDays,
                 useCurrentLocalDayForSession: false)
+        }
+
+        if provider == .openrouter {
+            return try await OpenRouterActivityUsageFetcher.loadTokenSnapshot(
+                environment: environment,
+                now: now,
+                historyDays: historyDays)
         }
 
         if provider == .krill {

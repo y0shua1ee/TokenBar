@@ -57,13 +57,7 @@ extension UsageStore {
         // Provider-specific by design: the Codex ledger owns pricing refresh while remote cost providers resolve
         // their configured credentials into an isolated environment.
         let allowPricingRefresh = provider != .codex || !self.settings.codexLocalSessionCostLedgerEnabled
-        let environment = provider == .bedrock || provider == .krill
-            ? ProviderRegistry.makeEnvironment(
-                base: self.environmentBase,
-                provider: provider,
-                settings: self.settings,
-                tokenOverride: nil)
-            : self.environmentBase
+        let environment = self.tokenCostEnvironment(for: provider)
         return try await withThrowingTaskGroup(of: CostUsageTokenSnapshot.self) { group in
             group.addTask(priority: .utility) {
                 try await fetcher.loadTokenSnapshot(
@@ -284,14 +278,16 @@ extension UsageStore {
             return (nil, "vertexai:allow-claude-fallback=\(!self.isEnabled(.claude))")
         }
         if provider == .krill {
-            let environment = ProviderRegistry.makeEnvironment(
-                base: self.environmentBase,
-                provider: provider,
-                settings: self.settings,
-                tokenOverride: nil)
+            let environment = self.tokenCostEnvironment(for: provider)
             let fingerprint = KrillSettingsReader.jwt(environment: environment)
                 .map(KrillJWT.credentialFingerprint) ?? "missing"
             return (nil, "krill:\(fingerprint)")
+        }
+        if provider == .openrouter {
+            let environment = self.tokenCostEnvironment(for: provider)
+            let fingerprint = OpenRouterSettingsReader.managementKey(environment: environment)
+                .map(OpenRouterActivityUsageFetcher.credentialFingerprint) ?? "missing"
+            return (nil, "openrouter:management:\(fingerprint)")
         }
         guard provider == .codex else {
             return (nil, provider.rawValue)
@@ -324,6 +320,22 @@ extension UsageStore {
                 .appendingPathComponent("unavailable-profile", isDirectory: true)
                 .path
             return (unavailablePath, "codex:profile-unavailable")
+        }
+    }
+
+    func tokenCostEnvironment(for provider: UsageProvider) -> [String: String] {
+        switch provider {
+        case .bedrock, .krill, .openrouter:
+            // Provider-level cost history is independent of the active token-account selector.
+            // In particular, OpenRouter Activity belongs to the whole account and its management
+            // key is intentionally scrubbed from each individual regular-key account context.
+            ProviderEnvironmentResolver.resolve(
+                base: self.environmentBase,
+                provider: provider,
+                config: self.settings.providerConfig(for: provider),
+                selectedAccount: nil)
+        default:
+            self.environmentBase
         }
     }
 

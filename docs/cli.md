@@ -52,9 +52,11 @@ See `docs/configuration.md` for the schema.
   - Legacy provider-specific keys such as `openRouterUsage`, `clawRouterUsage`, and `sub2APIUsage` are not compatibility
     aliases; clients must read `usage.details`. Unknown legacy keys in cached or iCloud-synced snapshots are ignored
     when decoding.
-- `tokenbar cost` prints token cost usage for Claude, Codex, and Cursor.
+- `tokenbar cost` prints token cost usage for Claude, Codex, Cursor, and OpenRouter.
   - Claude and Codex are scanned from local session logs without web/CLI access.
   - Cursor is fetched from the cookie-authenticated cursor.com dashboard API (macOS only; see `docs/cursor.md`) and honors the configured cookie source: a non-empty Manual header is required and forwarded, while Off fails explicitly instead of silently omitting Cursor.
+  - OpenRouter is fetched from the hosted Activity API with a Management key. It reports at most the last 30 completed
+    UTC days and intentionally excludes the current partial UTC day; see `docs/openrouter.md`.
   - `--format text|json` (default: text).
   - `--refresh` ignores cached scans.
   - `--provider-native-only` is experimental and excludes pi and OMP session mirrors from Claude and Codex history.
@@ -194,14 +196,19 @@ payloads include the visible account label in `account`.
 
 ### Cost JSON payload
 `tokenbar cost --format json` emits an array of payloads (one per provider).
-- `provider`, `source` (`local` for Claude/Codex log scans, `web` for Cursor dashboard data), `updatedAt`
-- `sessionTokens`, `sessionCostUSD`
+- `provider`, `source` (`local` for Claude/Codex log scans, `web` for Cursor dashboard data,
+  `management-api` for OpenRouter Activity), `updatedAt`
+- `sessionTokens`, `sessionCostUSD`, `sessionRequests`
 - `last30DaysTokens`, `last30DaysCostUSD`
+- `historyDays`, `historyLabel`, `last30DaysRequests`
 - `historyCoverageIsEstablished`: `false` while a bounded Codex scan still has catch-up work pending; `true` once the requested history is covered.
 - Cursor only: `meteredCostUSD` — what Cursor's plan actually deducts over the window, alongside the API-rate estimate in `last30DaysCostUSD`.
-- `daily[]`: `date`, `inputTokens`, `outputTokens`, `cacheReadTokens`, `cacheCreationTokens`, `totalTokens`, `totalCost`, `modelsUsed`, `modelBreakdowns[]` (`modelName`, `cost`)
+- `daily[]`: `date`, `inputTokens`, `outputTokens`, `reasoningTokens`, `cacheReadTokens`,
+  `cacheCreationTokens`, `totalTokens`, `requestCount`, `totalCost`, `modelsUsed`, `modelBreakdowns[]`
+  (`modelName`, `cost`, `totalTokens`, `reasoningTokens`, `requestCount`)
 - Codex only: `projects[]`: `name`, `path`, `totalTokens`, `totalCost`, `daily[]`, `modelBreakdowns[]`, `sources[]`
-- `totals`: `inputTokens`, `outputTokens`, `cacheReadTokens`, `cacheCreationTokens`, `totalTokens`, `totalCost`
+- `totals`: `inputTokens`, `outputTokens`, `reasoningTokens`, `cacheReadTokens`, `cacheCreationTokens`,
+  `totalTokens`, `requests`, `totalCost`
 - `error`: structured provider error when a fetch fails (for example Cursor requested while its cookie source is Off).
 
 ## Example usage
@@ -211,10 +218,11 @@ tokenbar --provider claude        # force Claude
 tokenbar --provider all           # query all registered providers
 tokenbar --format json --pretty   # machine output
 tokenbar --format json --provider both
-tokenbar cost                     # cost usage (default 30-day window + today)
+tokenbar cost                     # cost usage (default 30-day window)
 tokenbar cost --days 90           # choose a 1...365 day cost window
 tokenbar cost --provider codex --group-by project
 tokenbar cost --provider claude --format json --pretty
+tokenbar cost --provider openrouter --format json --pretty # Management key; max 30 completed UTC days
 tokenbar guard --provider codex --min-remaining 20 --window weekly --json
 tokenbar cost --provider cursor   # Cursor dashboard cost (API-rate + Cursor-metered)
 tokenbar dashboard | jq '.providers[] | {id, windows, error}'

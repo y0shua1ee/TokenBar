@@ -1,80 +1,116 @@
 ---
-summary: "OpenRouter provider: API key credits, rate limits, and daily/weekly/monthly spend."
+summary: "OpenRouter provider: regular-key balance/quota plus account-level Activity history."
 read_when:
-  - Debugging OpenRouter API key usage or spend parsing
-  - Updating OpenRouter credits or key-limit display
-  - Explaining OpenRouter setup and environment variables
+  - Debugging OpenRouter API key balance, quota, or Activity parsing
+  - Configuring an OpenRouter regular API key or Management key
+  - Explaining OpenRouter credential scope and environment variables
 ---
 
 # OpenRouter Provider
 
-[OpenRouter](https://openrouter.ai) is a unified API that provides access to multiple AI models from different providers (OpenAI, Anthropic, Google, Meta, and more) through a single endpoint.
+[OpenRouter](https://openrouter.ai) is a unified API that provides access to models from multiple providers through a
+single endpoint. TokenBar supports two separate OpenRouter credentials with intentionally different scopes.
 
 ## Authentication
 
-OpenRouter uses API key authentication. Get your API key from [OpenRouter Settings](https://openrouter.ai/settings/keys).
+### Regular API key
 
-### Environment Variable
+Create a regular key in [OpenRouter API Keys](https://openrouter.ai/settings/keys). TokenBar uses this key for:
 
-Set the `OPENROUTER_API_KEY` environment variable:
+- Credits balance from `/api/v1/credits`
+- The current key's spending limit and daily, weekly, and monthly usage from `/api/v1/key`
+- Independently fetching each labeled key in TokenBar's multi-account view
+
+This is the same type of key OpenRouter accepts for inference, but TokenBar only uses it for the balance and current-key
+quota requests listed above.
+
+Set the key in TokenBar Settings → Providers → OpenRouter, or use `OPENROUTER_API_KEY`:
 
 ```bash
 export OPENROUTER_API_KEY="sk-or-v1-..."
 ```
 
-### Settings
+### Management key for Activity
 
-You can also configure the API key in TokenBar Settings → Providers → OpenRouter.
+Create a separate key in [OpenRouter Management Keys](https://openrouter.ai/settings/management-keys). TokenBar uses it
+only for account-level `/api/v1/activity` analytics covering the last 30 **completed** UTC days.
 
-### CLI config
+[OpenRouter's Management key documentation](https://openrouter.ai/docs/guides/overview/auth/management-api-keys)
+states that these keys cannot call completion endpoints. TokenBar does not send this key to Credits, current-key quota,
+completion, or custom endpoint requests. The Activity request always uses OpenRouter's hosted API.
 
-To monitor multiple OpenRouter accounts, add labeled API keys in the same provider settings. TokenBar fetches each
+Set the key in the secure **Management key (Activity)** field, or use:
+
+```bash
+export OPENROUTER_MANAGEMENT_KEY="<management-key>"
+```
+
+The two credentials are optional and independent:
+
+- Regular key only: balance and current-key quota, without account Activity history.
+- Management key only: account-level Activity history, without balance or current-key quota. This Activity-only setup
+  is sufficient to enable the provider.
+- Both keys: balance/current-key quota plus account-level Activity history.
+
+## Multiple regular API keys
+
+To monitor multiple OpenRouter keys, add labeled API keys in the same provider settings. TokenBar fetches each regular
 key independently. Choose the segmented account switcher or stacked account cards under Settings → Display.
 
 ```bash
 printf '%s' "$OPENROUTER_API_KEY" | tokenbar config set-api-key --provider openrouter --stdin
 ```
 
-## Data Source
+Management Activity is account-level. It is not attributed to or copied onto individual labeled API-key cards.
 
-The OpenRouter provider fetches usage data from two API endpoints:
+## Data sources
 
-1. **Credits API** (`/api/v1/credits`): Returns total credits purchased and total usage. The balance is calculated as `total_credits - total_usage`.
+TokenBar can combine three official endpoints:
 
-2. **Key API** (`/api/v1/key`): Returns rate limit information plus current daily, weekly, and monthly spend for your API key.
-
-The Key API is optional enrichment with a one-second production deadline. If it is slow or unavailable, TokenBar still
-shows the credits balance and labels the API-key budget as unavailable with a safe timeout, HTTP, or response diagnostic.
+1. **Credits API** (`/api/v1/credits`, regular key): Returns total credits purchased and total usage. TokenBar
+   calculates balance as `total_credits - total_usage`.
+2. **Current Key API** (`/api/v1/key`, regular key): Returns the authenticated key's spending limit and daily, weekly,
+   and monthly usage. This is optional enrichment; a slow or unavailable response does not hide a successful balance.
+3. **[Activity API](https://openrouter.ai/docs/api/api-reference/analytics/get-user-activity-grouped-by-endpoint)**
+   (`/api/v1/activity`, Management key): Returns account-level cost, requests, tokens, and model activity for the last
+   30 completed UTC days. The most recent value is therefore the latest completed UTC day, not today's partial spend.
 
 ## Display
 
-The OpenRouter menu card shows:
+Depending on the configured credentials, the OpenRouter menu card can show:
 
-- **Primary meter**: API key limit usage when the key has a configured limit
-- **Spend notes**: Daily, weekly, and monthly API key spend when OpenRouter returns those fields
-- **Spend chart**: Day/week/month spend can reuse the shared inline dashboard when enough history is available
-- **Balance**: Displayed in the identity section as "Balance: $X.XX"
+- API key limit usage when the regular key has a configured spending limit
+- Daily, weekly, and monthly usage for the current regular key
+- Credits balance
+- Account-level Activity cost, request, token, model, and daily history for the last 30 completed UTC days
 
-## CLI Usage
+## CLI usage
 
 ```bash
 tokenbar --provider openrouter
 tokenbar -p or  # alias
 tokenbar --provider openrouter --account Personal
 tokenbar --provider openrouter --all-accounts --format json --pretty
+tokenbar cost --provider openrouter --format json --pretty
 ```
 
-## Environment Variables
+The `cost` command uses only the Management key and returns provider-reported account Activity. Its JSON preserves the
+history label plus daily and per-model cost, token, reasoning-token, and request metrics. Reasoning tokens remain a
+separate metric but are already included in completion tokens, so they are not added to token totals a second time.
+
+## Environment variables
 
 | Variable | Description |
 |----------|-------------|
-| `OPENROUTER_API_KEY` | Your OpenRouter API key (required) |
-| `OPENROUTER_API_URL` | Override the base API URL (optional, defaults to `https://openrouter.ai/api/v1`) |
-| `OPENROUTER_HTTP_REFERER` | Optional client referer sent as `HTTP-Referer` header |
-| `OPENROUTER_X_TITLE` | Optional client title sent as `X-Title` header (defaults to `TokenBar`) |
+| `OPENROUTER_API_KEY` | Regular API key for Credits balance and current-key quota (optional) |
+| `OPENROUTER_MANAGEMENT_KEY` | Management key for account-level Activity only (optional) |
+| `OPENROUTER_API_URL` | Override the regular-key API base URL (optional) |
+| `OPENROUTER_HTTP_REFERER` | Optional client referer for regular-key requests |
+| `OPENROUTER_X_TITLE` | Optional client title for regular-key requests (defaults to `TokenBar`) |
 
 ## Notes
 
-- Credit values are cached on OpenRouter's side and may be up to 60 seconds stale
-- OpenRouter uses a credit-based billing system where you pre-purchase credits
-- Rate limits depend on your credit balance (10+ credits = 1000 free model requests/day)
+- Credits values may be cached by OpenRouter and can be briefly stale.
+- Activity covers completed UTC days, so it intentionally excludes the current partial UTC day.
+- OpenRouter uses a credit-based billing system; spending limits belong to individual regular API keys, while Activity
+  without an API-key hash is account-level.

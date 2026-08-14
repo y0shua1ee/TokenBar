@@ -356,20 +356,71 @@ enum DashboardSnapshotBuilder {
 
     private static func makeCost(_ cost: CostPayload?, referenceDate: Date) -> DashboardCostPayload? {
         guard let cost else { return nil }
-        let todayUSD = self.todayCostUSD(cost, referenceDate: referenceDate)
-        guard todayUSD != nil || cost.last30DaysCostUSD != nil else { return nil }
+        let style = UsageProvider(rawValue: cost.provider)
+            .map { ProviderDescriptorRegistry.descriptor(for: $0).tokenCost.latestDayLabelStyle }
+            ?? .billingDay
+        let latestEntry = cost.daily.max { $0.date < $1.date }
+        let todayEntry = self.todayCostEntry(cost, referenceDate: referenceDate)
+        let todayUSD: Double?
+        let todayTokens: Int?
+        let todayReasoningTokens: Int?
+        let todayRequests: Int?
+        let latestCompletedDayUSD: Double?
+        let latestCompletedDay: String?
+        let latestCompletedDayTokens: Int?
+        let latestCompletedDayReasoningTokens: Int?
+        let latestCompletedDayRequests: Int?
+        switch style {
+        case .billingDay:
+            todayUSD = todayEntry?.costUSD
+            todayTokens = cost.sessionTokens ?? todayEntry?.totalTokens
+            todayReasoningTokens = todayEntry?.reasoningTokens
+            todayRequests = cost.sessionRequests ?? todayEntry?.requestCount
+            latestCompletedDayUSD = nil
+            latestCompletedDay = nil
+            latestCompletedDayTokens = nil
+            latestCompletedDayReasoningTokens = nil
+            latestCompletedDayRequests = nil
+        case .completedUTCDay:
+            todayUSD = nil
+            todayTokens = nil
+            todayReasoningTokens = nil
+            todayRequests = nil
+            latestCompletedDayUSD = cost.sessionCostUSD ?? latestEntry?.costUSD
+            latestCompletedDay = latestEntry.map { String($0.date.prefix(10)) }
+            latestCompletedDayTokens = cost.sessionTokens ?? latestEntry?.totalTokens
+            latestCompletedDayReasoningTokens = latestEntry?.reasoningTokens
+            latestCompletedDayRequests = cost.sessionRequests ?? latestEntry?.requestCount
+        }
+        guard todayUSD != nil || latestCompletedDayUSD != nil || cost.last30DaysCostUSD != nil else { return nil }
         return DashboardCostPayload(
             todayUSD: todayUSD,
-            last30DaysUSD: cost.last30DaysCostUSD)
+            todayTokens: todayTokens,
+            todayReasoningTokens: todayReasoningTokens,
+            todayRequests: todayRequests,
+            latestCompletedDayUSD: latestCompletedDayUSD,
+            latestCompletedDay: latestCompletedDay,
+            latestCompletedDayTokens: latestCompletedDayTokens,
+            latestCompletedDayReasoningTokens: latestCompletedDayReasoningTokens,
+            latestCompletedDayRequests: latestCompletedDayRequests,
+            last30DaysUSD: cost.last30DaysCostUSD,
+            last30DaysTokens: cost.last30DaysTokens,
+            last30DaysReasoningTokens: self.sum(cost.daily.compactMap(\.reasoningTokens)),
+            last30DaysRequests: cost.last30DaysRequests,
+            historyLabel: cost.historyLabel)
     }
 
-    private static func todayCostUSD(_ cost: CostPayload, referenceDate: Date) -> Double? {
+    private static func todayCostEntry(_ cost: CostPayload, referenceDate: Date) -> CostDailyEntryPayload? {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = .current
         let components = calendar.dateComponents([.year, .month, .day], from: referenceDate)
         guard let year = components.year, let month = components.month, let day = components.day else { return nil }
         let dayKey = String(format: "%04d-%02d-%02d", year, month, day)
-        return cost.daily.first { String($0.date.prefix(10)) == dayKey }?.costUSD
+        return cost.daily.first { String($0.date.prefix(10)) == dayKey }
+    }
+
+    private static func sum(_ values: [Int]) -> Int? {
+        values.isEmpty ? nil : values.reduce(0, +)
     }
 
     private static func updatedAt(

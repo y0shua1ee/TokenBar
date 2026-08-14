@@ -73,6 +73,30 @@ extension StatusItemController {
         return item
     }
 
+    /// OpenRouter token accounts are individual regular keys, while Activity belongs to the
+    /// whole OpenRouter account. Multi-account layouts therefore render one provider-level cost
+    /// row after the account cards instead of copying the same total into every account card.
+    func addAccountGlobalCostMenuCardIfNeeded(
+        to menu: NSMenu,
+        provider: UsageProvider,
+        width: CGFloat)
+    {
+        guard let model = self.accountGlobalCostMenuCardModel(for: provider) else { return }
+        let submenu = self.makeCostHistorySubmenu(provider: provider, width: width)
+        menu.addItem(self.makeCostMenuCardItem(model: model, submenu: submenu, width: width))
+        menu.addItem(.separator())
+    }
+
+    func accountGlobalCostMenuCardModel(for provider: UsageProvider) -> UsageMenuCardView.Model? {
+        // Provider-specific by design: OpenRouter is the only token-account provider whose
+        // remote cost credential and totals are explicitly account-global.
+        guard provider == .openrouter,
+              let model = self.menuCardModel(for: provider),
+              model.tokenUsage != nil
+        else { return nil }
+        return model
+    }
+
     private static func makeNativeCostMenuCardItem(
         title: String,
         visibleDetailLines: [String],

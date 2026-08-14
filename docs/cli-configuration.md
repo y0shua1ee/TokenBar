@@ -102,9 +102,11 @@ The app setting controls the menu's local cost-history window. For one-off CLI r
 ```bash
 tokenbar cost --provider codex --days 90
 tokenbar cost --provider claude --days 180 --format json --pretty
+tokenbar cost --provider openrouter --days 30 --format json --pretty
 ```
 
-The accepted range is 1...365 days.
+The accepted range is 1...365 days. OpenRouter Activity is limited by the provider API to 1...30 completed UTC days
+and requires `OPENROUTER_MANAGEMENT_KEY` or the Management key field in app settings.
 
 ## Validation
 

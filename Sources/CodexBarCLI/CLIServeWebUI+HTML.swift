@@ -967,8 +967,17 @@ extension CLIServeWebUI {
           if (provider.cost?.todayUSD !== null && provider.cost?.todayUSD !== undefined) {
             metrics.append(metric("Today", dollars(provider.cost.todayUSD)));
           }
+          if (provider.cost?.latestCompletedDayUSD !== null &&
+              provider.cost?.latestCompletedDayUSD !== undefined) {
+            const day = provider.cost.latestCompletedDay ? ` (${provider.cost.latestCompletedDay})` : "";
+            metrics.append(metric(
+              `Latest completed UTC day${day}`,
+              dollars(provider.cost.latestCompletedDayUSD)));
+          }
           if (provider.cost?.last30DaysUSD !== null && provider.cost?.last30DaysUSD !== undefined) {
-            metrics.append(metric("Last 30 days", dollars(provider.cost.last30DaysUSD)));
+            metrics.append(metric(
+              provider.cost.historyLabel || "Last 30 days",
+              dollars(provider.cost.last30DaysUSD)));
           }
           if (metrics.childElementCount) card.append(metrics);
 

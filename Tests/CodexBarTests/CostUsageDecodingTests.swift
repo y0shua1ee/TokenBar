@@ -15,6 +15,7 @@ struct CostUsageDecodingTests {
               "cacheReadTokens": 2,
               "cacheCreationTokens": 3,
               "outputTokens": 20,
+              "reasoningTokens": 7,
               "totalTokens": 30,
               "costUSD": 0.12
             }
@@ -22,6 +23,7 @@ struct CostUsageDecodingTests {
           "summary": {
             "totalInputTokens": 10,
             "totalOutputTokens": 20,
+            "totalReasoningTokens": 7,
             "cacheReadTokens": 2,
             "cacheCreationTokens": 3,
             "totalTokens": 30,
@@ -34,10 +36,12 @@ struct CostUsageDecodingTests {
         #expect(report.data.count == 1)
         #expect(report.data[0].date == "2025-12-20")
         #expect(report.data[0].totalTokens == 30)
+        #expect(report.data[0].reasoningTokens == 7)
         #expect(report.data[0].cacheReadTokens == 2)
         #expect(report.data[0].cacheCreationTokens == 3)
         #expect(report.data[0].costUSD == 0.12)
         #expect(report.summary?.totalCostUSD == 0.12)
+        #expect(report.summary?.totalReasoningTokens == 7)
         #expect(report.summary?.cacheReadTokens == 2)
         #expect(report.summary?.cacheCreationTokens == 3)
     }

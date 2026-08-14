@@ -523,6 +523,7 @@ enum SpendDashboardSource {
             encoder.append(entry.cacheReadTokens)
             encoder.append(entry.cacheCreationTokens)
             encoder.append(entry.outputTokens)
+            encoder.append(entry.reasoningTokens)
             encoder.append(entry.totalTokens)
             encoder.append(entry.requestCount)
             encoder.append(entry.costUSD)
@@ -530,6 +531,7 @@ enum SpendDashboardSource {
             for breakdown in entry.modelBreakdowns ?? [] {
                 encoder.append(breakdown.modelName)
                 encoder.append(breakdown.totalTokens)
+                encoder.append(breakdown.reasoningTokens)
                 encoder.append(breakdown.requestCount)
                 encoder.append(breakdown.costUSD)
                 encoder.append(breakdown.standardCostUSD)

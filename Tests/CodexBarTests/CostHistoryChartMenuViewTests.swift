@@ -875,6 +875,37 @@ struct CostHistoryChartMenuViewTests {
 
 extension CostHistoryChartMenuViewTests {
     @Test
+    @MainActor
+    func `render fingerprint tracks visible reasoning tokens`() {
+        let baseDaily = [Self.entry(date: "2026-06-07", modelCount: 1)]
+        let base = Self.fingerprint(dailyCost: 1.0, daily: baseDaily, projects: [])
+        var changedDaily = baseDaily
+        changedDaily[0] = CostUsageDailyReport.Entry(
+            date: "2026-06-07",
+            inputTokens: 100,
+            outputTokens: 50,
+            reasoningTokens: 25,
+            totalTokens: 150,
+            costUSD: 1,
+            modelsUsed: ["model-0"],
+            modelBreakdowns: changedDaily[0].modelBreakdowns)
+        #expect(base != Self.fingerprint(dailyCost: 1.0, daily: changedDaily, projects: []))
+
+        let baseBreakdown = CostUsageDailyReport.ModelBreakdown(
+            modelName: "model-visible",
+            costUSD: 1,
+            totalTokens: 100)
+        let changedBreakdown = CostUsageDailyReport.ModelBreakdown(
+            modelName: baseBreakdown.modelName,
+            costUSD: baseBreakdown.costUSD,
+            totalTokens: baseBreakdown.totalTokens,
+            reasoningTokens: 50)
+        #expect(
+            Self.fingerprint(daily: [Self.entry(modelBreakdowns: [baseBreakdown])])
+                != Self.fingerprint(daily: [Self.entry(modelBreakdowns: [changedBreakdown])]))
+    }
+
+    @Test
     func `session labels distinguish concurrent uuid v7 identifiers`() {
         let first = CostHistoryChartMenuView.shortSessionID("019f6d91-970b-7e13-b08e-000000000001")
         let second = CostHistoryChartMenuView.shortSessionID("019f6d91-970b-7e13-b08e-000000000002")

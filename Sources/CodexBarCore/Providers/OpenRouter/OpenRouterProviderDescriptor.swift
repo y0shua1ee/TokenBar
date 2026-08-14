@@ -2,18 +2,36 @@ import Foundation
 
 public enum OpenRouterProviderDescriptor {
     public static let descriptor: ProviderDescriptor = Self.makeDescriptor()
-    private static let credentials = ProviderCredentialAdapter.apiKey(
-        environmentKey: OpenRouterSettingsReader.envKey,
+    private static let credentials = ProviderCredentialAdapter(
+        supportsAPIKeyOverride: true,
+        requiresAPIKeyForAPISource: false,
+        usesSecretKey: true,
         apiKeyDebugLabel: OpenRouterSettingsReader.envKey,
-        additionalProjections: [.enterpriseHost(OpenRouterSettingsReader.apiURLEnvironmentKey)],
-        resolve: OpenRouterSettingsReader.apiToken,
+        environmentProjections: [
+            .apiKey(OpenRouterSettingsReader.envKey),
+            .secretKey(OpenRouterSettingsReader.managementKeyEnvironmentKey),
+            .enterpriseHost(OpenRouterSettingsReader.apiURLEnvironmentKey),
+        ],
+        tokenResolver: { kind, environment, _ in
+            guard kind == .primary,
+                  let token = OpenRouterSettingsReader.apiToken(environment: environment)
+            else { return nil }
+            return ProviderTokenResolution(token: token, source: .environment)
+        },
         tokenAccountSupport: TokenAccountSupport(
             title: "API keys",
             subtitle: "Store multiple OpenRouter API keys.",
             placeholder: "sk-or-v1-...",
             injection: .environment(key: OpenRouterSettingsReader.envKey),
             requiresManualCookieSource: false,
-            cookieName: nil),
+            cookieName: nil,
+            environmentKeysToScrub: [OpenRouterSettingsReader.managementKeyEnvironmentKey]),
+        authDetector: { environment, _ in
+            OpenRouterSettingsReader.apiToken(environment: environment) != nil ||
+                OpenRouterSettingsReader.managementKey(environment: environment) != nil
+                ? ["api"]
+                : []
+        },
         configValidator: { config in
             guard let raw = config.sanitizedEnterpriseHost,
                   ProviderEndpointOverrideValidator.normalizedHTTPSURL(from: raw) == nil
@@ -63,52 +81,107 @@ public enum OpenRouterProviderDescriptor {
                 ],
                 widgetColor: ProviderColor(red: 111 / 255, green: 66 / 255, blue: 193 / 255)),
             tokenCost: ProviderTokenCostConfig(
-                supportsTokenCost: false,
-                noDataMessage: { "OpenRouter cost summary is not yet supported." }),
+                supportsTokenCost: true,
+                noDataMessage: {
+                    "No OpenRouter account activity was reported for this period."
+                },
+                menuHintLines: [.literal("Reported by OpenRouter Activity for the whole account.")],
+                supportsTokenSnapshot: true,
+                estimateDisclaimer: "Reported by OpenRouter Activity.",
+                primaryValue: .latestDaily,
+                latestDayLabelStyle: .completedUTCDay),
             presentation: ProviderUsagePresentation(
                 menuCard: ProviderMenuCardPresentation(
                     showsCreditsSection: false,
+                    supportsInlineTokenCostDashboard: true,
                     primaryDescriptionPlacement: .reset),
                 planRow: ProviderPlanRowPresentation(label: "Balance", stripsBalancePrefix: true)),
             fetchPlan: self.fetchPlan(),
             cli: ProviderCLIConfig(
                 name: "openrouter",
                 aliases: ["or"],
-                versionDetector: nil))
+                versionDetector: nil,
+                supportsCostCommand: true))
     }
 
     private static func fetchPlan() -> ProviderFetchPlan {
         ProviderFetchPlan(
             sourceModes: [.auto, .api],
-            pipeline: ProviderFetchPipeline(resolveStrategies: { _ in
-                [ScriptFetchStrategy(
-                    id: "openrouter.js",
-                    provider: .openrouter,
-                    bundledPlugin: "openrouter",
-                    secretKey: OpenRouterSettingsReader.envKey,
-                    sourceLabel: "api",
-                    validateContext: { context in
-                        try OpenRouterSettingsReader.validateEndpointOverrides(environment: context.env)
-                    },
-                    resolveValues: { context in
-                        guard let token = self.credentials.resolveToken(environment: context.env)?.token else {
-                            return nil
-                        }
-                        var settings = [
-                            OpenRouterSettingsReader.apiURLEnvironmentKey:
-                                OpenRouterSettingsReader.apiURL(environment: context.env).absoluteString,
-                            OpenRouterSettingsReader.clientTitleEnvironmentKey:
-                                OpenRouterSettingsReader.clientTitle(environment: context.env),
-                        ]
-                        if let referer = OpenRouterSettingsReader.httpReferer(environment: context.env) {
-                            settings[OpenRouterSettingsReader.httpRefererEnvironmentKey] = referer
-                        }
-                        return ScriptFetchStrategy.Values(
-                            settings: settings,
-                            secrets: [OpenRouterSettingsReader.envKey: token])
-                    },
-                    isEnabled: { _ in true })]
-            }))
+            pipeline: ProviderFetchPipeline(resolveStrategies: self.resolveStrategies))
+    }
+
+    static func resolveStrategies(context: ProviderFetchContext) async -> [any ProviderFetchStrategy] {
+        // A token-account refresh owns one ordinary API key. Account-wide Activity must never
+        // be copied into that account card, even if the provider also has a management key.
+        if context.selectedTokenAccountID != nil || OpenRouterSettingsReader.apiToken(environment: context.env) != nil {
+            return [self.scriptStrategy()]
+        }
+        return [OpenRouterActivityFetchStrategy()]
+    }
+
+    private static func scriptStrategy() -> ScriptFetchStrategy {
+        ScriptFetchStrategy(
+            id: "openrouter.js",
+            provider: .openrouter,
+            bundledPlugin: "openrouter",
+            secretKey: OpenRouterSettingsReader.envKey,
+            sourceLabel: "api",
+            validateContext: { context in
+                try OpenRouterSettingsReader.validateEndpointOverrides(environment: context.env)
+            },
+            resolveValues: { context in
+                guard let token = self.credentials.resolveToken(environment: context.env)?.token else {
+                    return nil
+                }
+                var settings = [
+                    OpenRouterSettingsReader.apiURLEnvironmentKey:
+                        OpenRouterSettingsReader.apiURL(environment: context.env).absoluteString,
+                    OpenRouterSettingsReader.clientTitleEnvironmentKey:
+                        OpenRouterSettingsReader.clientTitle(environment: context.env),
+                ]
+                if let referer = OpenRouterSettingsReader.httpReferer(environment: context.env) {
+                    settings[OpenRouterSettingsReader.httpRefererEnvironmentKey] = referer
+                }
+                return ScriptFetchStrategy.Values(
+                    settings: settings,
+                    secrets: [OpenRouterSettingsReader.envKey: token])
+            },
+            isEnabled: { _ in true })
+    }
+}
+
+struct OpenRouterActivityFetchStrategy: ProviderFetchStrategy {
+    typealias ReportLoader = @Sendable (String, Int) async throws -> OpenRouterActivityUsageReport
+
+    let id = "openrouter.activity"
+    let kind: ProviderFetchKind = .apiToken
+    private let reportLoader: ReportLoader
+
+    init(reportLoader: @escaping ReportLoader = { managementKey, historyDays in
+        try await OpenRouterActivityUsageFetcher.loadDailyReport(
+            managementKey: managementKey,
+            historyDays: historyDays)
+    }) {
+        self.reportLoader = reportLoader
+    }
+
+    func isAvailable(_ context: ProviderFetchContext) async -> Bool {
+        context.selectedTokenAccountID == nil &&
+            OpenRouterSettingsReader.managementKey(environment: context.env) != nil
+    }
+
+    func fetch(_ context: ProviderFetchContext) async throws -> ProviderFetchResult {
+        guard context.selectedTokenAccountID == nil,
+              let managementKey = OpenRouterSettingsReader.managementKey(environment: context.env)
+        else {
+            throw OpenRouterActivityUsageError.missingManagementKey
+        }
+        let report = try await self.reportLoader(managementKey, context.costUsageHistoryDays)
+        return self.makeResult(usage: report.toUsageSnapshot(), sourceLabel: "management-api")
+    }
+
+    func shouldFallback(on _: Error, context _: ProviderFetchContext) -> Bool {
+        false
     }
 }
 
@@ -120,7 +193,8 @@ public enum OpenRouterSettingsError: LocalizedError, Sendable, Equatable {
     public var errorDescription: String? {
         switch self {
         case .missingToken:
-            "OpenRouter API token not configured. Set OPENROUTER_API_KEY environment variable or configure in Settings."
+            "OpenRouter credentials not configured. Add an API key for balance/quota " +
+                "or a management key for account activity."
         case let .invalidEndpointOverride(key):
             "OpenRouter endpoint override \(key) must use HTTPS or a bare host."
         }

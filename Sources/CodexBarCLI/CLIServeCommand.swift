@@ -1437,10 +1437,11 @@ extension CodexBarCLI {
             providers: providers,
             config: context.config,
             context: context.collection)
-        { provider, cursorCookieHeaderOverride in
+        { provider, cursorCookieHeaderOverride, environment in
             do {
                 let snapshot = try await fetcher.loadTokenSnapshot(
                     provider: provider,
+                    environment: environment,
                     forceRefresh: false,
                     cursorCookieHeaderOverride: cursorCookieHeaderOverride,
                     refreshPricingInBackground: Self.serveCostRefreshesPricingInBackground)
@@ -1456,8 +1457,10 @@ extension CodexBarCLI {
     static func collectConfiguredCostPayloads(
         providers: [UsageProvider],
         config: CodexBarConfig,
+        baseEnvironment: [String: String] = ProcessInfo.processInfo.environment,
         context: ServeCostCollectionContext,
-        fetch: @Sendable @escaping (UsageProvider, String?) async -> CostPayload) async -> [CostPayload]
+        fetch: @Sendable @escaping (UsageProvider, String?, [String: String]) async -> CostPayload)
+        async -> [CostPayload]
     {
         // Keep every dashboard transport aligned with the configured Cursor credential source.
         // Policy failures remain row-local so other providers still render.
@@ -1471,8 +1474,21 @@ extension CodexBarCLI {
             cursorCookieSettingsError = error
         }
 
+        let environments = Dictionary(
+            providers.map { provider in
+                (
+                    provider,
+                    Self.costEnvironment(provider: provider, config: config, base: baseEnvironment))
+            },
+            uniquingKeysWith: { first, _ in first })
+        let providersWithConfiguredCost = providers.filter { provider in
+            guard provider == .openrouter else { return true }
+            guard let environment = environments[provider] else { return false }
+            return OpenRouterSettingsReader.managementKey(environment: environment) != nil
+        }
+
         return await Self.serveCollectCostPayloads(
-            providers: providers,
+            providers: providersWithConfiguredCost,
             context: context)
         { provider in
             if let error = Self.cursorCostAvailabilityError(
@@ -1484,7 +1500,9 @@ extension CodexBarCLI {
             }
             return await fetch(
                 provider,
-                Self.cursorCostHeaderOverride(provider, settings: cursorCookieSettings))
+                Self.cursorCostHeaderOverride(provider, settings: cursorCookieSettings),
+                environments[provider]
+                    ?? Self.costEnvironment(provider: provider, config: config, base: baseEnvironment))
         }
     }
 

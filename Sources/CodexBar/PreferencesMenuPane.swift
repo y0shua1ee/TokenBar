@@ -208,7 +208,7 @@ struct CostSummarySettingsSection: View {
             }()
             return Text(String(format: L("cost_status_fetching"), name, elapsed))
         }
-        if let snapshot = self.store.tokenSnapshot(for: provider) {
+        if let snapshot = self.store.tokenSnapshotForCurrentProviderConfig(for: provider)?.snapshot {
             let updated = UsageFormatter.updatedString(from: snapshot.updatedAt)
             let cost = snapshot.last30DaysCostUSD
                 .map { UsageFormatter.currencyString($0, currencyCode: snapshot.currencyCode) } ?? "—"

@@ -4,6 +4,8 @@ import Foundation
 public enum OpenRouterSettingsReader {
     /// Environment variable key for OpenRouter API token
     public static let envKey = "OPENROUTER_API_KEY"
+    /// Provider config projects its `secretKey` field here. Activity accepts management keys only.
+    public static let managementKeyEnvironmentKey = "OPENROUTER_MANAGEMENT_KEY"
     public static let apiURLEnvironmentKey = "OPENROUTER_API_URL"
     public static let httpRefererEnvironmentKey = "OPENROUTER_HTTP_REFERER"
     public static let clientTitleEnvironmentKey = "OPENROUTER_X_TITLE"
@@ -12,6 +14,12 @@ public enum OpenRouterSettingsReader {
     /// Returns the API token from environment if present and non-empty
     public static func apiToken(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
         self.cleaned(environment[self.envKey])
+    }
+
+    /// Returns the management key used exclusively by OpenRouter's account-level Activity endpoint.
+    /// Ordinary API keys intentionally do not fall back into this accessor.
+    public static func managementKey(environment: [String: String] = ProcessInfo.processInfo.environment) -> String? {
+        self.cleaned(environment[self.managementKeyEnvironmentKey])
     }
 
     /// Returns the API URL, defaulting to production endpoint

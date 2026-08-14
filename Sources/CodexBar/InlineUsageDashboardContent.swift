@@ -198,7 +198,7 @@ extension UsageMenuCardView.Model {
         let primaryCostUSD = usesLatestPrimary ? latest?.costUSD : snapshot.sessionCostUSD
         var details: [String] = []
         if comparisonPeriodsEnabled {
-            details.append(contentsOf: snapshot.comparisonSummaries().map {
+            details.append(contentsOf: Self.costComparisonSummaries(provider: provider, snapshot: snapshot).map {
                 let label = Self.costHistoryWindowLabel(days: $0.days)
                 let cost = $0.totalCostUSD.map(convertedString) ?? "—"
                 guard let totalTokens = $0.totalTokens else { return "\(label): \(cost)" }

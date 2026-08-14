@@ -293,6 +293,8 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         public let modelName: String
         public let costUSD: Double?
         public let totalTokens: Int?
+        /// Reasoning tokens are a subset of output tokens, not additional tokens.
+        public let reasoningTokens: Int?
         public let requestCount: Int?
         public let standardCostUSD: Double?
         public let priorityCostUSD: Double?
@@ -304,6 +306,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             case costUSD
             case cost
             case totalTokens
+            case reasoningTokens
             case requestCount
             case requests
             case standardCostUSD
@@ -319,6 +322,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
                 try container.decodeIfPresent(Double.self, forKey: .costUSD)
                 ?? container.decodeIfPresent(Double.self, forKey: .cost)
             self.totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens)
+            self.reasoningTokens = try container.decodeIfPresent(Int.self, forKey: .reasoningTokens)
             self.requestCount =
                 try container.decodeIfPresent(Int.self, forKey: .requestCount)
                 ?? container.decodeIfPresent(Int.self, forKey: .requests)
@@ -332,6 +336,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             modelName: String,
             costUSD: Double?,
             totalTokens: Int? = nil,
+            reasoningTokens: Int? = nil,
             requestCount: Int? = nil,
             standardCostUSD: Double? = nil,
             priorityCostUSD: Double? = nil,
@@ -341,6 +346,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             self.modelName = modelName
             self.costUSD = costUSD
             self.totalTokens = totalTokens
+            self.reasoningTokens = reasoningTokens
             self.requestCount = requestCount
             self.standardCostUSD = standardCostUSD
             self.priorityCostUSD = priorityCostUSD
@@ -355,6 +361,8 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         public let cacheReadTokens: Int?
         public let cacheCreationTokens: Int?
         public let outputTokens: Int?
+        /// Reasoning tokens are reported separately for display but remain included in `outputTokens`.
+        public let reasoningTokens: Int?
         public let totalTokens: Int?
         public let requestCount: Int?
         public let costUSD: Double?
@@ -369,6 +377,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             case cacheReadInputTokens
             case cacheCreationInputTokens
             case outputTokens
+            case reasoningTokens
             case totalTokens
             case requestCount
             case requests
@@ -390,6 +399,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
                 try container.decodeIfPresent(Int.self, forKey: .cacheCreationTokens)
                 ?? container.decodeIfPresent(Int.self, forKey: .cacheCreationInputTokens)
             self.outputTokens = try container.decodeIfPresent(Int.self, forKey: .outputTokens)
+            self.reasoningTokens = try container.decodeIfPresent(Int.self, forKey: .reasoningTokens)
             self.totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens)
             self.requestCount =
                 try container.decodeIfPresent(Int.self, forKey: .requestCount)
@@ -405,6 +415,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             date: String,
             inputTokens: Int?,
             outputTokens: Int?,
+            reasoningTokens: Int? = nil,
             cacheReadTokens: Int? = nil,
             cacheCreationTokens: Int? = nil,
             totalTokens: Int?,
@@ -416,6 +427,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             self.date = date
             self.inputTokens = inputTokens
             self.outputTokens = outputTokens
+            self.reasoningTokens = reasoningTokens
             self.cacheReadTokens = cacheReadTokens
             self.cacheCreationTokens = cacheCreationTokens
             self.totalTokens = totalTokens
@@ -450,6 +462,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
     public struct Summary: Sendable, Decodable, Equatable {
         public let totalInputTokens: Int?
         public let totalOutputTokens: Int?
+        public let totalReasoningTokens: Int?
         public let cacheReadTokens: Int?
         public let cacheCreationTokens: Int?
         public let totalTokens: Int?
@@ -458,6 +471,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         private enum CodingKeys: String, CodingKey {
             case totalInputTokens
             case totalOutputTokens
+            case totalReasoningTokens
             case cacheReadTokens
             case cacheCreationTokens
             case totalCacheReadTokens
@@ -470,6 +484,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         public init(
             totalInputTokens: Int?,
             totalOutputTokens: Int?,
+            totalReasoningTokens: Int? = nil,
             cacheReadTokens: Int? = nil,
             cacheCreationTokens: Int? = nil,
             totalTokens: Int?,
@@ -477,6 +492,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
         {
             self.totalInputTokens = totalInputTokens
             self.totalOutputTokens = totalOutputTokens
+            self.totalReasoningTokens = totalReasoningTokens
             self.cacheReadTokens = cacheReadTokens
             self.cacheCreationTokens = cacheCreationTokens
             self.totalTokens = totalTokens
@@ -487,6 +503,7 @@ public struct CostUsageDailyReport: Sendable, Decodable {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.totalInputTokens = try container.decodeIfPresent(Int.self, forKey: .totalInputTokens)
             self.totalOutputTokens = try container.decodeIfPresent(Int.self, forKey: .totalOutputTokens)
+            self.totalReasoningTokens = try container.decodeIfPresent(Int.self, forKey: .totalReasoningTokens)
             self.cacheReadTokens =
                 try container.decodeIfPresent(Int.self, forKey: .cacheReadTokens)
                 ?? container.decodeIfPresent(Int.self, forKey: .totalCacheReadTokens)
@@ -546,6 +563,10 @@ extension CostUsageDailyReport {
     private struct BreakdownAccumulator {
         var totalTokens: Int = 0
         var sawTotalTokens = false
+        var reasoningTokens: Int = 0
+        var sawReasoningTokens = false
+        var requestCount: Int = 0
+        var sawRequestCount = false
         var costUSD: Double = 0
         var sawCost = false
         var standardCostUSD: Double = 0
@@ -561,6 +582,14 @@ extension CostUsageDailyReport {
             if let totalTokens = breakdown.totalTokens {
                 self.totalTokens += totalTokens
                 self.sawTotalTokens = true
+            }
+            if let reasoningTokens = breakdown.reasoningTokens {
+                self.reasoningTokens += reasoningTokens
+                self.sawReasoningTokens = true
+            }
+            if let requestCount = breakdown.requestCount {
+                self.requestCount += requestCount
+                self.sawRequestCount = true
             }
             if let costUSD = breakdown.costUSD {
                 self.costUSD += costUSD
@@ -589,6 +618,8 @@ extension CostUsageDailyReport {
                 modelName: modelName,
                 costUSD: self.sawCost ? self.costUSD : nil,
                 totalTokens: self.sawTotalTokens ? self.totalTokens : nil,
+                reasoningTokens: self.sawReasoningTokens ? self.reasoningTokens : nil,
+                requestCount: self.sawRequestCount ? self.requestCount : nil,
                 standardCostUSD: self.sawStandardCost ? self.standardCostUSD : nil,
                 priorityCostUSD: self.sawPriorityCost ? self.priorityCostUSD : nil,
                 standardTokens: self.sawStandardTokens ? self.standardTokens : nil,
@@ -605,8 +636,12 @@ extension CostUsageDailyReport {
         var sawCacheCreationTokens = false
         var outputTokens: Int = 0
         var sawOutputTokens = false
+        var reasoningTokens: Int = 0
+        var sawReasoningTokens = false
         var totalTokens: Int = 0
         var sawTotalTokens = false
+        var requestCount: Int = 0
+        var sawRequestCount = false
         var derivedTotalTokensWithoutExplicitTotal: Int = 0
         var costUSD: Double = 0
         var sawCost = false
@@ -634,11 +669,19 @@ extension CostUsageDailyReport {
                 self.outputTokens += outputTokens
                 self.sawOutputTokens = true
             }
+            if let reasoningTokens = entry.reasoningTokens {
+                self.reasoningTokens += reasoningTokens
+                self.sawReasoningTokens = true
+            }
             if let totalTokens = entry.totalTokens {
                 self.totalTokens += totalTokens
                 self.sawTotalTokens = true
             } else if entryDerivedTotalTokens > 0 {
                 self.derivedTotalTokensWithoutExplicitTotal += entryDerivedTotalTokens
+            }
+            if let requestCount = entry.requestCount {
+                self.requestCount += requestCount
+                self.sawRequestCount = true
             }
             if let costUSD = entry.costUSD {
                 self.costUSD += costUSD
@@ -682,9 +725,11 @@ extension CostUsageDailyReport {
                 date: date,
                 inputTokens: self.sawInputTokens ? self.inputTokens : nil,
                 outputTokens: self.sawOutputTokens ? self.outputTokens : nil,
+                reasoningTokens: self.sawReasoningTokens ? self.reasoningTokens : nil,
                 cacheReadTokens: self.sawCacheReadTokens ? self.cacheReadTokens : nil,
                 cacheCreationTokens: self.sawCacheCreationTokens ? self.cacheCreationTokens : nil,
                 totalTokens: totalTokens,
+                requestCount: self.sawRequestCount ? self.requestCount : nil,
                 costUSD: self.sawCost ? self.costUSD : nil,
                 modelsUsed: modelsUsed,
                 modelBreakdowns: modelBreakdowns)
@@ -724,6 +769,8 @@ extension CostUsageDailyReport {
         var sawTotalInputTokens = false
         var totalOutputTokens = 0
         var sawTotalOutputTokens = false
+        var totalReasoningTokens = 0
+        var sawTotalReasoningTokens = false
         var totalCacheReadTokens = 0
         var sawTotalCacheReadTokens = false
         var totalCacheCreationTokens = 0
@@ -741,6 +788,10 @@ extension CostUsageDailyReport {
             if let outputTokens = entry.outputTokens {
                 totalOutputTokens += outputTokens
                 sawTotalOutputTokens = true
+            }
+            if let reasoningTokens = entry.reasoningTokens {
+                totalReasoningTokens += reasoningTokens
+                sawTotalReasoningTokens = true
             }
             if let cacheReadTokens = entry.cacheReadTokens {
                 totalCacheReadTokens += cacheReadTokens
@@ -763,6 +814,7 @@ extension CostUsageDailyReport {
         return Summary(
             totalInputTokens: sawTotalInputTokens ? totalInputTokens : nil,
             totalOutputTokens: sawTotalOutputTokens ? totalOutputTokens : nil,
+            totalReasoningTokens: sawTotalReasoningTokens ? totalReasoningTokens : nil,
             cacheReadTokens: sawTotalCacheReadTokens ? totalCacheReadTokens : nil,
             cacheCreationTokens: sawTotalCacheCreationTokens ? totalCacheCreationTokens : nil,
             totalTokens: sawTotalTokens ? totalTokens : nil,

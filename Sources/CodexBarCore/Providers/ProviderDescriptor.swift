@@ -16,6 +16,11 @@ public enum ProviderTokenCostPrimaryValue: Sendable, Equatable {
     case latestDaily
 }
 
+public enum ProviderTokenCostLatestDayLabelStyle: Sendable, Equatable {
+    case billingDay
+    case completedUTCDay
+}
+
 public enum ProviderTokenCostHintPlacement: Sendable, Equatable {
     case beforeRequestHistory
     case afterRequestHistory
@@ -33,6 +38,7 @@ public struct ProviderTokenCostConfig: Sendable {
     public let estimateDisclaimer: String
     public let historyTitleStyle: ProviderTokenCostHistoryTitleStyle
     public let primaryValue: ProviderTokenCostPrimaryValue
+    public let latestDayLabelStyle: ProviderTokenCostLatestDayLabelStyle
     public let showsRequestHistory: Bool
     public let hintPlacement: ProviderTokenCostHintPlacement
     public let chartEstimateDisclaimer: ProviderTokenCostHint?
@@ -48,6 +54,7 @@ public struct ProviderTokenCostConfig: Sendable {
         estimateDisclaimer: String = "Estimated from local logs · may differ from your bill",
         historyTitleStyle: ProviderTokenCostHistoryTitleStyle = .standard,
         primaryValue: ProviderTokenCostPrimaryValue = .session,
+        latestDayLabelStyle: ProviderTokenCostLatestDayLabelStyle = .billingDay,
         showsRequestHistory: Bool = true,
         hintPlacement: ProviderTokenCostHintPlacement = .afterRequestHistory,
         chartEstimateDisclaimer: ProviderTokenCostHint? = nil)
@@ -62,6 +69,7 @@ public struct ProviderTokenCostConfig: Sendable {
         self.estimateDisclaimer = estimateDisclaimer
         self.historyTitleStyle = historyTitleStyle
         self.primaryValue = primaryValue
+        self.latestDayLabelStyle = latestDayLabelStyle
         self.showsRequestHistory = showsRequestHistory
         self.hintPlacement = hintPlacement
         self.chartEstimateDisclaimer = chartEstimateDisclaimer

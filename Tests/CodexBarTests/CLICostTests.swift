@@ -50,6 +50,126 @@ struct CLICostTests {
     }
 
     @Test
+    func `OpenRouter cost projects management key and preserves provider Activity metrics`() throws {
+        let managementKey = "sk-or-v1-management-secret"
+        let config = CodexBarConfig(providers: [
+            ProviderConfig(
+                id: .openrouter,
+                enabled: true,
+                apiKey: "sk-or-v1-ordinary",
+                secretKey: managementKey),
+        ])
+        let environment = CodexBarCLI.costEnvironment(
+            provider: .openrouter,
+            config: config,
+            base: [OpenRouterSettingsReader.managementKeyEnvironmentKey: "ambient-management-key"])
+        #expect(environment[OpenRouterSettingsReader.managementKeyEnvironmentKey] == managementKey)
+        #expect(environment[OpenRouterSettingsReader.envKey] == "sk-or-v1-ordinary")
+        #expect(CodexBarCLI.costProviders(from: .custom([.openrouter])) == [.openrouter])
+
+        let snapshot = CostUsageTokenSnapshot(
+            sessionTokens: 30,
+            sessionCostUSD: 1.25,
+            sessionRequests: 2,
+            last30DaysTokens: 300,
+            last30DaysCostUSD: 9.5,
+            last30DaysRequests: 20,
+            historyDays: 30,
+            historyLabel: "Last 30 completed UTC days",
+            credentialScopeFingerprint: "one-way-fingerprint",
+            daily: [
+                CostUsageDailyReport.Entry(
+                    date: "2026-08-13",
+                    inputTokens: 10,
+                    outputTokens: 20,
+                    reasoningTokens: 5,
+                    totalTokens: 30,
+                    requestCount: 2,
+                    costUSD: 1.25,
+                    modelsUsed: ["openai/gpt-5"],
+                    modelBreakdowns: [
+                        CostUsageDailyReport.ModelBreakdown(
+                            modelName: "openai/gpt-5",
+                            costUSD: 1.25,
+                            totalTokens: 30,
+                            reasoningTokens: 5,
+                            requestCount: 2),
+                    ]),
+            ],
+            updatedAt: Date(timeIntervalSince1970: 1_776_297_600))
+
+        let output = CodexBarCLI.renderCostText(provider: .openrouter, snapshot: snapshot, useColor: false)
+            .replacingOccurrences(of: "\u{00A0}", with: " ")
+            .replacingOccurrences(of: "$ ", with: "$")
+        #expect(output.contains("OpenRouter Cost (provider-reported)"))
+        #expect(output.contains("Latest completed UTC day (2026-08-13): $1.25"))
+        #expect(output.contains("Last 30 completed UTC days: $9.50"))
+        #expect(output.contains("5 reasoning"))
+        #expect(output.contains("2 requests"))
+        #expect(!output.contains("API-rate estimate"))
+        #expect(!output.contains("Today:"))
+
+        let payload = CodexBarCLI.makeCostPayload(provider: .openrouter, snapshot: snapshot, error: nil)
+        let data = try JSONEncoder().encode(payload)
+        let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let daily = try #require((object["daily"] as? [[String: Any]])?.first)
+        let model = try #require((daily["modelBreakdowns"] as? [[String: Any]])?.first)
+        let totals = try #require(object["totals"] as? [String: Any])
+        #expect(object["source"] as? String == "management-api")
+        #expect(object["historyLabel"] as? String == "Last 30 completed UTC days")
+        #expect(object["sessionRequests"] as? Int == 2)
+        #expect(object["last30DaysRequests"] as? Int == 20)
+        #expect(daily["reasoningTokens"] as? Int == 5)
+        #expect(daily["requestCount"] as? Int == 2)
+        #expect(model["reasoningTokens"] as? Int == 5)
+        #expect(model["requestCount"] as? Int == 2)
+        #expect(totals["reasoningTokens"] as? Int == 5)
+        #expect(totals["requests"] as? Int == 2)
+        let encoded = try #require(String(data: data, encoding: .utf8))
+        #expect(!encoded.contains(managementKey))
+        #expect(!encoded.contains("one-way-fingerprint"))
+    }
+
+    @Test
+    func `explicit OpenRouter cost still requires a management key`() async {
+        let config = CodexBarConfig(providers: [
+            ProviderConfig(id: .openrouter, enabled: true, apiKey: "sk-or-v1-ordinary"),
+        ])
+        let environment = CodexBarCLI.costEnvironment(
+            provider: .openrouter,
+            config: config,
+            base: [:])
+
+        await #expect(throws: OpenRouterActivityUsageError.missingManagementKey) {
+            _ = try await CostUsageFetcher().loadTokenSnapshot(
+                provider: .openrouter,
+                environment: environment)
+        }
+    }
+
+    @Test
+    func `latest daily billing providers are not mislabeled as today`() {
+        let snapshot = CostUsageTokenSnapshot(
+            sessionTokens: nil,
+            sessionCostUSD: 2.5,
+            last30DaysTokens: nil,
+            last30DaysCostUSD: 12,
+            daily: [CostUsageDailyReport.Entry(
+                date: "2026-08-12",
+                inputTokens: nil,
+                outputTokens: nil,
+                totalTokens: nil,
+                costUSD: 2.5,
+                modelsUsed: nil,
+                modelBreakdowns: nil)],
+            updatedAt: Date(timeIntervalSince1970: 1_776_297_600))
+
+        let output = CodexBarCLI.renderCostText(provider: .bedrock, snapshot: snapshot, useColor: false)
+        #expect(output.contains("Latest billing day (2026-08-12):"))
+        #expect(!output.contains("Today:"))
+    }
+
+    @Test
     func `renders codex project grouped cost text`() {
         let snap = CostUsageTokenSnapshot(
             sessionTokens: 1200,

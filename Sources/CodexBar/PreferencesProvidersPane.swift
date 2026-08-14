@@ -539,14 +539,14 @@ struct ProvidersPane: View {
             creditsError = codexProjection.credits?.userFacingError
             dashboard = nil
             dashboardError = codexProjection.userFacingErrors.dashboard
-            tokenSnapshot = self.store.tokenSnapshot(for: provider)
+            tokenSnapshot = self.store.tokenSnapshotForCurrentProviderConfig(for: provider)?.snapshot
             tokenError = self.store.tokenError(for: provider)
         } else if ProviderDescriptorRegistry.descriptor(for: provider).tokenCost.supportsTokenCost {
             credits = nil
             creditsError = nil
             dashboard = nil
             dashboardError = nil
-            tokenSnapshot = self.store.tokenSnapshot(for: provider)
+            tokenSnapshot = self.store.tokenSnapshotForCurrentProviderConfig(for: provider)?.snapshot
             tokenError = self.store.tokenError(for: provider)
         } else {
             credits = nil

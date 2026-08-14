@@ -114,10 +114,11 @@ struct DashboardSnapshotProducer: Sendable {
                     providers: providers,
                     config: config,
                     context: context.costCollection)
-                { provider, cursorCookieHeaderOverride in
+                { provider, cursorCookieHeaderOverride, environment in
                     do {
                         let snapshot = try await costFetcher.loadTokenSnapshot(
                             provider: provider,
+                            environment: environment,
                             forceRefresh: false,
                             cursorCookieHeaderOverride: cursorCookieHeaderOverride,
                             refreshPricingInBackground: context.costRefreshesPricingInBackground)

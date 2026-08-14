@@ -230,17 +230,53 @@ struct DashboardCreditsPayload: Encodable {
 
 struct DashboardCostPayload: Encodable {
     let todayUSD: Double?
+    let todayTokens: Int?
+    let todayReasoningTokens: Int?
+    let todayRequests: Int?
+    let latestCompletedDayUSD: Double?
+    let latestCompletedDay: String?
+    let latestCompletedDayTokens: Int?
+    let latestCompletedDayReasoningTokens: Int?
+    let latestCompletedDayRequests: Int?
     let last30DaysUSD: Double?
+    let last30DaysTokens: Int?
+    let last30DaysReasoningTokens: Int?
+    let last30DaysRequests: Int?
+    let historyLabel: String?
 
     private enum CodingKeys: String, CodingKey {
         case todayUSD
+        case todayTokens
+        case todayReasoningTokens
+        case todayRequests
+        case latestCompletedDayUSD
+        case latestCompletedDay
+        case latestCompletedDayTokens
+        case latestCompletedDayReasoningTokens
+        case latestCompletedDayRequests
         case last30DaysUSD
+        case last30DaysTokens
+        case last30DaysReasoningTokens
+        case last30DaysRequests
+        case historyLabel
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.todayUSD, forKey: .todayUSD)
+        try container.encode(self.todayTokens, forKey: .todayTokens)
+        try container.encode(self.todayReasoningTokens, forKey: .todayReasoningTokens)
+        try container.encode(self.todayRequests, forKey: .todayRequests)
+        try container.encode(self.latestCompletedDayUSD, forKey: .latestCompletedDayUSD)
+        try container.encode(self.latestCompletedDay, forKey: .latestCompletedDay)
+        try container.encode(self.latestCompletedDayTokens, forKey: .latestCompletedDayTokens)
+        try container.encode(self.latestCompletedDayReasoningTokens, forKey: .latestCompletedDayReasoningTokens)
+        try container.encode(self.latestCompletedDayRequests, forKey: .latestCompletedDayRequests)
         try container.encode(self.last30DaysUSD, forKey: .last30DaysUSD)
+        try container.encode(self.last30DaysTokens, forKey: .last30DaysTokens)
+        try container.encode(self.last30DaysReasoningTokens, forKey: .last30DaysReasoningTokens)
+        try container.encode(self.last30DaysRequests, forKey: .last30DaysRequests)
+        try container.encode(self.historyLabel, forKey: .historyLabel)
     }
 }
 

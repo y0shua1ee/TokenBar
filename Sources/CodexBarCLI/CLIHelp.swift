@@ -119,14 +119,16 @@ extension CodexBarCLI {
                        [--days <days>] [--group-by project]
 
         Description:
-          Print local token cost usage from Claude/Codex native logs plus supported pi and OMP sessions.
-          This does not require web or CLI access and uses cached scan results unless --refresh is provided.
+          Print token cost usage from supported local logs and authenticated provider APIs.
+          Local scans use cached results unless --refresh is provided; remote sources may require provider credentials.
+          OpenRouter Activity requires a management key and reports the latest completed UTC days for the account.
           Experimental: use --provider-native-only to exclude pi and OMP session mirrors.
 
         Examples:
           tokenbar cost
           tokenbar cost --provider codex --group-by project
           tokenbar cost --provider claude --format json --pretty
+          tokenbar cost --provider openrouter
         """
     }
 
@@ -501,6 +503,7 @@ extension CodexBarCLI {
           tokenbar cards --provider all --status
           tokenbar cards --brief
           tokenbar cost --provider claude --format json --pretty
+          tokenbar cost --provider openrouter
           tokenbar sessions --json
           tokenbar dashboard --pretty
           tokenbar serve --port 8080
