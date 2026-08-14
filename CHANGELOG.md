@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.49.5 — Unreleased
+
 ## 0.49.4 — 2026-08-14
 
 ### Added
