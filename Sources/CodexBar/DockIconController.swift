@@ -10,6 +10,7 @@ struct DockIconWindowDescriptor: Equatable, Sendable {
     let isMiniaturized: Bool
     let canBecomeKey: Bool
     let isKnownSettingsWindow: Bool
+    let isRegisteredPresentedWindow: Bool
 
     var isSettingsWindow: Bool {
         if self.isKnownSettingsWindow {
@@ -49,7 +50,24 @@ enum DockIconPolicyDecision {
     }
 
     static func shouldPromoteForPresentedWindow(_ window: DockIconWindowDescriptor) -> Bool {
-        window.isVisible && (window.isSettingsWindow || window.isSparkleWindow)
+        window.isVisible &&
+            (window.isSettingsWindow || window.isSparkleWindow || window.isRegisteredPresentedWindow)
+    }
+}
+
+struct DockIconPresentedWindowRegistry {
+    private var identifiers: Set<ObjectIdentifier> = []
+
+    mutating func register(_ window: AnyObject) {
+        self.identifiers.insert(ObjectIdentifier(window))
+    }
+
+    mutating func unregister(_ window: AnyObject) {
+        self.identifiers.remove(ObjectIdentifier(window))
+    }
+
+    func contains(_ window: AnyObject) -> Bool {
+        self.identifiers.contains(ObjectIdentifier(window))
     }
 }
 
@@ -60,7 +78,8 @@ final class DockIconController: NSObject {
     private var isStarted = false
     private var isManagingRegularPolicy = false
     private var isAwaitingPresentedWindow = false
-    private var presentedWindowIDs: Set<ObjectIdentifier> = []
+    private var visiblePresentedWindowIDs: Set<ObjectIdentifier> = []
+    private var presentedWindowRegistry = DockIconPresentedWindowRegistry()
     private weak var settingsWindow: NSWindow?
 
     func start() {
@@ -103,6 +122,18 @@ final class DockIconController: NSObject {
         self.reevaluatePolicy()
     }
 
+    /// Registers a custom app window that was explicitly presented after `promote()`.
+    /// Registration is balanced so unrelated real windows do not satisfy the pending presentation.
+    func registerPresentedWindow(_ window: NSWindow) {
+        self.presentedWindowRegistry.register(window)
+        self.reevaluatePolicy()
+    }
+
+    func unregisterPresentedWindow(_ window: NSWindow) {
+        self.presentedWindowRegistry.unregister(window)
+        self.reevaluatePolicy()
+    }
+
     @objc private func windowStateDidChange(_ notification: Notification) {
         _ = notification
         self.reevaluatePolicy()
@@ -118,17 +149,23 @@ final class DockIconController: NSObject {
 
     private func reevaluatePolicy() {
         let describedWindows = NSApp.windows.map { window in
-            (window: window, descriptor: Self.describe(window, isKnownSettingsWindow: window === self.settingsWindow))
+            (
+                window: window,
+                descriptor: Self.describe(
+                    window,
+                    isKnownSettingsWindow: window === self.settingsWindow,
+                    isRegisteredPresentedWindow: self.presentedWindowRegistry.contains(window)))
         }
-        let presentedWindowIDs = Set(describedWindows.compactMap { item in
+        let visiblePresentedWindowIDs = Set(describedWindows.compactMap { item in
             DockIconPolicyDecision.shouldPromoteForPresentedWindow(item.descriptor)
                 ? ObjectIdentifier(item.window)
                 : nil
         })
-        let hasNewPresentedWindow = !presentedWindowIDs.subtracting(self.presentedWindowIDs).isEmpty
-        self.presentedWindowIDs = presentedWindowIDs
+        let hasNewPresentedWindow = !visiblePresentedWindowIDs
+            .subtracting(self.visiblePresentedWindowIDs).isEmpty
+        self.visiblePresentedWindowIDs = visiblePresentedWindowIDs
 
-        if !presentedWindowIDs.isEmpty {
+        if !visiblePresentedWindowIDs.isEmpty {
             self.isAwaitingPresentedWindow = false
             self.ensureRegularPolicy(activate: hasNewPresentedWindow)
         }
@@ -151,7 +188,11 @@ final class DockIconController: NSObject {
         }
     }
 
-    private static func describe(_ window: NSWindow, isKnownSettingsWindow: Bool) -> DockIconWindowDescriptor {
+    private static func describe(
+        _ window: NSWindow,
+        isKnownSettingsWindow: Bool,
+        isRegisteredPresentedWindow: Bool) -> DockIconWindowDescriptor
+    {
         var classNames = [NSStringFromClass(type(of: window))]
         if let windowController = window.windowController {
             classNames.append(NSStringFromClass(type(of: windowController)))
@@ -172,7 +213,8 @@ final class DockIconController: NSObject {
             isVisible: window.isVisible,
             isMiniaturized: window.isMiniaturized,
             canBecomeKey: window.canBecomeKey,
-            isKnownSettingsWindow: isKnownSettingsWindow)
+            isKnownSettingsWindow: isKnownSettingsWindow,
+            isRegisteredPresentedWindow: isRegisteredPresentedWindow)
     }
 
     deinit {

@@ -1361,6 +1361,16 @@ extension CostUsageFetcher {
                 useCurrentLocalDayForSession: false)
         }
 
+        if provider == .krill {
+            guard let jwt = KrillSettingsReader.jwt(environment: environment) else {
+                throw KrillJWTError.missing
+            }
+            return try await KrillCostUsageFetcher.loadTokenSnapshot(
+                jwt: jwt,
+                now: now,
+                historyDays: historyDays)
+        }
+
         #if os(macOS)
         if provider == .cursor {
             return try await self.loadCursorTokenSnapshot(

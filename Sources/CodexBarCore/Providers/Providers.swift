@@ -64,6 +64,7 @@ public enum UsageProvider: String, CaseIterable, Sendable, Codable {
     case deepseek
     case deepinfra
     case codebuff
+    case krill
     case crof
     case venice
     case commandcode

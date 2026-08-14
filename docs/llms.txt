@@ -1,9 +1,9 @@
 # TokenBar
 
-A tiny macOS menu bar app that tracks AI coding-provider usage windows, credits, costs, and resets across 69 providers — Codex, OpenAI, Claude, Cursor, Gemini, Copilot, LiteLLM, and more.
+A tiny macOS menu bar app that tracks AI coding-provider usage windows, credits, costs, and resets across 70 providers — Codex, OpenAI, Claude, Cursor, Gemini, Copilot, LiteLLM, and more.
 
 Canonical documentation:
-- TokenBar — every AI coding limit, in your menu bar: https://tokenbar.app/ - A tiny macOS menu bar app that tracks AI coding-provider usage windows, credits, costs, and resets across 69 providers — Codex, OpenAI, Claude, Cursor, Gemini, Copilot, LiteLLM, and more.
+- TokenBar — every AI coding limit, in your menu bar: https://tokenbar.app/ - A tiny macOS menu bar app that tracks AI coding-provider usage windows, credits, costs, and resets across 70 providers — Codex, OpenAI, Claude, Cursor, Gemini, Copilot, LiteLLM, and more.
 
 Source: https://github.com/y0shua1ee/TokenBar
 

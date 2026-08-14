@@ -62,6 +62,7 @@ public enum ProviderCostMenuCardStyle: Sendable, Equatable {
     case payAsYouGoBalance
     case claude
     case apiSpend
+    case activeQuota
     case clawRouter
 }
 

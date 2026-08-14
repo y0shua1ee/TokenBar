@@ -165,6 +165,8 @@ extension UsageMenuCardView.Model {
         guard enabled else { return nil }
         guard let snapshot else { return nil }
 
+        let tokenCost = ProviderDescriptorRegistry.descriptor(for: provider).tokenCost
+
         let sessionCost = snapshot.sessionCostUSD.map {
             UsageFormatter.convertedCostString(
                 $0,
@@ -172,7 +174,7 @@ extension UsageMenuCardView.Model {
                 providerCurrency: snapshot.currencyCode)
         } ?? "—"
         let sessionTokens = snapshot.sessionTokens.map { UsageFormatter.tokenCountString($0) }
-        let sessionLabel = if provider == .bedrock || provider == .mistral {
+        let sessionLabel = if tokenCost.primaryValue == .latestDaily {
             Self.latestBillingDayLabel(from: snapshot)
         } else {
             L("Today")
@@ -195,7 +197,7 @@ extension UsageMenuCardView.Model {
         let monthTokens = monthTokensValue.map { UsageFormatter.tokenCountString($0) }
         let windowLabel = if let historyLabel = snapshot.historyLabel {
             historyLabel
-        } else if provider == .mistral,
+        } else if tokenCost.primaryValue == .latestDaily,
                   snapshot.historyDays == 1,
                   Self.bedrockLatestBillingDay(from: snapshot.daily) != nil
         {
@@ -484,6 +486,19 @@ extension UsageMenuCardView.Model {
                 percentUsed: nil,
                 spendLine: "\(periodLabel): \(spend)",
                 percentLine: nil)
+        }
+
+        if style == .activeQuota {
+            guard cost.limit > 0 else { return nil }
+            let used = formatCost(cost.used)
+            let limit = formatCost(cost.limit)
+            let percentUsed = Self.clamped((cost.used / cost.limit) * 100)
+            let periodLabel = Self.localizedPeriodLabel(cost.period ?? "Active subscriptions")
+            return ProviderCostSection(
+                title: "Active quota",
+                percentUsed: percentUsed,
+                spendLine: "\(periodLabel): \(used) / \(limit)",
+                percentLine: String(format: L("%.0f%% used"), min(100, max(0, percentUsed))))
         }
 
         if style == .clawRouter, cost.limit <= 0 {

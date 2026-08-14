@@ -73,6 +73,19 @@ struct ProviderConfigEnvironmentTests {
     }
 
     @Test
+    func `projects Krill web JWT through its provider scoped environment key`() {
+        let config = ProviderConfig(id: .krill, apiKey: "krill.jwt.signature")
+        let env = ProviderConfigEnvironment.applyAPIKeyOverride(
+            base: [KrillSettingsReader.ambientJWTEnvironmentKey: "ambient.jwt.signature"],
+            provider: .krill,
+            config: config)
+
+        #expect(env[KrillSettingsReader.projectedJWTEnvironmentKey] == "krill.jwt.signature")
+        #expect(env[KrillSettingsReader.ambientJWTEnvironmentKey] == "ambient.jwt.signature")
+        #expect(KrillSettingsReader.jwt(environment: env) == "krill.jwt.signature")
+    }
+
+    @Test
     func `applies API key override for doubao`() {
         let config = ProviderConfig(id: .doubao, apiKey: "db-token")
         let env = ProviderConfigEnvironment.applyAPIKeyOverride(

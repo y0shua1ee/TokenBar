@@ -281,6 +281,7 @@ final class SettingsStore {
             promptKind: .ampCookie),
         copilotTokenStore: any CopilotTokenStoring = KeychainCopilotTokenStore(),
         tokenAccountStore: any ProviderTokenAccountStoring = FileTokenAccountStore(),
+        krillLegacyJWTStore: any KrillLegacyJWTStoring = KeychainKrillLegacyJWTStore(),
         antigravityOAuthCredentialsStore: AntigravityOAuthCredentialsStore = AntigravityOAuthCredentialsStore(),
         performInitialProviderDetection: Bool = !SettingsStore.isRunningTests)
     {
@@ -331,7 +332,8 @@ final class SettingsStore {
             augmentCookieStore: augmentCookieStore,
             ampCookieStore: ampCookieStore,
             copilotTokenStore: copilotTokenStore,
-            tokenAccountStore: tokenAccountStore)
+            tokenAccountStore: tokenAccountStore,
+            krillLegacyJWTStore: krillLegacyJWTStore)
         let config = CodexBarConfigMigrator.loadOrMigrate(
             configStore: configStore,
             userDefaults: userDefaults,

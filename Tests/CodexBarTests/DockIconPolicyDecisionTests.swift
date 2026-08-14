@@ -37,6 +37,33 @@ struct DockIconPolicyDecisionTests {
     }
 
     @Test
+    func `only explicitly registered custom window satisfies pending presentation`() {
+        let ordinary = self.window(title: "Krill Login")
+        let registered = self.window(title: "Krill Login", isRegisteredPresentedWindow: true)
+
+        #expect(!DockIconPolicyDecision.shouldPromoteForPresentedWindow(ordinary))
+        #expect(DockIconPolicyDecision.shouldPromoteForPresentedWindow(registered))
+    }
+
+    @Test
+    func `presented window registration is balanced and idempotent`() {
+        final class WindowToken {}
+        let first = WindowToken()
+        let second = WindowToken()
+        var registry = DockIconPresentedWindowRegistry()
+
+        registry.register(first)
+        registry.register(first)
+
+        #expect(registry.contains(first))
+        #expect(!registry.contains(second))
+
+        registry.unregister(first)
+
+        #expect(!registry.contains(first))
+    }
+
+    @Test
     func `ignored windows allow accessory activation policy`() {
         let keepalive = self.window(
             identifier: "CodexBarLifecycleKeepalive",
@@ -74,7 +101,8 @@ struct DockIconPolicyDecisionTests {
         isVisible: Bool = true,
         isMiniaturized: Bool = false,
         canBecomeKey: Bool = true,
-        isKnownSettingsWindow: Bool = false)
+        isKnownSettingsWindow: Bool = false,
+        isRegisteredPresentedWindow: Bool = false)
         -> DockIconWindowDescriptor
     {
         DockIconWindowDescriptor(
@@ -86,6 +114,7 @@ struct DockIconPolicyDecisionTests {
             isVisible: isVisible,
             isMiniaturized: isMiniaturized,
             canBecomeKey: canBecomeKey,
-            isKnownSettingsWindow: isKnownSettingsWindow)
+            isKnownSettingsWindow: isKnownSettingsWindow,
+            isRegisteredPresentedWindow: isRegisteredPresentedWindow)
     }
 }

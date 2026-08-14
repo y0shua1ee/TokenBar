@@ -17,15 +17,24 @@ struct CodexBarConfigMigrator {
         let ampCookieStore: any CookieHeaderStoring
         let copilotTokenStore: any CopilotTokenStoring
         let tokenAccountStore: any ProviderTokenAccountStoring
+        let krillLegacyJWTStore: any KrillLegacyJWTStoring
     }
 
     private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
     private static let compatibleMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let krillLegacyJWTMigrationCompletedKey = "tokenbar.krillLegacyJWTMigrationCompleted"
 
     private struct MigrationState {
         var didUpdate = false
         var sawLegacySecrets = false
         var sawLegacyAccounts = false
+    }
+
+    private enum KrillLegacyJWTMigrationPlan {
+        case none
+        case markComplete
+        case deleteAfterPersist
+        case retryLater
     }
 
     static func loadOrMigrate(
@@ -58,6 +67,12 @@ struct CodexBarConfigMigrator {
             self.migrateLegacySecrets(userDefaults: userDefaults, stores: stores, config: &config, state: &state)
             self.migrateLegacyAccounts(stores: stores, config: &config, state: &state)
         }
+        let krillMigrationPlan = self.prepareLegacyKrillJWTMigration(
+            userDefaults: userDefaults,
+            store: stores.krillLegacyJWTStore,
+            config: &config,
+            state: &state,
+            log: log)
 
         var didPersistUpdates = true
         if state.didUpdate {
@@ -82,7 +97,74 @@ struct CodexBarConfigMigrator {
             userDefaults.set(true, forKey: Self.legacyMigrationCompletedKey)
         }
 
+        self.finishLegacyKrillJWTMigration(
+            krillMigrationPlan,
+            userDefaults: userDefaults,
+            store: stores.krillLegacyJWTStore,
+            log: log)
+
         return config.normalized()
+    }
+
+    private static func prepareLegacyKrillJWTMigration(
+        userDefaults: UserDefaults,
+        store: any KrillLegacyJWTStoring,
+        config: inout CodexBarConfig,
+        state: inout MigrationState,
+        log: CodexBarLogger) -> KrillLegacyJWTMigrationPlan
+    {
+        guard !userDefaults.bool(forKey: self.krillLegacyJWTMigrationCompletedKey) else {
+            return .none
+        }
+
+        let legacyJWT: String?
+        do {
+            legacyJWT = try store.loadJWT()?.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            log.debug("Krill legacy JWT migration deferred: \(error.localizedDescription)")
+            return .retryLater
+        }
+
+        guard let legacyJWT, !legacyJWT.isEmpty else {
+            return .markComplete
+        }
+        guard (try? KrillJWT.validated(legacyJWT)) != nil else {
+            // Legacy TokenBar deleted malformed or expired Krill JWTs when reading them.
+            // Preserve that behavior without ever prompting for Keychain access.
+            return .deleteAfterPersist
+        }
+
+        if config.providerConfig(for: .krill)?.sanitizedAPIKey == nil {
+            self.updateProvider(.krill, config: &config, state: &state) { entry in
+                self.setIfEmpty(&entry.apiKey, legacyJWT)
+            }
+        }
+        guard config.providerConfig(for: .krill)?.sanitizedAPIKey != nil else {
+            log.error("Krill legacy JWT migration could not bind the provider config")
+            return .retryLater
+        }
+        return .deleteAfterPersist
+    }
+
+    private static func finishLegacyKrillJWTMigration(
+        _ plan: KrillLegacyJWTMigrationPlan,
+        userDefaults: UserDefaults,
+        store: any KrillLegacyJWTStoring,
+        log: CodexBarLogger)
+    {
+        switch plan {
+        case .none, .retryLater:
+            return
+        case .markComplete:
+            userDefaults.set(true, forKey: self.krillLegacyJWTMigrationCompletedKey)
+        case .deleteAfterPersist:
+            do {
+                try store.deleteJWT()
+                userDefaults.set(true, forKey: self.krillLegacyJWTMigrationCompletedKey)
+            } catch {
+                log.debug("Krill legacy JWT cleanup deferred: \(error.localizedDescription)")
+            }
+        }
     }
 
     private static func applyLegacyOrderAndToggles(

@@ -51,6 +51,7 @@ enum ProviderImplementationManifest {
         { DeepSeekProviderImplementation() },
         { DeepInfraProviderImplementation() },
         { CodebuffProviderImplementation() },
+        { KrillProviderImplementation() },
         { CrofProviderImplementation() },
         { VeniceProviderImplementation() },
         { CommandCodeProviderImplementation() },

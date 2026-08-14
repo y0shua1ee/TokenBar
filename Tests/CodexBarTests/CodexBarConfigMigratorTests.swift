@@ -138,12 +138,134 @@ struct CodexBarConfigMigratorTests {
         #expect(defaults.bool(forKey: Self.legacyMigrationCompletedKey) == true)
     }
 
+    @Test
+    func `Krill JWT migration runs after the general legacy migration completed`() throws {
+        let suite = "CodexBarConfigMigratorTests-krill-independent-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+        defaults.set(true, forKey: Self.legacyMigrationCompletedKey)
+
+        let jwt = Self.krillJWT(expiration: 4_000_000_000)
+        let krillStore = CountingKrillLegacyJWTStore(token: jwt)
+        let migrated = CodexBarConfigMigrator.loadOrMigrate(
+            configStore: testConfigStore(suiteName: suite),
+            userDefaults: defaults,
+            stores: Self.legacyStores(
+                secrets: CountingLegacySecretStore(),
+                accountStore: CountingTokenAccountStore(),
+                krillStore: krillStore))
+
+        #expect(migrated.providerConfig(for: .krill)?.sanitizedAPIKey == jwt)
+        #expect(krillStore.loadCount == 1)
+        #expect(krillStore.deleteAttempts == 1)
+        #expect(try krillStore.loadJWT() == nil)
+        #expect(defaults.bool(forKey: Self.krillLegacyJWTMigrationCompletedKey))
+    }
+
+    @Test
+    func `Krill JWT stays in Keychain when config persistence fails`() throws {
+        let suite = "CodexBarConfigMigratorTests-krill-save-failure-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let base = FileManager.default.temporaryDirectory
+            .appendingPathComponent("codexbar-tests", isDirectory: true)
+            .appendingPathComponent(suite, isDirectory: true)
+        try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: base) }
+
+        let blockedDirectory = base.appendingPathComponent("blocked")
+        try Data("not a directory".utf8).write(to: blockedDirectory)
+        let configStore = CodexBarConfigStore(fileURL: blockedDirectory.appendingPathComponent("config.json"))
+        let jwt = Self.krillJWT(expiration: 4_000_000_000)
+        let krillStore = CountingKrillLegacyJWTStore(token: jwt)
+
+        _ = CodexBarConfigMigrator.loadOrMigrate(
+            configStore: configStore,
+            userDefaults: defaults,
+            stores: Self.legacyStores(
+                secrets: CountingLegacySecretStore(),
+                accountStore: CountingTokenAccountStore(),
+                krillStore: krillStore))
+
+        #expect(krillStore.deleteAttempts == 0)
+        #expect(try krillStore.loadJWT() == jwt)
+        #expect(defaults.bool(forKey: Self.krillLegacyJWTMigrationCompletedKey) == false)
+    }
+
+    @Test
+    func `Krill JWT migration retries when noninteractive Keychain access is unavailable`() throws {
+        let suite = "CodexBarConfigMigratorTests-krill-keychain-deferred-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let krillStore = CountingKrillLegacyJWTStore(
+            token: Self.krillJWT(expiration: 4_000_000_000),
+            loadError: KrillLegacyJWTStoreError.interactionNotAllowed)
+        _ = CodexBarConfigMigrator.loadOrMigrate(
+            configStore: testConfigStore(suiteName: suite),
+            userDefaults: defaults,
+            stores: Self.legacyStores(
+                secrets: CountingLegacySecretStore(),
+                accountStore: CountingTokenAccountStore(),
+                krillStore: krillStore))
+
+        #expect(krillStore.loadCount == 1)
+        #expect(krillStore.deleteAttempts == 0)
+        #expect(defaults.bool(forKey: Self.krillLegacyJWTMigrationCompletedKey) == false)
+    }
+
+    @Test
+    func `invalid legacy Krill JWTs are deleted instead of migrated`() throws {
+        let invalidTokens = [
+            "not-a-jwt",
+            Self.krillJWT(expiration: 1),
+        ]
+
+        for token in invalidTokens {
+            let suite = "CodexBarConfigMigratorTests-krill-invalid-\(UUID().uuidString)"
+            let defaults = try #require(UserDefaults(suiteName: suite))
+            defaults.removePersistentDomain(forName: suite)
+            defer { defaults.removePersistentDomain(forName: suite) }
+            let krillStore = CountingKrillLegacyJWTStore(token: token)
+
+            let migrated = CodexBarConfigMigrator.loadOrMigrate(
+                configStore: testConfigStore(suiteName: suite),
+                userDefaults: defaults,
+                stores: Self.legacyStores(
+                    secrets: CountingLegacySecretStore(),
+                    accountStore: CountingTokenAccountStore(),
+                    krillStore: krillStore))
+
+            #expect(migrated.providerConfig(for: .krill)?.sanitizedAPIKey == nil)
+            #expect(krillStore.deleteAttempts == 1)
+            #expect(defaults.bool(forKey: Self.krillLegacyJWTMigrationCompletedKey))
+        }
+    }
+
     private static let legacyMigrationCompletedKey = "tokenbar.legacySecretsMigrationCompleted"
     private static let compatibleMigrationCompletedKey = "codexbar.legacySecretsMigrationCompleted"
+    private static let krillLegacyJWTMigrationCompletedKey = "tokenbar.krillLegacyJWTMigrationCompleted"
+
+    private static func krillJWT(expiration: TimeInterval) -> String {
+        let header = Data(#"{"alg":"none"}"#.utf8).base64EncodedString()
+        let payload = Data(#"{"exp":\#(expiration)}"#.utf8).base64EncodedString()
+        let base64URL: (String) -> String = {
+            $0.replacingOccurrences(of: "+", with: "-")
+                .replacingOccurrences(of: "/", with: "_")
+                .replacingOccurrences(of: "=", with: "")
+        }
+        return "\(base64URL(header)).\(base64URL(payload)).signature"
+    }
 
     private static func legacyStores(
         secrets: CountingLegacySecretStore,
-        accountStore: CountingTokenAccountStore) -> CodexBarConfigMigrator.LegacyStores
+        accountStore: CountingTokenAccountStore,
+        krillStore: any KrillLegacyJWTStoring = CountingKrillLegacyJWTStore())
+        -> CodexBarConfigMigrator.LegacyStores
     {
         CodexBarConfigMigrator.LegacyStores(
             zaiTokenStore: secrets,
@@ -159,7 +281,8 @@ struct CodexBarConfigMigratorTests {
             augmentCookieStore: secrets,
             ampCookieStore: secrets,
             copilotTokenStore: secrets,
-            tokenAccountStore: accountStore)
+            tokenAccountStore: accountStore,
+            krillLegacyJWTStore: krillStore)
     }
 }
 
@@ -226,6 +349,36 @@ private final class CountingTokenAccountStore: ProviderTokenAccountStoring, @unc
 
     func ensureFileExists() throws -> URL {
         FileManager.default.temporaryDirectory.appendingPathComponent("codexbar-empty-accounts.json")
+    }
+}
+
+private final class CountingKrillLegacyJWTStore: KrillLegacyJWTStoring, @unchecked Sendable {
+    private let lock = NSLock()
+    private var token: String?
+    private let loadError: (any Error)?
+    private(set) var loadCount = 0
+    private(set) var deleteAttempts = 0
+
+    init(token: String? = nil, loadError: (any Error)? = nil) {
+        self.token = token
+        self.loadError = loadError
+    }
+
+    func loadJWT() throws -> String? {
+        try self.lock.withLock {
+            self.loadCount += 1
+            if let loadError {
+                throw loadError
+            }
+            return self.token
+        }
+    }
+
+    func deleteJWT() {
+        self.lock.withLock {
+            self.deleteAttempts += 1
+            self.token = nil
+        }
     }
 }
 

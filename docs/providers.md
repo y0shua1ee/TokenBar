@@ -8,7 +8,7 @@ read_when:
 
 # Providers
 
-TokenBar currently registers 69 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
+TokenBar currently registers 70 provider IDs. Some companies expose multiple surfaces, such as Codex vs OpenAI API or
 OpenCode vs OpenCode Go, because the auth source and quota shape differ.
 
 ## Fetch strategies (current)
@@ -22,7 +22,7 @@ headers, source selection, provider ordering, and token accounts are stored in `
 ## Usage & Spend settings
 
 Settings → Usage & Spend combines local 7- or 30-day estimated history only for enabled descriptors that advertise
-token-cost support: Codex, Claude, Vertex AI, OpenAI, Mistral, and AWS Bedrock. Providers without a cost-history
+token-cost support: Codex, Claude, Vertex AI, OpenAI, Mistral, Krill, and AWS Bedrock. Providers without a cost-history
 contract are omitted instead of appearing as empty subscriptions.
 
 Each native currency has its own total, subscription/model ranking, and daily chart. TokenBar never adds or ranks
@@ -78,6 +78,7 @@ scan fails, while provider/account configuration changes replace obsolete result
 | DeepInfra | API key from env or token accounts → billing checklist + monthly usage endpoints (`api`). |
 | Moonshot | API key from config/env → balance endpoint (`api`). |
 | Codebuff | API token from config/env or `codebuff login` credentials → usage API (`api`). |
+| Krill | JWT from an explicit ephemeral in-app login or `KRILL_JWT` → account and request-stat APIs (`api`). |
 | Crof | API key from config/env → credit balance + optional request quota API (`api`). |
 | Venice | API key from config/env → DIEM/USD balance API (`api`). |
 | Command Code | Web billing API via Command Code session cookies (`web`). |
@@ -468,6 +469,16 @@ provider-specific cookie validation, endpoints, login detection, and error trans
 - Override base URL with `CODEBUFF_API_URL`.
 - Status: none yet.
 - Details: `docs/codebuff.md`.
+
+## Krill
+- The user explicitly starts an ephemeral in-app login; background refresh never opens a WebView.
+- TokenBar accepts the JWT only from Krill's HTTPS main-frame origin, then stores it in provider config. `KRILL_JWT`
+  is also accepted for ambient CLI use.
+- Reads wallet/subscription quota, active subscription quota, aggregate request stats, and model stats from
+  `www.krill-ai.net`; request-cost history supports the configured 1–365 day window.
+- The legacy `com.tokenbar.krill-jwt` Keychain item is migrated non-interactively and deleted only after config save.
+- Status: none yet.
+- Details: `docs/krill.md`.
 
 ## Crof
 - API key from `~/.tokenbar/config.json`, `CROF_API_KEY`, or `CROFAI_API_KEY`.

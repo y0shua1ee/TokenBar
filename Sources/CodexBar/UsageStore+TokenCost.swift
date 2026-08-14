@@ -54,9 +54,10 @@ extension UsageStore {
 
         let fetcher = self.costUsageFetcher
         let timeoutSeconds = self.tokenFetchTimeout
-        // Provider-specific by design: the Codex ledger owns pricing refresh while Bedrock resolves AWS environment.
+        // Provider-specific by design: the Codex ledger owns pricing refresh while remote cost providers resolve
+        // their configured credentials into an isolated environment.
         let allowPricingRefresh = provider != .codex || !self.settings.codexLocalSessionCostLedgerEnabled
-        let environment = provider == .bedrock
+        let environment = provider == .bedrock || provider == .krill
             ? ProviderRegistry.makeEnvironment(
                 base: self.environmentBase,
                 provider: provider,
@@ -281,6 +282,16 @@ extension UsageStore {
     func tokenCostScope(for provider: UsageProvider) -> (codexHomePath: String?, signature: String) {
         if provider == .vertexai {
             return (nil, "vertexai:allow-claude-fallback=\(!self.isEnabled(.claude))")
+        }
+        if provider == .krill {
+            let environment = ProviderRegistry.makeEnvironment(
+                base: self.environmentBase,
+                provider: provider,
+                settings: self.settings,
+                tokenOverride: nil)
+            let fingerprint = KrillSettingsReader.jwt(environment: environment)
+                .map(KrillJWT.credentialFingerprint) ?? "missing"
+            return (nil, "krill:\(fingerprint)")
         }
         guard provider == .codex else {
             return (nil, provider.rawValue)
