@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.49.4 — 2026-08-14
+
+### Added
+- Krill: restore native usage, quota, model, and cost history with an explicit ephemeral in-app login; background and
+  CLI refreshes never open login UI.
+- OpenRouter: add account-wide Activity history through a separate Management key, with spend, requests, models, and
+  prompt, completion, and reasoning tokens across up to 30 completed UTC days without copying account totals onto
+  individual API-key cards.
+
+### Changed
+- Rebuild TokenBar on CodexBar 0.49.3, bringing provider plugins, SQLite cost history, Usage & Spend, the CLI web
+  dashboard, draggable menu layouts, Agent Sessions, and upstream security and performance improvements while keeping
+  TokenBar app, CLI, configuration, Keychain, and storage identities isolated.
+- DeepSeek now follows upstream 0.49.3 authentication and usage behavior; the old TokenBar embedded web-login session
+  path is no longer included.
+- The earlier TokenBar-only KimiK2 and Custom Provider integrations are not included in this rebuild.
+
 ## 0.49.3 — 2026-08-12
 
 ### Fixed
