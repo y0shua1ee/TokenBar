@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.49.5 — Unreleased
+## 0.49.5 — 2026-08-18
+
+### Changed
+- Release tooling now accepts source-neutral Sparkle command-line tools through `PATH` instead of depending on the
+  deprecated Homebrew Sparkle app package.
+
+### Fixed
+- Keep macOS provisioning-profile validation on macOS while allowing portable release checks to pass in Linux CI.
 
 ## 0.49.4 — 2026-08-14
 

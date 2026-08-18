@@ -127,27 +127,32 @@ codesign() {
 }
 
 verify_packaged_app_integrity "$APP"
-verify_tokenbar_provisioning_profile \
-  "$PROFILE" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar
 
-mkdir -p "$APP/Contents"
-cp "$PROFILE" "$APP/Contents/embedded.provisionprofile"
-verify_identity_signed_app \
-  "$APP" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar
+# Provisioning-profile parsing uses macOS's PlistBuddy. Keep the surrounding release checks portable, and exercise
+# these platform-specific assertions from lint-macos and local macOS lint runs.
+if [[ -x /usr/libexec/PlistBuddy ]]; then
+  verify_tokenbar_provisioning_profile \
+    "$PROFILE" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar
 
-if verify_tokenbar_provisioning_profile \
-  "$PROFILE" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar.wrong 2>/dev/null; then
-  echo "Profile with an unauthorized app group unexpectedly passed" >&2
-  exit 1
+  mkdir -p "$APP/Contents"
+  cp "$PROFILE" "$APP/Contents/embedded.provisionprofile"
+  verify_identity_signed_app \
+    "$APP" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar
+
+  if verify_tokenbar_provisioning_profile \
+    "$PROFILE" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar.wrong 2>/dev/null; then
+    echo "Profile with an unauthorized app group unexpectedly passed" >&2
+    exit 1
+  fi
+
+  export MOCK_CODESIGN_TEAM=WRONGTEAM1
+  if verify_identity_signed_app \
+    "$APP" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar 2>/dev/null; then
+    echo "Signature with a mismatched team unexpectedly passed" >&2
+    exit 1
+  fi
+  unset MOCK_CODESIGN_TEAM
 fi
-
-export MOCK_CODESIGN_TEAM=WRONGTEAM1
-if verify_identity_signed_app \
-  "$APP" TESTTEAM01 com.y0shua1ee.tokenbar TESTTEAM01.com.y0shua1ee.tokenbar 2>/dev/null; then
-  echo "Signature with a mismatched team unexpectedly passed" >&2
-  exit 1
-fi
-unset MOCK_CODESIGN_TEAM
 
 export MOCK_QUARANTINE=1
 if verify_packaged_app_integrity "$APP" 2>/dev/null; then
