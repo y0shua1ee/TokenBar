@@ -41,6 +41,7 @@ extension UsageMenuCardView.Model {
         let workDaysPerWeek: Int?
         let usesLiveSubtitle: Bool
         let preferredCurrencyCode: String
+        let rateLimitTimingIsStale: Bool
         let now: Date
 
         init(
@@ -82,6 +83,7 @@ extension UsageMenuCardView.Model {
             workDaysPerWeek: Int? = nil,
             usesLiveSubtitle: Bool = false,
             preferredCurrencyCode: String = "auto",
+            rateLimitTimingIsStale: Bool = false,
             now: Date)
         {
             self.provider = provider
@@ -122,6 +124,7 @@ extension UsageMenuCardView.Model {
             self.workDaysPerWeek = workDaysPerWeek
             self.usesLiveSubtitle = usesLiveSubtitle
             self.preferredCurrencyCode = preferredCurrencyCode
+            self.rateLimitTimingIsStale = rateLimitTimingIsStale
             self.now = now
         }
     }

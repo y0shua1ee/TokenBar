@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.49.6 — Unreleased
+## 0.49.6 — 2026-08-29
+
+### Fixed
+- Codex: recover overdue usage snapshots when the menu opens, hide stale reset and pace projections until refresh,
+  and show a full date for old update timestamps.
 
 ## 0.49.5 — 2026-08-18
 

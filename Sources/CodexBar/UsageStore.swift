@@ -428,6 +428,9 @@ final class UsageStore {
     /// Energy/WidgetKit floor for expensive local-history scans and their additional snapshot publications.
     /// Faster provider refreshes still update quota/status normally, but reuse token-cost history within this TTL.
     static let minimumTokenFetchTTL: TimeInterval = 15 * 60
+    /// Opening a menu is a recovery path when the periodic refresh clock has stopped making progress.
+    /// Allow two normal ticks to pass, with a 15-minute floor, before treating a cached usage snapshot as overdue.
+    static let minimumMenuOpenSnapshotMaximumAge: TimeInterval = 15 * 60
 
     var tokenFetchTTL: TimeInterval? {
         Self.tokenFetchTTL(
@@ -653,6 +656,21 @@ final class UsageStore {
 
     func needsUsageRefreshRetry(for provider: UsageProvider) -> Bool {
         self.isStale(provider: provider) || !self.hasSatisfiedUsageFetch(for: provider)
+    }
+
+    func needsUsageRefreshOnMenuOpen(for provider: UsageProvider, now: Date = Date()) -> Bool {
+        self.needsUsageRefreshRetry(for: provider) ||
+            self.isUsageSnapshotOverdue(for: provider, now: now)
+    }
+
+    func isUsageSnapshotOverdue(for provider: UsageProvider, now: Date = Date()) -> Bool {
+        guard let snapshot = self.snapshot(for: provider.instanceID),
+              let normalRefreshInterval = self.normalRefreshIntervalForHeuristics()
+        else {
+            return false
+        }
+        let maximumAge = max(Self.minimumMenuOpenSnapshotMaximumAge, normalRefreshInterval * 2)
+        return now.timeIntervalSince(snapshot.updatedAt) > maximumAge
     }
 
     func isEnabled(_ provider: UsageProvider) -> Bool {

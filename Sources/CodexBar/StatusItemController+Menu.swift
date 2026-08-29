@@ -1142,8 +1142,9 @@ extension StatusItemController {
     }
 
     private func scheduleOpenMenuRefresh(for menu: NSMenu) {
-        // Queue refresh work only when visible menu data is missing or stale. Here "stale" means the last
-        // provider fetch failed and needs a retry; periodic freshness is handled by the refresh timer.
+        // Queue refresh work only when visible menu data is missing, failed, or older than two normal refresh
+        // intervals. The age check repairs a periodic refresh clock that stopped making progress while the app
+        // remained alive, without turning every menu open into a provider request.
         // AppKit menu tracking is modal, so starting provider refreshes while it is active can make the menu
         // feel frozen and can block keyboard focus from returning.
         // Exception: when `refreshAllProvidersOnMenuOpen` is enabled, every enabled provider is refreshed on
@@ -1152,7 +1153,7 @@ extension StatusItemController {
         // part of that primitive, so the plan also schedules a forced cost rescan (fire-and-forget; the
         // open menu picks up the published snapshot through the store observation).
         let providersNeedingRetryAtOpen = self.delayedRefreshRetryProviders(for: menu).filter {
-            self.store.needsUsageRefreshRetry(for: $0)
+            self.store.needsUsageRefreshOnMenuOpen(for: $0)
         }
         if !providersNeedingRetryAtOpen.isEmpty {
             self.deferMenuInteractionRefreshIfNeeded(providers: providersNeedingRetryAtOpen)
@@ -1177,7 +1178,9 @@ extension StatusItemController {
                 enabledProviders: enabledProviders,
                 visibleProviders: visibleInstanceIDs,
                 refreshingProviders: self.store.refreshingProviders,
-                staleProviders: Set(visibleProviders.filter { self.store.isStale(provider: $0) }.map(\.instanceID)),
+                staleProviders: Set(visibleProviders
+                    .filter { self.store.needsUsageRefreshOnMenuOpen(for: $0) }
+                    .map(\.instanceID)),
                 missingProviders: Set(visibleProviders
                     .filter { !self.store.hasSatisfiedUsageFetch(for: $0) }
                     .map(\.instanceID))))
@@ -1223,7 +1226,7 @@ extension StatusItemController {
                 }
             }
             let stillNeedsRetry = retryProviders.contains {
-                self.store.needsUsageRefreshRetry(for: $0)
+                self.store.needsUsageRefreshOnMenuOpen(for: $0)
             }
             if !stillNeedsRetry {
                 self.clearSatisfiedDeferredMenuInteractionRefreshes(for: retryInstanceIDs)
@@ -1241,7 +1244,7 @@ extension StatusItemController {
         let providersToCheck = self.delayedRefreshRetryProviders(for: menu)
         guard !providersToCheck.isEmpty else { return false }
         return providersToCheck.contains { provider in
-            self.store.needsUsageRefreshRetry(for: provider)
+            self.store.needsUsageRefreshOnMenuOpen(for: provider)
         }
     }
 

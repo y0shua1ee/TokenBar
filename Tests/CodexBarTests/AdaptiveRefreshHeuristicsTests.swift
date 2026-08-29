@@ -33,6 +33,35 @@ struct AdaptiveRefreshHeuristicsTests {
     }
 
     @Test
+    func `menu open recovery marks snapshots overdue after two ticks with a fifteen minute floor`() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let store = Self.makeStore(suite: "heuristics-menu-open-overdue", frequency: .fiveMinutes)
+        store._setSnapshotForTesting(
+            UsageSnapshot(primary: nil, secondary: nil, updatedAt: now.addingTimeInterval(-(15 * 60 + 1))),
+            provider: .codex)
+
+        #expect(store.isUsageSnapshotOverdue(for: .codex, now: now))
+        #expect(store.needsUsageRefreshOnMenuOpen(for: .codex, now: now))
+
+        store._setSnapshotForTesting(
+            UsageSnapshot(primary: nil, secondary: nil, updatedAt: now.addingTimeInterval(-(15 * 60))),
+            provider: .codex)
+        #expect(!store.isUsageSnapshotOverdue(for: .codex, now: now))
+    }
+
+    @Test
+    func `manual refresh mode never treats a snapshot as overdue by age`() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let store = Self.makeStore(suite: "heuristics-menu-open-manual", frequency: .manual)
+        store._setSnapshotForTesting(
+            UsageSnapshot(primary: nil, secondary: nil, updatedAt: now.addingTimeInterval(-86400)),
+            provider: .codex)
+
+        #expect(!store.isUsageSnapshotOverdue(for: .codex, now: now))
+        #expect(!store.needsUsageRefreshOnMenuOpen(for: .codex, now: now))
+    }
+
+    @Test
     func `global low power mode clamps fixed and interactive adaptive heuristics`() {
         let fixedStore = Self.makeStore(suite: "heuristics-low-power-fixed", frequency: .oneMinute)
         fixedStore.settings.backgroundWorkLowPowerModeEnabled = true

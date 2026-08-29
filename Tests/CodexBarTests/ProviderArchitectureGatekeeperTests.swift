@@ -1275,19 +1275,19 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "Claude widget quota ownership uses the selected Claude account's isolated snapshot key."),
         SuppressedProviderReference(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1046,
+            line: 1064,
             anchor: "provider: .deepseek,",
             expectedProviderIDs: ["deepseek"],
             reason: "This provider-specific app branch passes its already-selected identity to a shared helper."),
         SuppressedProviderReference(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1148,
+            line: 1166,
             anchor: "let sourceMode = self.sourceMode(for: .claude)",
             expectedProviderIDs: ["claude"],
             reason: "This provider-specific app branch passes its already-selected identity to a shared helper."),
         SuppressedProviderReference(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1152,
+            line: 1170,
             anchor: "provider: .claude,",
             expectedProviderIDs: ["claude"],
             reason: "This provider-specific app branch passes its already-selected identity to a shared helper."),
@@ -1859,12 +1859,12 @@ struct ProviderArchitectureGatekeeperTests {
             line: 834,
             anchor: "if input.provider == .codex, !input.showOptionalCreditsAndExtraUsage {",
             expectedProviderIDs: ["claude", "codex", "copilot"],
-            expectedReferenceCount: 4,
-            expectedReferenceFingerprint: ["codex@0", "copilot@3", "codex@6", "claude@11"],
+            expectedReferenceCount: 5,
+            expectedReferenceFingerprint: ["codex@0", "copilot@3", "codex@6", "claude@11", "codex@17"],
             reason: "This exact shared renderer maps provider-owned presentation data into the generic UI model."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/MenuCardView+ModelHelpers.swift",
-            line: 859,
+            line: 864,
             anchor: "let resetText = input.provider == .sub2api && namedWindow.window.resetsAt == nil",
             expectedProviderIDs: ["doubao", "sub2api"],
             expectedReferenceCount: 3,
@@ -1872,7 +1872,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact shared renderer maps provider-owned presentation data into the generic UI model."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/MenuCardView+ModelHelpers.swift",
-            line: 930,
+            line: 935,
             anchor: "if input.provider == .antigravity,",
             expectedProviderIDs: ["antigravity"],
             expectedReferenceCount: 1,
@@ -1880,7 +1880,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact shared renderer maps provider-owned presentation data into the generic UI model."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/MenuCardView+ModelHelpers.swift",
-            line: 964,
+            line: 969,
             anchor: "if provider == .claude, window.windowMinutes != 10080 {",
             expectedProviderIDs: ["antigravity", "claude", "codex"],
             expectedReferenceCount: 4,
@@ -1888,7 +1888,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact shared renderer maps provider-owned presentation data into the generic UI model."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/MenuCardView+ModelHelpers.swift",
-            line: 996,
+            line: 1001,
             anchor: "guard input.provider == .antigravity else { return nil }",
             expectedProviderIDs: ["antigravity"],
             expectedReferenceCount: 1,
@@ -2554,6 +2554,14 @@ struct ProviderArchitectureGatekeeperTests {
             expectedReferenceCount: 1,
             expectedReferenceFingerprint: ["mistral@0"],
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
+        AllowedProviderConstruct(
+            path: "Sources/CodexBar/StatusItemController+MenuCardModel.swift",
+            line: 161,
+            anchor: "rateLimitTimingIsStale: target == .codex && surface == .liveCard &&",
+            expectedProviderIDs: ["codex"],
+            expectedReferenceCount: 1,
+            expectedReferenceFingerprint: ["codex@0"],
+            reason: "Codex live cards suppress overdue reset-derived timing until the usage snapshot refreshes."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/StatusItemController.swift",
             line: 365,
@@ -3222,7 +3230,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 586,
+            line: 589,
             anchor: "self.metadata(for: .codex).browserCookieOrder ?? Browser.defaultImportOrder",
             expectedProviderIDs: ["codex"],
             expectedReferenceCount: 1,
@@ -3230,7 +3238,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 638,
+            line: 641,
             anchor: "self.providerSpecs[provider]?.style ?? .codex",
             expectedProviderIDs: ["codex"],
             expectedReferenceCount: 1,
@@ -3238,7 +3246,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 671,
+            line: 689,
             anchor: "guard provider != .codex else { return true }",
             expectedProviderIDs: ["codex"],
             expectedReferenceCount: 1,
@@ -3246,7 +3254,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1020,
+            line: 1038,
             anchor: "let claudeDebugConfiguration: ClaudeDebugLogConfiguration? = if provider == .claude {",
             expectedProviderIDs: ["claude"],
             expectedReferenceCount: 1,
@@ -3254,7 +3262,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1043,
+            line: 1061,
             anchor: "let deepSeekHasTokenAccount = self.settings.selectedTokenAccount(for: .deepseek) != nil",
             expectedProviderIDs: ["deepseek"],
             expectedReferenceCount: 1,
@@ -3262,7 +3270,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1100,
+            line: 1118,
             anchor: "case .amp:",
             expectedProviderIDs: ["amp", "deepseek", "notion", "ollama", "warp"],
             expectedReferenceCount: 7,
@@ -3278,7 +3286,7 @@ struct ProviderArchitectureGatekeeperTests {
             reason: "This exact app-runtime bridge coordinates provider-owned state through the shared controller."),
         AllowedProviderConstruct(
             path: "Sources/CodexBar/UsageStore.swift",
-            line: 1155,
+            line: 1173,
             anchor: "let claudeSettings = snapshot.claude ?? ProviderSettingsSnapshot.ClaudeProviderSettings(",
             expectedProviderIDs: ["claude"],
             expectedReferenceCount: 1,

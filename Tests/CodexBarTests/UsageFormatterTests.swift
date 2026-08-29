@@ -206,6 +206,7 @@ struct UsageFormatterTests {
         let text = UsageFormatter.updatedString(from: dayAgo, now: now)
         #expect(text.contains("Updated"))
         #expect(!text.contains("ago"))
+        #expect(text.contains(String(Calendar.current.component(.year, from: dayAgo))))
     }
 
     @Test

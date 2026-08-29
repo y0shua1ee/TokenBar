@@ -199,7 +199,14 @@ public enum UsageFormatter {
         } else {
             return self.localized(
                 "Updated absolute %@",
-                date.formatted(.dateTime.hour().minute().locale(self.currentLocale())))
+                date.formatted(
+                    .dateTime
+                        .year()
+                        .month(.abbreviated)
+                        .day()
+                        .hour()
+                        .minute()
+                        .locale(self.currentLocale())))
         }
     }
 

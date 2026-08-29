@@ -158,6 +158,8 @@ extension StatusItemController {
             workDaysPerWeek: self.settings.weeklyProgressWorkDays,
             usesLiveSubtitle: surface == .liveCard,
             preferredCurrencyCode: self.settings.preferredCurrencyCode,
+            rateLimitTimingIsStale: target == .codex && surface == .liveCard &&
+                self.store.isUsageSnapshotOverdue(for: target, now: now),
             now: now)
         return UsageMenuCardView.Model.make(input)
     }

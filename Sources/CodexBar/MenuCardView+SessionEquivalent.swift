@@ -29,27 +29,36 @@ extension UsageMenuCardView.Model {
                 weeklyLabel: input.metadata.weeklyLabel)
             let id: String
             let paceDetail: PaceDetail?
-            switch lane {
-            case .session:
-                id = "primary"
-                // UsagePaceText.sessionPace suppresses weekly/monthly durations centrally;
-                // unknown durations in the session lane keep their existing pace.
-                paceDetail = Self.sessionPaceDetail(
-                    provider: input.provider,
-                    window: window,
-                    now: input.now,
-                    showUsed: input.usageBarsShowUsed)
-            case .weekly:
-                id = "secondary"
-                paceDetail = Self.weeklyPaceDetail(
-                    provider: input.provider,
-                    window: window,
-                    now: input.now,
-                    pace: Self.standardWeeklyPace(input: input, window: window),
-                    showUsed: input.usageBarsShowUsed)
-            case .monthly:
-                id = "monthly"
+            if input.rateLimitTimingIsStale {
                 paceDetail = nil
+                id = switch lane {
+                case .session: "primary"
+                case .weekly: "secondary"
+                case .monthly: "monthly"
+                }
+            } else {
+                switch lane {
+                case .session:
+                    id = "primary"
+                    // UsagePaceText.sessionPace suppresses weekly/monthly durations centrally;
+                    // unknown durations in the session lane keep their existing pace.
+                    paceDetail = Self.sessionPaceDetail(
+                        provider: input.provider,
+                        window: window,
+                        now: input.now,
+                        showUsed: input.usageBarsShowUsed)
+                case .weekly:
+                    id = "secondary"
+                    paceDetail = Self.weeklyPaceDetail(
+                        provider: input.provider,
+                        window: window,
+                        now: input.now,
+                        pace: Self.standardWeeklyPace(input: input, window: window),
+                        showUsed: input.usageBarsShowUsed)
+                case .monthly:
+                    id = "monthly"
+                    paceDetail = nil
+                }
             }
 
             return Metric(
@@ -57,7 +66,9 @@ extension UsageMenuCardView.Model {
                 title: title,
                 percent: Self.clamped(input.usageBarsShowUsed ? window.usedPercent : window.remainingPercent),
                 percentStyle: percentStyle,
-                resetText: Self.resetText(for: window, style: input.resetTimeDisplayStyle, now: input.now),
+                resetText: input.rateLimitTimingIsStale
+                    ? nil
+                    : Self.resetText(for: window, style: input.resetTimeDisplayStyle, now: input.now),
                 detailText: nil,
                 detailLeftText: paceDetail?.leftLabel,
                 detailRightText: paceDetail?.rightLabel,
@@ -71,7 +82,7 @@ extension UsageMenuCardView.Model {
                         workDays: input.workDaysPerWeek,
                         windowMinutes: window.windowMinutes)
                     : [],
-                sessionEquivalentDetail: lane == .weekly
+                sessionEquivalentDetail: lane == .weekly && !input.rateLimitTimingIsStale
                     ? Self.sessionEquivalentDetail(input: input, weeklyWindow: window, weeklyWindowID: nil)
                     : nil)
         }

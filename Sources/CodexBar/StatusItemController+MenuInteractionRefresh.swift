@@ -90,7 +90,7 @@ extension StatusItemController {
     func clearSatisfiedDeferredMenuInteractionRefreshes(for providers: [ProviderInstanceID]) {
         for instanceID in providers {
             guard let provider = instanceID.firstPartyProvider,
-                  !self.store.needsUsageRefreshRetry(for: provider)
+                  !self.store.needsUsageRefreshOnMenuOpen(for: provider)
             else { continue }
             self.deferredMenuInteractionRefreshProviders.remove(instanceID)
         }

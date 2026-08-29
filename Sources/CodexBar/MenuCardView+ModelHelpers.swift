@@ -848,14 +848,19 @@ extension UsageMenuCardView.Model {
             visibleRateWindows.removeAll(where: Self.isClaudeDailyRoutinesRateWindow)
         }
         return visibleRateWindows.map { namedWindow in
-            let paceDetail = Self.extraRateWindowPaceDetail(
-                provider: input.provider,
-                window: namedWindow.window,
-                input: input)
+            let timingIsStale = input.provider == .codex && input.rateLimitTimingIsStale
+            let paceDetail = timingIsStale
+                ? nil
+                : Self.extraRateWindowPaceDetail(
+                    provider: input.provider,
+                    window: namedWindow.window,
+                    input: input)
             let usageKnown = namedWindow.usageKnown
-            let resolvedResetText = Self.extraRateWindowResetText(
-                namedWindow: namedWindow,
-                input: input)
+            let resolvedResetText = timingIsStale
+                ? nil
+                : Self.extraRateWindowResetText(
+                    namedWindow: namedWindow,
+                    input: input)
             let resetText = input.provider == .sub2api && namedWindow.window.resetsAt == nil
                 ? nil
                 : resolvedResetText
@@ -889,7 +894,7 @@ extension UsageMenuCardView.Model {
                 detailRightText: usageKnown ? paceDetail?.rightLabel : nil,
                 pacePercent: usageKnown ? paceDetail?.pacePercent : nil,
                 paceOnTop: paceDetail?.paceOnTop ?? true,
-                sessionEquivalentDetail: usageKnown
+                sessionEquivalentDetail: usageKnown && !timingIsStale
                     ? Self.sessionEquivalentDetail(
                         input: input,
                         weeklyWindow: namedWindow.window,
